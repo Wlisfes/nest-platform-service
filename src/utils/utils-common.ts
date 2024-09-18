@@ -6,6 +6,7 @@ import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
 import * as timezone from 'dayjs/plugin/timezone'
 import * as axios from 'axios'
+import * as web from '@/config/web-instance'
 import * as env from '@/interface/instance.resolver'
 dayjs.extend(timezone)
 dayjs.extend(utc)
@@ -89,6 +90,27 @@ export function divineCaseWherer<T>(where: boolean, scope: env.Omix<{ value: T; 
 /**参数组合**/
 export async function divineParameter<T>(params: env.Omix<T>): Promise<env.Omix<T>> {
     return params
+}
+
+/**日志聚合**/
+export function divineLogger(headers: env.Omix<env.Headers> = {}, log: env.Omix | string = {}) {
+    const duration = headers[web.WEB_COMMON_HEADER_STARTTIME]
+    return {
+        log,
+        duration: divineCaseWherer(isNotEmpty(duration), { value: `${Date.now() - Number(duration)}ms`, defaultValue: null }),
+        [web.WEB_COMMON_HEADER_CONTEXTID]: headers[web.WEB_COMMON_HEADER_CONTEXTID]
+    }
+}
+
+/**提取日志参数**/
+export function divineBstract(headers: env.Omix<env.Headers> = {}) {
+    return {
+        logId: headers[web.WEB_COMMON_HEADER_CONTEXTID],
+        ua: headers['user-agent'] ?? null,
+        ip: headers.ip ?? null,
+        browser: headers.browser ?? null,
+        platform: headers.platform ?? null
+    }
 }
 
 /**自定义Error信息**/
