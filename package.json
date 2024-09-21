@@ -8,9 +8,9 @@
     "scripts": {
         "install": "yarn install --ignore-scripts",
         "dev": "nest start --watch",
-        "dev:web-auth-service": "nest start --watch web-auth-service",
-        "build:web-auth-service": "nest build web-auth-service",
-        "start:web-auth-service": "node dist/apps/web-auth-service/main"
+        "dev:web-account-service": "nest start --watch web-account-service",
+        "build:web-account-service": "nest build web-account-service",
+        "start:web-account-service": "node dist/apps/web-account-service/main"
     },
     "dependencies": {
         "@faker-js/faker": "^8.4.1",

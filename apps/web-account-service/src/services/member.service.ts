@@ -3,7 +3,7 @@ import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { OmixHeaders } from '@/interface/instance.resolver'
 import { divineResolver, divineIntNumber, divineBstract, divineHandler } from '@/utils/utils-common'
-import * as env from '@web-auth-service/interface/instance.resolver'
+import * as env from '@web-account-service/interface/instance.resolver'
 
 @Injectable()
 export class MemberService extends LoggerService {

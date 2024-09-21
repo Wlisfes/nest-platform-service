@@ -11,13 +11,13 @@ import { LoggerModule } from '@/modules/logger.module'
 import { ThrottlerModule } from '@/modules/throttler.module'
 import { DatabaseModule } from '@/modules/database.module'
 //services
-import { MemberService } from '@web-auth-service/services/member.service'
+import { MemberService } from '@web-account-service/services/member.service'
 //controllers
-import { UserController } from '@web-auth-service/controllers/user.controller'
-import { MemberController } from '@web-auth-service/controllers/member.controller'
+import { UserController } from '@web-account-service/controllers/user.controller'
+import { MemberController } from '@web-account-service/controllers/member.controller'
 
 @Module({
-    imports: [LoggerModule.forRoot({ name: 'web-auth-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
+    imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
     controllers: [UserController, MemberController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },

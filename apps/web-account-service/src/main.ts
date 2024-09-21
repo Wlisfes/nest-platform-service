@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { NestExpressApplication } from '@nestjs/platform-express'
-import { WebAuthModule } from '@web-auth-service/web-auth.module'
-import { useSwagger } from '@/swagger/web-auth-service'
+import { WebAuthModule } from '@web-account-service/web-auth.module'
+import { useSwagger } from '@/swagger/web-account-service'
 import * as web from '@/config/web-instance'
 import * as express from 'express'
 import * as cookieParser from 'cookie-parser'
@@ -25,11 +25,11 @@ async function bootstrap() {
     //挂载文档
     await useSwagger(app)
     //监听端口服务
-    await app.listen(web.WebAuthService.port).then(() => {
+    await app.listen(web.WebAccountService.port).then(() => {
         console.log(
-            `[${web.WebAuthService.namespace}]-${web.WebAuthService.title}启动:`,
-            `http://localhost:${web.WebAuthService.port}`,
-            `http://localhost:${web.WebAuthService.port}/${web.WebAuthService.document}`
+            `[${web.WebAccountService.namespace}]-${web.WebAccountService.title}启动:`,
+            `http://localhost:${web.WebAccountService.port}`,
+            `http://localhost:${web.WebAccountService.port}/${web.WebAccountService.document}`
         )
     })
 }

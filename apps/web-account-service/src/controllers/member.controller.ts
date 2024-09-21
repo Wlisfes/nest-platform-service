@@ -2,8 +2,8 @@ import { Controller, Get, Post, Body, Query, Headers, Request } from '@nestjs/co
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/compute.decorator'
 import { OmixNotice, OmixHeaders } from '@/interface/instance.resolver'
-import { MemberService } from '@web-auth-service/services/member.service'
-import * as env from '@web-auth-service/interface/instance.resolver'
+import { MemberService } from '@web-account-service/services/member.service'
+import * as env from '@web-account-service/interface/instance.resolver'
 
 @ApiTags('员工模块')
 @Controller('member')

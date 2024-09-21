@@ -1,5 +1,5 @@
-export const WebAuthService = {
-    namespace: 'web-auth-service',
+export const WebAccountService = {
+    namespace: 'web-account-service',
     title: '基础授权服务',
     siteTitle: '基础授权服务API文档',
     description: 'Basic authorization API Documentation',
