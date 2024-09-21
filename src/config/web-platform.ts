@@ -5,6 +5,5 @@ export const WebAuthService = {
     description: 'Basic authorization API Documentation',
     version: '1.0.0',
     document: 'api-doc',
-    prefix: '/api/web-auth',
     port: 4080
 }
