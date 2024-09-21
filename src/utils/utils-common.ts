@@ -2,12 +2,12 @@ import { Request } from 'express'
 import { snowflakeId } from 'snowflake-id-maker'
 import { zh_CN, Faker } from '@faker-js/faker'
 import { isNotEmpty } from 'class-validator'
+import { Omix, OmixHeaders, OmixError } from '@/interface/instance.resolver'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
 import * as timezone from 'dayjs/plugin/timezone'
 import * as axios from 'axios'
 import * as web from '@/config/web-instance'
-import * as env from '@/interface/instance.resolver'
 dayjs.extend(timezone)
 dayjs.extend(utc)
 
@@ -23,7 +23,7 @@ export const faker = new Faker({
 })
 
 /**生成纯数字的雪花ID、随机字符串**/
-export async function divineIntNumber(scope: Partial<env.Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
+export async function divineIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
     if (scope.random) {
         return Array.from({ length: scope.bit ?? 6 }, x => Math.floor(Math.random() * 9) + 1).join('')
     }
@@ -34,15 +34,16 @@ export async function divineIntNumber(scope: Partial<env.Omix<{ worker: number; 
 }
 
 /**返回包装**/
-export async function divineResolver<
-    T = Partial<env.Omix<{ message: string; list: Array<env.Omix>; total: number; page: number; size: number }>>
->(data: T, handler?: Function) {
+export async function divineResolver<T = Partial<Omix<{ message: string; list: Array<Omix>; total: number; page: number; size: number }>>>(
+    data: T,
+    handler?: Function
+) {
     await divineHandler(Boolean(handler), { handler })
     return data
 }
 
 /**条件链式执行函数**/
-export async function divineHandler<T>(where: boolean | Function, scope: env.Omix<{ handler: Function; failure?: Function }>): Promise<T> {
+export async function divineHandler<T>(where: boolean | Function, scope: Omix<{ handler: Function; failure?: Function }>): Promise<T> {
     if (typeof where === 'function') {
         where = await where()
     }
@@ -54,7 +55,7 @@ export async function divineHandler<T>(where: boolean | Function, scope: env.Omi
 }
 
 /**批量执行异步方法**/
-export async function divineBatchHandler(handlers: Array<any>, scope: env.Omix<{ handler?: Function; failure?: Function }> = {}) {
+export async function divineBatchHandler(handlers: Array<any>, scope: Omix<{ handler?: Function; failure?: Function }> = {}) {
     try {
         return await Promise.all(handlers).then(async response => {
             return await divineHandler(Boolean(scope.handler), {
@@ -80,7 +81,7 @@ export function divineDelay(delay = 100, handler?: Function) {
 }
 
 /**条件值返回**/
-export function divineCaseWherer<T>(where: boolean, scope: env.Omix<{ value: T; fallback?: T; defaultValue?: T }>): T {
+export function divineCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallback?: T; defaultValue?: T }>): T {
     if (where) {
         return scope.value ?? scope.defaultValue
     }
@@ -88,12 +89,12 @@ export function divineCaseWherer<T>(where: boolean, scope: env.Omix<{ value: T; 
 }
 
 /**参数组合**/
-export async function divineParameter<T>(params: env.Omix<T>): Promise<env.Omix<T>> {
+export async function divineParameter<T>(params: Omix<T>): Promise<Omix<T>> {
     return params
 }
 
 /**日志聚合**/
-export function divineLogger(headers: env.Omix<env.Headers> = {}, log: env.Omix | string = {}) {
+export function divineLogger(headers: OmixHeaders = {}, log: Omix | string = {}) {
     const duration = headers[web.WEB_COMMON_HEADER_STARTTIME]
     return {
         log,
@@ -103,7 +104,7 @@ export function divineLogger(headers: env.Omix<env.Headers> = {}, log: env.Omix 
 }
 
 /**提取日志参数**/
-export function divineBstract(headers: env.Omix<env.Headers> = {}) {
+export function divineBstract(headers: OmixHeaders = {}) {
     return {
         logId: headers[web.WEB_COMMON_HEADER_CONTEXTID],
         ua: headers['user-agent'] ?? null,
@@ -114,8 +115,8 @@ export function divineBstract(headers: env.Omix<env.Headers> = {}) {
 }
 
 /**自定义Error信息**/
-export function divineCustomizeError<T = { message: string; status: number }>(scope: env.Omix<T>): env.Omix<env.CustomizeError<T>> {
-    const err = new Error(scope.message) as env.CustomizeError<T>
+export function divineOmixError<T = { message: string; status: number }>(scope: Omix<T>): OmixError<T> {
+    const err = new Error(scope.message) as OmixError<T>
     err.data = scope
     return err
 }
@@ -142,7 +143,7 @@ export async function divineMaskCharacter(type: 'email', str: string) {
 }
 
 /**文件名称、类型挂载**/
-export function divineFileRequest(request: Request, file: env.Omix, cb: Function) {
+export function divineFileRequest(request: Request, file: Omix, cb: Function) {
     file.body = request.body
     file.name = Buffer.from(file.originalname, 'binary').toString('utf-8')
     return cb(null, true)
