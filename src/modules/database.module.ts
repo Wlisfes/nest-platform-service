@@ -1,8 +1,7 @@
 import { Module, Global } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
-import * as entities from '@/entities/instance'
-export const forEntities = [entities.UserEntier]
+import { forEntities } from '@/entities/instance'
 
 @Global()
 @Module({

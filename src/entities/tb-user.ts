@@ -1,12 +1,11 @@
 import { Entity, Column, Index } from 'typeorm'
 import { hashSync } from 'bcryptjs'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, Length, IsEmail, IsNumber, IsEnum, Min, Max } from 'class-validator'
-import { Type } from 'class-transformer'
+import { IsNotEmpty, Length, IsEmail } from 'class-validator'
 import { CommonEntier } from '@/utils/utils-typeorm'
 
-@Entity({ name: 'user', comment: '用户表' })
-export class UserEntier extends CommonEntier {
+@Entity({ name: 'tb_user', comment: '用户表' })
+export class tbUser extends CommonEntier {
     @ApiProperty({ description: 'UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: 'UID必填' })
     @Column({ comment: '唯一UUID', length: 32, nullable: false })
@@ -34,10 +33,10 @@ export class UserEntier extends CommonEntier {
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })
     @IsNotEmpty({ message: '密码必填' })
-    @Length(6, 32, { message: '密码必须保持6~32位' })
+    @Length(6, 64, { message: '密码必须保持6~64位' })
     @Column({
         comment: '密码',
-        length: 128,
+        length: 255,
         select: false,
         nullable: false,
         transformer: { from: value => value, to: value => hashSync(value) }
