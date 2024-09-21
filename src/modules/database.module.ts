@@ -1,6 +1,7 @@
 import { Module, Global } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
+import { DatabaseService } from '@/services/database.service'
 import { forEntities } from '@/entities/instance'
 
 @Global()
@@ -24,7 +25,7 @@ import { forEntities } from '@/entities/instance'
         }),
         TypeOrmModule.forFeature(forEntities)
     ],
-    providers: [],
-    exports: []
+    providers: [DatabaseService],
+    exports: [DatabaseService]
 })
 export class DatabaseModule {}

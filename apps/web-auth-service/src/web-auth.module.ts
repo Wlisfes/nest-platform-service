@@ -9,10 +9,13 @@ import { ConfigerModule } from '@/modules/configer.module'
 import { LoggerModule } from '@/modules/logger.module'
 import { ThrottlerModule } from '@/modules/throttler.module'
 import { DatabaseModule } from '@/modules/database.module'
+/**controllers**/
+import { UserController } from '@web-auth-service/controllers/user.controller'
+import { MemberController } from '@web-auth-service/controllers/member.controller'
 
 @Module({
     imports: [LoggerModule.forRoot({ name: 'web-auth-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
-    controllers: [],
+    controllers: [UserController, MemberController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
