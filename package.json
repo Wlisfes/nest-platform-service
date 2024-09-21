@@ -6,6 +6,7 @@
     "private": true,
     "license": "UNLICENSED",
     "scripts": {
+        "install": "yarn install --ignore-scripts",
         "dev": "nest start --watch",
         "dev:web-auth-service": "nest start --watch web-auth-service",
         "build:web-auth-service": "nest build web-auth-service",
