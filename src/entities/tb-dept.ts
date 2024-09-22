@@ -11,7 +11,7 @@ export class tbDept extends CommonEntier {
     @Column({ comment: '部门ID', length: 32, nullable: false })
     deptId: string
 
-    @ApiProperty({ description: '部门名称', example: '858619496' })
+    @ApiProperty({ description: '部门名称', example: '产研中心' })
     @IsNotEmpty({ message: '部门名称必填' })
     @Column({ comment: '部门名称', length: 32, nullable: false })
     deptName: string

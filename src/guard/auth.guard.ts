@@ -10,6 +10,15 @@ export interface IGuardOption {
     baseURL?: boolean
 }
 
+export interface AuthGuardOption {
+    /**验证类型**/
+    source: 'client' | 'manager'
+    /**开启验证**/
+    check: boolean
+    /**验证异常是否继续执行**/
+    next?: boolean
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
     // constructor(private readonly reflector: Reflector, private readonly custom: CustomService) {}
@@ -25,7 +34,7 @@ export class AuthGuard implements CanActivate {
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest()
-        const scope = this.reflector.get<IGuardOption>(`APP_AUTH_INJECT`, context.getHandler())
+        const scope = this.reflector.get<AuthGuardOption>(`APP_AUTH_INJECT`, context.getHandler())
         const baseURL = request.route.path
 
         /**验证登录**/
@@ -44,5 +53,5 @@ export class AuthGuard implements CanActivate {
     }
 }
 
-/**用户登录守卫、使用ApiGuardBearer守卫的接口会验证用户登录**/
-export const ApiGuardBearer = (scope: IGuardOption) => SetMetadata(`APP_AUTH_INJECT`, scope)
+/**登录守卫、使用ApiGuardBearer守卫的接口会验证登录**/
+export const ApiGuardBearer = (scope: AuthGuardOption) => SetMetadata(`APP_AUTH_INJECT`, scope)

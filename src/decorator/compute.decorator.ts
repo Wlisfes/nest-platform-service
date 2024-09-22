@@ -3,14 +3,14 @@ import { ApiOperation, ApiConsumes, ApiProduces, ApiResponse, ApiBearerAuth } fr
 import { applyDecorators, Type } from '@nestjs/common'
 import { Throttle, SkipThrottle } from '@nestjs/throttler'
 import { isEmpty } from 'class-validator'
-import { ApiGuardBearer } from '@/guard/auth.guard'
+import { ApiGuardBearer, AuthGuardOption } from '@/guard/auth.guard'
 import * as web from '@/config/web-instance'
 
 export interface OptionDecorator {
     operation: ApiOperationOptions
     response: ApiResponseOptions
     customize: { status: number; description: string; type: Type<unknown> }
-    authorize: { check: boolean; next?: boolean; baseURL?: boolean }
+    authorize: AuthGuardOption
     consumes: string[]
     produces: string[]
     skipThrottle: boolean
