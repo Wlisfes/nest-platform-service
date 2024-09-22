@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, isNotEmpty } from 'class-validator'
 import { moment } from '@/utils/utils-common'
 
-export class CommonEntier {
+export abstract class CommonEntier {
     @ApiProperty({ description: '主键ID', example: 1 })
     @IsNotEmpty({ message: '主键ID必填' })
     @PrimaryGeneratedColumn({ comment: '自增长主键' })
