@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common'
 import { Request } from 'express'
 import { snowflakeId } from 'snowflake-id-maker'
 import { zh_CN, Faker } from '@faker-js/faker'
@@ -119,6 +120,18 @@ export function divineOmixError<T = { message: string; status: number }>(scope: 
     const err = new Error(scope.message) as OmixError<T>
     err.data = scope
     return err
+}
+
+/**条件捕获、异常抛出**/
+export async function divineCatchWherer(where: boolean, scope: Omix<{ message: string; status?: number; cause?: Omix }>) {
+    return await divineHandler(where, {
+        handler: () => {
+            throw new HttpException(
+                scope.cause ? { message: scope.message, cause: scope.cause } : scope.message,
+                scope.status ?? HttpStatus.BAD_REQUEST
+            )
+        }
+    })
 }
 
 /**字节转换文字输出**/

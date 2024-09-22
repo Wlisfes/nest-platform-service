@@ -14,7 +14,20 @@ export class MemberService extends LoggerService {
     /**创建员工账号**/
     @Logger
     public async httpCreateMember(headers: OmixHeaders, state: env.BodyCreateMember) {
-        console.log(state)
-        // return await divineResolver({ message: 'dasdsad' })
+        const ctx = await this.databaseService.fetchConnectTransaction()
+        try {
+            const node = await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbMember, {
+                message: '工号已存在',
+                dispatch: { where: state },
+                transform: data => {
+                    return false
+                }
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchThrowException(err.message, err.status)
+        } finally {
+            await ctx.release()
+        }
     }
 }

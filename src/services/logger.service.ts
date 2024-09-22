@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpStatus } from '@nestjs/common'
+import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger as WinstonLogger } from 'winston'
 import { divineLogger } from '@/utils/utils-common'
@@ -66,4 +66,8 @@ export function Logger(target: any, propertyName: string, descriptor: PropertyDe
 export class LoggerService {
     protected readonly logger: NestLogger
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly loggerService: WinstonLogger
+
+    public async fetchThrowException(message: any, code: number) {
+        throw new HttpException(message, code ?? HttpStatus.INTERNAL_SERVER_ERROR)
+    }
 }
