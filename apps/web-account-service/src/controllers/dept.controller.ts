@@ -13,6 +13,7 @@ export class DeptController {
     @Post('/create')
     @ApiDecorator({
         operation: { summary: '创建部门' },
+        authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpCreateDept(@Headers() headers: OmixHeaders, @Body() body: env.BodyCreateDept) {
@@ -22,6 +23,7 @@ export class DeptController {
     @Post('/update')
     @ApiDecorator({
         operation: { summary: '编辑部门' },
+        authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpUpdateDept(@Headers() headers: OmixHeaders, @Body() body: env.BodyUpdateDept) {

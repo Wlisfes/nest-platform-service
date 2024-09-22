@@ -13,9 +13,20 @@ export class MemberController {
     @Post('/create')
     @ApiDecorator({
         operation: { summary: '创建员工账号' },
+        authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpCreateMember(@Headers() headers: OmixHeaders, @Body() body: env.BodyCreateMember) {
         return await this.memberService.httpCreateMember(headers, body)
+    }
+
+    @Post('/list')
+    @ApiDecorator({
+        operation: { summary: '员工账号列表' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpColumnMember(@Headers() headers: OmixHeaders, @Body() body: env.BodyColumnMember) {
+        return await this.memberService.httpColumnMember(headers, body)
     }
 }

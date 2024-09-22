@@ -27,7 +27,7 @@ export class tbMember extends CommonEntier {
     @ApiProperty({ description: '头像' })
     @IsNotEmpty({ message: '头像必填' })
     @Length(4, 255, { message: '头像地址必须保持4~255位' })
-    @Column({ comment: '头像', nullable: false })
+    @Column({ comment: '头像', nullable: true })
     avatar: string
 
     @ApiProperty({ description: '员工状态: 在职-online、离职-offline、禁用-disable', enum: enums.MemberState })
