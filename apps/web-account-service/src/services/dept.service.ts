@@ -1,9 +1,9 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
-import { Not } from 'typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { OmixHeaders } from '@/interface/instance.resolver'
 import { divineResolver, divineIntNumber, divineBstract, divineHandler } from '@/utils/utils-common'
+import { OmixHeaders } from '@/interface/instance.resolver'
+import * as tree from 'tree-tool'
 import * as env from '@web-account-service/interface/instance.resolver'
 import * as enums from '@/enums/instance'
 
@@ -15,17 +15,20 @@ export class DeptService extends LoggerService {
 
     /**创建部门**/
     @Logger
-    public async httpCreateDept(headers: OmixHeaders, body: env.BodyCreateDept) {
+    public async httpCreateDept(headers: OmixHeaders, staffId: string, body: env.BodyCreateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbDept, {
                 message: '部门名称已存在',
-                dispatch: { where: body }
+                dispatch: {
+                    where: { deptName: body.deptName }
+                }
             })
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDept, {
                 body: {
                     deptId: await divineIntNumber({ random: true, bit: 9 }),
-                    deptName: body.deptName
+                    deptName: body.deptName,
+                    parentId: body.parentId ?? null
                 }
             })
         } catch (err) {
@@ -38,7 +41,7 @@ export class DeptService extends LoggerService {
 
     /**编辑部门**/
     @Logger
-    public async httpUpdateDept(headers: OmixHeaders, body: env.BodyUpdateDept) {
+    public async httpUpdateDept(headers: OmixHeaders, staffId: string, body: env.BodyUpdateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
@@ -55,5 +58,18 @@ export class DeptService extends LoggerService {
         } finally {
             await ctx.release()
         }
+    }
+
+    /**部门列表**/ //prettier-ignore
+    @Logger
+    public async httpTreeDept(headers: OmixHeaders, staffId: string) {
+        return await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbDept, {
+            select: ['keyId', 'deptId', 'deptName', 'parentId', 'state']
+        }).then(async ({  list, total }) => {
+            return await divineResolver({
+                total,
+                list: tree.fromList(list, { id: 'deptId', pid: 'parentId' })
+            })
+        })
     }
 }

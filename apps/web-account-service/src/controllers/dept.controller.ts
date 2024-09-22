@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Query, Headers, Request } from '@nestjs/common'
+import { Controller, Get, Post, Body, Query, Request } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/compute.decorator'
-import { OmixNotice, OmixHeaders } from '@/interface/instance.resolver'
+import { OmixNotice, OmixRequest } from '@/interface/instance.resolver'
 import { DeptService } from '@web-account-service/services/dept.service'
 import * as env from '@web-account-service/interface/instance.resolver'
 
@@ -16,8 +16,8 @@ export class DeptController {
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpCreateDept(@Headers() headers: OmixHeaders, @Body() body: env.BodyCreateDept) {
-        return await this.deptService.httpCreateDept(headers, body)
+    public async httpCreateDept(@Request() request: OmixRequest, @Body() body: env.BodyCreateDept) {
+        return await this.deptService.httpCreateDept(request.headers, request.member.staffId, body)
     }
 
     @Post('/update')
@@ -26,7 +26,17 @@ export class DeptController {
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpUpdateDept(@Headers() headers: OmixHeaders, @Body() body: env.BodyUpdateDept) {
-        return await this.deptService.httpUpdateDept(headers, body)
+    public async httpUpdateDept(@Request() request: OmixRequest, @Body() body: env.BodyUpdateDept) {
+        return await this.deptService.httpUpdateDept(request.headers, request.member.staffId, body)
+    }
+
+    @Get('/tree')
+    @ApiDecorator({
+        operation: { summary: '部门树' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpTreeDept(@Request() request: OmixRequest) {
+        return await this.deptService.httpTreeDept(request.headers, request.member.staffId)
     }
 }

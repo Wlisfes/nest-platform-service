@@ -1,5 +1,5 @@
 import { Entity, Column } from 'typeorm'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsNotEmpty, IsEnum } from 'class-validator'
 import { CommonEntier } from '@/utils/utils-typeorm'
 import * as enums from '@/enums/instance'
@@ -26,4 +26,22 @@ export class tbDept extends CommonEntier {
     @IsEnum(enums.DeptState, { message: '部门状态参数格式错误' })
     @Column({ comment: '部门状态: 启用-enable、禁用-disable', default: enums.DeptState.enable, nullable: false })
     state: string
+}
+
+@Entity({ name: 'tb_dept_member', comment: '部门员工表' })
+export class tbDeptMember extends CommonEntier {
+    @ApiProperty({ description: '部门ID', example: '858619496' })
+    @IsNotEmpty({ message: '部门ID必填' })
+    @Column({ comment: '部门ID', length: 32, nullable: false })
+    deptId: string
+
+    @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'staffId必填' })
+    @Column({ comment: '员工ID', length: 32, nullable: false })
+    staffId: string
+
+    @ApiProperty({ description: '部门子管理员', example: false })
+    @IsNotEmpty({ message: '部门子管理员必填' })
+    @Column({ comment: '部门子管理员', nullable: false, default: false })
+    master: boolean
 }
