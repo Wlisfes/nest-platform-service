@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Query, Headers, Request } from '@nestjs/common'
+import { Controller, Post, Body, Request } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/compute.decorator'
-import { OmixNotice, OmixHeaders } from '@/interface/instance.resolver'
+import { OmixNotice, OmixRequest } from '@/interface/instance.resolver'
 import { MemberService } from '@web-account-service/services/member.service'
 import * as env from '@web-account-service/interface/instance.resolver'
 
@@ -16,8 +16,8 @@ export class MemberController {
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpCreateMember(@Headers() headers: OmixHeaders, @Body() body: env.BodyCreateMember) {
-        return await this.memberService.httpCreateMember(headers, body)
+    public async httpCreateMember(@Request() request: OmixRequest, @Body() body: env.BodyCreateMember) {
+        return await this.memberService.httpCreateMember(request.headers, request.member.staffId, body)
     }
 
     @Post('/list')
@@ -26,7 +26,7 @@ export class MemberController {
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpColumnMember(@Headers() headers: OmixHeaders, @Body() body: env.BodyColumnMember) {
-        return await this.memberService.httpColumnMember(headers, body)
+    public async httpColumnMember(@Request() request: OmixRequest, @Body() body: env.BodyColumnMember) {
+        return await this.memberService.httpColumnMember(request.headers, request.member.staffId, body)
     }
 }

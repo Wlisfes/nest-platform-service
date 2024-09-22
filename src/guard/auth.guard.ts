@@ -57,7 +57,13 @@ export class AuthGuard implements CanActivate {
     /**员工守卫拦截**/
     public async fetchGuardMember(token: string, next: boolean, request: Omix<Request>) {
         // await this.httpContextAuthorize(next, { message: '未登录' })
-        // request.member = node
+        request.member = {
+            keyId: 1,
+            staffId: '2214016125010739200',
+            name: '陈平安',
+            jobNumber: '0001',
+            state: 'online'
+        }
     }
 
     /**消费用户守卫拦截**/
