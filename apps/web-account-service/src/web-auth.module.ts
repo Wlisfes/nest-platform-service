@@ -5,18 +5,25 @@ import { UserAgentMiddleware } from '@/middleware/useragent.middleware'
 import { AuthGuard } from '@/guard/auth.guard'
 import { TransformInterceptor } from '@/interceptor/transform.interceptor'
 import { HttpExceptionFilter } from '@/filter/http-exception.filter'
+//modules
 import { ConfigerModule } from '@/modules/configer.module'
 import { LoggerModule } from '@/modules/logger.module'
 import { ThrottlerModule } from '@/modules/throttler.module'
 import { DatabaseModule } from '@/modules/database.module'
+//services
+import { MemberService } from '@web-account-service/services/member.service'
+//controllers
+import { UserController } from '@web-account-service/controllers/user.controller'
+import { MemberController } from '@web-account-service/controllers/member.controller'
 
 @Module({
-    imports: [LoggerModule.forRoot({ name: 'web-auth-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
-    controllers: [],
+    imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
+    controllers: [UserController, MemberController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
-        { provide: APP_FILTER, useClass: HttpExceptionFilter }
+        { provide: APP_FILTER, useClass: HttpExceptionFilter },
+        MemberService
     ]
 })
 export class WebAuthModule implements NestModule {

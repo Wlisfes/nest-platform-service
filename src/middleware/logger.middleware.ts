@@ -14,12 +14,12 @@ export class LoggerMiddleware implements NestMiddleware {
         const { baseUrl, method, body, query, params, headers } = request
         const clientIp = getClientIp(request)
         const start = Date.now()
-        const requestId = await divineIntNumber({ random: true, bit: 32 })
+        const context = await divineIntNumber({ random: true, bit: 32 })
         const ip = ['localhost', '::1', '::ffff:127.0.0.1'].includes(clientIp) ? '127.0.0.1' : clientIp.replace(/^.*:/, '')
 
         /**起始日志 startTime**/
         this.logger.info(LoggerMiddleware.name, {
-            [web.WEB_COMMON_HEADER_CONTEXTID]: requestId.toString(),
+            [web.WEB_COMMON_HEADER_CONTEXTID]: context.toString(),
             duration: '0ms',
             log: {
                 url: baseUrl,
@@ -40,11 +40,11 @@ export class LoggerMiddleware implements NestMiddleware {
         request.headers.browser = request.useragent.browser
         request.headers.platform = request.useragent.platform
         request.headers[web.WEB_COMMON_HEADER_STARTTIME] = start.toString()
-        request.headers[web.WEB_COMMON_HEADER_CONTEXTID] = requestId.toString()
+        request.headers[web.WEB_COMMON_HEADER_CONTEXTID] = context.toString()
         response.on('finish', () => {
             /**结束日志 endTime**/
             this.logger.info(LoggerMiddleware.name, {
-                [web.WEB_COMMON_HEADER_CONTEXTID]: requestId.toString(),
+                [web.WEB_COMMON_HEADER_CONTEXTID]: context.toString(),
                 duration: `${Date.now() - start}ms`,
                 log: {
                     url: baseUrl,
