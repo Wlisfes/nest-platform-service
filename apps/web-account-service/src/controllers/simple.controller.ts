@@ -36,7 +36,7 @@ export class SimpleController {
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpColumnBatchSimple(@Request() request: OmixRequest, @Body() body: env.BodyStalkSimple) {
-        return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
+    public async httpColumnBatchSimple(@Request() request: OmixRequest, @Body() body: env.BodyBatchSimple) {
+        return await this.simpleService.httpColumnBatchSimple(request.headers, request.member.staffId, body)
     }
 }
