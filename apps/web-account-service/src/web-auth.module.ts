@@ -12,20 +12,23 @@ import { ThrottlerModule } from '@/modules/throttler.module'
 import { DatabaseModule } from '@/modules/database.module'
 //services
 import { DeptService } from '@web-account-service/services/dept.service'
+import { PostService } from '@web-account-service/services/post.service'
 import { MemberService } from '@web-account-service/services/member.service'
 //controllers
 import { UserController } from '@web-account-service/controllers/user.controller'
 import { DeptController } from '@web-account-service/controllers/dept.controller'
+import { PostController } from '@web-account-service/controllers/post.controller'
 import { MemberController } from '@web-account-service/controllers/member.controller'
 
 @Module({
     imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
-    controllers: [UserController, DeptController, MemberController],
+    controllers: [UserController, DeptController, PostController, MemberController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
         DeptService,
+        PostService,
         MemberService
     ]
 })
