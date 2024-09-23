@@ -1,6 +1,6 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, isNotEmpty, IsEnum } from 'class-validator'
+import { IsNotEmpty, isNotEmpty, IsEnum, IsObject } from 'class-validator'
 import { CommonEntier } from '@/utils/utils-typeorm'
 import * as enums from '@/enums/instance'
 
@@ -34,12 +34,13 @@ export class tbSimple extends CommonEntier {
     state: string
 
     @ApiProperty({ description: '字典额外配置' })
+    @IsObject({ message: '字典额外配置必须为JSON数据格式' })
     @Column({
         type: 'simple-json',
         comment: '字典额外配置',
         nullable: true,
         transformer: {
-            from: value => (isNotEmpty(value) ? JSON.parse(value) : null),
+            from: value => (isNotEmpty(value) ? JSON.parse(value) : {}),
             to: value => (isNotEmpty(value) ? JSON.stringify(value) : null)
         }
     })

@@ -19,6 +19,22 @@ export class SimpleService extends LoggerService {
     public async httpCreateSimple(headers: OmixHeaders, staffId: string, body: env.BodyCreateSimple) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
+            await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbSimple, {
+                message: '字典名称已存在',
+                dispatch: {
+                    where: { name: body.name, stalk: body.stalk, state: Not(enums.SimpleState.delete) }
+                }
+            })
+            return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbSimple, {
+                body: {
+                    sid: await divineIntNumber({ random: true, bit: 11 }),
+                    name: body.name,
+                    stalk: body.stalk,
+                    pid: body.pid ?? null,
+                    props: body.props ?? null,
+                    state: body.state ?? enums.SimpleState.enable
+                }
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchThrowException(err.message, err.status)
@@ -31,10 +47,9 @@ export class SimpleService extends LoggerService {
     @Logger
     public async httpColumnSimple(headers: OmixHeaders, staffId: string, body) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
-            // qb.leftJoinAndMapMany('t.dept', tbDeptMember, 'dept', 't.staffId = dept.staffId')
-            // qb.leftJoinAndMapOne('dept.name', tbDept, 'deptName', 'dept.deptId = deptName.deptId')
+            qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await divineResolver({ total, list })
+                return await divineResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })
             })
         })
     }
