@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { faker, divineResolver, divineColumnResolver, divineIntNumber } from '@/utils/utils-common'
+import { faker, divineResolver, divineIntNumber } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember, tbDept, tbDeptMember } from '@/entities/instance'
 import * as env from '@web-account-service/interface/instance.resolver'
