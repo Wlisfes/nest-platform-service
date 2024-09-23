@@ -24,6 +24,7 @@ export class DatabaseService extends LoggerService {
         private readonly jwtService: JwtService,
         @InjectRepository(entities.tbUser) public readonly tbUser: Repository<entities.tbUser>,
         @InjectRepository(entities.tbDept) public readonly tbDept: Repository<entities.tbDept>,
+        @InjectRepository(entities.tbSimple) public readonly tbSimple: Repository<entities.tbSimple>,
         @InjectRepository(entities.tbDeptMember) public readonly tbDeptMember: Repository<entities.tbDeptMember>,
         @InjectRepository(entities.tbPost) public readonly tbPost: Repository<entities.tbPost>,
         @InjectRepository(entities.tbPostMember) public readonly tbPostMember: Repository<entities.tbPostMember>,
