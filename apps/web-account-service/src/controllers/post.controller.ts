@@ -9,4 +9,14 @@ import * as env from '@web-account-service/interface/instance.resolver'
 @Controller('post')
 export class PostController {
     constructor(private readonly postService: PostService) {}
+
+    @Post('/create')
+    @ApiDecorator({
+        operation: { summary: '创建职位' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpCreatePost(@Request() request: OmixRequest, @Body() body: env.BodyCreatePost) {
+        return await this.postService.httpCreatePost(request.headers, request.member.staffId, body)
+    }
 }

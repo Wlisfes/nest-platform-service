@@ -1,4 +1,5 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
+import { Not } from 'typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { divineResolver, divineIntNumber, divineBstract, divineHandler } from '@/utils/utils-common'
@@ -11,5 +12,24 @@ import * as enums from '@/enums/instance'
 export class PostService extends LoggerService {
     constructor(private readonly databaseService: DatabaseService) {
         super()
+    }
+
+    /**创建职位**/
+    @Logger
+    public async httpCreatePost(headers: OmixHeaders, staffId: string, body: env.BodyCreatePost) {
+        const ctx = await this.databaseService.fetchConnectTransaction()
+        try {
+            await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbPost, {
+                message: '职位名称已存在',
+                dispatch: {
+                    where: { title: body.title, state: Not(enums.PostState.delete) }
+                }
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchThrowException(err.message, err.status)
+        } finally {
+            await ctx.release()
+        }
     }
 }
