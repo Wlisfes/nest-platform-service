@@ -1,10 +1,18 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { faker, divineResolver, divineIntNumber, divineBstract, divineHandler, divineDelay } from '@/utils/utils-common'
-import { OmixHeaders } from '@/interface/instance.resolver'
-import { tbDept, tbDeptMember } from '@/entities/instance'
+import { faker, divineResolver, divineColumnResolver, divineIntNumber } from '@/utils/utils-common'
+import { Omix, OmixHeaders } from '@/interface/instance.resolver'
+import { tbMember, tbDept, tbDeptMember } from '@/entities/instance'
 import * as env from '@web-account-service/interface/instance.resolver'
+
+/**列表字段扁平化**/
+export function fetchColumnFlatMember(data: Omix<tbMember>) {
+    return {
+        ...data,
+        dept: data.dept.map(item => ({ deptId: item.deptId, deptName: item.name.deptName }))
+    }
+}
 
 @Injectable()
 export class MemberService extends LoggerService {
@@ -72,10 +80,10 @@ export class MemberService extends LoggerService {
     @Logger
     public async httpColumnMember(headers: OmixHeaders, staffId: string, body: env.BodyColumnMember) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbMember, async qb => {
-            qb.leftJoinAndMapOne('t.dept', tbDeptMember, 'dept', 't.staffId = dept.staffId')
-            // qb.select(['t.keyId', 't.staffId', 't.name', 't.jobNumber', 't.avatar', 't.state', 'dept.deptId AS deptId'])
+            qb.leftJoinAndMapMany('t.dept', tbDeptMember, 'dept', 't.staffId = dept.staffId')
+            qb.leftJoinAndMapOne('dept.name', tbDept, 'deptName', 'dept.deptId = deptName.deptId')
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await divineResolver({ list, total })
+                return await divineResolver({ total, list: list.map(fetchColumnFlatMember) })
             })
         })
     }

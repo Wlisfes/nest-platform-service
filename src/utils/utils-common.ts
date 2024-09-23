@@ -43,6 +43,11 @@ export async function divineResolver<T = Partial<Omix<{ message: string; list: A
     return data
 }
 
+/**返回列表字段处理**/
+export function divineColumnResolver<T, K extends keyof T>(list: Array<Omix<T>>, option: Omix<{ [P in K]: () => any }>) {
+    return list
+}
+
 /**条件链式执行函数**/
 export async function divineHandler<T>(where: boolean | Function, scope: Omix<{ handler: Function; failure?: Function }>): Promise<T> {
     if (typeof where === 'function') {
