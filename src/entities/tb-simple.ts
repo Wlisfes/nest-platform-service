@@ -1,6 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, isNotEmpty, IsEnum, IsObject } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsNotEmpty, isNotEmpty, IsEnum, IsNumber, IsObject } from 'class-validator'
 import { CommonEntier } from '@/utils/utils-typeorm'
 import * as enums from '@/enums/instance'
 
@@ -32,6 +33,12 @@ export class tbSimple extends CommonEntier {
     @IsEnum(enums.SimpleState, { message: '字典状态参数格式错误' })
     @Column({ comment: '字典状态: 启用-enable、禁用-disable、删除-delete', default: enums.SimpleState.enable, nullable: false })
     state: string
+
+    @ApiProperty({ description: '字典排序' })
+    @IsNumber({}, { message: '字典排序必须为number' })
+    @Type(() => Number)
+    @Column({ comment: '字典排序', default: 0, nullable: false })
+    sort: number
 
     @ApiProperty({ description: '字典额外配置' })
     @IsObject({ message: '字典额外配置必须为JSON数据格式' })

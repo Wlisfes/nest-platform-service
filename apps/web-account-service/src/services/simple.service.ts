@@ -45,9 +45,24 @@ export class SimpleService extends LoggerService {
 
     /**字典树**/
     @Logger
-    public async httpColumnSimple(headers: OmixHeaders, staffId: string, body) {
+    public async httpColumnStalkSimple(headers: OmixHeaders, staffId: string, body: env.BodyStalkSimple) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
-            qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
+            qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props', 't.sort'])
+            qb.where(`t.stalk = :stalk`, { stalk: body.stalk })
+            qb.orderBy({ 't.sort': 'DESC' })
+            return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                return await divineResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })
+            })
+        })
+    }
+
+    /**批量字典树**/
+    @Logger
+    public async httpColumnBatchSimple(headers: OmixHeaders, staffId: string, body: env.BodyStalkSimple) {
+        return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
+            qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props', 't.sort'])
+            qb.where(`t.stalk = :stalk`, { stalk: body.stalk })
+            qb.orderBy({ 't.sort': 'DESC' })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await divineResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })
             })

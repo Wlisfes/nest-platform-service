@@ -10,5 +10,8 @@ export enum SimpleState {
 
 /**字典类型**/
 export enum SimpleStalk {
-    post = 'post'
+    /**职位**/
+    post = 'post',
+    /**职级**/
+    rank = 'rank'
 }

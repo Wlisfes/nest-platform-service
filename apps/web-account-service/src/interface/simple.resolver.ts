@@ -10,3 +10,6 @@ export class BodyCreateSimple extends IntersectionType(
     PickType(tbSimple, ['name', 'stalk']),
     PartialType(PickType(tbSimple, ['pid', 'props', 'state']))
 ) {}
+
+/**字典树**/
+export class BodyStalkSimple extends PickType(tbSimple, ['stalk']) {}

@@ -20,13 +20,23 @@ export class SimpleController {
         return await this.simpleService.httpCreateSimple(request.headers, request.member.staffId, body)
     }
 
-    @Post('/list')
+    @Post('/stalk/list')
     @ApiDecorator({
         operation: { summary: '字典树' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpColumnSimple(@Request() request: OmixRequest, @Body() body) {
-        return await this.simpleService.httpColumnSimple(request.headers, request.member.staffId, body)
+    public async httpColumnStalkSimple(@Request() request: OmixRequest, @Body() body: env.BodyStalkSimple) {
+        return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
+    }
+
+    @Post('/batch/list')
+    @ApiDecorator({
+        operation: { summary: '批量字典树' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpColumnBatchSimple(@Request() request: OmixRequest, @Body() body: env.BodyStalkSimple) {
+        return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
     }
 }
