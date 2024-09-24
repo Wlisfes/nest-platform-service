@@ -53,3 +53,29 @@ export class tbSimple extends CommonEntier {
     })
     props: Object
 }
+
+@Entity({ name: 'tb_simple_post_member', comment: '员工职位表' })
+export class tbSimplePostMember extends CommonEntier {
+    @ApiProperty({ description: '职位ID', example: '34754938454' })
+    @IsNotEmpty({ message: '职位ID必填' })
+    @Column({ comment: '职位IDID', length: 11, nullable: false })
+    sid: string
+
+    @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'staffId必填' })
+    @Column({ comment: '员工ID', length: 32, nullable: false })
+    staffId: string
+}
+
+@Entity({ name: 'tb_simple_rank_member', comment: '员工职级表' })
+export class tbSimpleRankMember extends CommonEntier {
+    @ApiProperty({ description: '职位ID', example: '34754938454' })
+    @IsNotEmpty({ message: '职位ID必填' })
+    @Column({ comment: '职位IDID', length: 11, nullable: false })
+    sid: string
+
+    @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'staffId必填' })
+    @Column({ comment: '员工ID', length: 32, nullable: false })
+    staffId: string
+}

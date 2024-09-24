@@ -1,7 +1,7 @@
-import { tbSimple } from '@/entities/tb-simple'
 import { tbUser } from '@/entities/tb-user'
 import { tbMember } from '@/entities/tb-member'
+import { tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/tb-simple'
 import { tbDept, tbDeptMember, tbDeptMaster } from '@/entities/tb-dept'
 
-export { tbSimple, tbUser, tbMember, tbDept, tbDeptMember, tbDeptMaster }
-export const forEntities = [tbSimple, tbUser, tbMember, tbDept, tbDeptMember, tbDeptMaster]
+export { tbUser, tbMember, tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember }
+export const forEntities = [tbUser, tbMember, tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember]
