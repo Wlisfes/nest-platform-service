@@ -29,10 +29,17 @@ export class MemberService extends LoggerService {
                 message: '工号已存在',
                 dispatch: { where: { jobNumber: body.jobNumber } }
             })
-            await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
-                message: '部门ID不存在',
-                dispatch: { where: { deptId: body.deptId } }
-            })
+            /**部门列表验证**/
+            await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {})
+            // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
+            //     message: '部门ID不存在',
+            //     dispatch: { where: { deptId: body.deptId } }
+            // })
+            // await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple)
+            // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbSimple, {
+            //     message: '部门ID不存在',
+            //     dispatch: { where: {} }
+            // })
             const { staffId } = await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
                 body: {
                     staffId: await divineIntNumber(),
@@ -43,8 +50,8 @@ export class MemberService extends LoggerService {
             })
             await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDeptMember, {
                 body: {
-                    staffId,
-                    deptId: body.deptId
+                    staffId
+                    // deptId: body.deptId
                     // master: body.master
                 }
             })
