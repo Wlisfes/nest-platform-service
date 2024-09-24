@@ -20,23 +20,33 @@ export class SimpleController {
         return await this.simpleService.httpCreateSimple(request.headers, request.member.staffId, body)
     }
 
-    @Post('/stalk/list')
-    @ApiDecorator({
-        operation: { summary: '字典树' },
-        authorize: { source: 'manager', check: true },
-        response: { status: 200, description: 'OK', type: OmixNotice }
-    })
-    public async httpColumnStalkSimple(@Request() request: OmixRequest, @Body() body: env.BodyStalkSimple) {
-        return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
-    }
-
-    @Post('/batch/list')
+    @Post('/list')
     @ApiDecorator({
         operation: { summary: '批量字典树' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpColumnBatchSimple(@Request() request: OmixRequest, @Body() body: env.BodyBatchSimple) {
-        return await this.simpleService.httpColumnBatchSimple(request.headers, request.member.staffId, body)
+    public async httpColumnSimple(@Request() request: OmixRequest, @Body() body: env.BodyColumnSimple) {
+        return await this.simpleService.httpColumnSimple(request.headers, request.member.staffId, body)
+    }
+
+    @Get('/stalk')
+    @ApiDecorator({
+        operation: { summary: '字典类型' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpColumnStalk(@Request() request: OmixRequest) {
+        return await this.simpleService.httpColumnStalk(request.headers, request.member.staffId)
+    }
+
+    @Get('/stalk/list')
+    @ApiDecorator({
+        operation: { summary: '字典树' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpColumnStalkSimple(@Request() request: OmixRequest, @Query() body: env.BodyStalkSimple) {
+        return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
     }
 }

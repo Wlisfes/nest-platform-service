@@ -43,12 +43,12 @@ export class SimpleService extends LoggerService {
         }
     }
 
-    /**字典树**/
+    /**批量字典树**/
     @Logger
-    public async httpColumnStalkSimple(headers: OmixHeaders, staffId: string, body: env.BodyStalkSimple) {
+    public async httpColumnSimple(headers: OmixHeaders, staffId: string, body: env.BodyColumnSimple) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
             qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props', 't.sort'])
-            qb.where(`t.stalk = :stalk`, { stalk: body.stalk })
+            // qb.where(`t.stalk = :stalk`, { stalk: body.stalk })
             qb.orderBy({ 't.sort': 'DESC' })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await divineResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })
@@ -56,12 +56,23 @@ export class SimpleService extends LoggerService {
         })
     }
 
-    /**批量字典树**/
+    /**字典类型**/
     @Logger
-    public async httpColumnBatchSimple(headers: OmixHeaders, staffId: string, body: env.BodyBatchSimple) {
+    public async httpColumnStalk(headers: OmixHeaders, staffId: string) {
+        return await divineResolver({
+            total: Object.keys(enums.SimpleStalk).length,
+            list: Object.keys(enums.SimpleStalk).map(sid => {
+                return { sid, name: enums.SimpleMapStalk[sid] }
+            })
+        })
+    }
+
+    /**字典树**/
+    @Logger
+    public async httpColumnStalkSimple(headers: OmixHeaders, staffId: string, body: env.BodyStalkSimple) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
             qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props', 't.sort'])
-            // qb.where(`t.stalk = :stalk`, { stalk: body.stalk })
+            qb.where(`t.stalk = :stalk`, { stalk: body.stalk })
             qb.orderBy({ 't.sort': 'DESC' })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await divineResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })

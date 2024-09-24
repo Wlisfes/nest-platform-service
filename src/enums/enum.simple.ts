@@ -10,8 +10,11 @@ export enum SimpleState {
 
 /**字典类型**/
 export enum SimpleStalk {
-    /**职位**/
     post = 'post',
-    /**职级**/
     rank = 'rank'
+}
+/**字典类型描述**/
+export const SimpleMapStalk = {
+    [SimpleStalk.post]: '职位',
+    [SimpleStalk.rank]: '职级'
 }
