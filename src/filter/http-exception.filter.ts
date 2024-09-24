@@ -20,6 +20,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             method: request.method,
             code: exception.status
         }
+        console.log(exception.response)
         if (exception.response && Array.isArray(exception.response.message)) {
             Result.message = exception.response.message[0]
             Result.data = exception.response

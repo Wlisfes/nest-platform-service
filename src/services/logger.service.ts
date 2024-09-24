@@ -67,6 +67,13 @@ export class LoggerService {
     protected readonly logger: NestLogger
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly loggerService: WinstonLogger
 
+    public async fetchWhereException(where: boolean, handler: Function) {
+        if (where) {
+            return await handler()
+        }
+        return where
+    }
+
     public async fetchThrowException(message: any, code: number) {
         throw new HttpException(message, code ?? HttpStatus.INTERNAL_SERVER_ERROR)
     }

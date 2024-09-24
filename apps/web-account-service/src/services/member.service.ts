@@ -1,9 +1,10 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { faker, divineResolver, divineIntNumber } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember, tbDept, tbDeptMember } from '@/entities/instance'
+import { difference } from 'lodash'
+import { faker, divineResolver, divineIntNumber, divineHandler } from '@/utils/utils-common'
 import * as env from '@web-account-service/interface/instance.resolver'
 
 /**列表字段扁平化**/
@@ -25,12 +26,20 @@ export class MemberService extends LoggerService {
     public async httpCreateMember(headers: OmixHeaders, staffId: string, body: env.BodyCreateMember) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbMember, {
-                message: '工号已存在',
-                dispatch: { where: { jobNumber: body.jobNumber } }
+            // await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbMember, {
+            //     message: '工号已存在',
+            //     dispatch: { where: { jobNumber: body.jobNumber } }
+            // })
+            /**部门列表验证**/ //prettier-ignore
+            await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {
+                qb.where('t.deptId IN(:...deptId)', { deptId: body.dept })
+                const differ = await qb.getMany().then(dept => {
+                    return difference(body.dept, dept.map(item => item.deptId))
+                })
+                return await this.fetchWhereException(differ.length > 0, async where => {
+                    return this.fetchThrowException(`dept: [${differ.join(',')}] 不存在`, 400)
+                })
             })
-            /**部门列表验证**/
-            await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {})
             // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
             //     message: '部门ID不存在',
             //     dispatch: { where: { deptId: body.deptId } }
@@ -40,21 +49,21 @@ export class MemberService extends LoggerService {
             //     message: '部门ID不存在',
             //     dispatch: { where: {} }
             // })
-            const { staffId } = await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
-                body: {
-                    staffId: await divineIntNumber(),
-                    password: Buffer.from('123456').toString('base64'),
-                    name: body.name,
-                    jobNumber: body.jobNumber
-                }
-            })
-            await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDeptMember, {
-                body: {
-                    staffId
-                    // deptId: body.deptId
-                    // master: body.master
-                }
-            })
+            // const { staffId } = await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
+            //     body: {
+            //         staffId: await divineIntNumber(),
+            //         password: Buffer.from('123456').toString('base64'),
+            //         name: body.name,
+            //         jobNumber: body.jobNumber
+            //     }
+            // })
+            // await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDeptMember, {
+            //     body: {
+            //         staffId
+            //         // deptId: body.deptId
+            //         // master: body.master
+            //     }
+            // })
             // return await divineResolver({ message: 'success' })
 
             // for (let index = 0; index < 10; index++) {
