@@ -44,8 +44,8 @@ export class MemberService extends LoggerService {
             await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDeptMember, {
                 body: {
                     staffId,
-                    deptId: body.deptId,
-                    master: body.master
+                    deptId: body.deptId
+                    // master: body.master
                 }
             })
             // return await divineResolver({ message: 'success' })

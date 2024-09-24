@@ -39,9 +39,17 @@ export class tbDeptMember extends CommonEntier {
     @IsNotEmpty({ message: 'staffId必填' })
     @Column({ comment: '员工ID', length: 32, nullable: false })
     staffId: string
+}
 
-    @ApiProperty({ description: '部门子管理员', example: false })
-    @IsNotEmpty({ message: '部门子管理员必填' })
-    @Column({ comment: '部门子管理员', nullable: false, default: false })
-    master: boolean
+@Entity({ name: 'tb_dept_master', comment: '部门子管理员表' })
+export class tbDeptMaster extends CommonEntier {
+    @ApiProperty({ description: '部门ID', example: '858619496' })
+    @IsNotEmpty({ message: '部门ID必填' })
+    @Column({ comment: '部门ID', length: 32, nullable: false })
+    deptId: string
+
+    @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'staffId必填' })
+    @Column({ comment: '员工ID', length: 32, nullable: false })
+    staffId: string
 }
