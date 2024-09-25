@@ -1,6 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
+import { WhereDeptService } from '@/wheres/where-dept.service'
 import { divineResolver, divineIntNumber, divineBstract, divineHandler } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
 import * as tree from 'tree-tool'
@@ -9,7 +10,7 @@ import * as enums from '@/enums/instance'
 
 @Injectable()
 export class DeptService extends LoggerService {
-    constructor(private readonly databaseService: DatabaseService) {
+    constructor(private readonly databaseService: DatabaseService, private readonly whereDeptService: WhereDeptService) {
         super()
     }
 
@@ -18,11 +19,9 @@ export class DeptService extends LoggerService {
     public async httpCreateDept(headers: OmixHeaders, staffId: string, body: env.BodyCreateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbDept, {
-                message: '部门名称已存在',
-                dispatch: {
-                    where: { deptName: body.deptName }
-                }
+            /**验证部门名称是否已存在**/
+            await this.whereDeptService.fetchBaseNotEmpty(headers, {
+                where: { deptName: body.deptName }
             })
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDept, {
                 body: {
@@ -44,9 +43,9 @@ export class DeptService extends LoggerService {
     public async httpUpdateDept(headers: OmixHeaders, staffId: string, body: env.BodyUpdateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
-                message: '部门ID不存在',
-                dispatch: { where: { deptId: body.deptId } }
+            /**验证部门名称是否不存在**/
+            await this.whereDeptService.fetchBaseEmpty(headers, {
+                where: { deptId: body.deptId }
             })
             return await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbDept, {
                 where: { deptId: body.deptId },
@@ -60,16 +59,15 @@ export class DeptService extends LoggerService {
         }
     }
 
-    /**部门列表**/ //prettier-ignore
+    /**部门列表**/
     @Logger
     public async httpTreeDept(headers: OmixHeaders, staffId: string) {
-        return await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbDept, {
+        const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbDept, {
             select: ['keyId', 'deptId', 'deptName', 'parentId', 'state']
-        }).then(async ({  list, total }) => {
-            return await divineResolver({
-                total,
-                list: tree.fromList(list, { id: 'deptId', pid: 'parentId' })
-            })
+        })
+        return await divineResolver({
+            total,
+            list: tree.fromList(list, { id: 'deptId', pid: 'parentId' })
         })
     }
 }

@@ -1,6 +1,8 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
+import { WhereMemberService } from '@/wheres/where-member.service'
+import { WhereDeptService } from '@/wheres/where-dept.service'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember, tbDept, tbDeptMember } from '@/entities/instance'
 import { difference } from 'lodash'
@@ -17,7 +19,11 @@ export function fetchColumnFlatMember(data: Omix<tbMember>) {
 
 @Injectable()
 export class MemberService extends LoggerService {
-    constructor(private readonly databaseService: DatabaseService) {
+    constructor(
+        private readonly databaseService: DatabaseService,
+        private readonly whereMemberService: WhereMemberService,
+        private readonly whereDeptService: WhereDeptService
+    ) {
         super()
     }
 
@@ -26,24 +32,13 @@ export class MemberService extends LoggerService {
     public async httpCreateMember(headers: OmixHeaders, staffId: string, body: env.BodyCreateMember) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            // await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbMember, {
-            //     message: '工号已存在',
-            //     dispatch: { where: { jobNumber: body.jobNumber } }
-            // })
-            /**部门列表验证**/ //prettier-ignore
-            await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {
-                qb.where('t.deptId IN(:...deptId)', { deptId: body.dept })
-                const differ = await qb.getMany().then(dept => {
-                    return difference(body.dept, dept.map(item => item.deptId))
-                })
-                return await this.fetchWhereException(differ.length > 0, async where => {
-                    return this.fetchThrowException(`dept: [${differ.join(',')}] 不存在`, 400)
-                })
+            /**验证员工工号是否已存在**/
+            await this.whereMemberService.fetchBaseJobNumberNotEmpty(headers, {
+                where: { jobNumber: body.jobNumber }
             })
-            // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
-            //     message: '部门ID不存在',
-            //     dispatch: { where: { deptId: body.deptId } }
-            // })
+            /**验证部门列表ID是否不存在**/
+            await this.whereDeptService.fetchBaseColumnEmpty(headers, body.dept)
+
             // await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple)
             // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbSimple, {
             //     message: '部门ID不存在',
