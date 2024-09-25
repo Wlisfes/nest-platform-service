@@ -20,9 +20,10 @@ export class DeptService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             /**验证部门名称是否已存在**/
-            await this.whereDeptService.fetchBaseNotEmpty(headers, {
+            await this.whereDeptService.fetchDeptNameNotEmpty(headers, {
                 where: { deptName: body.deptName }
             })
+            /**写入部门表**/
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDept, {
                 body: {
                     deptId: await divineIntNumber({ random: true, bit: 9 }),
@@ -44,9 +45,10 @@ export class DeptService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             /**验证部门名称是否不存在**/
-            await this.whereDeptService.fetchBaseEmpty(headers, {
+            await this.whereDeptService.fetchDeptNameEmpty(headers, {
                 where: { deptId: body.deptId }
             })
+            /**更新部门表**/
             return await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbDept, {
                 where: { deptId: body.deptId },
                 body: { deptName: body.deptName }

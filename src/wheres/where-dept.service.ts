@@ -13,7 +13,7 @@ export class WhereDeptService extends LoggerService {
     }
 
     /**验证部门名称是否已存在**/
-    public async fetchBaseNotEmpty(headers: OmixHeaders, dispatch: Parameters<Repository<tbDept>['findOne']>['0']) {
+    public async fetchDeptNameNotEmpty(headers: OmixHeaders, dispatch: Parameters<Repository<tbDept>['findOne']>['0']) {
         return await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbDept, {
             message: '部门已存在',
             dispatch: dispatch
@@ -21,7 +21,7 @@ export class WhereDeptService extends LoggerService {
     }
 
     /**验证部门名称是否不存在**/
-    public async fetchBaseEmpty(headers: OmixHeaders, dispatch: Parameters<Repository<tbDept>['findOne']>['0']) {
+    public async fetchDeptNameEmpty(headers: OmixHeaders, dispatch: Parameters<Repository<tbDept>['findOne']>['0']) {
         return await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
             message: '部门不存在',
             dispatch: dispatch
@@ -29,7 +29,7 @@ export class WhereDeptService extends LoggerService {
     }
 
     /**验证部门列表ID是否不存在**/
-    public async fetchBaseColumnEmpty(headers: OmixHeaders, deptId: Array<string>) {
+    public async fetchDeptColumnEmpty(headers: OmixHeaders, deptId: Array<string>) {
         await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {
             qb.where('t.deptId IN(:...deptId)', { deptId: deptId })
             const differ = await qb.getMany().then(dept => {

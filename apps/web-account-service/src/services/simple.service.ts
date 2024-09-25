@@ -1,6 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
+import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { divineResolver, divineIntNumber, divineBstract, divineHandler } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { Not } from 'typeorm'
@@ -11,7 +12,7 @@ import * as enums from '@/enums/instance'
 
 @Injectable()
 export class SimpleService extends LoggerService {
-    constructor(private readonly databaseService: DatabaseService) {
+    constructor(private readonly databaseService: DatabaseService, private readonly whereSimpleService: WhereSimpleService) {
         super()
     }
 
@@ -20,12 +21,9 @@ export class SimpleService extends LoggerService {
     public async httpCreateSimple(headers: OmixHeaders, staffId: string, body: env.BodyCreateSimple) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbSimple, {
-                message: '字典名称已存在',
-                dispatch: {
-                    where: { name: body.name, stalk: body.stalk, state: Not(enums.SimpleState.delete) }
-                }
-            })
+            /**验证字典名称是否已存在**/
+            await this.whereSimpleService.fetchSimpleNameNotEmpty(headers, { name: body.name, stalk: body.stalk })
+            /**写入字典表**/
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbSimple, {
                 body: {
                     sid: await divineIntNumber({ random: true, bit: 11 }),

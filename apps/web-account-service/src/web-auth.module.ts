@@ -13,6 +13,7 @@ import { DatabaseModule } from '@/modules/database.module'
 //wheres
 import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
+import { WhereSimpleService } from '@/wheres/where-simple.service'
 //services
 import { DeptService } from '@web-account-service/services/dept.service'
 import { SimpleService } from '@web-account-service/services/simple.service'
@@ -32,6 +33,7 @@ import { MemberController } from '@web-account-service/controllers/member.contro
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
         WhereMemberService,
         WhereDeptService,
+        WhereSimpleService,
         DeptService,
         SimpleService,
         MemberService
