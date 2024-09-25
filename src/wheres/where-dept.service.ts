@@ -6,40 +6,47 @@ import { OmixHeaders } from '@/interface/instance.resolver'
 import { tbDept } from '@/entities/instance'
 import { difference } from 'lodash'
 
+export type DeptOptions = Parameters<Repository<tbDept>['findOne']>['0']
+
 @Injectable()
 export class WhereDeptService extends LoggerService {
     constructor(private readonly databaseService: DatabaseService) {
         super()
     }
 
-    /**验证部门名称是否已存在**/
-    public async fetchDeptNameNotEmpty(headers: OmixHeaders, dispatch: Parameters<Repository<tbDept>['findOne']>['0']) {
+    /**部门数据存在验证**/
+    public async fetchNotNullValidator(headers: OmixHeaders, option: { message: string; where: DeptOptions['where'] }) {
         return await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbDept, {
-            message: '部门已存在',
-            dispatch: dispatch
+            message: option.message,
+            dispatch: {
+                where: option.where
+            }
         })
     }
 
-    /**验证部门名称是否不存在**/
-    public async fetchDeptNameEmpty(headers: OmixHeaders, dispatch: Parameters<Repository<tbDept>['findOne']>['0']) {
+    /**部门数据不存在验证**/
+    public async fetchNullValidator(headers: OmixHeaders, option: { message: string; where: DeptOptions['where'] }) {
         return await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbDept, {
-            message: '部门不存在',
-            dispatch: dispatch
+            message: option.message,
+            dispatch: {
+                where: option.where
+            }
         })
     }
 
     /**验证部门列表ID是否不存在**/
-    public async fetchDeptColumnEmpty(headers: OmixHeaders, deptId: Array<string>) {
-        await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {
+    public async fetchDiffColumnValidator(headers: OmixHeaders, deptId: Array<string>) {
+        return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {
             qb.where('t.deptId IN(:...deptId)', { deptId: deptId })
-            const differ = await qb.getMany().then(dept => {
-                return difference(
+            return await qb.getMany().then(async column => {
+                const differ = difference(
                     deptId,
-                    dept.map(item => item.deptId)
+                    column.map(item => item.deptId)
                 )
-            })
-            return await this.fetchWhereException(differ.length > 0, async where => {
-                return this.fetchThrowException(`dept: [${differ.join(',')}] 不存在`, 400)
+                await this.fetchWhereException(differ.length > 0, async where => {
+                    return this.fetchThrowException(`dept: [${differ.join(',')}] 不存在`, 400)
+                })
+                return column
             })
         })
     }

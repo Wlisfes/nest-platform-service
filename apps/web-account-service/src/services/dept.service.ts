@@ -1,4 +1,5 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
+import { Not } from 'typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
@@ -19,8 +20,8 @@ export class DeptService extends LoggerService {
     public async httpCreateDept(headers: OmixHeaders, staffId: string, body: env.BodyCreateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            /**验证部门名称是否已存在**/
-            await this.whereDeptService.fetchDeptNameNotEmpty(headers, {
+            await this.whereDeptService.fetchNotNullValidator(headers, {
+                message: 'deptName已存在',
                 where: { deptName: body.deptName }
             })
             /**写入部门表**/
@@ -44,9 +45,13 @@ export class DeptService extends LoggerService {
     public async httpUpdateDept(headers: OmixHeaders, staffId: string, body: env.BodyUpdateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            /**验证部门名称是否不存在**/
-            await this.whereDeptService.fetchDeptNameEmpty(headers, {
+            await this.whereDeptService.fetchNullValidator(headers, {
+                message: 'deptId不存在',
                 where: { deptId: body.deptId }
+            })
+            await this.whereDeptService.fetchNotNullValidator(headers, {
+                message: 'deptName已存在',
+                where: { deptName: body.deptName, deptId: Not(body.deptId) }
             })
             /**更新部门表**/
             return await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbDept, {

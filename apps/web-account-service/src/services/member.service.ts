@@ -37,7 +37,7 @@ export class MemberService extends LoggerService {
                 where: { jobNumber: body.jobNumber }
             })
             /**验证部门列表ID是否不存在**/
-            await this.whereDeptService.fetchDeptColumnEmpty(headers, body.dept)
+            await this.whereDeptService.fetchDiffColumnValidator(headers, body.dept)
 
             // await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple)
             // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbSimple, {
