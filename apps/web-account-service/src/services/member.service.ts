@@ -3,11 +3,13 @@ import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
+import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember, tbDept, tbDeptMember } from '@/entities/instance'
 import { difference } from 'lodash'
 import { faker, divineResolver, divineIntNumber, divineHandler } from '@/utils/utils-common'
 import * as env from '@web-account-service/interface/instance.resolver'
+import * as enums from '@/enums/instance'
 
 /**列表字段扁平化**/
 export function fetchColumnFlatMember(data: Omix<tbMember>) {
@@ -22,7 +24,8 @@ export class MemberService extends LoggerService {
     constructor(
         private readonly databaseService: DatabaseService,
         private readonly whereMemberService: WhereMemberService,
-        private readonly whereDeptService: WhereDeptService
+        private readonly whereDeptService: WhereDeptService,
+        private readonly whereSimpleService: WhereSimpleService
     ) {
         super()
     }
@@ -33,11 +36,33 @@ export class MemberService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             /**验证员工工号是否已存在**/
-            await this.whereMemberService.fetchBaseJobNumberNotEmpty(headers, {
+            await this.whereMemberService.fetchMemberNullValidator(headers, {
                 where: { jobNumber: body.jobNumber }
             })
             /**验证部门列表ID是否不存在**/
-            await this.whereDeptService.fetchDiffColumnValidator(headers, body.dept)
+            await this.whereDeptService.fetchDeptDiffColumnValidator(headers, {
+                dept: body.dept,
+                fieldName: 'dept'
+            })
+            /**验证部门子管理员ID列表是否不存在**/
+            await divineHandler((body.master ?? []).length > 0, {
+                handler: async () => {
+                    return await this.whereDeptService.fetchDeptDiffColumnValidator(headers, {
+                        dept: body.master,
+                        fieldName: 'master'
+                    })
+                }
+            })
+            /**验证职位ID列表是否不存在**/
+            await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
+                sid: body.post,
+                stalk: enums.SimpleStalk.post
+            })
+            /**验证职级ID列表是否不存在**/
+            await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
+                sid: body.rank,
+                stalk: enums.SimpleStalk.rank
+            })
 
             // await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple)
             // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbSimple, {

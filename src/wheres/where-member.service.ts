@@ -12,7 +12,7 @@ export class WhereMemberService extends LoggerService {
     }
 
     /**验证员工工号是否已存在**/
-    public async fetchBaseJobNumberNotEmpty(headers: OmixHeaders, dispatch: Parameters<Repository<tbMember>['findOne']>['0']) {
+    public async fetchMemberNullValidator(headers: OmixHeaders, dispatch: Parameters<Repository<tbMember>['findOne']>['0']) {
         return await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbMember, {
             message: '工号已存在',
             dispatch: dispatch

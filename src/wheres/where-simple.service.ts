@@ -4,6 +4,7 @@ import { LoggerService } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember, tbSimple } from '@/entities/instance'
+import { difference } from 'lodash'
 import * as enums from '@/enums/instance'
 
 @Injectable()
@@ -19,6 +20,24 @@ export class WhereSimpleService extends LoggerService {
             dispatch: {
                 where: { name: body.name, stalk: body.stalk, state: Not(enums.SimpleState.delete) }
             }
+        })
+    }
+
+    /**验证字典ID列表是否不存在**/
+    public async fetchSimpleDiffColumnValidator(headers: OmixHeaders, option: Omix<{ sid: Array<string>; stalk: string }>) {
+        return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
+            qb.where('t.sid IN(:...sid)', { sid: option.sid })
+            qb.andWhere('t.stalk = :stalk', { stalk: option.stalk })
+            return await qb.getMany().then(async column => {
+                const differ = difference(
+                    option.sid,
+                    column.map(item => item.sid)
+                )
+                await this.fetchWhereException(differ.length > 0, async where => {
+                    return this.fetchThrowException(`${option.stalk}: [${differ.join(',')}] 不存在`, 400)
+                })
+                return column
+            })
         })
     }
 }

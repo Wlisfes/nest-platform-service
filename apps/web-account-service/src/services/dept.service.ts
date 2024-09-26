@@ -20,7 +20,7 @@ export class DeptService extends LoggerService {
     public async httpCreateDept(headers: OmixHeaders, staffId: string, body: env.BodyCreateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            await this.whereDeptService.fetchNotNullValidator(headers, {
+            await this.whereDeptService.fetchDeptNotNullValidator(headers, {
                 message: 'deptName已存在',
                 where: { deptName: body.deptName }
             })
@@ -45,11 +45,11 @@ export class DeptService extends LoggerService {
     public async httpUpdateDept(headers: OmixHeaders, staffId: string, body: env.BodyUpdateDept) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            await this.whereDeptService.fetchNullValidator(headers, {
+            await this.whereDeptService.fetchDeptNullValidator(headers, {
                 message: 'deptId不存在',
                 where: { deptId: body.deptId }
             })
-            await this.whereDeptService.fetchNotNullValidator(headers, {
+            await this.whereDeptService.fetchDeptNotNullValidator(headers, {
                 message: 'deptName已存在',
                 where: { deptName: body.deptName, deptId: Not(body.deptId) }
             })
