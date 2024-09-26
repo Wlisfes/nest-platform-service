@@ -5,7 +5,7 @@ import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
-import { tbMember, tbDept, tbDeptMember } from '@/entities/instance'
+import { tbMember, tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
 import { difference } from 'lodash'
 import { faker, divineResolver, divineIntNumber, divineHandler } from '@/utils/utils-common'
 import * as env from '@web-account-service/interface/instance.resolver'
@@ -63,47 +63,33 @@ export class MemberService extends LoggerService {
                 sid: body.rank,
                 stalk: enums.SimpleStalk.rank
             })
-
-            // await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple)
-            // await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbSimple, {
-            //     message: '部门ID不存在',
-            //     dispatch: { where: {} }
-            // })
-            // const { staffId } = await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
-            //     body: {
-            //         staffId: await divineIntNumber(),
-            //         password: Buffer.from('123456').toString('base64'),
-            //         name: body.name,
-            //         jobNumber: body.jobNumber
-            //     }
-            // })
-            // await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDeptMember, {
-            //     body: {
-            //         staffId
-            //         // deptId: body.deptId
-            //         // master: body.master
-            //     }
-            // })
-            // return await divineResolver({ message: 'success' })
-
-            // for (let index = 0; index < 10; index++) {
-            //     await divineDelay(1)
-            //     const { staffId } = await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
-            //         body: {
-            //             staffId: await divineIntNumber(),
-            //             password: Buffer.from('123456').toString('base64'),
-            //             name: faker.person.fullName(),
-            //             jobNumber: body.jobNumber
-            //         }
-            //     })
-            //     await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDeptMember, {
-            //         body: {
-            //             staffId,
-            //             deptId: body.deptId
-            //         }
-            //     })
-            // }
-            return await divineResolver({ message: 'success' })
+            /**写入员工表**/ //prettier-ignore
+            return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
+                body: {
+                    staffId: await divineIntNumber(),
+                    password: Buffer.from('123456').toString('base64'),
+                    name: body.name,
+                    jobNumber: body.jobNumber
+                }
+            }).then(async ({ staffId }) => {
+                /**员工与部门绑定关联**/
+                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbDeptMember, {
+                    body: body.dept.map(deptId => ({ deptId, staffId }))
+                })
+                /**员工与子管理员绑定关联**/
+                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbDeptMaster, {
+                    body: body.master.map(deptId => ({ deptId, staffId }))
+                })
+                /**员工与职位绑定关联***/
+                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbSimplePostMember, {
+                    body: body.post.map(sid => ({ sid, staffId }))
+                })
+                /**员工与职级绑定关联***/
+                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbSimpleRankMember, {
+                    body: body.rank.map(sid => ({ sid, staffId }))
+                })
+                return await divineResolver({ message: 'success' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchThrowException(err.message, err.status)
@@ -117,9 +103,24 @@ export class MemberService extends LoggerService {
     public async httpColumnMember(headers: OmixHeaders, staffId: string, body: env.BodyColumnMember) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbMember, async qb => {
             qb.leftJoinAndMapMany('t.dept', tbDeptMember, 'dept', 't.staffId = dept.staffId')
-            qb.leftJoinAndMapOne('dept.name', tbDept, 'deptName', 'dept.deptId = deptName.deptId')
+            qb.leftJoinAndMapOne('dept.name', tbDept, 'dept1', 'dept.deptId = dept1.deptId')
+            qb.leftJoinAndMapMany('t.master', tbDeptMaster, 'master', 't.staffId = master.staffId')
+            qb.leftJoinAndMapOne('master.name', tbDept, 'master1', 'master.deptId = master1.deptId')
+            qb.leftJoinAndMapMany('t.post', tbSimplePostMember, 'post', 't.staffId = post.staffId')
+            qb.leftJoinAndMapOne('post.name', tbSimple, 'post1', 'post.sid = post1.sid')
+            qb.leftJoinAndMapMany('t.rank', tbSimpleRankMember, 'rank', 't.staffId = rank.staffId')
+            qb.leftJoinAndMapOne('rank.name', tbSimple, 'rank1', 'rank.sid = rank1.sid')
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await divineResolver({ total, list: list.map(fetchColumnFlatMember) })
+                return await divineResolver({
+                    total,
+                    list: list.map((data: Omix) => ({
+                        ...data,
+                        dept: data.dept.map(({ deptId, name }) => ({ deptId, deptName: name.deptName })),
+                        master: data.master.map(({ deptId, name }) => ({ deptId, deptName: name.deptName })),
+                        post: data.post.map(({ sid, name }) => ({ sid, name: name.name })),
+                        rank: data.rank.map(({ sid, name }) => ({ sid, name: name.name }))
+                    }))
+                })
             })
         })
     }

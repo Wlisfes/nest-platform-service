@@ -24,7 +24,7 @@ export const faker = new Faker({
 })
 
 /**生成纯数字的雪花ID、随机字符串**/
-export async function divineIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
+export function divineIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
     if (scope.random) {
         return Array.from({ length: scope.bit ?? 6 }, x => Math.floor(Math.random() * 9) + 1).join('')
     }

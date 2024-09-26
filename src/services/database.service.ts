@@ -26,6 +26,7 @@ export class DatabaseService extends LoggerService {
         @InjectRepository(entities.tbMember) public readonly tbMember: Repository<entities.tbMember>,
         @InjectRepository(entities.tbDept) public readonly tbDept: Repository<entities.tbDept>,
         @InjectRepository(entities.tbDeptMember) public readonly tbDeptMember: Repository<entities.tbDeptMember>,
+        @InjectRepository(entities.tbDeptMaster) public readonly tbDeptMaster: Repository<entities.tbDeptMaster>,
         @InjectRepository(entities.tbSimple) public readonly tbSimple: Repository<entities.tbSimple>,
         @InjectRepository(entities.tbSimplePostMember) public readonly tbSimplePostMember: Repository<entities.tbSimplePostMember>,
         @InjectRepository(entities.tbSimpleRankMember) public readonly tbSimpleRankMember: Repository<entities.tbSimpleRankMember>
@@ -123,6 +124,17 @@ export class DatabaseService extends LoggerService {
         const state = await model.create(scope.body)
         return await model.save(state).then(async node => {
             this.logger.info({ log: `[${model.metadata.name}]:创建结果`, node })
+            return node
+        })
+    }
+
+    /**批量创建数据模型**/
+    @Logger
+    public async fetchConnectInsert<T>(headers: OmixHeaders, model: Repository<T>, scope: { body: Array<Omix<DeepPartial<T>>> }) {
+        this.logger.info({ log: `[${model.metadata.name}]:批量创建入参`, body: scope.body })
+        return await this.fetchConnectBuilder(headers, model, async qb => {
+            const node = await qb.insert().values(scope.body).execute()
+            this.logger.info({ log: `[${model.metadata.name}]:批量创建结果`, identifiers: node.identifiers, row: node.raw })
             return node
         })
     }
