@@ -22,6 +22,15 @@
             "compilerOptions": {
                 "tsConfigPath": "apps/web-account-service/tsconfig.app.json"
             }
+        },
+        "web-system-service": {
+            "type": "application",
+            "root": "apps/web-system-service",
+            "entryFile": "main",
+            "sourceRoot": "apps/web-system-service/src",
+            "compilerOptions": {
+                "tsConfigPath": "apps/web-system-service/tsconfig.app.json"
+            }
         }
     }
 }

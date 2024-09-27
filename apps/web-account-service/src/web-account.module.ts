@@ -39,7 +39,7 @@ import { MemberController } from '@web-account-service/controllers/member.contro
         MemberService
     ]
 })
-export class WebAuthModule implements NestModule {
+export class WebAccountModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(UserAgentMiddleware, LoggerMiddleware).forRoutes('*')
     }

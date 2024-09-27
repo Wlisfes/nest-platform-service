@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { NestExpressApplication } from '@nestjs/platform-express'
-import { WebAuthModule } from '@web-account-service/web-auth.module'
+import { WebSystemModule } from '@web-system-service/web-system.module'
 import { useSwagger } from '@/swagger/web-system-service'
 import * as web from '@/config/web-instance'
 import * as express from 'express'
@@ -9,7 +9,7 @@ import * as cookieParser from 'cookie-parser'
 import * as path from 'path'
 
 async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(WebAuthModule, {
+    const app = await NestFactory.create<NestExpressApplication>(WebSystemModule, {
         cors: true
     })
     //允许跨域
