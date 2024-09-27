@@ -1,6 +1,7 @@
 import { Module, Global } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { JwtModule, JwtService } from '@nestjs/jwt'
+import { JwtModule, JwtService as Jwt } from '@nestjs/jwt'
+import { JwtService } from '@/services/jwt.service'
 import * as web from '@/config/web-instance'
 import * as fs from 'fs'
 import * as yaml from 'js-yaml'
@@ -24,7 +25,7 @@ export function divineCustomProvider() {
         })
     ],
     controllers: [],
-    providers: [ConfigService, JwtService],
-    exports: [ConfigService, JwtService]
+    providers: [ConfigService, Jwt, JwtService],
+    exports: [ConfigService, Jwt, JwtService]
 })
 export class ConfigerModule {}

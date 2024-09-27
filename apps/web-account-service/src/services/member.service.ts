@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
+import { JwtService } from '@/services/jwt.service'
 import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember, tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
 import { divineResolver, divineIntNumber, divineHandler } from '@/utils/utils-common'
+import { compareSync } from 'bcryptjs'
 import * as env from '@web-account-service/interface/instance.resolver'
 import * as enums from '@/enums/instance'
 
@@ -21,12 +23,35 @@ export function fetchColumnFlatMember(data: Omix<tbMember>) {
 @Injectable()
 export class MemberService extends LoggerService {
     constructor(
+        private readonly jwtService: JwtService,
         private readonly databaseService: DatabaseService,
         private readonly whereMemberService: WhereMemberService,
         private readonly whereDeptService: WhereDeptService,
         private readonly whereSimpleService: WhereSimpleService
     ) {
         super()
+    }
+
+    /**员工账号登录**/
+    @Logger
+    public async httpAuthMember(headers: OmixHeaders, body: env.BodyAuthMember) {
+        return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbMember, async qb => {
+            qb.addSelect('t.password')
+            qb.where('t.jobNumber = :jobNumber', { jobNumber: body.jobNumber })
+            return await qb.getOne().then(async node => {
+                await this.databaseService.fetchConnectCatchWherer(!Boolean(node), node, {
+                    message: '员工账号不存在'
+                })
+                await this.databaseService.fetchConnectCatchWherer(!compareSync(body.password, node.password), node, {
+                    message: '员工账号密码错误'
+                })
+                await this.databaseService.fetchConnectCatchWherer(node.state !== enums.MemberState.online, node, {
+                    message: '员工已离职或账号已被禁用'
+                })
+                this.jwtService.fetchJwtTokenSecret
+                console.log(node)
+            })
+        })
     }
 
     /**创建员工账号**/

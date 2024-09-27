@@ -4,6 +4,9 @@ import { IsOptional } from '@/decorator/common.decorator'
 import { OmixColumnPayload } from '@/interface/instance.resolver'
 import { tbMember } from '@/entities/instance'
 
+/**员工账号登录**/
+export class BodyAuthMember extends PickType(tbMember, ['jobNumber', 'password']) {}
+
 /**创建员工账号**/
 export class BodyCreateMember extends PickType(tbMember, ['name', 'jobNumber']) {
     @ApiProperty({ description: '部门列表' })

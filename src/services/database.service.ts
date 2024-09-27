@@ -1,9 +1,7 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import { Injectable, HttpStatus } from '@nestjs/common'
 import { Repository, DataSource, DeepPartial, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
-import { JwtService } from '@nestjs/jwt'
 import { divineCatchWherer, divineResolver } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import * as entities from '@/entities/instance'
@@ -19,9 +17,7 @@ export interface OmixCustomOption<T, U> extends Omix {
 @Injectable()
 export class DatabaseService extends LoggerService {
     constructor(
-        private readonly configService: ConfigService,
         private readonly dataSource: DataSource,
-        private readonly jwtService: JwtService,
         @InjectRepository(entities.tbUser) public readonly tbUser: Repository<entities.tbUser>,
         @InjectRepository(entities.tbMember) public readonly tbMember: Repository<entities.tbMember>,
         @InjectRepository(entities.tbDept) public readonly tbDept: Repository<entities.tbDept>,
@@ -32,34 +28,6 @@ export class DatabaseService extends LoggerService {
         @InjectRepository(entities.tbSimpleRankMember) public readonly tbSimpleRankMember: Repository<entities.tbSimpleRankMember>
     ) {
         super()
-    }
-
-    /**jwtToken解析**/
-    public async fetchJwtTokenParser<T>(token: string, scope: Omix<{ message?: string; status?: number }> = {}): Promise<T> {
-        try {
-            return (await this.jwtService.verifyAsync(token, { secret: this.configService.get('JWT_SECRET') })) as T
-        } catch (e) {
-            throw new HttpException(scope.message ?? '身份验证失败', scope.status ?? HttpStatus.UNAUTHORIZED)
-        }
-    }
-
-    /**jwtToken加密**/
-    public async fetchJwtTokenSecret<T>(
-        node: Omix<T>,
-        scope: Omix<{ expire?: number; message?: string; status?: number }> = {}
-    ): Promise<string> {
-        try {
-            if (scope.expire) {
-                return await this.jwtService.signAsync(Object.assign(node, {}), {
-                    expiresIn: scope.expire,
-                    secret: this.configService.get('JWT_SECRET')
-                })
-            } else {
-                return await this.jwtService.signAsync(node, { secret: this.configService.get('JWT_SECRET') })
-            }
-        } catch (e) {
-            throw new HttpException(scope.message ?? '身份验证失败', scope.status ?? HttpStatus.UNAUTHORIZED)
-        }
     }
 
     /**typeorm事务**/

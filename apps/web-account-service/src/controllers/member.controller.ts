@@ -10,6 +10,15 @@ import * as env from '@web-account-service/interface/instance.resolver'
 export class MemberController {
     constructor(private readonly memberService: MemberService) {}
 
+    @Post('/login')
+    @ApiDecorator({
+        operation: { summary: '员工账号登录' },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpAuthMember(@Request() request: OmixRequest, @Body() body: env.BodyAuthMember) {
+        return await this.memberService.httpAuthMember(request.headers, body)
+    }
+
     @Post('/create')
     @ApiDecorator({
         operation: { summary: '创建员工账号' },
