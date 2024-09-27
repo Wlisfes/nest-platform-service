@@ -20,6 +20,8 @@ async function bootstrap() {
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
+    //接口前缀
+    app.setGlobalPrefix(web.WebSystemService.prefix)
     //全局注册验证管道
     app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
     //挂载文档
@@ -28,7 +30,7 @@ async function bootstrap() {
     await app.listen(web.WebSystemService.port).then(() => {
         console.log(
             `[${web.WebSystemService.namespace}]-${web.WebSystemService.title}启动:`,
-            `http://localhost:${web.WebSystemService.port}`,
+            `http://localhost:${web.WebSystemService.port}${web.WebSystemService.prefix}`,
             `http://localhost:${web.WebSystemService.port}/${web.WebSystemService.document}`
         )
     })

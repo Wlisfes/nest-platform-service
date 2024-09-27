@@ -6,19 +6,11 @@ import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
-import { tbMember, tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
+import { tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
 import { divineResolver, divineIntNumber, divineHandler } from '@/utils/utils-common'
 import { compareSync } from 'bcryptjs'
 import * as env from '@web-account-service/interface/instance.resolver'
 import * as enums from '@/enums/instance'
-
-/**列表字段扁平化**/
-export function fetchColumnFlatMember(data: Omix<tbMember>) {
-    return {
-        ...data,
-        dept: data.dept.map(item => ({ deptId: item.deptId, deptName: item.name.deptName }))
-    }
-}
 
 @Injectable()
 export class MemberService extends LoggerService {
@@ -48,8 +40,13 @@ export class MemberService extends LoggerService {
                 await this.databaseService.fetchConnectCatchWherer(node.state !== enums.MemberState.online, node, {
                     message: '员工已离职或账号已被禁用'
                 })
-                this.jwtService.fetchJwtTokenSecret
-                console.log(node)
+                return await this.jwtService.fetchJwtTokenSecret({
+                    staffId: node.staffId,
+                    name: node.name,
+                    jobNumber: node.jobNumber,
+                    state: node.state,
+                    password: node.password
+                })
             })
         })
     }

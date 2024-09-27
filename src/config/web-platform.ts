@@ -5,6 +5,7 @@ export const WebAccountService = {
     description: 'Account Center Service API Documentation',
     version: '1.0.0',
     document: 'api-doc',
+    prefix: '/api/account',
     port: 4080
 }
 
@@ -15,5 +16,6 @@ export const WebSystemService = {
     description: 'System Configuration Service API Documentation',
     version: '1.0.0',
     document: 'api-doc',
+    prefix: '/api/system',
     port: 4070
 }

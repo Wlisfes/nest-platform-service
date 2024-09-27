@@ -20,6 +20,8 @@ async function bootstrap() {
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
+    //接口前缀
+    app.setGlobalPrefix(web.WebAccountService.prefix)
     //全局注册验证管道
     app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
     //挂载文档
@@ -28,7 +30,7 @@ async function bootstrap() {
     await app.listen(web.WebAccountService.port).then(() => {
         console.log(
             `[${web.WebAccountService.namespace}]-${web.WebAccountService.title}启动:`,
-            `http://localhost:${web.WebAccountService.port}`,
+            `http://localhost:${web.WebAccountService.port}${web.WebAccountService.prefix}`,
             `http://localhost:${web.WebAccountService.port}/${web.WebAccountService.document}`
         )
     })
