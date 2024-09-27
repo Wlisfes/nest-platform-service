@@ -25,7 +25,8 @@ export class DatabaseService extends LoggerService {
         @InjectRepository(entities.tbDeptMaster) public readonly tbDeptMaster: Repository<entities.tbDeptMaster>,
         @InjectRepository(entities.tbSimple) public readonly tbSimple: Repository<entities.tbSimple>,
         @InjectRepository(entities.tbSimplePostMember) public readonly tbSimplePostMember: Repository<entities.tbSimplePostMember>,
-        @InjectRepository(entities.tbSimpleRankMember) public readonly tbSimpleRankMember: Repository<entities.tbSimpleRankMember>
+        @InjectRepository(entities.tbSimpleRankMember) public readonly tbSimpleRankMember: Repository<entities.tbSimpleRankMember>,
+        @InjectRepository(entities.tbRouter) public readonly tbRouter: Repository<entities.tbRouter>
     ) {
         super()
     }
