@@ -2,8 +2,8 @@ import { Controller, Get, Post, Body, Query, Request } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/compute.decorator'
 import { OmixNotice, OmixRequest } from '@/interface/instance.resolver'
-import { SimpleService } from '@web-account-service/services/simple.service'
-import * as env from '@web-account-service/interface/instance.resolver'
+import { SimpleService } from '@web-system-service/services/simple.service'
+import * as env from '@web-system-service/interface/instance.resolver'
 
 @ApiTags('字典模块')
 @Controller('simple')

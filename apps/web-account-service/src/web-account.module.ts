@@ -15,18 +15,14 @@ import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
 //services
-import { DeptService } from '@web-account-service/services/dept.service'
-import { SimpleService } from '@web-account-service/services/simple.service'
 import { MemberService } from '@web-account-service/services/member.service'
 //controllers
 import { UserController } from '@web-account-service/controllers/user.controller'
-import { DeptController } from '@web-account-service/controllers/dept.controller'
-import { SimpleController } from '@web-account-service/controllers/simple.controller'
 import { MemberController } from '@web-account-service/controllers/member.controller'
 
 @Module({
     imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
-    controllers: [UserController, DeptController, SimpleController, MemberController],
+    controllers: [UserController, MemberController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
@@ -34,8 +30,6 @@ import { MemberController } from '@web-account-service/controllers/member.contro
         WhereMemberService,
         WhereDeptService,
         WhereSimpleService,
-        DeptService,
-        SimpleService,
         MemberService
     ]
 })

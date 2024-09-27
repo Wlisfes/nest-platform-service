@@ -1,8 +1,8 @@
-import { ApiProperty, ApiPropertyOptional, PickType, PartialType, IntersectionType } from '@nestjs/swagger'
-import { IsNotEmpty, IsEnum, IsArray, ArrayNotEmpty } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional, PickType, IntersectionType } from '@nestjs/swagger'
+import { IsNotEmpty, IsArray, ArrayNotEmpty } from 'class-validator'
 import { IsOptional } from '@/decorator/common.decorator'
-import { OmixPayload, OmixColumnPayload } from '@/interface/instance.resolver'
-import { tbMember, tbDept, tbDeptMember } from '@/entities/instance'
+import { OmixColumnPayload } from '@/interface/instance.resolver'
+import { tbMember } from '@/entities/instance'
 
 /**创建员工账号**/
 export class BodyCreateMember extends PickType(tbMember, ['name', 'jobNumber']) {

@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Query, Request } from '@nestjs/common'
+import { Controller, Get, Post, Body, Request } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/compute.decorator'
 import { OmixNotice, OmixRequest } from '@/interface/instance.resolver'
-import { DeptService } from '@web-account-service/services/dept.service'
-import * as env from '@web-account-service/interface/instance.resolver'
+import { DeptService } from '@web-system-service/services/dept.service'
+import * as env from '@web-system-service/interface/instance.resolver'
 
 @ApiTags('部门模块')
 @Controller('dept')
