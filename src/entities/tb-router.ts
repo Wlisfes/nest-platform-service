@@ -46,4 +46,15 @@ export class tbRouter extends CommonEntier {
     @IsEnum(enums.RouterState, { message: '菜单状态参数格式错误' })
     @Column({ comment: '菜单状态: 启用-enable、禁用-disable', default: enums.RouterState.enable, nullable: false })
     state: string
+
+    @ApiProperty({ description: '菜单类型: 启用-router、禁用-button', enum: enums.RouterType })
+    @IsNotEmpty({ message: '菜单类型必填' })
+    @IsEnum(enums.RouterType, { message: '菜单类型参数格式错误' })
+    @Column({ comment: '菜单类型: 启用-router、禁用-button', default: enums.RouterType.router, nullable: false })
+    type: string
+
+    @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'staffId必填' })
+    @Column({ comment: '员工ID', length: 32, nullable: false })
+    staffId: string
 }

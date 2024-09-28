@@ -17,13 +17,15 @@ import { WhereSimpleService } from '@/wheres/where-simple.service'
 //services
 import { DeptService } from '@web-system-service/services/dept.service'
 import { SimpleService } from '@web-system-service/services/simple.service'
+import { RouterService } from '@web-system-service/services/router.service'
 //controllers
 import { DeptController } from '@web-system-service/controllers/dept.controller'
 import { SimpleController } from '@web-system-service/controllers/simple.controller'
+import { RouterController } from '@web-system-service/controllers/router.controller'
 
 @Module({
     imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
-    controllers: [DeptController, SimpleController],
+    controllers: [DeptController, SimpleController, RouterController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
@@ -32,7 +34,8 @@ import { SimpleController } from '@web-system-service/controllers/simple.control
         WhereDeptService,
         WhereSimpleService,
         DeptService,
-        SimpleService
+        SimpleService,
+        RouterService
     ]
 })
 export class WebSystemModule implements NestModule {
