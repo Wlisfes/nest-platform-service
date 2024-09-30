@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
+import { JwtService } from '@/services/jwt.service'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { JwtService } from '@/services/jwt.service'
+import { UploadService } from '@/services/upload/upload.service'
 import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
@@ -17,6 +18,7 @@ export class MemberService extends LoggerService {
     constructor(
         private readonly jwtService: JwtService,
         private readonly databaseService: DatabaseService,
+        private readonly uploadService: UploadService,
         private readonly whereMemberService: WhereMemberService,
         private readonly whereDeptService: WhereDeptService,
         private readonly whereSimpleService: WhereSimpleService

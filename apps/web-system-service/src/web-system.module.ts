@@ -10,6 +10,7 @@ import { ConfigerModule } from '@/modules/configer.module'
 import { LoggerModule } from '@/modules/logger.module'
 import { ThrottlerModule } from '@/modules/throttler.module'
 import { DatabaseModule } from '@/modules/database.module'
+import { UploadModule } from '@/modules/upload.module'
 //wheres
 import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
@@ -24,7 +25,7 @@ import { SimpleController } from '@web-system-service/controllers/simple.control
 import { RouterController } from '@web-system-service/controllers/router.controller'
 
 @Module({
-    imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule],
+    imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule, UploadModule],
     controllers: [DeptController, SimpleController, RouterController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
