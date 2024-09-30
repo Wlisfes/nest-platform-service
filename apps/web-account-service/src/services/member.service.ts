@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { JwtService } from '@/services/jwt.service'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { RedisService } from '@/services/redis/redis.service'
@@ -7,13 +7,14 @@ import { UploadService } from '@/services/upload/upload.service'
 import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
-import { Omix, OmixHeaders } from '@/interface/instance.resolver'
+import { Omix, OmixHeaders, OmixRequest } from '@/interface/instance.resolver'
 import { tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
 import { divineResolver, divineIntNumber, divineHandler, divineKeyCompose } from '@/utils/utils-common'
 import { divineGraphCodex } from '@/utils/utils-plugin'
 import { compareSync } from 'bcryptjs'
 import { Response } from 'express'
 import * as enums from '@/enums/instance'
+import * as web from '@/config/web-instance'
 import * as keys from '@web-account-service/keys'
 import * as env from '@web-account-service/interface/instance.resolver'
 
@@ -38,7 +39,7 @@ export class MemberService extends LoggerService {
         const key = await divineKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
         return await this.redisService.setStore(headers, { key, data: text, seconds: 5 * 60 }).then(async () => {
             this.logger.info({ message: '图形验证码发送成功', seconds: 5 * 60, key, text })
-            await response.cookie('captcha-sid', sid, { httpOnly: true })
+            await response.cookie(web.WEB_COMMON_HEADER_CAPHCHA, sid, { httpOnly: true })
             await response.type('svg')
             return await response.send(data)
         })
@@ -46,7 +47,20 @@ export class MemberService extends LoggerService {
 
     /**员工账号登录**/
     @Logger
-    public async httpAuthMember(headers: OmixHeaders, body: env.BodyAuthMember) {
+    public async httpAuthMember(headers: OmixHeaders, request: OmixRequest, body: env.BodyAuthMember) {
+        /**校验图形验证码**/
+        const sid = request.cookies[web.WEB_COMMON_HEADER_CAPHCHA]
+        if (!sid) {
+            throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
+        } else {
+            const key = await divineKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
+            await this.redisService.getStore<string>(headers, { key, defaultValue: null }).then(async code => {
+                if (body.code.toUpperCase() !== code.toUpperCase()) {
+                    throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
+                }
+                return await this.redisService.delStore(headers, { key })
+            })
+        }
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbMember, async qb => {
             qb.addSelect('t.password')
             qb.where('t.jobNumber = :jobNumber', { jobNumber: body.jobNumber })

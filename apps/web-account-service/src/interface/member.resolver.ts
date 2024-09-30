@@ -5,7 +5,11 @@ import { OmixColumnPayload } from '@/interface/instance.resolver'
 import { tbMember } from '@/entities/instance'
 
 /**员工账号登录**/
-export class BodyAuthMember extends PickType(tbMember, ['jobNumber', 'password']) {}
+export class BodyAuthMember extends PickType(tbMember, ['jobNumber', 'password']) {
+    @ApiProperty({ description: '验证码', example: '495673' })
+    @IsNotEmpty({ message: '验证码 必填' })
+    code: string
+}
 
 /**创建员工账号**/
 export class BodyCreateMember extends PickType(tbMember, ['name', 'jobNumber']) {

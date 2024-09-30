@@ -25,7 +25,7 @@ export class MemberController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpAuthMember(@Request() request: OmixRequest, @Body() body: env.BodyAuthMember) {
-        return await this.memberService.httpAuthMember(request.headers, body)
+        return await this.memberService.httpAuthMember(request.headers, request, body)
     }
 
     @Post('/create')
