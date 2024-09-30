@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Request } from '@nestjs/common'
+import { Controller, Post, Get, Body, Request, Response } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/compute.decorator'
 import { OmixNotice, OmixRequest } from '@/interface/instance.resolver'
@@ -9,6 +9,15 @@ import * as env from '@web-account-service/interface/instance.resolver'
 @Controller('member')
 export class MemberController {
     constructor(private readonly memberService: MemberService) {}
+
+    @Get('/login/codex')
+    @ApiDecorator({
+        operation: { summary: '登录图形验证码' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpAuthGraphCodex(@Request() request: OmixRequest, @Response() response) {
+        return await this.memberService.httpAuthGraphCodex(request.headers, response)
+    }
 
     @Post('/login')
     @ApiDecorator({

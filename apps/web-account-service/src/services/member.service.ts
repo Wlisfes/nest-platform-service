@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService } from '@/services/jwt.service'
 import { LoggerService, Logger } from '@/services/logger.service'
+import { RedisService } from '@/services/redis/redis.service'
 import { DatabaseService } from '@/services/database.service'
 import { UploadService } from '@/services/upload/upload.service'
 import { WhereMemberService } from '@/wheres/where-member.service'
@@ -8,15 +9,19 @@ import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
-import { divineResolver, divineIntNumber, divineHandler } from '@/utils/utils-common'
+import { divineResolver, divineIntNumber, divineHandler, divineKeyCompose } from '@/utils/utils-common'
+import { divineGraphCodex } from '@/utils/utils-plugin'
 import { compareSync } from 'bcryptjs'
-import * as env from '@web-account-service/interface/instance.resolver'
+import { Response } from 'express'
 import * as enums from '@/enums/instance'
+import * as keys from '@web-account-service/keys'
+import * as env from '@web-account-service/interface/instance.resolver'
 
 @Injectable()
 export class MemberService extends LoggerService {
     constructor(
         private readonly jwtService: JwtService,
+        private readonly redisService: RedisService,
         private readonly databaseService: DatabaseService,
         private readonly uploadService: UploadService,
         private readonly whereMemberService: WhereMemberService,
@@ -24,6 +29,19 @@ export class MemberService extends LoggerService {
         private readonly whereSimpleService: WhereSimpleService
     ) {
         super()
+    }
+
+    /**登录图形验证码**/
+    @Logger
+    public async httpAuthGraphCodex(headers: OmixHeaders, response: Response) {
+        const { text, data, sid } = await divineGraphCodex({ width: 120, height: 40 })
+        const key = await divineKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
+        return await this.redisService.setStore(headers, { key, data: text, seconds: 5 * 60 }).then(async () => {
+            this.logger.info({ message: '图形验证码发送成功', seconds: 5 * 60, key, text })
+            await response.cookie('captcha-sid', sid, { httpOnly: true })
+            await response.type('svg')
+            return await response.send(data)
+        })
     }
 
     /**员工账号登录**/

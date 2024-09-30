@@ -12,15 +12,18 @@ import * as pdfjsLib from 'pdfjs-dist'
 
 /**生成图形验证码**/
 export async function divineGraphCodex(scope: Omix<{ width: number; height: number }>) {
-    return create({
-        fontSize: 40,
-        size: 4,
-        color: true,
-        noise: 2,
-        inverse: true,
-        charPreset: 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789',
-        ...scope
-    })
+    return {
+        sid: divineIntNumber(),
+        ...create({
+            fontSize: 40,
+            size: 4,
+            color: true,
+            noise: 2,
+            inverse: true,
+            charPreset: 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789',
+            ...scope
+        })
+    }
 }
 
 /**Buffer转换Stream**/

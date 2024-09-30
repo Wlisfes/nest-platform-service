@@ -144,6 +144,11 @@ export async function divineBytefor(byte: number, dec: number = 2) {
     return parseFloat((byte / Math.pow(k, i)).toFixed(dm)) + sizes[i]
 }
 
+/**redis存储键组合方法**/
+export async function divineKeyCompose(namespaces: string, ...args: string[]) {
+    return [namespaces, ...args].filter(key => isNotEmpty(key)).join(':')
+}
+
 /**邮箱号混淆**/
 export async function divineMaskCharacter(type: 'email', str: string) {
     if (type === 'email') {
