@@ -16,7 +16,7 @@ export class RouterController {
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpCreateRouter(@Request() request: OmixRequest, @Body() body: env.BodyCreateDept) {
-        // return await this.deptService.httpCreateDept(request.headers, request.member.staffId, body)
+    public async httpCreateRouter(@Request() request: OmixRequest, @Body() body: env.BodyCreateRouter) {
+        return await this.routerService.httpCreateRouter(request.headers, request.member.staffId, body)
     }
 }

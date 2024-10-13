@@ -15,6 +15,7 @@ import { UploadModule } from '@/modules/upload.module'
 import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
+import { WhereRouterService } from '@/wheres/where-router.service'
 //services
 import { DeptService } from '@web-system-service/services/dept.service'
 import { SimpleService } from '@web-system-service/services/simple.service'
@@ -34,6 +35,7 @@ import { RouterController } from '@web-system-service/controllers/router.control
         WhereMemberService,
         WhereDeptService,
         WhereSimpleService,
+        WhereRouterService,
         DeptService,
         SimpleService,
         RouterService

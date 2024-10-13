@@ -17,23 +17,36 @@ export class tbRouter extends CommonEntier {
     @Column({ comment: '菜单名称', length: 32, nullable: false })
     name: string
 
+    @ApiPropertyOptional({ description: '菜单路径' })
+    @Column({ comment: '唯一标识', nullable: true })
+    path: string
+
     @ApiProperty({ description: '唯一标识' })
     @IsNotEmpty({ message: '唯一标识必填' })
     @Column({ comment: '唯一标识', length: 128, nullable: false })
     instance: string
 
     @ApiPropertyOptional({ description: '菜单图标' })
-    @Column({ comment: '菜单图标', length: 32, nullable: false })
+    @Column({ comment: '菜单图标', length: 32, nullable: true })
     icon: string
 
     @ApiPropertyOptional({ description: '上级菜单ID', example: '858619496' })
     @Column({ comment: '上级菜单ID', length: 32, nullable: true })
-    parentId: string
+    pid: string
 
     @ApiProperty({ description: '菜单是否可见', example: true })
     @IsNotEmpty({ message: '菜单是否可见必填' })
     @Column({ comment: '菜单是否可见', default: true, nullable: false })
     show: boolean
+
+    @ApiProperty({ description: '版本号', example: 'v1.0.0' })
+    @IsNotEmpty({ message: '版本号必填' })
+    @Column({ comment: '版本号', default: 'v1.0.0', nullable: false })
+    version: string
+
+    @ApiPropertyOptional({ description: '激活路由' })
+    @Column({ comment: '激活路由', nullable: true })
+    active: string
 
     @ApiProperty({ description: '菜单排序' })
     @IsNumber({}, { message: '菜单排序必须为number' })
