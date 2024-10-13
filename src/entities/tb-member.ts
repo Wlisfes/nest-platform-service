@@ -38,7 +38,7 @@ export class tbMember extends CommonEntier {
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })
     @IsNotEmpty({ message: '密码必填' })
-    @Length(6, 64, { message: '密码必须保持6~64位' })
+    @Length(6, 18, { message: '密码必须保持6~18位' })
     @Column({
         comment: '密码',
         length: 255,

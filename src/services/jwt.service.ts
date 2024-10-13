@@ -5,14 +5,14 @@ import { JwtService as Jwt } from '@nestjs/jwt'
 import { Omix } from '@/interface/instance.resolver'
 
 export interface BodySecret extends Omix {
-    expire?: number
+    expires?: number
     message?: string
     status?: number
 }
 export interface RestSecret extends Omix {
-    expire: number
+    expires: number
     token: string
-    refresh: string
+    secret: string
 }
 
 @Injectable()
@@ -33,11 +33,11 @@ export class JwtService extends LoggerService {
     /**jwtToken加密**/
     public async fetchJwtTokenSecret<T>(node: Omix<T>, scope: BodySecret = {}): Promise<RestSecret> {
         try {
-            const secret = this.configService.get('JWT_SECRET')
-            const expire = scope.expire ?? 7200
-            const token = await this.jwt.signAsync(node, { expiresIn: expire, secret })
-            const refresh = await this.jwt.signAsync(node, { expiresIn: expire * 2, secret })
-            return { expire, token, refresh }
+            const jwtSecret = this.configService.get('JWT_SECRET')
+            const expires = scope.expires ?? 7200
+            const token = await this.jwt.signAsync(node, { expiresIn: expires, secret: jwtSecret })
+            const secret = await this.jwt.signAsync(node, { expiresIn: expires * 2, secret: jwtSecret })
+            return { expires, token, secret }
         } catch (e) {
             throw new HttpException(scope.message ?? '身份验证失败', scope.status ?? HttpStatus.UNAUTHORIZED)
         }
