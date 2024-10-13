@@ -35,8 +35,8 @@ export class JwtService extends LoggerService {
         try {
             const jwtSecret = this.configService.get('JWT_SECRET')
             const expires = scope.expires ?? 7200
-            const token = await this.jwt.signAsync(node, { expiresIn: expires, secret: jwtSecret })
-            const secret = await this.jwt.signAsync(node, { expiresIn: expires * 2, secret: jwtSecret })
+            const token = await this.jwt.signAsync({ ...node, auth: 'token' }, { expiresIn: expires, secret: jwtSecret })
+            const secret = await this.jwt.signAsync({ ...node, auth: 'secret' }, { expiresIn: expires * 2, secret: jwtSecret })
             return { expires, token, secret }
         } catch (e) {
             throw new HttpException(scope.message ?? '身份验证失败', scope.status ?? HttpStatus.UNAUTHORIZED)
