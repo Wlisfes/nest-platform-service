@@ -16,3 +16,6 @@ export class BodyUpdateRouter extends IntersectionType(
     PickType(tbRouter, ['sid', 'type', 'name', 'show', 'version', 'sort', 'instance', 'state']),
     PickType(tbRouter, ['pid', 'path', 'icon', 'active'])
 ) {}
+
+/**菜单详情**/
+export class BodyResolveRouter extends PickType(tbRouter, ['sid']) {}

@@ -74,15 +74,33 @@ export class RouterService extends LoggerService {
         }
     }
 
+    /**菜单列表**/
+    @Logger
+    public async httpColumnRouter(headers: OmixHeaders, staffId: string) {
+        return await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbRouter, {}).then(async ({ total, list }) => {
+            return await divineResolver({ total, list })
+        })
+    }
+
     /**所有菜单树**/
     @Logger
     public async httpColumnTreeRouter(headers: OmixHeaders, staffId: string) {
         const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbRouter, {
             select: ['sid', 'pid', 'type', 'name']
         })
+        console.log(list)
         return await divineResolver({
             total,
             list: tree.fromList(list, { id: 'sid', pid: 'pid' })
+        })
+    }
+
+    /**菜单详情**/
+    @Logger
+    public async httpResolveRouter(headers: OmixHeaders, staffId: string, body: env.BodyResolveRouter) {
+        return await this.whereRouterService.fetchRouterNullValidator(headers, {
+            message: 'sid不存在',
+            where: { sid: body.sid }
         })
     }
 }

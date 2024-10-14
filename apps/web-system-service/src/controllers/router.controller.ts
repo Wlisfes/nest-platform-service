@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Request } from '@nestjs/common'
+import { Controller, Get, Post, Body, Query, Request } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/compute.decorator'
 import { OmixNotice, OmixRequest } from '@/interface/instance.resolver'
@@ -30,6 +30,16 @@ export class RouterController {
         return await this.routerService.httpUpdateRouter(request.headers, request.member.staffId, body)
     }
 
+    @Post('/column')
+    @ApiDecorator({
+        operation: { summary: '菜单列表' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpColumnRouter(@Request() request: OmixRequest) {
+        return await this.routerService.httpColumnRouter(request.headers, request.member.staffId)
+    }
+
     @Get('/column/tree')
     @ApiDecorator({
         operation: { summary: '编辑菜单' },
@@ -38,5 +48,15 @@ export class RouterController {
     })
     public async httpColumnTreeRouter(@Request() request: OmixRequest) {
         return await this.routerService.httpColumnTreeRouter(request.headers, request.member.staffId)
+    }
+
+    @Get('/resolve')
+    @ApiDecorator({
+        operation: { summary: '菜单详情' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpResolveRouter(@Request() request: OmixRequest, @Query() body: env.BodyResolveRouter) {
+        return await this.routerService.httpResolveRouter(request.headers, request.member.staffId, body)
     }
 }
