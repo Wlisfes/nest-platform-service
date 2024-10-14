@@ -73,4 +73,16 @@ export class RouterService extends LoggerService {
             await ctx.release()
         }
     }
+
+    /**所有菜单树**/
+    @Logger
+    public async httpColumnTreeRouter(headers: OmixHeaders, staffId: string) {
+        const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbRouter, {
+            select: ['sid', 'pid', 'type', 'name']
+        })
+        return await divineResolver({
+            total,
+            list: tree.fromList(list, { id: 'sid', pid: 'pid' })
+        })
+    }
 }
