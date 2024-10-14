@@ -20,8 +20,11 @@ export class RouterService extends LoggerService {
     public async httpCreateRouter(headers: OmixHeaders, staffId: string, body: env.BodyCreateRouter) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            /**验证唯一标识已存在**/
-            await this.whereRouterService.fetchRouterInstanceNotEmpty(headers, { instance: body.instance })
+            /**菜单数据存在验证**/
+            await this.whereRouterService.fetchRouterNotNullValidator(headers, {
+                message: '唯一标识已存在',
+                where: { instance: body.instance }
+            })
             /**写入菜单表**/
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbRouter, {
                 body: {
@@ -39,6 +42,29 @@ export class RouterService extends LoggerService {
                     pid: body.pid ?? null,
                     active: body.active ?? null
                 }
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchThrowException(err.message, err.status)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**编辑菜单**/
+    @Logger
+    public async httpUpdateRouter(headers: OmixHeaders, staffId: string, body: env.BodyUpdateRouter) {
+        const ctx = await this.databaseService.fetchConnectTransaction()
+        try {
+            /**菜单数据不存在验证**/
+            const node = await this.whereRouterService.fetchRouterNullValidator(headers, {
+                message: 'sid不存在',
+                where: { sid: body.sid }
+            })
+            /**菜单数据存在验证**/
+            await this.whereRouterService.fetchRouterNotNullValidator(headers, {
+                message: '唯一标识已存在',
+                where: { instance: body.instance, sid: Not(body.sid) }
             })
         } catch (err) {
             await ctx.rollbackTransaction()

@@ -19,4 +19,14 @@ export class RouterController {
     public async httpCreateRouter(@Request() request: OmixRequest, @Body() body: env.BodyCreateRouter) {
         return await this.routerService.httpCreateRouter(request.headers, request.member.staffId, body)
     }
+
+    @Post('/update')
+    @ApiDecorator({
+        operation: { summary: '编辑菜单' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpUpdateRouter(@Request() request: OmixRequest, @Body() body: env.BodyUpdateRouter) {
+        return await this.routerService.httpUpdateRouter(request.headers, request.member.staffId, body)
+    }
 }
