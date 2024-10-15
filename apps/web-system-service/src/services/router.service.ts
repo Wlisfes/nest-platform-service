@@ -20,28 +20,29 @@ export class RouterService extends LoggerService {
     public async httpCreateRouter(headers: OmixHeaders, staffId: string, body: env.BodyCreateRouter) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            /**菜单数据存在验证**/
             await this.whereRouterService.fetchRouterNotNullValidator(headers, {
                 message: '唯一标识已存在',
                 where: { instance: body.instance }
             })
-            /**写入菜单表**/
-            return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbRouter, {
+            await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbRouter, {
                 body: {
                     sid: await divineIntNumber({ random: true, bit: 11 }),
-                    staffId: staffId,
+                    staffId,
                     name: body.name,
-                    instance: body.instance,
                     show: body.show,
                     version: body.version,
                     sort: body.sort,
                     type: body.type,
                     state: body.state,
-                    path: body.path ?? null,
                     icon: body.icon ?? null,
+                    instance: body.instance,
+                    path: body.path ?? null,
                     pid: body.pid ?? null,
                     active: body.active ?? null
                 }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await divineResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -56,15 +57,33 @@ export class RouterService extends LoggerService {
     public async httpUpdateRouter(headers: OmixHeaders, staffId: string, body: env.BodyUpdateRouter) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            /**菜单数据不存在验证**/
-            const node = await this.whereRouterService.fetchRouterNullValidator(headers, {
+            await this.whereRouterService.fetchRouterNullValidator(headers, {
                 message: 'sid不存在',
                 where: { sid: body.sid }
             })
-            /**菜单数据存在验证**/
             await this.whereRouterService.fetchRouterNotNullValidator(headers, {
                 message: '唯一标识已存在',
                 where: { instance: body.instance, sid: Not(body.sid) }
+            })
+            await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbRouter, {
+                where: { sid: body.sid },
+                body: {
+                    staffId,
+                    type: body.type,
+                    name: body.name,
+                    pid: body.pid ?? null,
+                    version: body.version,
+                    state: body.state,
+                    sort: body.sort,
+                    show: body.show,
+                    icon: body.icon ?? null,
+                    instance: body.instance ?? null,
+                    path: body.path ?? null,
+                    active: body.active ?? null
+                }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await divineResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -77,9 +96,8 @@ export class RouterService extends LoggerService {
     /**菜单列表**/
     @Logger
     public async httpColumnRouter(headers: OmixHeaders, staffId: string) {
-        return await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbRouter, {}).then(async ({ total, list }) => {
-            return await divineResolver({ total, list })
-        })
+        const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbRouter, {})
+        return await divineResolver({ total, list })
     }
 
     /**所有菜单树**/
@@ -88,7 +106,6 @@ export class RouterService extends LoggerService {
         const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbRouter, {
             select: ['sid', 'pid', 'type', 'name']
         })
-        console.log(list)
         return await divineResolver({
             total,
             list: tree.fromList(list, { id: 'sid', pid: 'pid' })

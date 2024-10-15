@@ -2,6 +2,7 @@ import { Entity, Column } from 'typeorm'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsNotEmpty, IsEnum, IsNumber } from 'class-validator'
+import { IsOptional } from '@/decorator/common.decorator'
 import { CommonEntier } from '@/utils/utils-typeorm'
 import * as enums from '@/enums/instance'
 
@@ -18,19 +19,22 @@ export class tbRouter extends CommonEntier {
     name: string
 
     @ApiPropertyOptional({ description: '菜单路径' })
+    @IsOptional()
     @Column({ comment: '唯一标识', nullable: true })
     path: string
 
     @ApiProperty({ description: '唯一标识' })
     @IsNotEmpty({ message: '唯一标识必填' })
-    @Column({ comment: '唯一标识', length: 128, nullable: false })
+    @Column({ comment: '唯一标识', nullable: false })
     instance: string
 
     @ApiPropertyOptional({ description: '菜单图标' })
+    @IsOptional()
     @Column({ comment: '菜单图标', length: 32, nullable: true })
     icon: string
 
     @ApiPropertyOptional({ description: '上级菜单ID', example: '858619496' })
+    @IsOptional()
     @Column({ comment: '上级菜单ID', length: 32, nullable: true })
     pid: string
 
@@ -45,6 +49,7 @@ export class tbRouter extends CommonEntier {
     version: string
 
     @ApiPropertyOptional({ description: '激活路由' })
+    @IsOptional()
     @Column({ comment: '激活路由', nullable: true })
     active: string
 
