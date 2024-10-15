@@ -40,14 +40,14 @@ export class RouterController {
         return await this.routerService.httpColumnRouter(request.headers, request.member.staffId)
     }
 
-    @Get('/column/tree')
+    @Post('/column/tree')
     @ApiDecorator({
         operation: { summary: '编辑菜单' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpColumnTreeRouter(@Request() request: OmixRequest) {
-        return await this.routerService.httpColumnTreeRouter(request.headers, request.member.staffId)
+    public async httpColumnTreeRouter(@Request() request: OmixRequest, @Body() body: env.BodyColumnTreeRouter) {
+        return await this.routerService.httpColumnTreeRouter(request.headers, request.member.staffId, body)
     }
 
     @Get('/resolve')

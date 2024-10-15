@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { Not } from 'typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { WhereRouterService } from '@/wheres/where-router.service'
 import { divineResolver, divineIntNumber } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
+import { Not } from 'typeorm'
+import { isNotEmpty } from 'class-validator'
 import * as tree from 'tree-tool'
 import * as env from '@web-system-service/interface/instance.resolver'
 import * as enums from '@/enums/instance'
@@ -102,13 +103,17 @@ export class RouterService extends LoggerService {
 
     /**所有菜单树**/
     @Logger
-    public async httpColumnTreeRouter(headers: OmixHeaders, staffId: string) {
-        const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbRouter, {
-            select: ['sid', 'pid', 'type', 'name']
-        })
-        return await divineResolver({
-            total,
-            list: tree.fromList(list, { id: 'sid', pid: 'pid' })
+    public async httpColumnTreeRouter(headers: OmixHeaders, staffId: string, body: env.BodyColumnTreeRouter) {
+        return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbRouter, async qb => {
+            if (isNotEmpty(body.type)) {
+                qb.where('t.type = :type', { type: body.type })
+            }
+            return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                return await divineResolver({
+                    total,
+                    list: tree.fromList(list, { id: 'sid', pid: 'pid' })
+                })
+            })
         })
     }
 
