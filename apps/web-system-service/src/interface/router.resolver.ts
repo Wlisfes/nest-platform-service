@@ -20,5 +20,8 @@ export class BodyUpdateRouter extends IntersectionType(
 /**菜单详情**/
 export class BodyResolveRouter extends PickType(tbRouter, ['sid']) {}
 
+/**菜单列表**/
+export class BodyColumnRouter extends PickType(tbRouter, ['sid']) {}
+
 /**所有菜单树**/
 export class BodyColumnTreeRouter extends PartialType(PickType(tbRouter, ['type'])) {}

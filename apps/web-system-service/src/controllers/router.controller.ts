@@ -36,8 +36,8 @@ export class RouterController {
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpColumnRouter(@Request() request: OmixRequest) {
-        return await this.routerService.httpColumnRouter(request.headers, request.member.staffId)
+    public async httpColumnRouter(@Request() request: OmixRequest, @Body() body: env.BodyColumnRouter) {
+        return await this.routerService.httpColumnRouter(request.headers, request.member.staffId, body)
     }
 
     @Post('/column/tree')
