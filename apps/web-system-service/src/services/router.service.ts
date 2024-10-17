@@ -95,9 +95,49 @@ export class RouterService extends LoggerService {
         }
     }
 
+    /**删除菜单**/
+    @Logger
+    public async httpDeleteRouter(headers: OmixHeaders, staffId: string, body: env.BodyResolveRouter) {
+        const ctx = await this.databaseService.fetchConnectTransaction()
+        try {
+            await this.whereRouterService.fetchRouterNullValidator(headers, {
+                message: 'sid不存在',
+                where: { sid: body.sid }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await divineResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchThrowException(err.message, err.status)
+        } finally {
+            await ctx.release()
+        }
+    }
+
     /**菜单状态变更**/
     @Logger
-    public async httpTransformRouter(headers: OmixHeaders, staffId: string, body: env.BodyTransformRouter) {}
+    public async httpTransformRouter(headers: OmixHeaders, staffId: string, body: env.BodyTransformRouter) {
+        const ctx = await this.databaseService.fetchConnectTransaction()
+        try {
+            await this.whereRouterService.fetchRouterNullValidator(headers, {
+                message: 'sid不存在',
+                where: { sid: body.sid }
+            })
+            await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbRouter, {
+                where: { sid: body.sid },
+                body: { staffId, state: body.state }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await divineResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchThrowException(err.message, err.status)
+        } finally {
+            await ctx.release()
+        }
+    }
 
     /**菜单列表**/
     @Logger
