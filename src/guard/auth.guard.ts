@@ -1,7 +1,9 @@
 import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, HttpStatus, Request } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { DatabaseService } from '@/services/database.service'
+import { JwtService } from '@/services/jwt.service'
 import { divineHandler } from '@/utils/utils-common'
+import { isEmpty } from 'class-validator'
 import * as web from '@/config/web-instance'
 import { Omix } from '@/interface/instance.resolver'
 
@@ -22,12 +24,16 @@ export interface AuthGuardOption {
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(private readonly reflector: Reflector, private readonly databaseService: DatabaseService) {}
+    constructor(
+        private readonly reflector: Reflector,
+        private readonly jwtService: JwtService,
+        private readonly databaseService: DatabaseService
+    ) {}
 
     /**异常拦截处理**/
     public async httpContextAuthorize(next: boolean, scope: Partial<Omix<{ message: string; status: number }>>) {
         if (!next) {
-            throw new HttpException(scope.message ?? '登录已失效', scope.status ?? HttpStatus.UNAUTHORIZED)
+            throw new HttpException(scope.message ?? '身份验证失败', scope.status ?? HttpStatus.UNAUTHORIZED)
         }
         return false
     }
@@ -46,24 +52,16 @@ export class AuthGuard implements CanActivate {
             } else if (scope.source === 'client') {
                 await this.fetchGuardUser(token, scope.next ?? false, request)
             }
-            /**解析token**/
-            // const node = await this.custom.divineJwtTokenParser(token, { message: '身份验证失败' })
-            // request.user = node
         }
         return true
     }
 
     /**员工守卫拦截**/
     public async fetchGuardMember(token: string, next: boolean, request: Omix<Request>) {
-        console.log(token)
-        // await this.httpContextAuthorize(next, { message: '未登录' })
-        request.member = {
-            keyId: 1,
-            staffId: '2214016125010739200',
-            name: '陈平安',
-            jobNumber: '0001',
-            state: 'online'
+        if (isEmpty(token)) {
+            return await this.httpContextAuthorize(next, { message: '未登录' })
         }
+        return (request.member = await this.jwtService.fetchJwtTokenParser(token))
     }
 
     /**消费用户守卫拦截**/
