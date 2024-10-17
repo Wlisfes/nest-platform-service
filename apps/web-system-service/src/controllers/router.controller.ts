@@ -52,7 +52,7 @@ export class RouterController {
 
     @Post('/column/tree')
     @ApiDecorator({
-        operation: { summary: '菜单列表树' },
+        operation: { summary: '菜单树列表' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })

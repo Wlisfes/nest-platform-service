@@ -1,6 +1,6 @@
 import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, HttpStatus, Request } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-// import { CustomService } from '@/services/custom.service'
+import { DatabaseService } from '@/services/database.service'
 import { divineHandler } from '@/utils/utils-common'
 import * as web from '@/config/web-instance'
 import { Omix } from '@/interface/instance.resolver'
@@ -22,8 +22,7 @@ export interface AuthGuardOption {
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    // constructor(private readonly reflector: Reflector, private readonly custom: CustomService) {}
-    constructor(private readonly reflector: Reflector) {}
+    constructor(private readonly reflector: Reflector, private readonly databaseService: DatabaseService) {}
 
     /**异常拦截处理**/
     public async httpContextAuthorize(next: boolean, scope: Partial<Omix<{ message: string; status: number }>>) {
@@ -56,6 +55,7 @@ export class AuthGuard implements CanActivate {
 
     /**员工守卫拦截**/
     public async fetchGuardMember(token: string, next: boolean, request: Omix<Request>) {
+        console.log(token)
         // await this.httpContextAuthorize(next, { message: '未登录' })
         request.member = {
             keyId: 1,

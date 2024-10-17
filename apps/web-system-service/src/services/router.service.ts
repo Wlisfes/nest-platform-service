@@ -112,7 +112,7 @@ export class RouterService extends LoggerService {
         })
     }
 
-    /**所有菜单树**/
+    /**菜单树列表**/
     @Logger
     public async httpColumnTreeRouter(headers: OmixHeaders, staffId: string, body: env.BodyColumnTreeRouter) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbRouter, async qb => {
