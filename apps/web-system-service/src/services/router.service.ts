@@ -4,6 +4,7 @@ import { DatabaseService } from '@/services/database.service'
 import { WhereRouterService } from '@/wheres/where-router.service'
 import { divineResolver, divineIntNumber } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
+import { tbMember } from '@/entities/instance'
 import { Not } from 'typeorm'
 import { isNotEmpty } from 'class-validator'
 import * as tree from 'tree-tool'
@@ -94,10 +95,16 @@ export class RouterService extends LoggerService {
         }
     }
 
+    /**菜单状态变更**/
+    @Logger
+    public async httpTransformRouter(headers: OmixHeaders, staffId: string, body: env.BodyTransformRouter) {}
+
     /**菜单列表**/
     @Logger
     public async httpColumnRouter(headers: OmixHeaders, staffId: string, body: env.BodyColumnRouter) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbRouter, async qb => {
+            /**用户信息联查**/
+            qb.leftJoinAndMapOne('t.staff', tbMember, 'staff', 'staff.staffId = t.staffId')
             qb.where(`t.sid = :sid OR t.pid = :sid`, { sid: body.sid })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await divineResolver({ total, list })

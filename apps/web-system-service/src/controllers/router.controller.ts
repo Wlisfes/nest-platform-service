@@ -30,6 +30,16 @@ export class RouterController {
         return await this.routerService.httpUpdateRouter(request.headers, request.member.staffId, body)
     }
 
+    @Post('/update/transform')
+    @ApiDecorator({
+        operation: { summary: '菜单状态变更' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpTransformRouter(@Request() request: OmixRequest, @Body() body: env.BodyTransformRouter) {
+        return await this.routerService.httpTransformRouter(request.headers, request.member.staffId, body)
+    }
+
     @Post('/column')
     @ApiDecorator({
         operation: { summary: '菜单列表' },
@@ -42,7 +52,7 @@ export class RouterController {
 
     @Post('/column/tree')
     @ApiDecorator({
-        operation: { summary: '编辑菜单' },
+        operation: { summary: '菜单列表树' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
