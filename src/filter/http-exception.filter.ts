@@ -18,7 +18,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             url: request.url,
             method: request.method,
-            code: exception.status
+            code: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR
         }
         console.log(exception.response)
         if (exception.response && Array.isArray(exception.response.message)) {

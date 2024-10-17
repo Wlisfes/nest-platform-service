@@ -13,6 +13,7 @@ import { divineResolver, divineIntNumber, divineHandler, divineKeyCompose } from
 import { divineGraphCodex } from '@/utils/utils-plugin'
 import { compareSync } from 'bcryptjs'
 import { Response } from 'express'
+import { isEmpty } from 'class-validator'
 import * as enums from '@/enums/instance'
 import * as web from '@/config/web-instance'
 import * as keys from '@web-account-service/keys'
@@ -55,7 +56,7 @@ export class MemberService extends LoggerService {
         } else {
             const key = await divineKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
             await this.redisService.getStore<string>(headers, { key, defaultValue: null }).then(async code => {
-                if (body.code.toUpperCase() !== code.toUpperCase()) {
+                if (isEmpty(code) || body.code.toUpperCase() !== code.toUpperCase()) {
                     throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
                 }
                 return await this.redisService.delStore(headers, { key })
