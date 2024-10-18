@@ -122,6 +122,16 @@ export class DatabaseService extends LoggerService {
         })
     }
 
+    /**删除数据模型**/
+    @Logger
+    public async fetchConnectDelete<T>(headers: OmixHeaders, model: Repository<T>, where: Parameters<typeof model.delete>['0']) {
+        this.logger.info({ log: `[${model.metadata.name}]:删除入参`, where })
+        return await model.delete(where).then(node => {
+            this.logger.info({ log: `[${model.metadata.name}]:删除出参`, where, node })
+            return node
+        })
+    }
+
     /**分页列表查询**/
     @Logger
     public async fetchConnectAndCount<T>(headers: OmixHeaders, model: Repository<T>, where: Parameters<typeof model.findAndCount>['0']) {

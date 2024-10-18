@@ -5,7 +5,7 @@ import { WhereRouterService } from '@/wheres/where-router.service'
 import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember } from '@/entities/instance'
-import { Not } from 'typeorm'
+import { Not, In } from 'typeorm'
 import { isNotEmpty } from 'class-validator'
 import * as tree from 'tree-tool'
 import * as env from '@web-system-service/interface/instance.resolver'
@@ -103,6 +103,9 @@ export class RouterService extends LoggerService {
             await this.whereRouterService.fetchRouterNullValidator(headers, {
                 message: 'sid不存在',
                 where: { sid: body.sid }
+            })
+            await this.databaseService.fetchConnectDelete(headers, this.databaseService.tbRouter, {
+                sid: body.sid
             })
             return await ctx.commitTransaction().then(async () => {
                 return await fetchResolver({ message: '操作成功' })

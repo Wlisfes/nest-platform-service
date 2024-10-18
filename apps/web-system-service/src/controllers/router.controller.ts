@@ -30,6 +30,16 @@ export class RouterController {
         return await this.routerService.httpUpdateRouter(request.headers, request.member.staffId, body)
     }
 
+    @Post('/delete')
+    @ApiDecorator({
+        operation: { summary: '删除菜单' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpDeleteRouter(@Request() request: OmixRequest, @Body() body: env.BodyResolveRouter) {
+        return await this.routerService.httpDeleteRouter(request.headers, request.member.staffId, body)
+    }
+
     @Post('/update/transform')
     @ApiDecorator({
         operation: { summary: '菜单状态变更' },
