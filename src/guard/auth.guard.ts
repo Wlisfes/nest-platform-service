@@ -2,7 +2,7 @@ import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, 
 import { Reflector } from '@nestjs/core'
 import { DatabaseService } from '@/services/database.service'
 import { JwtService } from '@/services/jwt.service'
-import { divineHandler } from '@/utils/utils-common'
+import { fetchHandler } from '@/utils/utils-common'
 import { isEmpty } from 'class-validator'
 import * as web from '@/config/web-instance'
 import { Omix } from '@/interface/instance.resolver'

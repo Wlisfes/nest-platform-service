@@ -24,7 +24,7 @@ export const faker = new Faker({
 })
 
 /**生成纯数字的雪花ID、随机字符串**/
-export function divineIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
+export function fetchIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
     if (scope.random) {
         return Array.from({ length: scope.bit ?? 6 }, x => Math.floor(Math.random() * 9) + 1).join('')
     }
@@ -35,16 +35,16 @@ export function divineIntNumber(scope: Partial<Omix<{ worker: number; epoch: num
 }
 
 /**返回包装**/
-export async function divineResolver<T = Partial<Omix<{ message: string; list: Array<Omix>; total: number; page: number; size: number }>>>(
+export async function fetchResolver<T = Partial<Omix<{ message: string; list: Array<Omix>; total: number; page: number; size: number }>>>(
     data: T,
     handler?: Function
 ) {
-    await divineHandler(Boolean(handler), { handler })
+    await fetchHandler(Boolean(handler), { handler })
     return data
 }
 
 /**条件链式执行函数**/
-export async function divineHandler<T>(where: boolean | Function, scope: Omix<{ handler: Function; failure?: Function }>): Promise<T> {
+export async function fetchHandler<T>(where: boolean | Function, scope: Omix<{ handler: Function; failure?: Function }>): Promise<T> {
     if (typeof where === 'function') {
         where = await where()
     }
@@ -56,22 +56,22 @@ export async function divineHandler<T>(where: boolean | Function, scope: Omix<{ 
 }
 
 /**批量执行异步方法**/
-export async function divineBatchHandler(handlers: Array<any>, scope: Omix<{ handler?: Function; failure?: Function }> = {}) {
+export async function fetchBatchHandler(handlers: Array<any>, scope: Omix<{ handler?: Function; failure?: Function }> = {}) {
     try {
         return await Promise.all(handlers).then(async response => {
-            return await divineHandler(Boolean(scope.handler), {
+            return await fetchHandler(Boolean(scope.handler), {
                 handler: () => scope.handler(response)
             })
         })
     } catch (e) {
-        return await divineHandler(Boolean(scope.failure), {
+        return await fetchHandler(Boolean(scope.failure), {
             handler: () => scope.failure!(e)
         })
     }
 }
 
 /**延时方法**/
-export function divineDelay(delay = 100, handler?: Function) {
+export function fetchDelay(delay = 100, handler?: Function) {
     return new Promise(resolve => {
         const timeout = setTimeout(() => {
             handler?.()
@@ -82,7 +82,7 @@ export function divineDelay(delay = 100, handler?: Function) {
 }
 
 /**条件值返回**/
-export function divineCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallback?: T; defaultValue?: T }>): T {
+export function fetchCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallback?: T; defaultValue?: T }>): T {
     if (where) {
         return scope.value ?? scope.defaultValue
     }
@@ -90,22 +90,22 @@ export function divineCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fall
 }
 
 /**参数组合**/
-export async function divineParameter<T>(params: Omix<T>): Promise<Omix<T>> {
+export async function fetchParameter<T>(params: Omix<T>): Promise<Omix<T>> {
     return params
 }
 
 /**日志聚合**/
-export function divineLogger(headers: OmixHeaders = {}, log: Omix | string = {}) {
+export function fetchLogger(headers: OmixHeaders = {}, log: Omix | string = {}) {
     const duration = headers[web.WEB_COMMON_HEADER_STARTTIME]
     return {
         log,
-        duration: divineCaseWherer(isNotEmpty(duration), { value: `${Date.now() - Number(duration)}ms`, defaultValue: null }),
+        duration: fetchCaseWherer(isNotEmpty(duration), { value: `${Date.now() - Number(duration)}ms`, defaultValue: null }),
         [web.WEB_COMMON_HEADER_CONTEXTID]: headers[web.WEB_COMMON_HEADER_CONTEXTID]
     }
 }
 
 /**提取日志参数**/
-export function divineBstract(headers: OmixHeaders = {}) {
+export function fetchBstract(headers: OmixHeaders = {}) {
     return {
         logId: headers[web.WEB_COMMON_HEADER_CONTEXTID],
         ua: headers['user-agent'] ?? null,
@@ -116,15 +116,15 @@ export function divineBstract(headers: OmixHeaders = {}) {
 }
 
 /**自定义Error信息**/
-export function divineOmixError<T = { message: string; status: number }>(scope: Omix<T>): OmixError<T> {
+export function fetchOmixError<T = { message: string; status: number }>(scope: Omix<T>): OmixError<T> {
     const err = new Error(scope.message) as OmixError<T>
     err.data = scope
     return err
 }
 
 /**条件捕获、异常抛出**/
-export async function divineCatchWherer(where: boolean, scope: Omix<{ message: string; status?: number; cause?: Omix }>) {
-    return await divineHandler(where, {
+export async function fetchCatchWherer(where: boolean, scope: Omix<{ message: string; status?: number; cause?: Omix }>) {
+    return await fetchHandler(where, {
         handler: () => {
             throw new HttpException(
                 scope.cause ? { message: scope.message, cause: scope.cause } : scope.message,
@@ -135,7 +135,7 @@ export async function divineCatchWherer(where: boolean, scope: Omix<{ message: s
 }
 
 /**字节转换文字输出**/
-export async function divineBytefor(byte: number, dec: number = 2) {
+export async function fetchBytefor(byte: number, dec: number = 2) {
     if (byte === 0) return 'Byte'
     const k = 1024
     const dm = dec < 0 ? 0 : dec
@@ -145,12 +145,12 @@ export async function divineBytefor(byte: number, dec: number = 2) {
 }
 
 /**redis存储键组合方法**/
-export async function divineKeyCompose(namespaces: string, ...args: string[]) {
+export async function fetchKeyCompose(namespaces: string, ...args: string[]) {
     return [namespaces, ...args].filter(key => isNotEmpty(key)).join(':')
 }
 
 /**邮箱号混淆**/
-export async function divineMaskCharacter(type: 'email', str: string) {
+export async function fetchMaskCharacter(type: 'email', str: string) {
     if (type === 'email') {
         const prefix = str.substring(0, str.indexOf('@'))
         const suffix = str.substring(str.indexOf('@'), str.length)
@@ -161,14 +161,14 @@ export async function divineMaskCharacter(type: 'email', str: string) {
 }
 
 /**文件名称、类型挂载**/
-export function divineFileRequest(request: Request, file: Omix, cb: Function) {
+export function fetchFileRequest(request: Request, file: Omix, cb: Function) {
     file.body = request.body
     file.name = Buffer.from(file.originalname, 'binary').toString('utf-8')
     return cb(null, true)
 }
 
 /**替换文件后辍名**/
-export async function divineFileNameReplace(fileName: string, suffix: string) {
+export async function fetchFileNameReplace(fileName: string, suffix: string) {
     if (fileName.includes('.')) {
         return fileName.replace(/\.[^.]+$/, `.${suffix}`)
     }

@@ -1,7 +1,7 @@
 import { Inject, ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
-import { moment, divineLogger, divineResolver } from '@/utils/utils-common'
+import { moment, fetchLogger, fetchResolver } from '@/utils/utils-common'
 import * as web from '@/config/web-instance'
 import * as env from '@/interface/instance.resolver'
 
@@ -26,7 +26,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             Result.data = exception.response
         } else {
             Result.message = exception.message
-            Result.data = await divineResolver({
+            Result.data = await fetchResolver({
                 message: exception.message,
                 status: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR
             }).then(data => {
@@ -36,7 +36,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
                 return data
             })
         }
-        this.logger.error(HttpExceptionFilter.name, divineLogger(request.headers, Result))
+        this.logger.error(HttpExceptionFilter.name, fetchLogger(request.headers, Result))
         response.status(HttpStatus.OK)
         response.header('Content-Type', 'application/json; charset=utf-8')
         response.send(Result)

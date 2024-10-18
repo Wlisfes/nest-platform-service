@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { WhereRouterService } from '@/wheres/where-router.service'
-import { divineResolver, divineIntNumber } from '@/utils/utils-common'
+import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember } from '@/entities/instance'
 import { Not } from 'typeorm'
@@ -28,7 +28,7 @@ export class RouterService extends LoggerService {
             })
             await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbRouter, {
                 body: {
-                    sid: await divineIntNumber({ random: true, bit: 11 }),
+                    sid: await fetchIntNumber({ random: true, bit: 11 }),
                     staffId,
                     name: body.name,
                     show: body.show,
@@ -44,7 +44,7 @@ export class RouterService extends LoggerService {
                 }
             })
             return await ctx.commitTransaction().then(async () => {
-                return await divineResolver({ message: '操作成功' })
+                return await fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -85,7 +85,7 @@ export class RouterService extends LoggerService {
                 }
             })
             return await ctx.commitTransaction().then(async () => {
-                return await divineResolver({ message: '操作成功' })
+                return await fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -105,7 +105,7 @@ export class RouterService extends LoggerService {
                 where: { sid: body.sid }
             })
             return await ctx.commitTransaction().then(async () => {
-                return await divineResolver({ message: '操作成功' })
+                return await fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -129,7 +129,7 @@ export class RouterService extends LoggerService {
                 body: { staffId, state: body.state }
             })
             return await ctx.commitTransaction().then(async () => {
-                return await divineResolver({ message: '操作成功' })
+                return await fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -147,7 +147,7 @@ export class RouterService extends LoggerService {
             qb.leftJoinAndMapOne('t.staff', tbMember, 'staff', 'staff.staffId = t.staffId')
             qb.where(`t.sid = :sid OR t.pid = :sid`, { sid: body.sid })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await divineResolver({ total, list })
+                return await fetchResolver({ total, list })
             })
         })
     }
@@ -160,7 +160,7 @@ export class RouterService extends LoggerService {
                 qb.where('t.type = :type', { type: body.type })
             }
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await divineResolver({
+                return await fetchResolver({
                     total,
                     list: tree.fromList(list, { id: 'sid', pid: 'pid' })
                 })

@@ -2,7 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common'
 import { create } from 'svg-captcha'
 import { ConsumeMessage } from 'amqplib'
 import { createCanvas } from 'canvas'
-import { divineHandler, divineIntNumber } from '@/utils/utils-common'
+import { fetchHandler, fetchIntNumber } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import * as web from '@/config/web-instance'
 import * as crypto from 'crypto'
@@ -13,7 +13,7 @@ import * as pdfjsLib from 'pdfjs-dist'
 /**生成图形验证码**/
 export async function divineGraphCodex(scope: Omix<{ width: number; height: number }>) {
     return {
-        sid: divineIntNumber(),
+        sid: fetchIntNumber(),
         ...create({
             fontSize: 40,
             size: 4,
@@ -55,6 +55,6 @@ export async function divineCustomizeHeaders(consume: ConsumeMessage) {
     }
     return {
         [web.WEB_COMMON_HEADER_STARTTIME]: Date.now(),
-        [web.WEB_COMMON_HEADER_CONTEXTID]: divineIntNumber({ random: true, bit: 32 })
+        [web.WEB_COMMON_HEADER_CONTEXTID]: fetchIntNumber({ random: true, bit: 32 })
     } as never as OmixHeaders
 }

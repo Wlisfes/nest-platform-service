@@ -2,7 +2,7 @@ import { Injectable, HttpStatus } from '@nestjs/common'
 import { Repository, DataSource, DeepPartial, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
-import { divineCatchWherer, divineResolver } from '@/utils/utils-common'
+import { fetchCatchWherer, fetchResolver } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import * as entities from '@/entities/instance'
 
@@ -43,7 +43,7 @@ export class DatabaseService extends LoggerService {
 
     /**数据模型为空：抛出异常、存在-返回数据模型**/
     public async fetchConnectCatchWherer<T>(where: boolean, node: T, scope: OmixCustomOption<T, Omix>) {
-        return await divineCatchWherer(where && Boolean(scope.message), {
+        return await fetchCatchWherer(where && Boolean(scope.message), {
             message: scope.message,
             cause: scope.cause,
             status: scope.status ?? HttpStatus.BAD_REQUEST
@@ -128,7 +128,7 @@ export class DatabaseService extends LoggerService {
         this.logger.info({ log: `[${model.metadata.name}]:查询入参`, where })
         return await model.findAndCount(where).then(async ([list = [], total = 0]) => {
             this.logger.info({ log: `[${model.metadata.name}]:查询出参`, where, total })
-            return await divineResolver({ list, total })
+            return await fetchResolver({ list, total })
         })
     }
 

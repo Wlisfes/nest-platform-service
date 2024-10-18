@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger as WinstonLogger } from 'winston'
-import { divineLogger } from '@/utils/utils-common'
+import { fetchLogger } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 export { WinstonLogger, WINSTON_MODULE_PROVIDER }
 
@@ -16,17 +16,17 @@ export class NestLogger {
     ) {}
     log(headers: OmixHeaders, args: Omix) {
         const { className, propertyName } = this.loggerOption
-        this.logger.info([className, propertyName].join(':'), divineLogger(headers, args))
+        this.logger.info([className, propertyName].join(':'), fetchLogger(headers, args))
     }
     info(args: Omix) {
         const { headers, className, propertyName } = this.loggerOption
-        this.logger.info([className, propertyName].join(':'), divineLogger(headers, args))
+        this.logger.info([className, propertyName].join(':'), fetchLogger(headers, args))
     }
     error(args: Omix) {
         const { headers, className, propertyName } = this.loggerOption
         this.logger.error(
             [className, propertyName].join(':'),
-            divineLogger(headers, {
+            fetchLogger(headers, {
                 message: args.message,
                 status: args.status ?? HttpStatus.INTERNAL_SERVER_ERROR
             })

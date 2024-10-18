@@ -1,6 +1,6 @@
 import { Module, Global, DynamicModule } from '@nestjs/common'
 import { WinstonModule } from 'nest-winston'
-import { divineCaseWherer } from '@/utils/utils-common'
+import { fetchCaseWherer } from '@/utils/utils-common'
 import * as web from '@/config/web-instance'
 import * as winston from 'winston'
 import * as chalk from 'chalk'
@@ -33,15 +33,15 @@ export class LoggerModule {
 									const timestamp = chalk.hex('#fb9300')(`${data.timestamp}`)
                                     const contextId = chalk.hex("#536dfe")(`上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]`)
 									const message = chalk.hex("#ff3d68")(`执行方法:[${data.message}]`)
-                                    const duration = divineCaseWherer(Boolean(data.duration), {
+                                    const duration = fetchCaseWherer(Boolean(data.duration), {
                                         value: chalk.hex("#ff3d68")(`耗时:${data.duration ?? '[]'}`),
                                         defaultValue: ''
                                     })
-                                    const url = divineCaseWherer(Boolean(data.log?.url), {
+                                    const url = fetchCaseWherer(Boolean(data.log?.url), {
                                         value: chalk.hex('#fc5404')(`接口地址:[${data.log?.url ?? ''}]`, ''),
                                         defaultValue: ""
                                     })
-                                    const level = divineCaseWherer(data.level === 'error', {
+                                    const level = fetchCaseWherer(data.level === 'error', {
                                         value: chalk.red('ERROR'),
                                         fallback: chalk.green(data.level.toUpperCase())
                                     })

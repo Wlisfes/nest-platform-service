@@ -3,7 +3,7 @@ import { Not } from 'typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
-import { divineResolver, divineIntNumber } from '@/utils/utils-common'
+import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
 import * as tree from 'tree-tool'
 import * as env from '@web-system-service/interface/instance.resolver'
@@ -27,7 +27,7 @@ export class DeptService extends LoggerService {
             /**写入部门表**/
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDept, {
                 body: {
-                    deptId: await divineIntNumber({ random: true, bit: 9 }),
+                    deptId: await fetchIntNumber({ random: true, bit: 9 }),
                     deptName: body.deptName,
                     parentId: body.parentId ?? null
                 }
@@ -72,7 +72,7 @@ export class DeptService extends LoggerService {
         const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbDept, {
             select: ['keyId', 'deptId', 'deptName', 'parentId', 'state']
         })
-        return await divineResolver({
+        return await fetchResolver({
             total,
             list: tree.fromList(list, { id: 'deptId', pid: 'parentId' })
         })

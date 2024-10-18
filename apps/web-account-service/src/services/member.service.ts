@@ -9,7 +9,7 @@ import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders, OmixRequest } from '@/interface/instance.resolver'
 import { tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
-import { divineResolver, divineIntNumber, divineHandler, divineKeyCompose } from '@/utils/utils-common'
+import { fetchResolver, fetchIntNumber, fetchHandler, fetchKeyCompose } from '@/utils/utils-common'
 import { divineGraphCodex } from '@/utils/utils-plugin'
 import { compareSync } from 'bcryptjs'
 import { Response } from 'express'
@@ -37,7 +37,7 @@ export class MemberService extends LoggerService {
     @Logger
     public async httpAuthGraphCodex(headers: OmixHeaders, response: Response) {
         const { text, data, sid } = await divineGraphCodex({ width: 120, height: 40 })
-        const key = await divineKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
+        const key = await fetchKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
         return await this.redisService.setStore(headers, { key, data: text, seconds: 5 * 60 }).then(async () => {
             this.logger.info({ message: '图形验证码发送成功', seconds: 5 * 60, key, text })
             await response.cookie(web.WEB_COMMON_HEADER_CAPHCHA, sid, { httpOnly: true })
@@ -54,7 +54,7 @@ export class MemberService extends LoggerService {
         if (!sid) {
             throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
         } else {
-            const key = await divineKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
+            const key = await fetchKeyCompose(keys.NEST_ACCOUNT_LOGIN, sid)
             await this.redisService.getStore<string>(headers, { key, defaultValue: null }).then(async code => {
                 if (isEmpty(code) || body.code.toUpperCase() !== code.toUpperCase()) {
                     throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
@@ -101,7 +101,7 @@ export class MemberService extends LoggerService {
                 fieldName: 'dept'
             })
             /**验证部门子管理员ID列表是否不存在**/
-            await divineHandler((body.master ?? []).length > 0, {
+            await fetchHandler((body.master ?? []).length > 0, {
                 handler: async () => {
                     return await this.whereDeptService.fetchDeptDiffColumnValidator(headers, {
                         dept: body.master,
@@ -122,7 +122,7 @@ export class MemberService extends LoggerService {
             /**写入员工表**/ //prettier-ignore
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
                 body: {
-                    staffId: await divineIntNumber(),
+                    staffId: await fetchIntNumber(),
                     password: Buffer.from('123456').toString('base64'),
                     name: body.name,
                     jobNumber: body.jobNumber
@@ -144,7 +144,7 @@ export class MemberService extends LoggerService {
                 await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbSimpleRankMember, {
                     body: body.rank.map(sid => ({ sid, staffId }))
                 })
-                return await divineResolver({ message: 'success' })
+                return await fetchResolver({ message: 'success' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -167,7 +167,7 @@ export class MemberService extends LoggerService {
             qb.leftJoinAndMapMany('t.rank', tbSimpleRankMember, 'rank', 't.staffId = rank.staffId')
             qb.leftJoinAndMapOne('rank.name', tbSimple, 'rank1', 'rank.sid = rank1.sid')
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await divineResolver({
+                return await fetchResolver({
                     total,
                     list: list.map((data: Omix) => ({
                         ...data,

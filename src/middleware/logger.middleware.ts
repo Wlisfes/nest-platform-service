@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
 import { getClientIp } from 'request-ip'
-import { divineIntNumber } from '@/utils/utils-common'
+import { fetchIntNumber } from '@/utils/utils-common'
 import * as web from '@/config/web-instance'
 import * as env from '@/interface/instance.resolver'
 
@@ -14,7 +14,7 @@ export class LoggerMiddleware implements NestMiddleware {
         const { baseUrl, method, body, query, params, headers } = request
         const clientIp = getClientIp(request)
         const start = Date.now()
-        const context = await divineIntNumber({ random: true, bit: 32 })
+        const context = await fetchIntNumber({ random: true, bit: 32 })
         const ip = ['localhost', '::1', '::ffff:127.0.0.1'].includes(clientIp) ? '127.0.0.1' : clientIp.replace(/^.*:/, '')
 
         /**起始日志 startTime**/

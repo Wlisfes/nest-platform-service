@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
-import { divineResolver, divineIntNumber } from '@/utils/utils-common'
+import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { Not } from 'typeorm'
 import { groupBy } from 'lodash'
@@ -26,7 +26,7 @@ export class SimpleService extends LoggerService {
             /**写入字典表**/
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbSimple, {
                 body: {
-                    sid: await divineIntNumber({ random: true, bit: 11 }),
+                    sid: await fetchIntNumber({ random: true, bit: 11 }),
                     name: body.name,
                     stalk: body.stalk,
                     pid: body.pid ?? null,
@@ -55,7 +55,7 @@ export class SimpleService extends LoggerService {
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 const by = body.batch.reduce((curr, keyName) => ({ ...curr, [keyName]: [] }), {})
                 const stalkBy: Partial<Record<enums.SimpleStalk, Array<env.RestSimple>>> = groupBy(list, 'stalk')
-                return await divineResolver({ ...by, ...stalkBy })
+                return await fetchResolver({ ...by, ...stalkBy })
             })
         })
     }
@@ -63,7 +63,7 @@ export class SimpleService extends LoggerService {
     /**字典类型**/
     @Logger
     public async httpColumnStalk(headers: OmixHeaders, staffId: string) {
-        return await divineResolver({
+        return await fetchResolver({
             total: Object.keys(enums.SimpleStalk).length,
             list: Object.keys(enums.SimpleStalk).map(sid => {
                 return { sid, name: enums.SimpleMapStalk[sid] }
@@ -82,7 +82,7 @@ export class SimpleService extends LoggerService {
                 state: enums.SimpleState.enable
             })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await divineResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })
+                return await fetchResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })
             })
         })
     }
