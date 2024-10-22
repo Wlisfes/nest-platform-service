@@ -3,13 +3,9 @@ import { JwtService } from '@/services/jwt.service'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { RedisService } from '@/services/redis/redis.service'
 import { DatabaseService } from '@/services/database.service'
-import { UploadService } from '@/services/upload/upload.service'
-import { WhereMemberService } from '@/wheres/where-member.service'
-import { WhereDeptService } from '@/wheres/where-dept.service'
-import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders, OmixRequest } from '@/interface/instance.resolver'
 import { tbDept, tbDeptMember, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
-import { fetchResolver, fetchIntNumber, fetchHandler, fetchKeyCompose } from '@/utils/utils-common'
+import { fetchResolver, fetchIntNumber, fetchKeyCompose } from '@/utils/utils-common'
 import { divineGraphCodex } from '@/utils/utils-plugin'
 import { compareSync } from 'bcryptjs'
 import { Response } from 'express'
@@ -25,11 +21,7 @@ export class MemberService extends LoggerService {
     constructor(
         private readonly jwtService: JwtService,
         private readonly redisService: RedisService,
-        private readonly databaseService: DatabaseService,
-        private readonly uploadService: UploadService,
-        private readonly whereMemberService: WhereMemberService,
-        private readonly whereDeptService: WhereDeptService,
-        private readonly whereSimpleService: WhereSimpleService
+        private readonly databaseService: DatabaseService
     ) {
         super()
     }
@@ -86,57 +78,21 @@ export class MemberService extends LoggerService {
     public async httpCreateMember(headers: OmixHeaders, staffId: string, body: env.BodyCreateMember) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            /**验证员工工号是否已存在**/
-            await this.whereMemberService.fetchMemberNullValidator(headers, {
-                where: { jobNumber: body.jobNumber }
-            })
-            /**验证部门列表ID是否不存在**/
-            await this.whereDeptService.fetchDeptDiffColumnValidator(headers, {
-                dept: body.dept,
-                fieldName: 'dept'
-            })
-            /**验证部门子管理员ID列表是否不存在**/
-            await fetchHandler((body.master ?? []).length > 0, {
-                handler: async () => {
-                    return await this.whereDeptService.fetchDeptDiffColumnValidator(headers, {
-                        dept: body.master,
-                        fieldName: 'master'
-                    })
+            await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbMember, {
+                message: '工号已存在',
+                dispatch: {
+                    where: { jobNumber: body.jobNumber }
                 }
             })
-            // /**验证职位ID列表是否不存在**/
-            // await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
-            //     sid: body.post,
-            //     stalk: enums.SimpleStalk.post
-            // })
-            // /**验证职级ID列表是否不存在**/
-            // await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
-            //     sid: body.rank,
-            //     stalk: enums.SimpleStalk.rank
-            // })
-            /**写入员工表**/ //prettier-ignore
-            return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
+            await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
                 body: {
                     id: await fetchIntNumber(),
                     password: Buffer.from('123456').toString('base64'),
                     name: body.name,
                     jobNumber: body.jobNumber
                 }
-            }).then(async (node) => {
-                /**员工与部门绑定关联**/
-                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbDeptMember, {
-                    body: body.dept.map(deptId => ({ deptId, staffId }))
-                })
-                /**员工与职位绑定关联***/
-                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbSimplePostMember, {
-                    body: body.post.map(sid => ({ sid, staffId }))
-                })
-                /**员工与职级绑定关联***/
-                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbSimpleRankMember, {
-                    body: body.rank.map(sid => ({ sid, staffId }))
-                })
-                return await fetchResolver({ message: 'success' })
             })
+            return await fetchResolver({ message: 'success' })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchThrowException(err.message, err.status)
