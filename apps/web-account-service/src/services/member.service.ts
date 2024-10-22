@@ -68,7 +68,7 @@ export class MemberService extends LoggerService {
                 await this.databaseService.fetchConnectCatchWherer(node.state !== enums.MemberState.online, node, {
                     message: '员工已离职或账号已被禁用'
                 })
-                return await this.jwtService.fetchJwtTokenSecret(_.pick(node, ['staffId', 'name', 'jobNumber', 'state', 'password']))
+                return await this.jwtService.fetchJwtTokenSecret(_.pick(node, ['id', 'name', 'jobNumber', 'state', 'password']))
             })
         })
     }
@@ -86,13 +86,15 @@ export class MemberService extends LoggerService {
             })
             await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
                 body: {
-                    id: await fetchIntNumber(),
+                    id: fetchIntNumber(),
                     password: Buffer.from('123456').toString('base64'),
                     name: body.name,
                     jobNumber: body.jobNumber
                 }
             })
-            return await fetchResolver({ message: 'success' })
+            return await ctx.commitTransaction().then(async () => {
+                return await fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchThrowException(err.message, err.status)
