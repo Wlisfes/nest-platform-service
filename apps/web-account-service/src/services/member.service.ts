@@ -8,7 +8,7 @@ import { WhereMemberService } from '@/wheres/where-member.service'
 import { WhereDeptService } from '@/wheres/where-dept.service'
 import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { Omix, OmixHeaders, OmixRequest } from '@/interface/instance.resolver'
-import { tbDept, tbDeptMember, tbDeptMaster, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
+import { tbDept, tbDeptMember, tbSimple, tbSimplePostMember, tbSimpleRankMember } from '@/entities/instance'
 import { fetchResolver, fetchIntNumber, fetchHandler, fetchKeyCompose } from '@/utils/utils-common'
 import { divineGraphCodex } from '@/utils/utils-plugin'
 import { compareSync } from 'bcryptjs'
@@ -127,10 +127,6 @@ export class MemberService extends LoggerService {
                 await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbDeptMember, {
                     body: body.dept.map(deptId => ({ deptId, staffId }))
                 })
-                /**员工与子管理员绑定关联**/
-                await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbDeptMaster, {
-                    body: body.master.map(deptId => ({ deptId, staffId }))
-                })
                 /**员工与职位绑定关联***/
                 await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbSimplePostMember, {
                     body: body.post.map(sid => ({ sid, staffId }))
@@ -155,7 +151,6 @@ export class MemberService extends LoggerService {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbMember, async qb => {
             qb.leftJoinAndMapMany('t.dept', tbDeptMember, 'dept', 't.staffId = dept.staffId')
             qb.leftJoinAndMapOne('dept.name', tbDept, 'dept1', 'dept.deptId = dept1.deptId')
-            qb.leftJoinAndMapMany('t.master', tbDeptMaster, 'master', 't.staffId = master.staffId')
             qb.leftJoinAndMapOne('master.name', tbDept, 'master1', 'master.deptId = master1.deptId')
             qb.leftJoinAndMapMany('t.post', tbSimplePostMember, 'post', 't.staffId = post.staffId')
             qb.leftJoinAndMapOne('post.name', tbSimple, 'post1', 'post.sid = post1.sid')
@@ -167,7 +162,6 @@ export class MemberService extends LoggerService {
                     list: list.map((data: Omix) => ({
                         ...data,
                         dept: data.dept.map(({ deptId, name }) => ({ deptId, deptName: name.deptName })),
-                        master: data.master.map(({ deptId, name }) => ({ deptId, deptName: name.deptName })),
                         post: data.post.map(({ sid, name }) => ({ sid, name: name.name })),
                         rank: data.rank.map(({ sid, name }) => ({ sid, name: name.name }))
                     }))
