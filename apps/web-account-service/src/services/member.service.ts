@@ -104,25 +104,25 @@ export class MemberService extends LoggerService {
                     })
                 }
             })
-            /**验证职位ID列表是否不存在**/
-            await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
-                sid: body.post,
-                stalk: enums.SimpleStalk.post
-            })
-            /**验证职级ID列表是否不存在**/
-            await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
-                sid: body.rank,
-                stalk: enums.SimpleStalk.rank
-            })
+            // /**验证职位ID列表是否不存在**/
+            // await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
+            //     sid: body.post,
+            //     stalk: enums.SimpleStalk.post
+            // })
+            // /**验证职级ID列表是否不存在**/
+            // await this.whereSimpleService.fetchSimpleDiffColumnValidator(headers, {
+            //     sid: body.rank,
+            //     stalk: enums.SimpleStalk.rank
+            // })
             /**写入员工表**/ //prettier-ignore
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbMember, {
                 body: {
-                    staffId: await fetchIntNumber(),
+                    id: await fetchIntNumber(),
                     password: Buffer.from('123456').toString('base64'),
                     name: body.name,
                     jobNumber: body.jobNumber
                 }
-            }).then(async ({ staffId }) => {
+            }).then(async (node) => {
                 /**员工与部门绑定关联**/
                 await this.databaseService.fetchConnectInsert(headers, this.databaseService.tbDeptMember, {
                     body: body.dept.map(deptId => ({ deptId, staffId }))

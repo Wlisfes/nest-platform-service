@@ -11,7 +11,7 @@ export class tbRouter extends CommonEntier {
     @ApiProperty({ description: '菜单ID', example: '858619496' })
     @IsNotEmpty({ message: '菜单ID必填' })
     @Column({ comment: '菜单ID', length: 32, nullable: false })
-    sid: string
+    id: string
 
     @ApiProperty({ description: '菜单名称', example: '控制台' })
     @IsNotEmpty({ message: '菜单名称必填' })

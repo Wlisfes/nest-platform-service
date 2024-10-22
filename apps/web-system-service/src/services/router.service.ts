@@ -28,7 +28,7 @@ export class RouterService extends LoggerService {
             })
             await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbRouter, {
                 body: {
-                    sid: await fetchIntNumber({ random: true, bit: 11 }),
+                    id: fetchIntNumber({ random: true, bit: 11 }),
                     staffId,
                     name: body.name,
                     show: body.show,
@@ -60,15 +60,15 @@ export class RouterService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.whereRouterService.fetchRouterNullValidator(headers, {
-                message: 'sid不存在',
-                where: { sid: body.sid }
+                message: 'ID不存在',
+                where: { id: body.id }
             })
             await this.whereRouterService.fetchRouterNotNullValidator(headers, {
                 message: '唯一标识已存在',
-                where: { instance: body.instance, sid: Not(body.sid) }
+                where: { instance: body.instance, id: Not(body.id) }
             })
             await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbRouter, {
-                where: { sid: body.sid },
+                where: { id: body.id },
                 body: {
                     staffId,
                     type: body.type,
@@ -101,11 +101,11 @@ export class RouterService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.whereRouterService.fetchRouterNullValidator(headers, {
-                message: 'sid不存在',
-                where: { sid: body.sid }
+                message: 'ID不存在',
+                where: { id: body.id }
             })
             await this.databaseService.fetchConnectDelete(headers, this.databaseService.tbRouter, {
-                sid: body.sid
+                id: body.id
             })
             return await ctx.commitTransaction().then(async () => {
                 return await fetchResolver({ message: '操作成功' })
@@ -124,11 +124,11 @@ export class RouterService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.whereRouterService.fetchRouterNullValidator(headers, {
-                message: 'sid不存在',
-                where: { sid: body.sid }
+                message: 'ID不存在',
+                where: { id: body.id }
             })
             await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbRouter, {
-                where: { sid: body.sid },
+                where: { id: body.id },
                 body: { staffId, state: body.state }
             })
             return await ctx.commitTransaction().then(async () => {
@@ -148,7 +148,7 @@ export class RouterService extends LoggerService {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbRouter, async qb => {
             /**用户信息联查**/
             qb.leftJoinAndMapOne('t.staff', tbMember, 'staff', 'staff.staffId = t.staffId')
-            qb.where(`t.sid = :sid OR t.pid = :sid`, { sid: body.sid })
+            qb.where(`t.id = :id OR t.pid = :id`, { id: body.id })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await fetchResolver({ total, list })
             })
@@ -165,7 +165,7 @@ export class RouterService extends LoggerService {
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await fetchResolver({
                     total,
-                    list: tree.fromList(list, { id: 'sid', pid: 'pid' })
+                    list: tree.fromList(list, { id: 'id', pid: 'pid' })
                 })
             })
         })
@@ -175,8 +175,8 @@ export class RouterService extends LoggerService {
     @Logger
     public async httpResolveRouter(headers: OmixHeaders, staffId: string, body: env.BodyResolveRouter) {
         return await this.whereRouterService.fetchRouterNullValidator(headers, {
-            message: 'sid不存在',
-            where: { sid: body.sid }
+            message: 'ID不存在',
+            where: { id: body.id }
         })
     }
 }

@@ -10,7 +10,7 @@ export class tbSimple extends CommonEntier {
     @ApiProperty({ description: '字典ID', example: '34754938454' })
     @IsNotEmpty({ message: '字典ID必填' })
     @Column({ comment: '字典ID', length: 11, nullable: false })
-    sid: string
+    id: string
 
     @ApiProperty({ description: '字典名称', example: '业务员' })
     @IsNotEmpty({ message: '字典名称必填' })
@@ -59,7 +59,7 @@ export class tbSimplePostMember extends CommonEntier {
     @ApiProperty({ description: '职位ID', example: '34754938454' })
     @IsNotEmpty({ message: '职位ID必填' })
     @Column({ comment: '职位IDID', length: 11, nullable: false })
-    sid: string
+    id: string
 
     @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
     @IsNotEmpty({ message: 'staffId必填' })
@@ -72,7 +72,7 @@ export class tbSimpleRankMember extends CommonEntier {
     @ApiProperty({ description: '职位ID', example: '34754938454' })
     @IsNotEmpty({ message: '职位ID必填' })
     @Column({ comment: '职位IDID', length: 11, nullable: false })
-    sid: string
+    id: string
 
     @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
     @IsNotEmpty({ message: 'staffId必填' })

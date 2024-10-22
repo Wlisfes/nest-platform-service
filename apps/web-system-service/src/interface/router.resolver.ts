@@ -13,18 +13,18 @@ export class BodyCreateRouter extends IntersectionType(
 
 /**编辑菜单**/
 export class BodyUpdateRouter extends IntersectionType(
-    PickType(tbRouter, ['sid', 'type', 'name', 'show', 'version', 'sort', 'instance', 'state']),
+    PickType(tbRouter, ['id', 'type', 'name', 'show', 'version', 'sort', 'instance', 'state']),
     PickType(tbRouter, ['pid', 'path', 'icon', 'active'])
 ) {}
 
 /**菜单详情**/
-export class BodyResolveRouter extends PickType(tbRouter, ['sid']) {}
+export class BodyResolveRouter extends PickType(tbRouter, ['id']) {}
 
 /**菜单状态变更**/
-export class BodyTransformRouter extends PickType(tbRouter, ['sid', 'state']) {}
+export class BodyTransformRouter extends PickType(tbRouter, ['id', 'state']) {}
 
 /**菜单列表**/
-export class BodyColumnRouter extends PickType(tbRouter, ['sid']) {}
+export class BodyColumnRouter extends PickType(tbRouter, ['id']) {}
 
 /**所有菜单树**/
 export class BodyColumnTreeRouter extends PartialType(PickType(tbRouter, ['type'])) {}

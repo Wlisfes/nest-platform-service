@@ -37,11 +37,11 @@ export class WhereDeptService extends LoggerService {
     /**验证部门列表ID是否不存在**/
     public async fetchDeptDiffColumnValidator(headers: OmixHeaders, option: Omix<{ dept: Array<string>; fieldName: string }>) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbDept, async qb => {
-            qb.where('t.deptId IN(:...deptId)', { deptId: option.dept })
+            qb.where('t.id IN(:...id)', { id: option.dept })
             return await qb.getMany().then(async column => {
                 const differ = difference(
                     option.dept,
-                    column.map(item => item.deptId)
+                    column.map(item => item.id)
                 )
                 await this.fetchWhereException(differ.length > 0, async where => {
                     return this.fetchThrowException(`${option.fieldName}: [${differ.join(',')}] 不存在`, 400)

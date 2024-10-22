@@ -6,7 +6,7 @@ import { tbDept } from '@/entities/instance'
 export class RestDept extends tbDept {}
 
 /**创建部门**/
-export class BodyCreateDept extends IntersectionType(PickType(tbDept, ['deptName']), PartialType(PickType(tbDept, ['parentId']))) {}
+export class BodyCreateDept extends IntersectionType(PickType(tbDept, ['name']), PartialType(PickType(tbDept, ['pid']))) {}
 
 /**编辑部门**/
-export class BodyUpdateDept extends PickType(tbDept, ['deptId', 'deptName']) {}
+export class BodyUpdateDept extends PickType(tbDept, ['id', 'name']) {}

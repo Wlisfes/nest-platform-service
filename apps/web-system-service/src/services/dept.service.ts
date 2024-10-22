@@ -21,15 +21,15 @@ export class DeptService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.whereDeptService.fetchDeptNotNullValidator(headers, {
-                message: 'deptName已存在',
-                where: { deptName: body.deptName }
+                message: `${body.name}已存在`,
+                where: { name: body.name }
             })
             /**写入部门表**/
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbDept, {
                 body: {
-                    deptId: await fetchIntNumber({ random: true, bit: 9 }),
-                    deptName: body.deptName,
-                    parentId: body.parentId ?? null
+                    id: fetchIntNumber({ random: true, bit: 9 }),
+                    name: body.name,
+                    pid: body.pid
                 }
             })
         } catch (err) {
@@ -46,17 +46,17 @@ export class DeptService extends LoggerService {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.whereDeptService.fetchDeptNullValidator(headers, {
-                message: 'deptId不存在',
-                where: { deptId: body.deptId }
+                message: 'ID不存在',
+                where: { id: body.id }
             })
             await this.whereDeptService.fetchDeptNotNullValidator(headers, {
-                message: 'deptName已存在',
-                where: { deptName: body.deptName, deptId: Not(body.deptId) }
+                message: `${body.name}已存在`,
+                where: { name: body.name, id: Not(body.id) }
             })
             /**更新部门表**/
             return await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbDept, {
-                where: { deptId: body.deptId },
-                body: { deptName: body.deptName }
+                where: { id: body.id },
+                body: { name: body.name }
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -70,11 +70,11 @@ export class DeptService extends LoggerService {
     @Logger
     public async httpTreeDept(headers: OmixHeaders, staffId: string) {
         const { list, total } = await this.databaseService.fetchConnectAndCount(headers, this.databaseService.tbDept, {
-            select: ['keyId', 'deptId', 'deptName', 'parentId', 'state']
+            select: ['keyId', 'id', 'name', 'pid', 'state']
         })
         return await fetchResolver({
             total,
-            list: tree.fromList(list, { id: 'deptId', pid: 'parentId' })
+            list: tree.fromList(list, { id: 'id', pid: 'pid' })
         })
     }
 }

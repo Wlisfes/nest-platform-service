@@ -26,7 +26,7 @@ export class SimpleService extends LoggerService {
             /**写入字典表**/
             return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbSimple, {
                 body: {
-                    sid: await fetchIntNumber({ random: true, bit: 11 }),
+                    id: fetchIntNumber({ random: true, bit: 11 }),
                     name: body.name,
                     stalk: body.stalk,
                     pid: body.pid ?? null,
@@ -46,7 +46,7 @@ export class SimpleService extends LoggerService {
     @Logger
     public async httpColumnSimple(headers: OmixHeaders, staffId: string, body: env.BodyColumnSimple) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
-            qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
+            qb.select(['t.id', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
             qb.orderBy({ 't.sort': 'DESC' })
             qb.where(`t.stalk IN(:...stalk) AND t.state = :state`, {
                 stalk: body.batch,
@@ -65,8 +65,8 @@ export class SimpleService extends LoggerService {
     public async httpColumnStalk(headers: OmixHeaders, staffId: string) {
         return await fetchResolver({
             total: Object.keys(enums.SimpleStalk).length,
-            list: Object.keys(enums.SimpleStalk).map(sid => {
-                return { sid, name: enums.SimpleMapStalk[sid] }
+            list: Object.keys(enums.SimpleStalk).map(id => {
+                return { id, name: enums.SimpleMapStalk[id] }
             })
         })
     }
@@ -75,14 +75,14 @@ export class SimpleService extends LoggerService {
     @Logger
     public async httpColumnStalkSimple(headers: OmixHeaders, staffId: string, body: env.BodyStalkSimple) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
-            qb.select(['t.sid', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
+            qb.select(['t.id', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
             qb.orderBy({ 't.sort': 'DESC' })
             qb.where(`t.stalk = :stalk AND t.state = :state`, {
                 stalk: body.stalk,
                 state: enums.SimpleState.enable
             })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                return await fetchResolver({ total, list: tree.fromList(list, { id: 'sid', pid: 'pid' }) })
+                return await fetchResolver({ total, list: tree.fromList(list, { id: 'id', pid: 'pid' }) })
             })
         })
     }

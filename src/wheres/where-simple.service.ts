@@ -24,14 +24,14 @@ export class WhereSimpleService extends LoggerService {
     }
 
     /**验证字典ID列表是否不存在**/
-    public async fetchSimpleDiffColumnValidator(headers: OmixHeaders, option: Omix<{ sid: Array<string>; stalk: string }>) {
+    public async fetchSimpleDiffColumnValidator(headers: OmixHeaders, option: Omix<{ ids: Array<string>; stalk: string }>) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
-            qb.where('t.sid IN(:...sid)', { sid: option.sid })
+            qb.where('t.id IN(:...ids)', { ids: option.ids })
             qb.andWhere('t.stalk = :stalk', { stalk: option.stalk })
             return await qb.getMany().then(async column => {
                 const differ = difference(
-                    option.sid,
-                    column.map(item => item.sid)
+                    option.ids,
+                    column.map(item => item.id)
                 )
                 await this.fetchWhereException(differ.length > 0, async where => {
                     return this.fetchThrowException(`${option.stalk}: [${differ.join(',')}] 不存在`, 400)
