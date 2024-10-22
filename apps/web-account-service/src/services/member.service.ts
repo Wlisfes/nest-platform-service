@@ -14,6 +14,7 @@ import { divineGraphCodex } from '@/utils/utils-plugin'
 import { compareSync } from 'bcryptjs'
 import { Response } from 'express'
 import { isEmpty } from 'class-validator'
+import * as _ from 'lodash'
 import * as enums from '@/enums/instance'
 import * as web from '@/config/web-instance'
 import * as keys from '@web-account-service/keys'
@@ -75,13 +76,7 @@ export class MemberService extends LoggerService {
                 await this.databaseService.fetchConnectCatchWherer(node.state !== enums.MemberState.online, node, {
                     message: '员工已离职或账号已被禁用'
                 })
-                return await this.jwtService.fetchJwtTokenSecret({
-                    staffId: node.staffId,
-                    name: node.name,
-                    jobNumber: node.jobNumber,
-                    state: node.state,
-                    password: node.password
-                })
+                return await this.jwtService.fetchJwtTokenSecret(_.pick(node, ['staffId', 'name', 'jobNumber', 'state', 'password']))
             })
         })
     }
