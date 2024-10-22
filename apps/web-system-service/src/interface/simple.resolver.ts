@@ -9,7 +9,7 @@ export class RestSimple extends tbSimple {}
 /**创建字典**/
 export class BodyCreateSimple extends IntersectionType(
     PickType(tbSimple, ['name', 'stalk']),
-    PartialType(PickType(tbSimple, ['pid', 'props', 'state']))
+    PartialType(PickType(tbSimple, ['pid', 'state', 'ststus']))
 ) {}
 
 /**批量字典树**/

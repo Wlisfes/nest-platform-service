@@ -1,20 +1,18 @@
 /**字典状态**/
-export enum SimpleState {
+export enum SimpleStatus {
     /**启用**/
     enable = 'enable',
     /**禁用**/
-    disable = 'disable',
-    /**删除**/
-    delete = 'delete'
+    disable = 'disable'
 }
 
 /**字典类型**/
 export enum SimpleStalk {
-    post = 'post',
-    rank = 'rank'
+    STALK_POST = 'SIMPLE_STALK_POST',
+    STALK_RANK = 'SIMPLE_STALK_RANK'
 }
 /**字典类型描述**/
 export const SimpleMapStalk = {
-    [SimpleStalk.post]: '职位',
-    [SimpleStalk.rank]: '职级'
+    [SimpleStalk.STALK_POST]: '职位',
+    [SimpleStalk.STALK_RANK]: '职级'
 }

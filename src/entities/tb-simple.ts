@@ -17,7 +17,7 @@ export class tbSimple extends CommonEntier {
     @Column({ comment: '字典名称', length: 32, nullable: false })
     name: string
 
-    @ApiProperty({ description: '上级字典ID', example: '34754938454' })
+    @ApiProperty({ description: '上级字典ID' })
     @IsNotEmpty({ message: '上级字典ID必填' })
     @Column({ comment: '上级字典ID', length: 11, nullable: true })
     pid: string
@@ -28,11 +28,16 @@ export class tbSimple extends CommonEntier {
     @Column({ comment: '字典类型', nullable: false })
     stalk: string
 
-    @ApiProperty({ description: '字典状态: 启用-enable、禁用-disable、删除-delete', enum: enums.SimpleState })
+    @ApiProperty({ description: '员工ID' })
+    @IsNotEmpty({ message: '员工ID必填' })
+    @Column({ comment: '员工ID', length: 32, nullable: false })
+    staffId: string
+
+    @ApiProperty({ description: '字典状态: 启用-enable、禁用-disable、删除-delete', enum: enums.SimpleStatus })
     @IsNotEmpty({ message: '字典状态必填' })
-    @IsEnum(enums.SimpleState, { message: '字典状态参数格式错误' })
-    @Column({ comment: '字典状态: 启用-enable、禁用-disable、删除-delete', default: enums.SimpleState.enable, nullable: false })
-    state: string
+    @IsEnum(enums.SimpleStatus, { message: '字典状态参数格式错误' })
+    @Column({ comment: '字典状态: 启用-enable、禁用-disable、删除-delete', default: enums.SimpleStatus.enable, nullable: false })
+    ststus: string
 
     @ApiProperty({ description: '字典排序' })
     @IsNumber({}, { message: '字典排序必须为number' })
@@ -51,14 +56,14 @@ export class tbSimple extends CommonEntier {
             to: value => (isNotEmpty(value) ? JSON.stringify(value) : null)
         }
     })
-    props: Object
+    state: Object
 }
 
 @Entity({ name: 'tb_simple_post_member', comment: '员工职位表' })
 export class tbSimplePostMember extends CommonEntier {
-    @ApiProperty({ description: '职位ID', example: '34754938454' })
-    @IsNotEmpty({ message: '职位ID必填' })
-    @Column({ comment: '职位IDID', length: 11, nullable: false })
+    @ApiProperty({ description: '字典ID', example: '34754938454' })
+    @IsNotEmpty({ message: '字典ID必填' })
+    @Column({ comment: '字典ID', length: 11, nullable: false })
     id: string
 
     @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
@@ -69,9 +74,9 @@ export class tbSimplePostMember extends CommonEntier {
 
 @Entity({ name: 'tb_simple_rank_member', comment: '员工职级表' })
 export class tbSimpleRankMember extends CommonEntier {
-    @ApiProperty({ description: '职位ID', example: '34754938454' })
-    @IsNotEmpty({ message: '职位ID必填' })
-    @Column({ comment: '职位IDID', length: 11, nullable: false })
+    @ApiProperty({ description: '字典ID', example: '34754938454' })
+    @IsNotEmpty({ message: '字典ID必填' })
+    @Column({ comment: '字典ID', length: 11, nullable: false })
     id: string
 
     @ApiProperty({ description: '员工ID', example: '2149446185344106496' })

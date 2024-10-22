@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { WhereSimpleService } from '@/wheres/where-simple.service'
 import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { Not } from 'typeorm'
@@ -12,7 +11,7 @@ import * as enums from '@/enums/instance'
 
 @Injectable()
 export class SimpleService extends LoggerService {
-    constructor(private readonly databaseService: DatabaseService, private readonly whereSimpleService: WhereSimpleService) {
+    constructor(private readonly databaseService: DatabaseService) {
         super()
     }
 
@@ -21,18 +20,25 @@ export class SimpleService extends LoggerService {
     public async httpCreateSimple(headers: OmixHeaders, staffId: string, body: env.BodyCreateSimple) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
-            /**验证字典名称是否已存在**/
-            await this.whereSimpleService.fetchSimpleNameNotEmpty(headers, { name: body.name, stalk: body.stalk })
-            /**写入字典表**/
-            return await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbSimple, {
+            await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbSimple, {
+                message: '字典名称已存在',
+                dispatch: {
+                    where: { name: body.name, stalk: body.stalk }
+                }
+            })
+            await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbSimple, {
                 body: {
-                    id: fetchIntNumber({ random: true, bit: 11 }),
+                    staffId,
                     name: body.name,
                     stalk: body.stalk,
                     pid: body.pid ?? null,
-                    props: body.props ?? null,
-                    state: body.state ?? enums.SimpleState.enable
+                    state: body.state ?? null,
+                    ststus: body.ststus ?? enums.SimpleStatus.enable,
+                    id: fetchIntNumber({ random: true, bit: 11 })
                 }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -46,11 +52,11 @@ export class SimpleService extends LoggerService {
     @Logger
     public async httpColumnSimple(headers: OmixHeaders, staffId: string, body: env.BodyColumnSimple) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
-            qb.select(['t.id', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
+            qb.select(['t.id', 't.name', 't.pid', 't.stalk', 't.state', 't.status'])
             qb.orderBy({ 't.sort': 'DESC' })
-            qb.where(`t.stalk IN(:...stalk) AND t.state = :state`, {
+            qb.where(`t.stalk IN(:...stalk) AND t.status = :status`, {
                 stalk: body.batch,
-                state: enums.SimpleState.enable
+                status: enums.SimpleStatus.enable
             })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 const by = body.batch.reduce((curr, keyName) => ({ ...curr, [keyName]: [] }), {})
@@ -75,11 +81,11 @@ export class SimpleService extends LoggerService {
     @Logger
     public async httpColumnStalkSimple(headers: OmixHeaders, staffId: string, body: env.BodyStalkSimple) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimple, async qb => {
-            qb.select(['t.id', 't.name', 't.pid', 't.stalk', 't.state', 't.props'])
+            qb.select(['t.id', 't.name', 't.pid', 't.stalk', 't.state', 't.status'])
             qb.orderBy({ 't.sort': 'DESC' })
-            qb.where(`t.stalk = :stalk AND t.state = :state`, {
+            qb.where(`t.stalk = :stalk AND t.status = :status`, {
                 stalk: body.stalk,
-                state: enums.SimpleState.enable
+                status: enums.SimpleStatus.enable
             })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await fetchResolver({ total, list: tree.fromList(list, { id: 'id', pid: 'pid' }) })

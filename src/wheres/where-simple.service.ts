@@ -15,12 +15,12 @@ export class WhereSimpleService extends LoggerService {
 
     /**验证字典名称是否已存在**/
     public async fetchSimpleNameNotEmpty(headers: OmixHeaders, body: Omix<{ name: string; stalk: string }>) {
-        return await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbSimple, {
-            message: '字典名称已存在',
-            dispatch: {
-                where: { name: body.name, stalk: body.stalk, state: Not(enums.SimpleState.delete) }
-            }
-        })
+        // return await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbSimple, {
+        //     message: '字典名称已存在',
+        //     dispatch: {
+        //         where: { name: body.name, stalk: body.stalk, state: Not(enums.SimpleState.delete) }
+        //     }
+        // })
     }
 
     /**验证字典ID列表是否不存在**/
