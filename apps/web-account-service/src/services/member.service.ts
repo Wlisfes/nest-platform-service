@@ -75,7 +75,7 @@ export class MemberService extends LoggerService {
 
     /**创建员工账号**/
     @Logger
-    public async httpCreateMember(headers: OmixHeaders, staffId: string, body: env.BodyCreateMember) {
+    public async httpCreateMember(headers: OmixHeaders, user: env.RestMember, body: env.BodyCreateMember) {
         const ctx = await this.databaseService.fetchConnectTransaction()
         try {
             await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbMember, {

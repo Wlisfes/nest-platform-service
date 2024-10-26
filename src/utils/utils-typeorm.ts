@@ -6,7 +6,7 @@ import { moment } from '@/utils/utils-common'
 export abstract class CommonEntier {
     @ApiProperty({ description: '主键ID', example: 1 })
     @IsNotEmpty({ message: '主键ID必填' })
-    @PrimaryGeneratedColumn({ comment: '自增长主键' })
+    @PrimaryGeneratedColumn('increment', { comment: '自增长主键' })
     keyId: number
 
     @ApiProperty({ description: '创建时间', example: '2023-10-26 16:03:38' })

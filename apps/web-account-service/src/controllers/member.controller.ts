@@ -31,11 +31,11 @@ export class MemberController {
     @Post('/create')
     @ApiDecorator({
         operation: { summary: '创建员工账号' },
-        authorize: { source: 'manager', check: true },
+        // authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpCreateMember(@Request() request: OmixRequest, @Body() body: env.BodyCreateMember) {
-        return await this.memberService.httpCreateMember(request.headers, request.member.staffId, body)
+        return await this.memberService.httpCreateMember(request.headers, request.member, body)
     }
 
     @Post('/list')
