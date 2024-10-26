@@ -11,11 +11,6 @@ import { LoggerModule } from '@/modules/logger.module'
 import { ThrottlerModule } from '@/modules/throttler.module'
 import { DatabaseModule } from '@/modules/database.module'
 import { UploadModule } from '@/modules/upload.module'
-//wheres
-import { WhereMemberService } from '@/wheres/where-member.service'
-import { WhereDeptService } from '@/wheres/where-dept.service'
-import { WhereSimpleService } from '@/wheres/where-simple.service'
-import { WhereRouterService } from '@/wheres/where-router.service'
 //services
 import { DeptService } from '@web-system-service/services/dept.service'
 import { SimpleService } from '@web-system-service/services/simple.service'
@@ -32,10 +27,6 @@ import { RouterController } from '@web-system-service/controllers/router.control
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
-        WhereMemberService,
-        WhereDeptService,
-        WhereSimpleService,
-        WhereRouterService,
         DeptService,
         SimpleService,
         RouterService

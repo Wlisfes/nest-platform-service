@@ -6,11 +6,6 @@ import * as enums from '@/enums/instance'
 
 @Entity({ name: 'tb_dept', comment: '部门表' })
 export class tbDept extends CommonEntier {
-    @ApiProperty({ description: '部门ID', example: '858619496' })
-    @IsNotEmpty({ message: '部门ID必填' })
-    @Column({ comment: '部门ID', length: 32, nullable: false })
-    id: string
-
     @ApiProperty({ description: '部门名称', example: '产研中心' })
     @IsNotEmpty({ message: '部门名称必填' })
     @Column({ comment: '部门名称', length: 32, nullable: false })

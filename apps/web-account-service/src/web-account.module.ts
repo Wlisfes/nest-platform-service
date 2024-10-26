@@ -12,10 +12,6 @@ import { ThrottlerModule } from '@/modules/throttler.module'
 import { RedisModule } from '@/modules/redis.module'
 import { DatabaseModule } from '@/modules/database.module'
 import { UploadModule } from '@/modules/upload.module'
-//wheres
-import { WhereMemberService } from '@/wheres/where-member.service'
-import { WhereDeptService } from '@/wheres/where-dept.service'
-import { WhereSimpleService } from '@/wheres/where-simple.service'
 //services
 import { MemberService } from '@web-account-service/services/member.service'
 //controllers
@@ -36,9 +32,6 @@ import { MemberController } from '@web-account-service/controllers/member.contro
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
-        WhereMemberService,
-        WhereDeptService,
-        WhereSimpleService,
         MemberService
     ]
 })

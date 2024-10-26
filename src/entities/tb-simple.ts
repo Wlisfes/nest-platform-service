@@ -10,11 +10,6 @@ export class tbSimple extends CommonEntier {}
 
 @Entity({ name: 'tb_simple_column', comment: '字典配置表' })
 export class tbSimpleColumn extends CommonEntier {
-    @ApiProperty({ description: '字典ID' })
-    @IsNotEmpty({ message: '字典ID必填' })
-    @Column({ comment: '字典ID', length: 11 })
-    id: string
-
     @ApiProperty({ description: '字典名称', example: '业务员' })
     @IsNotEmpty({ message: '字典名称必填' })
     @Column({ comment: '字典名称', length: 32 })
@@ -73,11 +68,6 @@ export class tbSimpleColumn extends CommonEntier {
 
 @Entity({ name: 'tb_simple_post_member', comment: '员工职位表' })
 export class tbSimplePostMember extends CommonEntier {
-    @ApiProperty({ description: '字典ID', example: '34754938454' })
-    @IsNotEmpty({ message: '字典ID必填' })
-    @Column({ comment: '字典ID', length: 11, nullable: false })
-    id: string
-
     @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
     @IsNotEmpty({ message: 'staffId必填' })
     @Column({ comment: '员工ID', length: 32, nullable: false })
@@ -86,11 +76,6 @@ export class tbSimplePostMember extends CommonEntier {
 
 @Entity({ name: 'tb_simple_rank_member', comment: '员工职级表' })
 export class tbSimpleRankMember extends CommonEntier {
-    @ApiProperty({ description: '字典ID', example: '34754938454' })
-    @IsNotEmpty({ message: '字典ID必填' })
-    @Column({ comment: '字典ID', length: 11, nullable: false })
-    id: string
-
     @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
     @IsNotEmpty({ message: 'staffId必填' })
     @Column({ comment: '员工ID', length: 32, nullable: false })

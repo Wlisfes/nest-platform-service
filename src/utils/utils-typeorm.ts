@@ -4,10 +4,10 @@ import { IsNotEmpty, isNotEmpty } from 'class-validator'
 import { moment } from '@/utils/utils-common'
 
 export abstract class CommonEntier {
-    @ApiProperty({ description: '主键ID', example: 1 })
+    @ApiProperty({ description: '主键ID', example: 1000 })
     @IsNotEmpty({ message: '主键ID必填' })
     @PrimaryGeneratedColumn('increment', { comment: '自增长主键' })
-    keyId: number
+    id: number
 
     @ApiProperty({ description: '创建时间', example: '2023-10-26 16:03:38' })
     @CreateDateColumn({

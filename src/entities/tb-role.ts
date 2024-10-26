@@ -6,11 +6,6 @@ import * as enums from '@/enums/instance'
 
 @Entity({ name: 'tb_role', comment: '角色表' })
 export class tbRole extends CommonEntier {
-    @ApiProperty({ description: '角色ID', example: '858619496' })
-    @IsNotEmpty({ message: '角色ID必填' })
-    @Column({ comment: '角色ID', length: 32, nullable: false })
-    id: string
-
     @ApiProperty({ description: '角色名称', example: '管理员' })
     @IsNotEmpty({ message: '角色名称必填' })
     @Length(2, 32, { message: '角色名称必须保持2~32位' })

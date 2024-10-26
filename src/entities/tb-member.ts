@@ -10,7 +10,7 @@ export class tbMember extends CommonEntier {
     @ApiProperty({ description: '员工ID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '员工ID必填' })
     @Column({ comment: '员工ID', length: 32, nullable: false })
-    id: string
+    uid: string
 
     @ApiProperty({ description: '员工姓名', example: '妖雨纯' })
     @IsNotEmpty({ message: '员工姓名必填' })

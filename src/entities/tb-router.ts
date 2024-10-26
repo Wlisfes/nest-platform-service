@@ -8,11 +8,6 @@ import * as enums from '@/enums/instance'
 
 @Entity({ name: 'tb_router', comment: '路由菜单表' })
 export class tbRouter extends CommonEntier {
-    @ApiProperty({ description: '菜单ID', example: '858619496' })
-    @IsNotEmpty({ message: '菜单ID必填' })
-    @Column({ comment: '菜单ID', length: 32, nullable: false })
-    id: string
-
     @ApiProperty({ description: '菜单名称', example: '控制台' })
     @IsNotEmpty({ message: '菜单名称必填' })
     @Column({ comment: '菜单名称', length: 32, nullable: false })
