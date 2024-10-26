@@ -17,7 +17,7 @@ export class RouterController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpCreateRouter(@Request() request: OmixRequest, @Body() body: env.BodyCreateRouter) {
-        return await this.routerService.httpCreateRouter(request.headers, request.member.staffId, body)
+        return await this.routerService.httpCreateRouter(request.headers, request.member.id, body)
     }
 
     @Post('/update')
@@ -27,7 +27,7 @@ export class RouterController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpUpdateRouter(@Request() request: OmixRequest, @Body() body: env.BodyUpdateRouter) {
-        return await this.routerService.httpUpdateRouter(request.headers, request.member.staffId, body)
+        return await this.routerService.httpUpdateRouter(request.headers, request.member.id, body)
     }
 
     @Post('/delete')
@@ -37,7 +37,7 @@ export class RouterController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpDeleteRouter(@Request() request: OmixRequest, @Body() body: env.BodyResolveRouter) {
-        return await this.routerService.httpDeleteRouter(request.headers, request.member.staffId, body)
+        return await this.routerService.httpDeleteRouter(request.headers, request.member.id, body)
     }
 
     @Post('/update/transform')
@@ -47,7 +47,7 @@ export class RouterController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpTransformRouter(@Request() request: OmixRequest, @Body() body: env.BodyTransformRouter) {
-        return await this.routerService.httpTransformRouter(request.headers, request.member.staffId, body)
+        return await this.routerService.httpTransformRouter(request.headers, request.member.id, body)
     }
 
     @Post('/column')
@@ -57,7 +57,7 @@ export class RouterController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpColumnRouter(@Request() request: OmixRequest, @Body() body: env.BodyColumnRouter) {
-        return await this.routerService.httpColumnRouter(request.headers, request.member.staffId, body)
+        return await this.routerService.httpColumnRouter(request.headers, request.member.id, body)
     }
 
     @Post('/column/tree')
@@ -67,7 +67,7 @@ export class RouterController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpColumnTreeRouter(@Request() request: OmixRequest, @Body() body: env.BodyColumnTreeRouter) {
-        return await this.routerService.httpColumnTreeRouter(request.headers, request.member.staffId, body)
+        return await this.routerService.httpColumnTreeRouter(request.headers, request.member.id, body)
     }
 
     @Get('/resolve')
@@ -77,6 +77,6 @@ export class RouterController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpResolveRouter(@Request() request: OmixRequest, @Query() body: env.BodyResolveRouter) {
-        return await this.routerService.httpResolveRouter(request.headers, request.member.staffId, body)
+        return await this.routerService.httpResolveRouter(request.headers, request.member.id, body)
     }
 }

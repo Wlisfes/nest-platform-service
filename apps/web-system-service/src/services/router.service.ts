@@ -147,7 +147,7 @@ export class RouterService extends LoggerService {
     public async httpColumnRouter(headers: OmixHeaders, staffId: string, body: env.BodyColumnRouter) {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbRouter, async qb => {
             /**用户信息联查**/
-            qb.leftJoinAndMapOne('t.staff', tbMember, 'staff', 'staff.staffId = t.staffId')
+            qb.leftJoinAndMapOne('t.staff', tbMember, 'staff', 'staff.id = t.staffId')
             qb.where(`t.id = :id OR t.pid = :id`, { id: body.id })
             return qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                 return await fetchResolver({ total, list })

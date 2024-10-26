@@ -17,6 +17,11 @@ export class tbSimple extends CommonEntier {
     @Column({ comment: '字典名称', length: 32, nullable: false })
     name: string
 
+    @ApiProperty({ description: '字典值' })
+    @IsNotEmpty({ message: '字典值必填' })
+    @Column({ comment: '字典值', length: 64, nullable: false })
+    value: string
+
     @ApiProperty({ description: '上级字典ID' })
     @IsNotEmpty({ message: '上级字典ID必填' })
     @Column({ comment: '上级字典ID', length: 11, nullable: true })
