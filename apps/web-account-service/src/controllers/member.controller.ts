@@ -31,11 +31,21 @@ export class MemberController {
     @Post('/create')
     @ApiDecorator({
         operation: { summary: '创建员工账号' },
-        // authorize: { source: 'manager', check: true },
+        authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpCreateMember(@Request() request: OmixRequest, @Body() body: env.BodyCreateMember) {
-        return await this.memberService.httpCreateMember(request.headers, request.member, body)
+        return await this.memberService.httpCreateMember(request.headers, request, body)
+    }
+
+    @Post('/update/status')
+    @ApiDecorator({
+        operation: { summary: '编辑员工账号状态' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpUpdateStatusMember(@Request() request: OmixRequest, @Body() body: env.BodyUpdateStatusMember) {
+        return await this.memberService.httpUpdateStatusMember(request.headers, request, body)
     }
 
     @Post('/list')
@@ -45,6 +55,6 @@ export class MemberController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpColumnMember(@Request() request: OmixRequest, @Body() body: env.BodyColumnMember) {
-        return await this.memberService.httpColumnMember(request.headers, request.member.staffId, body)
+        return await this.memberService.httpColumnMember(request.headers, request, body)
     }
 }

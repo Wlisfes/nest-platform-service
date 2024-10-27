@@ -105,10 +105,10 @@ export class SimpleService extends LoggerService {
         return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimpleColumn, async qb => {
             qb.where('t.sid = :sid', { sid: node.id })
             qb.orderBy({ 't.sort': 'DESC' })
-            const [list = [], total = 0] = await qb.getManyAndCount()
+            const [list = [], count = 0] = await qb.getManyAndCount()
             return await fetchResolver({
                 ...node,
-                total,
+                count,
                 list: tree.fromList(list, { id: 'id', pid: 'pid' })
             })
         })

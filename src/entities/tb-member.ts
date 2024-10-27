@@ -1,9 +1,8 @@
 import { Entity, Column } from 'typeorm'
 import { hashSync } from 'bcryptjs'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, Length, IsEnum } from 'class-validator'
+import { IsNotEmpty, Length } from 'class-validator'
 import { CommonEntier } from '@/utils/utils-typeorm'
-import * as enums from '@/enums/instance'
 
 @Entity({ name: 'tb_member', comment: '员工表' })
 export class tbMember extends CommonEntier {
@@ -30,11 +29,10 @@ export class tbMember extends CommonEntier {
     @Column({ comment: '头像', nullable: true })
     avatar: string
 
-    @ApiProperty({ description: '员工状态: 在职-online、离职-offline、禁用-disable', enum: enums.MemberState })
+    @ApiProperty({ description: '员工状态' })
     @IsNotEmpty({ message: '员工状态必填' })
-    @IsEnum(enums.MemberState, { message: '员工状态参数格式错误' })
-    @Column({ comment: '员工状态: 在职-online、离职-offline、禁用-disable', default: enums.MemberState.online, nullable: false })
-    state: string
+    @Column({ comment: '员工状态', default: 'online', nullable: false })
+    ststus: string
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })
     @IsNotEmpty({ message: '密码必填' })

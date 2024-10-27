@@ -1,2 +1,2 @@
 /**登录图形验证码redis存储键**/
-export const NEST_ACCOUNT_LOGIN = 'account:login:captcha'
+export const ACCOUNT_MEMBER_LOGIN_CODEX = 'account:login:codex'
