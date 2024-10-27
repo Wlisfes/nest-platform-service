@@ -23,6 +23,7 @@ export class DatabaseService extends LoggerService {
         @InjectRepository(entities.tbDept) public readonly tbDept: Repository<entities.tbDept>,
         @InjectRepository(entities.tbDeptMember) public readonly tbDeptMember: Repository<entities.tbDeptMember>,
         @InjectRepository(entities.tbSimple) public readonly tbSimple: Repository<entities.tbSimple>,
+        @InjectRepository(entities.tbSimpleColumn) public readonly tbSimpleColumn: Repository<entities.tbSimpleColumn>,
         @InjectRepository(entities.tbSimplePostMember) public readonly tbSimplePostMember: Repository<entities.tbSimplePostMember>,
         @InjectRepository(entities.tbSimpleRankMember) public readonly tbSimpleRankMember: Repository<entities.tbSimpleRankMember>,
         @InjectRepository(entities.tbRouter) public readonly tbRouter: Repository<entities.tbRouter>
@@ -103,6 +104,20 @@ export class DatabaseService extends LoggerService {
         return await this.fetchConnectBuilder(headers, model, async qb => {
             const node = await qb.insert().values(scope.body).execute()
             this.logger.info({ log: `[${model.metadata.name}]:批量创建结果`, identifiers: node.identifiers, row: node.raw })
+            return node
+        })
+    }
+
+    /**批量创建OR更新数据模型**/
+    @Logger
+    public async fetchConnectUpsert<T>(
+        headers: OmixHeaders,
+        model: Repository<T>,
+        scope: { body: Parameters<typeof model.upsert>['0']; where: Parameters<typeof model.upsert>['1'] }
+    ) {
+        this.logger.info({ log: `[${model.metadata.name}]:批量创建OR更新入参`, body: scope.body })
+        return await model.upsert(scope.body, scope.where).then(async node => {
+            this.logger.info({ log: `[${model.metadata.name}]:批量创建OR更新结果`, identifiers: node.identifiers, row: node.raw })
             return node
         })
     }

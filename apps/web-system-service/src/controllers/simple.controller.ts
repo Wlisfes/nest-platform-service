@@ -10,14 +10,14 @@ import * as env from '@web-system-service/interface/instance.resolver'
 export class SimpleController {
     constructor(private readonly simpleService: SimpleService) {}
 
-    @Post('/create')
+    @Post('/update')
     @ApiDecorator({
-        operation: { summary: '创建字典' },
+        operation: { summary: '更新字典' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpCreateSimple(@Request() request: OmixRequest, @Body() body: env.BodyCreateSimple) {
-        // return await this.simpleService.httpCreateSimple(request.headers, request.member.staffId, body)
+    public async httpUpdateSimple(@Request() request: OmixRequest, @Body() body: env.BodyUpdateSimple) {
+        return await this.simpleService.httpUpdateSimple(request.headers, request, body)
     }
 
     @Post('/list')

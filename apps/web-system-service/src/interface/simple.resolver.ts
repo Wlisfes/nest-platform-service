@@ -6,11 +6,20 @@ import * as enums from '@/enums/instance'
 /**字典实体**/
 export class RestSimple extends tbSimple {}
 
-/**创建字典**/
-export class BodyCreateSimple extends IntersectionType(
-    PickType(tbSimpleColumn, ['name', 'stalk']),
-    PartialType(PickType(tbSimpleColumn, ['pid', 'state', 'ststus']))
+/**字典配置列表**/
+export class BodySimpleColumn extends IntersectionType(
+    PickType(tbSimpleColumn, ['name', 'value', 'sort']),
+    PartialType(PickType(tbSimpleColumn, ['id', 'pid', 'state']))
 ) {}
+
+/**创建字典**/
+export class BodyUpdateSimple extends PickType(tbSimple, ['id', 'name', 'comment']) {
+    @ApiProperty({ description: '字典配置列表', type: [BodySimpleColumn] })
+    @ArrayNotEmpty({ message: '字典配置列表不可为空' })
+    @IsArray({ message: '字典配置列表必须为Array' })
+    @IsNotEmpty({ message: '字典配置列表必填' })
+    list: Array<BodySimpleColumn>
+}
 
 /**批量字典树**/
 export class BodyColumnSimple {
@@ -23,4 +32,4 @@ export class BodyColumnSimple {
 }
 
 /**字典树**/
-export class BodyStalkSimple extends PickType(tbSimpleColumn, ['stalk']) {}
+export class BodyStalkSimple extends PickType(tbSimpleColumn, []) {}

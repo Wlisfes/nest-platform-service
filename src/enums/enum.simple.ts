@@ -8,11 +8,7 @@ export enum SimpleStatus {
 
 /**字典类型**/
 export enum SimpleStalk {
-    STALK_POST = 'SIMPLE_STALK_POST',
-    STALK_RANK = 'SIMPLE_STALK_RANK'
+    STALK_MEMBER_STATUS = 'STALK_MEMBER_STATUS'
 }
 /**字典类型描述**/
-export const SimpleMapStalk = {
-    [SimpleStalk.STALK_POST]: '职位',
-    [SimpleStalk.STALK_RANK]: '职级'
-}
+export const SimpleMapStalk = {}

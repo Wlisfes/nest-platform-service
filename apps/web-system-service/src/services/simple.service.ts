@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
-import { Omix, OmixHeaders } from '@/interface/instance.resolver'
+import { RedisService } from '@/services/redis/redis.service'
+import { fetchResolver, fetchCaseWherer, fetchIntNumber, fetchKeyCompose } from '@/utils/utils-common'
+import { Omix, OmixHeaders, OmixRequest } from '@/interface/instance.resolver'
 import { Not } from 'typeorm'
 import { groupBy } from 'lodash'
 import * as tree from 'tree-tool'
@@ -11,41 +12,38 @@ import * as enums from '@/enums/instance'
 
 @Injectable()
 export class SimpleService extends LoggerService {
-    constructor(private readonly databaseService: DatabaseService) {
+    constructor(private readonly databaseService: DatabaseService, private readonly redisService: RedisService) {
         super()
     }
 
-    /**创建职位**/
+    /**更新字典**/
     @Logger
-    public async httpCreateSimple(headers: OmixHeaders, staffId: string, body: env.BodyCreateSimple) {
-        // const ctx = await this.databaseService.fetchConnectTransaction()
-        // try {
-        //     await this.databaseService.fetchConnectNotEmptyError(headers, this.databaseService.tbSimple, {
-        //         message: '字典名称已存在',
-        //         dispatch: {
-        //             where: { name: body.name, stalk: body.stalk }
-        //         }
-        //     })
-        //     await this.databaseService.fetchConnectCreate(headers, this.databaseService.tbSimple, {
-        //         body: {
-        //             staffId,
-        //             name: body.name,
-        //             stalk: body.stalk,
-        //             pid: body.pid ?? null,
-        //             state: body.state ?? null,
-        //             ststus: body.ststus ?? enums.SimpleStatus.enable,
-        //             id: fetchIntNumber({ random: true, bit: 11 })
-        //         }
-        //     })
-        //     return await ctx.commitTransaction().then(async () => {
-        //         return await fetchResolver({ message: '操作成功' })
-        //     })
-        // } catch (err) {
-        //     await ctx.rollbackTransaction()
-        //     return await this.fetchThrowException(err.message, err.status)
-        // } finally {
-        //     await ctx.release()
-        // }
+    public async httpUpdateSimple(headers: OmixHeaders, request: OmixRequest, body: env.BodyUpdateSimple) {
+        const ctx = await this.databaseService.fetchConnectTransaction()
+        try {
+            const node = await this.databaseService.fetchConnectEmptyError(headers, this.databaseService.tbSimple, {
+                message: 'ID不存在',
+                dispatch: { where: { id: body.id } }
+            })
+            return await this.databaseService.fetchConnectBuilder(headers, this.databaseService.tbSimpleColumn, async qb => {
+                qb.where(`t.sid = :sid`, { sid: node.id })
+                const ids = (await qb.getMany()).map(item => item.id)
+                const list = body.list.map(item => ({
+                    ...item,
+                    sid: node.id,
+                    id: fetchCaseWherer<number>(ids.includes(item.id), { value: item.id, fallback: undefined })
+                }))
+                await this.databaseService.tbSimpleColumn.upsert(list, ['id'])
+                return await ctx.commitTransaction().then(async () => {
+                    return await fetchResolver({ message: '操作成功' })
+                })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchThrowException(err.message, err.status)
+        } finally {
+            await ctx.release()
+        }
     }
 
     /**批量字典树**/

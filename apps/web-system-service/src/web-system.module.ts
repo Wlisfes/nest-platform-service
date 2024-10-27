@@ -9,6 +9,7 @@ import { HttpExceptionFilter } from '@/filter/http-exception.filter'
 import { ConfigerModule } from '@/modules/configer.module'
 import { LoggerModule } from '@/modules/logger.module'
 import { ThrottlerModule } from '@/modules/throttler.module'
+import { RedisModule } from '@/modules/redis.module'
 import { DatabaseModule } from '@/modules/database.module'
 import { UploadModule } from '@/modules/upload.module'
 //services
@@ -21,7 +22,14 @@ import { SimpleController } from '@web-system-service/controllers/simple.control
 import { RouterController } from '@web-system-service/controllers/router.controller'
 
 @Module({
-    imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigerModule, ThrottlerModule, DatabaseModule, UploadModule],
+    imports: [
+        LoggerModule.forRoot({ name: 'web-account-service' }),
+        ConfigerModule,
+        ThrottlerModule,
+        RedisModule,
+        DatabaseModule,
+        UploadModule
+    ],
     controllers: [DeptController, SimpleController, RouterController],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },

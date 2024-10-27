@@ -13,10 +13,9 @@ export class tbSimple extends CommonEntier {
     @Column({ comment: '字典名称', length: 32 })
     name: string
 
-    @ApiProperty({ description: '字典类型', enum: enums.SimpleStalk })
-    @IsNotEmpty({ message: '字典类型必填' })
-    @IsEnum(enums.SimpleStalk, { message: '字典类型参数格式错误' })
-    @Column({ comment: '字典类型' })
+    @ApiPropertyOptional({ description: '字典标识' })
+    @IsOptional()
+    @Column({ comment: '字典标识' })
     stalk: string
 
     @ApiPropertyOptional({ description: '备注' })
@@ -34,10 +33,10 @@ export class tbSimple extends CommonEntier {
 export class tbSimpleColumn extends CommonEntier {
     @ApiProperty({ description: '字典类型ID' })
     @IsNotEmpty({ message: '字典类型ID必填' })
-    @Column({ comment: '字典类型ID', length: 32 })
-    sid: string
+    @Column({ comment: '字典类型ID' })
+    sid: number
 
-    @ApiProperty({ description: '上级字典ID' })
+    @ApiPropertyOptional({ description: '上级字典ID' })
     @IsNotEmpty({ message: '上级字典ID必填' })
     @Column({ comment: '上级字典ID', length: 32, nullable: true })
     pid: string
@@ -52,8 +51,8 @@ export class tbSimpleColumn extends CommonEntier {
     @Column({ comment: '字典值', length: 64 })
     value: string
 
-    @ApiProperty({ description: '是否可编辑' })
-    @IsNotEmpty({ message: '是否可编辑必填' })
+    @ApiPropertyOptional({ description: '是否可编辑' })
+    @IsOptional()
     @Column({ comment: '是否可编辑', default: true })
     update: boolean
 
@@ -63,7 +62,8 @@ export class tbSimpleColumn extends CommonEntier {
     @Column({ comment: '字典排序', default: 0 })
     sort: number
 
-    @ApiProperty({ description: '字典额外配置' })
+    @ApiPropertyOptional({ description: '字典额外配置' })
+    @IsOptional()
     @IsObject({ message: '字典额外配置必须为JSON数据格式' })
     @Column({
         type: 'simple-json',
