@@ -65,10 +65,10 @@ export class MemberService extends LoggerService {
                 await this.databaseService.fetchConnectCatchWherer(!compareSync(body.password, node.password), node, {
                     message: '员工账号密码错误'
                 })
-                await this.databaseService.fetchConnectCatchWherer(node.ststus !== 'online', node, {
+                await this.databaseService.fetchConnectCatchWherer(node.status !== 'online', node, {
                     message: '员工已离职或账号已被禁用'
                 })
-                return await this.jwtService.fetchJwtTokenSecret(_.pick(node, ['id', 'name', 'jobNumber', 'ststus', 'password']))
+                return await this.jwtService.fetchJwtTokenSecret(_.pick(node, ['id', 'name', 'jobNumber', 'status', 'password']))
             })
         })
     }
@@ -113,7 +113,7 @@ export class MemberService extends LoggerService {
                 dispatch: { where: { uid: body.uid } }
             })
             await this.databaseService.fetchConnectUpdate(headers, this.databaseService.tbMember, {
-                body: { ststus: body.ststus },
+                body: { status: body.status },
                 where: { uid: node.uid }
             })
             return await ctx.commitTransaction().then(async () => {

@@ -32,7 +32,7 @@ export class tbMember extends CommonEntier {
     @ApiProperty({ description: '员工状态' })
     @IsNotEmpty({ message: '员工状态必填' })
     @Column({ comment: '员工状态', default: 'online', nullable: false })
-    ststus: string
+    status: string
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })
     @IsNotEmpty({ message: '密码必填' })

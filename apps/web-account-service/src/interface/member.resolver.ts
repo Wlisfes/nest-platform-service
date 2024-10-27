@@ -11,7 +11,7 @@ export class BodyAuthMember extends IntersectionType(PickType(tbMember, ['jobNum
 export class BodyCreateMember extends PickType(tbMember, ['name', 'jobNumber']) {}
 
 /**员工账号详情**/
-export class BodyUpdateStatusMember extends PickType(tbMember, ['uid', 'ststus']) {}
+export class BodyUpdateStatusMember extends PickType(tbMember, ['uid', 'status']) {}
 
 /**员工账号列表**/
 export class BodyColumnMember extends IntersectionType(OmixColumnPayload) {}
