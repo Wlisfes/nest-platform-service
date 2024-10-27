@@ -20,7 +20,7 @@ export class tbSimple extends CommonEntier {
 
     @ApiPropertyOptional({ description: '备注' })
     @IsOptional()
-    @Column({ comment: '字典值', length: 255, default: null, nullable: true })
+    @Column({ comment: '备注', length: 255, default: null, nullable: true })
     comment: string
 
     @ApiProperty({ description: '员工ID' })

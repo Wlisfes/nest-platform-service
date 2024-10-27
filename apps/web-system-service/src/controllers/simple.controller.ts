@@ -10,6 +10,16 @@ import * as env from '@web-system-service/interface/instance.resolver'
 export class SimpleController {
     constructor(private readonly simpleService: SimpleService) {}
 
+    @Post('/stalk')
+    @ApiDecorator({
+        operation: { summary: '字典类型' },
+        authorize: { source: 'manager', check: true },
+        response: { status: 200, description: 'OK', type: OmixNotice }
+    })
+    public async httpColumnStalk(@Request() request: OmixRequest) {
+        return await this.simpleService.httpColumnStalk(request.headers, request)
+    }
+
     @Post('/update')
     @ApiDecorator({
         operation: { summary: '更新字典' },
@@ -22,31 +32,21 @@ export class SimpleController {
 
     @Post('/list')
     @ApiDecorator({
-        operation: { summary: '批量字典树' },
+        operation: { summary: '字典列表' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpColumnSimple(@Request() request: OmixRequest, @Body() body: env.BodyColumnSimple) {
-        // return await this.simpleService.httpColumnSimple(request.headers, request.member.staffId, body)
+        return await this.simpleService.httpColumnSimple(request.headers, request, body)
     }
 
-    @Post('/stalk/list')
+    @Get('/resolve')
     @ApiDecorator({
-        operation: { summary: '字典树' },
+        operation: { summary: '字典详情' },
         authorize: { source: 'manager', check: true },
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
-    public async httpColumnStalkSimple(@Request() request: OmixRequest, @Query() body: env.BodyStalkSimple) {
-        // return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
-    }
-
-    @Get('/stalk')
-    @ApiDecorator({
-        operation: { summary: '字典类型' },
-        authorize: { source: 'manager', check: true },
-        response: { status: 200, description: 'OK', type: OmixNotice }
-    })
-    public async httpColumnStalk(@Request() request: OmixRequest) {
-        // return await this.simpleService.httpColumnStalk(request.headers, request.member.staffId)
+    public async httpResolveSimple(@Request() request: OmixRequest, @Query() body: env.BodyResolveSimple) {
+        return await this.simpleService.httpResolveSimple(request.headers, request, body)
     }
 }
