@@ -17,7 +17,7 @@ export class SimpleController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpCreateSimple(@Request() request: OmixRequest, @Body() body: env.BodyCreateSimple) {
-        return await this.simpleService.httpCreateSimple(request.headers, request.member.staffId, body)
+        // return await this.simpleService.httpCreateSimple(request.headers, request.member.staffId, body)
     }
 
     @Post('/list')
@@ -27,7 +27,7 @@ export class SimpleController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpColumnSimple(@Request() request: OmixRequest, @Body() body: env.BodyColumnSimple) {
-        return await this.simpleService.httpColumnSimple(request.headers, request.member.staffId, body)
+        // return await this.simpleService.httpColumnSimple(request.headers, request.member.staffId, body)
     }
 
     @Post('/stalk/list')
@@ -37,7 +37,7 @@ export class SimpleController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpColumnStalkSimple(@Request() request: OmixRequest, @Query() body: env.BodyStalkSimple) {
-        return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
+        // return await this.simpleService.httpColumnStalkSimple(request.headers, request.member.staffId, body)
     }
 
     @Get('/stalk')
@@ -47,6 +47,6 @@ export class SimpleController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpColumnStalk(@Request() request: OmixRequest) {
-        return await this.simpleService.httpColumnStalk(request.headers, request.member.staffId)
+        // return await this.simpleService.httpColumnStalk(request.headers, request.member.staffId)
     }
 }

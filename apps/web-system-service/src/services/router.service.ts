@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { WhereRouterService } from '@/wheres/where-router.service'
 import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
 import { tbMember } from '@/entities/instance'
@@ -13,7 +12,7 @@ import * as enums from '@/enums/instance'
 
 @Injectable()
 export class RouterService extends LoggerService {
-    constructor(private readonly databaseService: DatabaseService, private readonly whereRouterService: WhereRouterService) {
+    constructor(private readonly databaseService: DatabaseService) {
         super()
     }
 

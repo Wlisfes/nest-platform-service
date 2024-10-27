@@ -17,7 +17,7 @@ export class DeptController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpCreateDept(@Request() request: OmixRequest, @Body() body: env.BodyCreateDept) {
-        return await this.deptService.httpCreateDept(request.headers, request.member.staffId, body)
+        // return await this.deptService.httpCreateDept(request.headers, request.member.staffId, body)
     }
 
     @Post('/update')
@@ -27,7 +27,7 @@ export class DeptController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpUpdateDept(@Request() request: OmixRequest, @Body() body: env.BodyUpdateDept) {
-        return await this.deptService.httpUpdateDept(request.headers, request.member.staffId, body)
+        // return await this.deptService.httpUpdateDept(request.headers, request.member.staffId, body)
     }
 
     @Get('/tree')
@@ -37,6 +37,6 @@ export class DeptController {
         response: { status: 200, description: 'OK', type: OmixNotice }
     })
     public async httpTreeDept(@Request() request: OmixRequest) {
-        return await this.deptService.httpTreeDept(request.headers, request.member.staffId)
+        // return await this.deptService.httpTreeDept(request.headers, request.member.staffId)
     }
 }

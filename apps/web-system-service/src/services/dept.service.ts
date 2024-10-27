@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { Not } from 'typeorm'
 import { LoggerService, Logger } from '@/services/logger.service'
 import { DatabaseService } from '@/services/database.service'
-import { WhereDeptService } from '@/wheres/where-dept.service'
 import { fetchResolver, fetchIntNumber } from '@/utils/utils-common'
 import { OmixHeaders } from '@/interface/instance.resolver'
 import * as tree from 'tree-tool'
@@ -11,7 +10,7 @@ import * as enums from '@/enums/instance'
 
 @Injectable()
 export class DeptService extends LoggerService {
-    constructor(private readonly databaseService: DatabaseService, private readonly whereDeptService: WhereDeptService) {
+    constructor(private readonly databaseService: DatabaseService) {
         super()
     }
 
