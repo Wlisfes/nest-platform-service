@@ -1,5 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_FILTER, APP_GUARD } from '@nestjs/core'
+import { HttpModule } from '@nestjs/axios'
 import { LoggerMiddleware } from '@/middleware/logger.middleware'
 import { UserAgentMiddleware } from '@/middleware/useragent.middleware'
 import { AuthGuard } from '@/guard/auth.guard'
@@ -25,6 +26,7 @@ import { MemberController } from '@web-account-service/controllers/member.contro
         ThrottlerModule,
         RedisModule,
         DatabaseModule,
+        HttpModule,
         UploadModule
     ],
     controllers: [UserController, MemberController],
