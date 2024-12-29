@@ -1,5 +1,6 @@
 import { Module, Global, DynamicModule } from '@nestjs/common'
 import { WinstonModule } from 'nest-winston'
+import * as web from '@/config/web-common'
 import * as utils from '@/utils/utils-common'
 import * as winston from 'winston'
 import * as chalk from 'chalk'
@@ -22,6 +23,7 @@ export class LoggerModule {
                             zippedArchive: true, // 是否通过压缩的方式归档被轮换的日志文件。
                             maxSize: '20m', // 设置日志文件的最大大小，m 表示 mb 。
                             maxFiles: '30d', // 保留日志文件的最大天数，此处表示自动删除超过30天的日志文件。
+                            //prettier-ignore
                             format: winston.format.combine(
                                 winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
                                 winston.format.json(),
@@ -29,18 +31,29 @@ export class LoggerModule {
                                     const name = chalk.hex('#ff5c93')(`服务名称:[${option.name}]`)
                                     const pid = chalk.hex('#fc5404 ')(`服务进程:[${process.pid}]`)
                                     const timestamp = chalk.hex('#fb9300')(`${data.timestamp}`)
+                                    const contextId = chalk.hex("#536dfe")(`上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]`)
                                     const message = chalk.hex('#ff3d68')(`执行方法:[${data.message}]`)
-                                    const level = utils.fetchCaseWherer(data.level === 'error', {
-                                        value: chalk.red('ERROR'),
-                                        fallback: chalk.green(data.level.toUpperCase())
-                                    })
+                                    const level = utils.fetchCaseWherer(data.level === 'error', { value: chalk.red('ERROR'), fallback: chalk.green(data.level.toUpperCase()) })
+                                    const duration = utils.fetchCaseWherer(Boolean(data.duration ?? data.log?.duration), { value: chalk.hex('#ff3d68')(`耗时:${data.duration ?? data.log?.duration ?? '[]'}`), defaultValue: '' })
+                                    const module = `${name}  ${pid}  ${timestamp}  ${level}  ${contextId}  ${message}`
                                     if (['LoggerMiddleware'].includes(data.message)) {
                                         /**中间件日志**/
+                                        const url = utils.fetchCaseWherer(Boolean(data.log.url), { value: chalk.hex('#fc5404')(`接口地址:[${data.log.url ?? ''}]`, ''), defaultValue: '' })
+                                        const text = Object.keys(data.log ?? {}).reduce((current, key) => {
+                                            return (current += `	"${key.toString()}": ${JSON.stringify(data.log[key.toString()])}, \n`)
+										}, '')
+                                        console[data.level](`${module}  ${url}  ${duration}`, { ...data.log })
+                                        return `服务名称:[${option.name}]  服务进程:[${process.pid}]  ${data.timestamp}  ${data.level.toUpperCase()}  上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]  执行方法:[${data.message}]  接口地址:${data.log.url}  耗时:${data.duration}  {\n${text}}`
+                                    } else if(typeof data.log === 'string') {
+                                        console[data.level](`${module}  ${duration}  {\n    log: ${chalk.red(data.log)}\n}`)
+                                        return `服务名称:[${option.name}] ${process.pid} ${data.timestamp} ${data.level.toUpperCase()}  上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]  执行方法:[${data.message}]  耗时:${data.duration}  {\n    "log": ${data.log}\n}`
+                                    } else {
+                                        const text = Object.keys(data.log ?? {}).reduce((current, key) => {
+                                            return (current += `	"${key.toString()}": ${JSON.stringify(data.log[key.toString()])}, \n`)
+										}, '')
+                                        console[data.level](`${module}  ${duration}`, { ...data.log })
+                                        return `服务名称:[${option.name}]  服务进程:[${process.pid}]  ${data.timestamp}  ${data.level.toUpperCase()}  上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]  执行方法:[${data.message}]  耗时:${data.duration}  {\n${text}}`
                                     }
-
-                                    console.log(name, message)
-
-                                    return 'dsadasdas'
                                 })
                             )
                         })
