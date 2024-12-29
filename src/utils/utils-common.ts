@@ -24,3 +24,11 @@ export function fetchIntNumber(scope: Partial<Omix<{ worker: number; epoch: numb
         epoch: scope.epoch ?? 1199145600000
     })
 }
+
+/**条件值返回**/
+export function fetchCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallback?: T; defaultValue?: T }>): T {
+    if (where) {
+        return scope.value ?? scope.defaultValue
+    }
+    return scope.fallback ?? scope.defaultValue
+}

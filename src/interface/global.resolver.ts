@@ -9,3 +9,8 @@ export type PromiseType<T extends Promise<any>> = T extends Promise<infer R> ? R
 
 /**Request headers类型**/
 export interface OmixHeaders extends Omix<IncomingHttpHeaders> {}
+
+/**Request类型**/
+export interface OmixRequest extends Omix<Request> {
+    headers: OmixHeaders
+}
