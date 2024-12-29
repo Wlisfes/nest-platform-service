@@ -8,9 +8,6 @@
     "scripts": {
         "install": "yarn install --ignore-scripts",
         "dev": "nest start --watch",
-        "dev:web-account-service": "nest start --watch web-account-service",
-        "build:web-account-service": "nest build web-account-service",
-        "start:web-account-service": "node dist/apps/web-account-service/main",
         "dev:web-system-service": "nest start --watch web-system-service",
         "build:web-system-service": "nest build web-system-service",
         "start:web-system-service": "node dist/apps/web-system-service/main"

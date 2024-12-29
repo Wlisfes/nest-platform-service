@@ -12,7 +12,6 @@
         "baseUrl": "./",
         "paths": {
             "@/*": ["src/*"],
-            "@web-account-service/*": ["apps/web-account-service/src/*"],
             "@web-system-service/*": ["apps/web-system-service/src/*"]
         },
         "types": ["node"],
