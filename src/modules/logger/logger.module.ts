@@ -1,5 +1,7 @@
 import { Module, Global, DynamicModule } from '@nestjs/common'
+import { isNotEmpty } from 'class-validator'
 import { WinstonModule } from 'nest-winston'
+import { Logger } from '@/modules/logger/logger.service'
 import * as web from '@/config/web-common'
 import * as utils from '@/utils/utils-common'
 import * as winston from 'winston'
@@ -7,7 +9,10 @@ import * as chalk from 'chalk'
 import 'winston-daily-rotate-file'
 
 @Global()
-@Module({})
+@Module({
+    providers: [Logger],
+    exports: [Logger]
+})
 export class LoggerModule {
     public static forRoot(option: { name: string }): DynamicModule {
         return {
@@ -31,11 +36,20 @@ export class LoggerModule {
                                     const name = chalk.hex('#ff5c93')(`服务名称:[${option.name}]`)
                                     const pid = chalk.hex('#fc5404 ')(`服务进程:[${process.pid}]`)
                                     const timestamp = chalk.hex('#fb9300')(`${data.timestamp}`)
-                                    const contextId = chalk.hex("#536dfe")(`上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]`)
                                     const message = chalk.hex('#ff3d68')(`执行方法:[${data.message}]`)
-                                    const level = utils.fetchCaseWherer(data.level === 'error', { value: chalk.red('ERROR'), fallback: chalk.green(data.level.toUpperCase()) })
-                                    const duration = utils.fetchCaseWherer(Boolean(data.duration ?? data.log?.duration), { value: chalk.hex('#ff3d68')(`耗时:${data.duration ?? data.log?.duration ?? '[]'}`), defaultValue: '' })
-                                    const module = `${name}  ${pid}  ${timestamp}  ${level}  ${contextId}  ${message}`
+                                    const contextId = utils.fetchCaseWherer(Boolean(data[web.WEB_COMMON_HEADER_CONTEXTID]), {
+                                        value: chalk.hex("#536dfe")(`上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]`),
+                                        defaultValue: ""
+                                    })
+                                    const level = utils.fetchCaseWherer(data.level === 'error', {
+                                        value: chalk.red('ERROR'),
+                                        fallback: chalk.green(data.level.toUpperCase())
+                                    })
+                                    const duration = utils.fetchCaseWherer(Boolean(data.duration ?? data.log?.duration), {
+                                        value: chalk.hex('#ff3d68')(`耗时:${data.duration ?? data.log?.duration ?? '[]'}`),
+                                        defaultValue: ''
+                                    })
+                                    const module = [name, pid, timestamp, level, contextId, message].filter(isNotEmpty).join(`  `)
                                     if (['LoggerMiddleware'].includes(data.message)) {
                                         /**中间件日志**/
                                         const url = utils.fetchCaseWherer(Boolean(data.log.url), { value: chalk.hex('#fc5404')(`接口地址:[${data.log.url ?? ''}]`, ''), defaultValue: '' })
