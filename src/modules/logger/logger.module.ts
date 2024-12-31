@@ -45,8 +45,8 @@ export class LoggerModule {
                                         value: chalk.red('ERROR'),
                                         fallback: chalk.green(data.level.toUpperCase())
                                     })
-                                    const duration = utils.fetchCaseWherer(Boolean(data.duration ?? data.log?.duration), {
-                                        value: chalk.hex('#ff3d68')(`耗时:${data.duration ?? data.log?.duration ?? '[]'}`),
+                                    const duration = utils.fetchCaseWherer(Boolean(data.duration ), {
+                                        value: chalk.hex('#ff3d68')(`耗时:${data.duration ?? '[]'}`),
                                         defaultValue: ''
                                     })
                                     const module = [name, pid, timestamp, level, contextId, message].filter(isNotEmpty).join(`  `)

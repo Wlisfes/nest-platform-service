@@ -11,6 +11,9 @@ import { ThrottlerModule } from '@/modules/throttler/throttler.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
+//service
+import { UserService } from '@web-system-service/modules/user/user.service'
+//controller
 import { UserController } from '@web-system-service/modules/user/user.controller'
 
 @Module({
@@ -18,7 +21,8 @@ import { UserController } from '@web-system-service/modules/user/user.controller
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
-        { provide: APP_FILTER, useClass: HttpExceptionFilter }
+        { provide: APP_FILTER, useClass: HttpExceptionFilter },
+        UserService
     ],
     controllers: [UserController]
 })

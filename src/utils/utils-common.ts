@@ -17,7 +17,7 @@ export const faker = new Faker({
 })
 
 /**生成纯数字的雪花ID、随机字符串**/
-export function fetchIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
+export async function fetchIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
     if (scope.random) {
         return Array.from({ length: scope.bit ?? 6 }, x => Math.floor(Math.random() * 9) + 1).join('')
     }
@@ -25,6 +25,11 @@ export function fetchIntNumber(scope: Partial<Omix<{ worker: number; epoch: numb
         worker: scope.worker ?? process.pid,
         epoch: scope.epoch ?? 1199145600000
     })
+}
+
+/**参数组合**/
+export async function fetchParameter<T>(params: Omix<T>): Promise<Omix<T>> {
+    return params
 }
 
 /**返回包装**/

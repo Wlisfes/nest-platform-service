@@ -15,7 +15,7 @@ export class LoggerMiddleware implements NestMiddleware {
         const { baseUrl, method, body, query, params, headers } = request
         const clientIp = getClientIp(request)
         const start = Date.now()
-        const context = utils.fetchIntNumber({ random: true, bit: 32 })
+        const context = await utils.fetchIntNumber({ random: true, bit: 32 })
         const ip = ['localhost', '::1', '::ffff:127.0.0.1'].includes(clientIp) ? '127.0.0.1' : clientIp.replace(/^.*:/, '')
 
         request.headers.ip = ip
