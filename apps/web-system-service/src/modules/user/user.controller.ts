@@ -4,6 +4,7 @@ import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
 import { Logger } from '@/modules/logger/logger.service'
 import { UserService } from '@web-system-service/modules/user/user.service'
+import * as dtoUser from '@web-system-service/interface/user.resolver'
 
 @ApiTags('账号模块')
 @Controller('user')
@@ -19,6 +20,24 @@ export class UserController extends Logger {
     })
     public async httpCommonCodexUser(@Request() request: OmixRequest, @Response() response) {
         return await this.userService.httpCommonCodexUser(response)
+    }
+
+    @Post('/create/system')
+    @ApiDecorator({
+        operation: { summary: '账号登录' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpCommonCreateSystemUser(@Request() request: OmixRequest, @Body() body: dtoUser.CreateSystemUser) {
+        return await this.userService.httpCommonCreateSystemUser(request, body)
+    }
+
+    @Post('/create/customer')
+    @ApiDecorator({
+        operation: { summary: '创建基本账号' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpCommonCreateCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CreateSystemUser) {
+        return await this.userService.httpCommonCreateCustomer(request, body)
     }
 
     @Post('/login')
