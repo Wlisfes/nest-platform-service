@@ -37,6 +37,12 @@ export class UserService extends Logger {
 
     /**创建系统账号**/
     public async httpCommonCreateSystemUser(request: OmixRequest, body: dtoUser.CreateSystemUser) {
+        await this.database.fetchConnectNull(this.database.schemaUser, {
+            message: `${body.username}已存在`,
+            dispatch: {
+                where: { username: body.username }
+            }
+        })
         return { name: 'dasdsa' }
     }
 

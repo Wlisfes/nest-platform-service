@@ -36,7 +36,7 @@ export class UserController extends Logger {
         operation: { summary: '创建基本账号' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpCommonCreateCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CreateSystemUser) {
+    public async httpCommonCreateCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CreateCustomer) {
         return await this.userService.httpCommonCreateCustomer(request, body)
     }
 

@@ -20,7 +20,8 @@ import * as schema from '@/modules/database/database.schema'
                 synchronize: true,
                 entities: Object.values(schema)
             })
-        })
+        }),
+        TypeOrmModule.forFeature(Object.values(schema))
     ],
     providers: [DatabaseService],
     exports: [DatabaseService]
