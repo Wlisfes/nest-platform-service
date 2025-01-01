@@ -41,12 +41,22 @@ export class UserService extends Logger {
         try {
             await this.database.fetchConnectNull(this.database.schemaUser, {
                 message: `${body.username}已存在`,
-                // cause: { name: '11111111', dsadsad: 'r23423423' },
                 dispatch: {
                     where: { username: body.username }
                 }
             })
-            return { name: 'dasdsa' }
+            await this.database.fetchConnectCreate(this.database.schemaUser, {
+                body: {
+                    uid: await utils.fetchIntNumber(),
+                    system: true,
+                    username: body.username,
+                    nickname: body.nickname,
+                    password: body.password
+                }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await utils.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('UserService:httpCommonCreateSystemUser', err)

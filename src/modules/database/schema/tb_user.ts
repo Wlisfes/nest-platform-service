@@ -12,7 +12,7 @@ export class SchemaUser extends DatabaseAdapter {
     @Column({ comment: '唯一UUID', length: 19, nullable: false })
     uid: string
 
-    @ApiProperty({ description: '账号', example: 'MTIzNDU2' })
+    @ApiProperty({ description: '账号', example: '888888' })
     @IsNotEmpty({ message: '账号必填' })
     @Length(6, 16, { message: '账号必须保持6~16位' })
     @Column({ comment: '账号', length: 16, nullable: false })
