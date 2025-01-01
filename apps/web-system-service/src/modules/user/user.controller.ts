@@ -22,8 +22,9 @@ export class UserController {
 
     @Post('/create/system')
     @ApiDecorator({
-        operation: { summary: '账号登录' },
-        response: { status: 200, description: 'OK' }
+        operation: { summary: '创建系统账号' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true }
     })
     public async httpCommonCreateSystemUser(@Request() request: OmixRequest, @Body() body: dtoUser.CreateSystemUser) {
         return await this.userService.httpCommonCreateSystemUser(request, body)
@@ -32,7 +33,8 @@ export class UserController {
     @Post('/create/customer')
     @ApiDecorator({
         operation: { summary: '创建基本账号' },
-        response: { status: 200, description: 'OK' }
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true }
     })
     public async httpCommonCreateCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CreateCustomer) {
         return await this.userService.httpCommonCreateCustomer(request, body)
@@ -54,5 +56,15 @@ export class UserController {
     })
     public async httpCommonWriteAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.WriteAuthorize) {
         return await this.userService.httpCommonWriteAuthorize(request, body)
+    }
+
+    @Get('/base/resolver')
+    @ApiDecorator({
+        operation: { summary: '获取账号基本信息' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true }
+    })
+    public async httpCommonBaseResolver(@Request() request: OmixRequest) {
+        return await this.userService.httpCommonBaseResolver(request)
     }
 }

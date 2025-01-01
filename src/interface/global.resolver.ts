@@ -1,5 +1,6 @@
 import { IncomingHttpHeaders } from 'http'
 import { Request } from 'express'
+import { SchemaUser } from '@/modules/database/database.schema'
 
 /**对接聚合**/
 export type Omix<T = Record<any, any>> = T & Record<any, any>
@@ -13,4 +14,5 @@ export interface OmixHeaders extends Omix<IncomingHttpHeaders> {}
 /**Request类型**/
 export interface OmixRequest extends Omix<Request> {
     headers: OmixHeaders
+    user: SchemaUser
 }

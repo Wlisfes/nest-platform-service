@@ -2,13 +2,12 @@ import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, 
 import { Reflector } from '@nestjs/core'
 import { JwtService } from '@/modules/jwt/jwt.service'
 import { Omix } from '@/interface/instance.resolver'
+import { SchemaUser } from '@/modules/database/database.schema'
 import * as web from '@/config/web-common'
 
 export interface AuthGuardOption {
     /**开启验证**/
     check: boolean
-    /**验证异常是否继续执行**/
-    next?: boolean
 }
 
 @Injectable()
@@ -22,13 +21,17 @@ export class AuthGuard implements CanActivate {
         const token = request.headers[web.WEB_COMMON_HEADER_AUTHORIZE]
         /**验证登录**/
         if (scope && scope.check) {
-            await this.fetchGuardUser(token, scope.next ?? false, request)
+            await this.fetchGuardUser(token, request)
         }
         return true
     }
 
     /**消费用户守卫拦截**/
-    public async fetchGuardUser(token: string, next: boolean, request: Omix<Request>) {}
+    public async fetchGuardUser(token: string, request: Omix<Request>) {
+        return await this.jwtService.fetchJwtTokenParser<SchemaUser>(token).then(async node => {
+            return node
+        })
+    }
 }
 
 /**登录守卫、使用ApiGuardBearer守卫的接口会验证登录**/

@@ -128,7 +128,15 @@ export class UserService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('UserService:httpCommonCreateCustomer', err)
+            return await this.fetchCatchCompiler('UserService:httpCommonWriteAuthorize', err)
+        }
+    }
+
+    /**获取账号基本信息**/
+    public async httpCommonBaseResolver(request: OmixRequest) {
+        try {
+        } catch (err) {
+            return await this.fetchCatchCompiler('UserService:httpCommonBaseResolver', err)
         }
     }
 }
