@@ -1,18 +1,15 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
-import { Omix } from '@/interface/instance.resolver'
+import { OmixRequest } from '@/interface/instance.resolver'
+import { isEmpty } from 'class-validator'
 import { Response } from 'express'
-import * as utils from '@/utils/utils-common'
 import * as plugin from '@/utils/utils-plugin'
 import * as web from '@/config/web-common'
 
 @Injectable()
 export class CodexService extends Logger {
-    constructor(
-        // private readonly jwtService: JwtService,
-        private readonly redisService: RedisService
-    ) {
+    constructor(private readonly redisService: RedisService) {
         super()
     }
 
@@ -28,6 +25,21 @@ export class CodexService extends Logger {
                 await response.type('svg')
                 return await response.send(data)
             })
+        })
+    }
+
+    /**校验redis验证码**/
+    public async httpSystemValidateCodex(request: OmixRequest, keyName: string, keyCode: string) {
+        const sid = request.cookies[web.WEB_COMMON_HEADER_CAPHCHA]
+        if (isEmpty(sid)) {
+            throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
+        }
+        const key = await this.redisService.fetchCompose(keyName, sid)
+        return await this.redisService.getStore<string>({ key }).then(async code => {
+            if (isEmpty(code) || keyCode.toUpperCase() !== code.toUpperCase()) {
+                throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
+            }
+            return await this.redisService.delStore({ key })
         })
     }
 }

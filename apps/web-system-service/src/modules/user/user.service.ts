@@ -1,19 +1,24 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { isEmpty } from 'class-validator'
+import { isEmpty, isEmail } from 'class-validator'
+import { compareSync } from 'bcryptjs'
 import { Logger } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
+import { CodexService } from '@/modules/system/codex.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface/instance.resolver'
 import * as dtoUser from '@web-system-service/interface/user.resolver'
+import * as enums from '@/modules/database/database.enums'
 import * as utils from '@/utils/utils-common'
 import * as web from '@/config/web-common'
+import * as _ from 'lodash'
 
 @Injectable()
 export class UserService extends Logger {
     constructor(
         private readonly jwtService: JwtService,
         private readonly redisService: RedisService,
+        private readonly codexService: CodexService,
         private readonly database: DatabaseService
     ) {
         super()
@@ -103,10 +108,25 @@ export class UserService extends Logger {
     /**账号登录**/
     public async httpCommonWriteAuthorize(request: OmixRequest, body: dtoUser.WriteAuthorize) {
         try {
-            const sid = request.cookies[web.WEB_COMMON_HEADER_CAPHCHA]
-            if (isEmpty(sid)) {
-                throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
-            }
+            await this.codexService.httpSystemValidateCodex(request, this.redisService.keys.COMMON_USER_LOGIN_CODEX, body.code)
+            return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                qb.addSelect('t.password')
+                if (isEmail(body.account)) {
+                    qb.where(`t.email = :email`, { email: body.account })
+                } else {
+                    qb.where(`t.account = :account`, { account: body.account })
+                }
+                return await qb.getOne().then(async data => {
+                    if (isEmpty(data)) {
+                        throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
+                    } else if (!compareSync(body.password, data.password)) {
+                        throw new HttpException(`账号密码不正确`, HttpStatus.BAD_REQUEST)
+                    } else if (data.status === enums.SchemaUserStatus.disable) {
+                        throw new HttpException(`账号已被禁用`, HttpStatus.BAD_REQUEST)
+                    }
+                    return await this.jwtService.fetchJwtTokenSecret(_.pick(data, ['uid', 'account', 'nickname', 'system']))
+                })
+            })
         } catch (err) {
             return await this.fetchCatchCompiler('UserService:httpCommonCreateCustomer', err)
         }

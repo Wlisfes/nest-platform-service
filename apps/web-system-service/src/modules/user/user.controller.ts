@@ -47,7 +47,7 @@ export class UserController {
         return await this.userService.httpCommonRegisterCustomer(request, body)
     }
 
-    @Post('/login')
+    @Post('/token/authorize')
     @ApiDecorator({
         operation: { summary: '账号登录' },
         response: { status: 200, description: 'OK' }
