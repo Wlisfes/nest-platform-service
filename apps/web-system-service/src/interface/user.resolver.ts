@@ -13,3 +13,6 @@ export class RegisterCustomer extends IntersectionType(
     PickType(SchemaUser, ['password', 'nickname', 'email']),
     PickType(OmixPayload, ['code'])
 ) {}
+
+/**账号登录**/
+export class WriteAuthorize extends IntersectionType(PickType(SchemaUser, ['password', 'account']), PickType(OmixPayload, ['code'])) {}

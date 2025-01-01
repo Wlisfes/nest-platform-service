@@ -1,5 +1,4 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { Response } from 'express'
 import { isEmpty } from 'class-validator'
 import { Logger } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
@@ -8,7 +7,6 @@ import { DatabaseService } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface/instance.resolver'
 import * as dtoUser from '@web-system-service/interface/user.resolver'
 import * as utils from '@/utils/utils-common'
-import * as plugin from '@/utils/utils-plugin'
 import * as web from '@/config/web-common'
 
 @Injectable()
@@ -32,21 +30,6 @@ export class UserService extends Logger {
                     }
                     return await this.fetchCreateAccountIntNumber()
                 })
-            })
-        })
-    }
-
-    /**图形验证码**/
-    public async httpCommonCodexUser(response: Response) {
-        return await plugin.fetchCommonCodexer({ width: 120, height: 40 }).then(async ({ sid, text, data }) => {
-            const key = await this.redisService.fetchCompose(this.redisService.keys.COMMON_USER_LOGIN_CODEX, sid)
-            return await this.redisService.setStore({ key, data: text, seconds: 300 }).then(async ({ seconds }) => {
-                this.logger.info('httpCommonCodexUser', {
-                    log: { message: '图形验证码发送成功', seconds, key, data: text }
-                })
-                await response.cookie(web.WEB_COMMON_HEADER_CAPHCHA, sid, { httpOnly: true })
-                await response.type('svg')
-                return await response.send(data)
             })
         })
     }
@@ -117,9 +100,15 @@ export class UserService extends Logger {
     /**注册基本账号**/
     public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {}
 
-    /**账号注册**/
-    public async httpCommonRegister(request: OmixRequest) {
+    /**账号登录**/
+    public async httpCommonWriteAuthorize(request: OmixRequest, body: dtoUser.WriteAuthorize) {
         try {
-        } catch (err) {}
+            const sid = request.cookies[web.WEB_COMMON_HEADER_CAPHCHA]
+            if (isEmpty(sid)) {
+                throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
+            }
+        } catch (err) {
+            return await this.fetchCatchCompiler('UserService:httpCommonCreateCustomer', err)
+        }
     }
 }

@@ -2,24 +2,22 @@ import { Controller, Post, Get, Body, Request, Response } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
-import { Logger } from '@/modules/logger/logger.service'
 import { UserService } from '@web-system-service/modules/user/user.service'
+import { CodexService } from '@/modules/system/codex.service'
 import * as dtoUser from '@web-system-service/interface/user.resolver'
 
 @ApiTags('账号模块')
 @Controller('user')
-export class UserController extends Logger {
-    constructor(private readonly userService: UserService) {
-        super()
-    }
+export class UserController {
+    constructor(private readonly userService: UserService, private readonly codexService: CodexService) {}
 
-    @Post('/common/codex')
+    @Post('/system/codex')
     @ApiDecorator({
         operation: { summary: '图形验证码' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpCommonCodexUser(@Request() request: OmixRequest, @Response() response) {
-        return await this.userService.httpCommonCodexUser(response)
+    public async httpSystemCommonCodex(@Request() request: OmixRequest, @Response() response) {
+        return await this.codexService.httpSystemCommonCodex(response)
     }
 
     @Post('/create/system')
@@ -54,10 +52,7 @@ export class UserController extends Logger {
         operation: { summary: '账号登录' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpAuthorizeUser(@Request() request: OmixRequest, @Body() body) {
-        this.logger.info('httpUserAuthorize', {
-            duration: '50ms'
-        })
-        return { token: 'dasdasdas' }
+    public async httpCommonWriteAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.WriteAuthorize) {
+        return await this.userService.httpCommonWriteAuthorize(request, body)
     }
 }

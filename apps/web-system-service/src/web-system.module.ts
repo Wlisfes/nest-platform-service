@@ -8,6 +8,7 @@ import { HttpExceptionFilter } from '@/filters/http-exception.filter'
 import { ConfigModule } from '@/modules/config/config.module'
 import { LoggerModule } from '@/modules/logger/logger.module'
 import { ThrottlerModule } from '@/modules/throttler/throttler.module'
+import { SystemModule } from '@/modules/system/system.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
@@ -17,7 +18,15 @@ import { UserService } from '@web-system-service/modules/user/user.service'
 import { UserController } from '@web-system-service/modules/user/user.controller'
 
 @Module({
-    imports: [LoggerModule.forRoot({ name: 'web-account-service' }), ConfigModule, ThrottlerModule, JwtModule, RedisModule, DatabaseModule],
+    imports: [
+        LoggerModule.forRoot({ name: 'web-account-service' }),
+        ConfigModule,
+        ThrottlerModule,
+        SystemModule,
+        JwtModule,
+        RedisModule,
+        DatabaseModule
+    ],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
