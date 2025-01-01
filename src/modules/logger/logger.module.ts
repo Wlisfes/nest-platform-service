@@ -45,7 +45,7 @@ export class LoggerModule {
                                         value: chalk.red('ERROR'),
                                         fallback: chalk.green(data.level.toUpperCase())
                                     })
-                                    const duration = utils.fetchCaseWherer(Boolean(data.duration ), {
+                                    const duration = utils.fetchCaseWherer(isNotEmpty(data.duration), {
                                         value: chalk.hex('#ff3d68')(`耗时:${data.duration ?? '[]'}`),
                                         defaultValue: ''
                                     })

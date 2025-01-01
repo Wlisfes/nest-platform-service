@@ -22,21 +22,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
         }
         if (exception.response && Array.isArray(exception.response.message)) {
             Result.message = exception.response.message[0]
-            Result.data = exception.response
         } else {
             Result.message = exception.message
-            Result.data = await utils
-                .fetchResolver({
-                    message: exception.message,
-                    status: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR
-                })
-                .then(data => {
-                    if (exception.response && exception.response.cause) {
-                        return { ...data, cause: exception.response.cause }
-                    }
-                    return data
-                })
         }
+        Result.data = exception.options ?? null
         this.logger.error(HttpExceptionFilter.name, utils.fetchCompiler(request.headers, Result))
         response.status(HttpStatus.OK)
         response.header('Content-Type', 'application/json; charset=utf-8')

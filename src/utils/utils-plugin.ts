@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common'
+import { HttpException, HttpStatus, HttpExceptionOptions } from '@nestjs/common'
 import { Omix } from '@/interface/instance.resolver'
 import { create } from 'svg-captcha'
 import * as utils from '@/utils/utils-common'
@@ -12,13 +12,13 @@ export async function fetchCommonCodexer({ width, height, preset }: Omix<{ width
 }
 
 /**条件捕获、异常抛出**/
-export async function fetchCatchWherer(where: boolean, scope: Omix<{ message: string; code?: number; cause?: Omix }>) {
+export async function fetchCatchWherer(
+    where: boolean,
+    scope: Omix<{ message: string; code?: number; cause?: Omix<HttpExceptionOptions> }>
+) {
     return await utils.fetchHandler(where, {
         async handler() {
-            throw new HttpException(
-                scope.cause ? { message: scope.message, cause: scope.cause } : scope.message,
-                scope.code ?? HttpStatus.BAD_REQUEST
-            )
+            throw new HttpException(scope.message, scope.code ?? HttpStatus.BAD_REQUEST, scope.cause)
         }
     })
 }
