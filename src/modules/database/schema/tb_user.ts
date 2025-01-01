@@ -12,11 +12,11 @@ export class SchemaUser extends DatabaseAdapter {
     @Column({ comment: '唯一UUID', length: 19, nullable: false })
     uid: string
 
-    @ApiProperty({ description: '账号', example: '888888' })
+    @ApiProperty({ description: '账号', example: '88888888' })
     @IsNotEmpty({ message: '账号必填' })
-    @Length(6, 16, { message: '账号必须保持6~16位' })
-    @Column({ comment: '账号', length: 16, nullable: false })
-    username: string
+    @Length(8, 11, { message: '账号必须保持8~11位' })
+    @Column('int', { comment: '账号', nullable: false })
+    account: number
 
     @ApiProperty({ description: '昵称', example: '妖雨纯' })
     @IsNotEmpty({ message: '昵称必填' })

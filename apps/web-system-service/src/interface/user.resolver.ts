@@ -3,6 +3,13 @@ import { OmixColumn, OmixPayload } from '@/interface/instance.resolver'
 import { SchemaUser } from '@/modules/database/database.schema'
 
 /**创建系统账号**/
-export class CreateSystemUser extends PickType(SchemaUser, ['username', 'password', 'nickname']) {}
+export class CreateSystemUser extends PickType(SchemaUser, ['account', 'password', 'nickname']) {}
 
-export class CreateCustomer extends IntersectionType(PickType(SchemaUser, ['username', 'password']), PickType(OmixPayload, ['code'])) {}
+/**创建基本账号**/
+export class CreateCustomer extends PickType(SchemaUser, ['nickname', 'email']) {}
+
+/**注册基本账号**/
+export class RegisterCustomer extends IntersectionType(
+    PickType(SchemaUser, ['password', 'nickname', 'email']),
+    PickType(OmixPayload, ['code'])
+) {}

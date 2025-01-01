@@ -40,16 +40,16 @@ export class UserService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNull(this.database.schemaUser, {
-                message: `${body.username}已存在`,
+                message: `${body.account} 已存在`,
                 dispatch: {
-                    where: { username: body.username }
+                    where: { account: body.account }
                 }
             })
             await this.database.fetchConnectCreate(this.database.schemaUser, {
                 body: {
                     uid: await utils.fetchIntNumber(),
                     system: true,
-                    username: body.username,
+                    account: body.account,
                     nickname: body.nickname,
                     password: body.password
                 }
@@ -67,6 +67,35 @@ export class UserService extends Logger {
 
     /**创建基本账号**/
     public async httpCommonCreateCustomer(request: OmixRequest, body: dtoUser.CreateCustomer) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.database.fetchConnectNull(this.database.schemaUser, {
+                message: `${body.email} 已存在`,
+                dispatch: {
+                    where: { email: body.email }
+                }
+            })
+            console.log()
+            // await this.database.fetchConnectCreate(this.database.schemaUser, {
+            //     body: {
+            //         uid: await utils.fetchIntNumber(),
+            //         system: true,
+            //         username: body.username,
+            //         nickname: body.nickname,
+            //         password: body.password
+            //     }
+            // })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler('UserService:httpCommonCreateCustomer', err)
+        } finally {
+            await ctx.release()
+        }
+        return { name: 'dasdsa' }
+    }
+
+    /**注册基本账号**/
+    public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {
         return { name: 'dasdsa' }
     }
 

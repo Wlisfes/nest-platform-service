@@ -40,6 +40,15 @@ export class UserController extends Logger {
         return await this.userService.httpCommonCreateCustomer(request, body)
     }
 
+    @Post('/register/customer')
+    @ApiDecorator({
+        operation: { summary: '注册基本账号' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpCommonRegisterCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.RegisterCustomer) {
+        return await this.userService.httpCommonRegisterCustomer(request, body)
+    }
+
     @Post('/login')
     @ApiDecorator({
         operation: { summary: '账号登录' },
