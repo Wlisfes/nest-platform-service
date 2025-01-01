@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Response } from 'express'
+import { isEmpty } from 'class-validator'
 import { Logger } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
@@ -18,6 +19,21 @@ export class UserService extends Logger {
         private readonly database: DatabaseService
     ) {
         super()
+    }
+
+    /**生成不重复账号**/
+    private async fetchCreateAccountIntNumber(): Promise<number> {
+        return await utils.fetchIntNumber({ random: true, bit: 8 }).then(async account => {
+            return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                qb.where(`t.account = :account`, { account })
+                return await qb.getOne().then(async node => {
+                    if (isEmpty(node)) {
+                        return Number(account)
+                    }
+                    return await this.fetchCreateAccountIntNumber()
+                })
+            })
+        })
     }
 
     /**图形验证码**/
@@ -75,29 +91,31 @@ export class UserService extends Logger {
                     where: { email: body.email }
                 }
             })
-            console.log()
-            // await this.database.fetchConnectCreate(this.database.schemaUser, {
-            //     body: {
-            //         uid: await utils.fetchIntNumber(),
-            //         system: true,
-            //         username: body.username,
-            //         nickname: body.nickname,
-            //         password: body.password
-            //     }
-            // })
+            return await this.fetchCreateAccountIntNumber().then(async account => {
+                await this.database.fetchConnectCreate(this.database.schemaUser, {
+                    body: {
+                        uid: await utils.fetchIntNumber(),
+                        system: false,
+                        account: account,
+                        email: body.email,
+                        nickname: body.nickname,
+                        password: Buffer.from('123456').toString('base64')
+                    }
+                })
+                return await ctx.commitTransaction().then(async () => {
+                    return await utils.fetchResolver({ message: '操作成功' })
+                })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('UserService:httpCommonCreateCustomer', err)
         } finally {
             await ctx.release()
         }
-        return { name: 'dasdsa' }
     }
 
     /**注册基本账号**/
-    public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {
-        return { name: 'dasdsa' }
-    }
+    public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {}
 
     /**账号注册**/
     public async httpCommonRegister(request: OmixRequest) {
