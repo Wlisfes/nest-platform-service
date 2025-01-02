@@ -180,7 +180,7 @@ export class UserService extends Logger {
                         throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
                     } else if (!compareSync(body.password, data.password)) {
                         throw new HttpException(`账号密码不正确`, HttpStatus.BAD_REQUEST)
-                    } else if (data.status === enums.SchemaUserStatus.disable) {
+                    } else if (data.status === enums.SchemaUser_Status.disable) {
                         throw new HttpException(`账号已被禁用`, HttpStatus.BAD_REQUEST)
                     }
                     await this.fetchRedisUpdateUser(data.uid)

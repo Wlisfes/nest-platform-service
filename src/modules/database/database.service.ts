@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { isEmpty, isNotEmpty } from 'class-validator'
 import { Logger } from '@/modules/logger/logger.service'
 import { Omix } from '@/interface/global.resolver'
-import { SchemaUser } from '@/modules/database/database.schema'
+import * as schema from '@/modules/database/database.schema'
 import * as plugin from '@/utils/utils-plugin'
 import * as utils from '@/utils/utils-common'
 
@@ -18,7 +18,11 @@ export interface ConnectOption<T, U> extends Omix {
 
 @Injectable()
 export class DatabaseService extends Logger {
-    constructor(private readonly dataSource: DataSource, @InjectRepository(SchemaUser) public readonly schemaUser: Repository<SchemaUser>) {
+    constructor(
+        private readonly dataSource: DataSource,
+        @InjectRepository(schema.SchemaUser) public readonly schemaUser: Repository<schema.SchemaUser>,
+        @InjectRepository(schema.SchemaSystem) public readonly schemaSystem: Repository<schema.SchemaSystem>
+    ) {
         super()
     }
 

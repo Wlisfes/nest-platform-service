@@ -42,10 +42,10 @@ export class SchemaUser extends DatabaseAdapter {
     @Column({ comment: '是否系统账号', nullable: false })
     system: boolean
 
-    @ApiProperty({ description: '账号状态: 禁用-disable、启用-enable、挂起-suspend', enum: enums.SchemaUserStatus })
+    @ApiProperty({ description: '账号状态: 禁用-disable、启用-enable、挂起-suspend', enum: enums.SchemaUser_Status })
     @IsNotEmpty({ message: '账号状态必填' })
-    @IsEnum(enums.SchemaUserStatus, { message: '账号状态参数格式错误' })
-    @Column({ comment: '账号状态: 禁用-disable、启用-enable、挂起-suspend', default: enums.SchemaUserStatus.enable, nullable: false })
+    @IsEnum(enums.SchemaUser_Status, { message: '账号状态参数格式错误' })
+    @Column({ comment: '账号状态: 禁用-disable、启用-enable、挂起-suspend', default: enums.SchemaUser_Status.enable, nullable: false })
     status: string
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })
