@@ -12,10 +12,7 @@ import { SystemModule } from '@/modules/system/system.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
-//service
-import { UserService } from '@web-system-service/modules/user/user.service'
-//controller
-import { UserController } from '@web-system-service/modules/user/user.controller'
+import { UserModule } from '@web-system-service/modules/user/user.module'
 
 @Module({
     imports: [
@@ -25,15 +22,15 @@ import { UserController } from '@web-system-service/modules/user/user.controller
         SystemModule,
         JwtModule,
         RedisModule,
-        DatabaseModule
+        DatabaseModule,
+        UserModule
     ],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
-        { provide: APP_FILTER, useClass: HttpExceptionFilter },
-        UserService
+        { provide: APP_FILTER, useClass: HttpExceptionFilter }
     ],
-    controllers: [UserController]
+    controllers: []
 })
 export class WebSystemModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
