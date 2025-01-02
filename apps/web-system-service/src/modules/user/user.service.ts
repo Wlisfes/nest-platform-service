@@ -121,12 +121,40 @@ export class UserService extends Logger {
     }
 
     /**注册基本账号**/
-    public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {}
+    public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.codexService.fetchCommonRequestCodex(request).then(async sid => {
+                return await this.codexService.httpSystemValidateCodex(request, {
+                    kyes: [this.redisService.keys.COMMON_CODEX_ROBOT],
+                    data: { sid },
+                    code: body.code
+                })
+            })
+            await this.database.fetchConnectNull(this.database.schemaUser, {
+                message: `${body.email} 已存在`,
+                dispatch: {
+                    where: { email: body.email }
+                }
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler('UserService:httpCommonRegisterCustomer', err)
+        } finally {
+            await ctx.release()
+        }
+    }
 
     /**账号登录**/
     public async httpCommonWriteAuthorize(request: OmixRequest, body: dtoUser.WriteAuthorize) {
         try {
-            await this.codexService.httpSystemValidateCodex(request, this.redisService.keys.COMMON_USER_LOGIN_CODEX, body.code)
+            await this.codexService.fetchCommonRequestCodex(request).then(async sid => {
+                return await this.codexService.httpSystemValidateCodex(request, {
+                    kyes: [this.redisService.keys.COMMON_CODEX_ROBOT],
+                    data: { sid },
+                    code: body.code
+                })
+            })
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
                 qb.addSelect('t.password')
                 if (isEmail(body.account)) {
