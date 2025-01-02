@@ -11,13 +11,23 @@ import * as dtoUser from '@web-system-service/interface/user.resolver'
 export class UserController {
     constructor(private readonly userService: UserService, private readonly codexService: CodexService) {}
 
-    @Post('/system/codex')
+    @Get('/system/codex')
     @ApiDecorator({
         operation: { summary: '图形验证码' },
         response: { status: 200, description: 'OK' }
     })
     public async httpSystemCommonCodex(@Request() request: OmixRequest, @Response() response) {
         return await this.codexService.httpSystemCommonCodex(response)
+    }
+
+    @Get('/base/resolver')
+    @ApiDecorator({
+        operation: { summary: '获取账号基本信息' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true }
+    })
+    public async httpCommonBaseResolver(@Request() request: OmixRequest) {
+        return await this.userService.httpCommonBaseResolver(request)
     }
 
     @Post('/create/system')
@@ -56,15 +66,5 @@ export class UserController {
     })
     public async httpCommonWriteAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.WriteAuthorize) {
         return await this.userService.httpCommonWriteAuthorize(request, body)
-    }
-
-    @Get('/base/resolver')
-    @ApiDecorator({
-        operation: { summary: '获取账号基本信息' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true }
-    })
-    public async httpCommonBaseResolver(@Request() request: OmixRequest) {
-        return await this.userService.httpCommonBaseResolver(request)
     }
 }
