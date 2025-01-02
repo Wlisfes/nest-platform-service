@@ -124,18 +124,31 @@ export class UserService extends Logger {
     public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.codexService.fetchCommonRequestCodex(request).then(async sid => {
-                return await this.codexService.httpSystemValidateCodex(request, {
-                    kyes: [this.redisService.keys.COMMON_CODEX_ROBOT],
-                    data: { sid },
-                    code: body.code
-                })
+            await this.codexService.httpSystemValidateCodex(request, {
+                kyes: [this.redisService.keys.COMMON_CODEX_EMAIL],
+                data: { email: body.email },
+                code: body.code
             })
             await this.database.fetchConnectNull(this.database.schemaUser, {
                 message: `${body.email} 已存在`,
                 dispatch: {
                     where: { email: body.email }
                 }
+            })
+            return await this.fetchCreateAccountIntNumber().then(async account => {
+                await this.database.fetchConnectCreate(this.database.schemaUser, {
+                    body: {
+                        uid: await utils.fetchIntNumber(),
+                        system: false,
+                        account: account,
+                        email: body.email,
+                        nickname: body.nickname,
+                        password: body.password
+                    }
+                })
+                return await ctx.commitTransaction().then(async () => {
+                    return await utils.fetchResolver({ message: '操作成功' })
+                })
             })
         } catch (err) {
             await ctx.rollbackTransaction()

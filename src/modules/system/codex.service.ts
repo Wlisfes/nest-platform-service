@@ -39,7 +39,7 @@ export class CodexService extends Logger {
 
     /**校验redis验证码**/
     public async httpSystemValidateCodex(request: OmixRequest, option: Omix<{ kyes: Array<string>; data: Omix; code: string }>) {
-        const key = await this.redisService.fetchCompose([...option.kyes, option.data])
+        const key = await this.redisService.fetchCompose(...option.kyes, option.data)
         return await this.redisService.getStore<string>({ key }).then(async code => {
             if (isEmpty(code) || option.code.toUpperCase() !== code.toUpperCase()) {
                 throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
