@@ -39,6 +39,24 @@ export class UserService extends Logger {
         })
     }
 
+    /**刷新redis用户缓存**/
+    public async fetchRedisUpdateUser(uid: string) {
+        return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+            qb.where(`t.uid = :uid`, { uid })
+            return await qb.getOne().then(async node => {
+                await this.redisService.setStore({
+                    data: node.status,
+                    key: await this.redisService.fetchCompose(this.redisService.keys.COMMON_USER_STATUS, { uid })
+                })
+                await this.redisService.setStore({
+                    data: node,
+                    key: await this.redisService.fetchCompose(this.redisService.keys.COMMON_USER_NODE, { uid })
+                })
+                return node
+            })
+        })
+    }
+
     /**创建系统账号**/
     public async httpCommonCreateSystemUser(request: OmixRequest, body: dtoUser.CreateSystemUser) {
         const ctx = await this.database.fetchConnectTransaction()
@@ -124,6 +142,7 @@ export class UserService extends Logger {
                     } else if (data.status === enums.SchemaUserStatus.disable) {
                         throw new HttpException(`账号已被禁用`, HttpStatus.BAD_REQUEST)
                     }
+                    await this.fetchRedisUpdateUser(data.uid)
                     return await this.jwtService.fetchJwtTokenSecret(_.pick(data, ['uid', 'account', 'nickname', 'system']))
                 })
             })
@@ -135,6 +154,7 @@ export class UserService extends Logger {
     /**获取账号基本信息**/
     public async httpCommonBaseResolver(request: OmixRequest) {
         try {
+            return await this.fetchRedisUpdateUser(request.user.uid)
         } catch (err) {
             return await this.fetchCatchCompiler('UserService:httpCommonBaseResolver', err)
         }

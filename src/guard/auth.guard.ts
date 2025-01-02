@@ -21,7 +21,9 @@ export class AuthGuard implements CanActivate {
         const token = request.headers[web.WEB_COMMON_HEADER_AUTHORIZE]
         /**验证登录**/
         if (scope && scope.check) {
-            await this.fetchGuardUser(token, request)
+            request.user = await this.fetchGuardUser(token, request)
+        } else {
+            request.user = {}
         }
         return true
     }
