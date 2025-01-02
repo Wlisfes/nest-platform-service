@@ -8,7 +8,7 @@ import { HttpExceptionFilter } from '@/filters/http-exception.filter'
 import { ConfigModule } from '@/modules/config/config.module'
 import { LoggerModule } from '@/modules/logger/logger.module'
 import { ThrottlerModule } from '@/modules/throttler/throttler.module'
-import { SystemModule } from '@/modules/system/system.module'
+import { CommonModule } from '@/modules/common/common.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
@@ -19,7 +19,7 @@ import { UserModule } from '@web-system-service/modules/user/user.module'
         LoggerModule.forRoot({ name: 'web-account-service' }),
         ConfigModule,
         ThrottlerModule,
-        SystemModule,
+        CommonModule,
         JwtModule,
         RedisModule,
         DatabaseModule,

@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
 import { UserService } from '@web-system-service/modules/user/user.service'
-import { CodexService } from '@/modules/system/codex.service'
+import { CodexService } from '@/modules/common/codex.service'
 import * as dtoUser from '@web-system-service/interface/user.resolver'
 
 @ApiTags('账号模块')
