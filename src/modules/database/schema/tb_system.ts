@@ -1,7 +1,6 @@
 import { Entity, Column } from 'typeorm'
-import { hashSync } from 'bcryptjs'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber, IsEmail, IsEnum } from 'class-validator'
+import { IsNotEmpty, IsNumber, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
@@ -28,6 +27,11 @@ export class SchemaSystem extends DatabaseAdapter {
     @IsNotEmpty({ message: '菜单名称必填' })
     @Column({ comment: '菜单名称', length: 32, nullable: false })
     name: string
+
+    @ApiPropertyOptional({ description: '菜单地址' })
+    @IsOptional()
+    @Column({ comment: '菜单地址', length: 255, nullable: true })
+    router: string
 
     @ApiPropertyOptional({ description: '菜单图标' })
     @IsOptional()
@@ -66,7 +70,7 @@ export class SchemaSystem extends DatabaseAdapter {
     @Column({ comment: '激活路由', nullable: true })
     active: string
 
-    @ApiProperty({ description: '排序号' })
+    @ApiProperty({ description: '排序号', example: 0 })
     @IsNumber({}, { message: '排序号必须为number' })
     @Type(() => Number)
     @Column({ comment: '排序号', default: 0, nullable: false })
