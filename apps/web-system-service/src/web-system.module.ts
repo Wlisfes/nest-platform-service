@@ -13,6 +13,7 @@ import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
 import { UserModule } from '@web-system-service/modules/user/user.module'
+import { SystemModule } from '@web-system-service/modules/system/system.module'
 
 @Module({
     imports: [
@@ -23,7 +24,8 @@ import { UserModule } from '@web-system-service/modules/user/user.module'
         JwtModule,
         RedisModule,
         DatabaseModule,
-        UserModule
+        UserModule,
+        SystemModule
     ],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
