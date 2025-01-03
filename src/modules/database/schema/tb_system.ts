@@ -38,7 +38,7 @@ export class SchemaSystem extends DatabaseAdapter {
     @Column({ comment: '菜单图标', length: 64, nullable: true })
     icon: string
 
-    @ApiProperty({ description: '上级菜单ID', example: '2149446185344106496' })
+    @ApiPropertyOptional({ description: '上级菜单ID', example: '2149446185344106496' })
     @IsOptional()
     @Column({ comment: '上级菜单ID', length: 19, nullable: true })
     pid: string
