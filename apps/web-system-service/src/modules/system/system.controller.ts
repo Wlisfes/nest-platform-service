@@ -17,6 +17,16 @@ export class SystemController {
         authorize: { check: true }
     })
     public async httpBaseCreateSystem(@Request() request: OmixRequest, @Body() body: systemUser.BaseCreateSystem) {
-        return this.systemService.httpCommonBaseCreateSystem(request, body)
+        return this.systemService.httpBaseCreateSystem(request, body)
+    }
+
+    @Post('/base/update')
+    @ApiDecorator({
+        operation: { summary: '编辑系统配置' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true }
+    })
+    public async httpBaseUpdateSystem(@Request() request: OmixRequest, @Body() body: systemUser.BaseUpdateSystem) {
+        return this.systemService.httpBaseUpdateSystem(request, body)
     }
 }
