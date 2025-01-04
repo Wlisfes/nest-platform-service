@@ -9,6 +9,7 @@ async function bootstrap() {
         cors: true
     })
     app.useStaticAssets(path.join(__dirname, '../../../', 'src/public'))
+    app.setGlobalPrefix('/api')
     return await setupSwagger(app, {
         title: '昆仑服务平台',
         siteTitle: '昆仑服务平台API文档',
