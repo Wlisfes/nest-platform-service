@@ -37,6 +37,6 @@ export async function setupSwagger(app, opt: OptionSwagger) {
         }
     })
     return await app.listen(opt.port).then(() => {
-        console.log(`${opt.title}启动:`, `http://localhost:4070`, `http://localhost:4070/${opt.link}`)
+        console.log(`${opt.title}启动:`, `http://localhost:${opt.port}`, `http://localhost:${opt.port}/${opt.link}`)
     })
 }
