@@ -36,7 +36,7 @@ export class UserController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true }
     })
-    public async httpCommonCreateSystemUser(@Request() request: OmixRequest, @Body() body: dtoUser.CreateSystemUser) {
+    public async httpCommonCreateSystemUser(@Request() request: OmixRequest, @Body() body: dtoUser.CommonCreateSystemUser) {
         return await this.userService.httpCommonCreateSystemUser(request, body)
     }
 
@@ -46,7 +46,7 @@ export class UserController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true }
     })
-    public async httpCommonCreateCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CreateCustomer) {
+    public async httpCommonCreateCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CommonCreateCustomer) {
         return await this.userService.httpCommonCreateCustomer(request, body)
     }
 
@@ -55,7 +55,7 @@ export class UserController {
         operation: { summary: '注册基本账号' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpCommonRegisterCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.RegisterCustomer) {
+    public async httpCommonRegisterCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CommonRegisterCustomer) {
         return await this.userService.httpCommonRegisterCustomer(request, body)
     }
 
@@ -64,7 +64,7 @@ export class UserController {
         operation: { summary: '账号登录' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpCommonWriteAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.WriteAuthorize) {
-        return await this.userService.httpCommonWriteAuthorize(request, body)
+    public async httpCommonTokenAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.CommonTokenAuthorize) {
+        return await this.userService.httpCommonTokenAuthorize(request, body)
     }
 }

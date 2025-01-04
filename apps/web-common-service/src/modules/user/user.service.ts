@@ -57,7 +57,7 @@ export class UserService extends Logger {
     }
 
     /**创建系统账号**/
-    public async httpCommonCreateSystemUser(request: OmixRequest, body: dtoUser.CreateSystemUser) {
+    public async httpCommonCreateSystemUser(request: OmixRequest, body: dtoUser.CommonCreateSystemUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNull(this.database.schemaUser, {
@@ -87,7 +87,7 @@ export class UserService extends Logger {
     }
 
     /**创建基本账号**/
-    public async httpCommonCreateCustomer(request: OmixRequest, body: dtoUser.CreateCustomer) {
+    public async httpCommonCreateCustomer(request: OmixRequest, body: dtoUser.CommonCreateCustomer) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNull(this.database.schemaUser, {
@@ -120,7 +120,7 @@ export class UserService extends Logger {
     }
 
     /**注册基本账号**/
-    public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.RegisterCustomer) {
+    public async httpCommonRegisterCustomer(request: OmixRequest, body: dtoUser.CommonRegisterCustomer) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.codexService.httpSystemValidateCodex(request, {
@@ -158,7 +158,7 @@ export class UserService extends Logger {
     }
 
     /**账号登录**/
-    public async httpCommonWriteAuthorize(request: OmixRequest, body: dtoUser.WriteAuthorize) {
+    public async httpCommonTokenAuthorize(request: OmixRequest, body: dtoUser.CommonTokenAuthorize) {
         try {
             await this.codexService.fetchCommonRequestCodex(request).then(async sid => {
                 return await this.codexService.httpSystemValidateCodex(request, {
@@ -187,7 +187,7 @@ export class UserService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('UserService:httpCommonWriteAuthorize', err)
+            return await this.fetchCatchCompiler('UserService:httpCommonTokenAuthorize', err)
         }
     }
 

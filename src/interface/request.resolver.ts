@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber, Min } from 'class-validator'
+import { IsNotEmpty, IsNumber, Min, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsOptional } from '@/decorator/common.decorator'
+import * as enums from '@/modules/database/database.enums'
 
 export class OmixColumn {
     @ApiProperty({ description: '分页偏移量', required: false, example: 0 })
@@ -31,4 +32,9 @@ export class OmixPayload extends OmixColumn {
     @ApiProperty({ description: '验证码', example: '495673' })
     @IsNotEmpty({ message: '验证码 必填' })
     code: string
+
+    @ApiProperty({ description: '平台标识: 客户端-client、管理端-administer', enum: enums.CommonFlatform })
+    @IsNotEmpty({ message: '平台标识必填' })
+    @IsEnum(enums.CommonFlatform, { message: '平台标识格式错误' })
+    platform: string
 }
