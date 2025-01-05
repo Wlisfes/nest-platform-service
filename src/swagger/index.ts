@@ -1,4 +1,5 @@
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { ValidationPipe } from '@nestjs/common'
 import * as express from 'express'
 import * as cookieParser from 'cookie-parser'
 export interface OptionSwagger {
@@ -19,6 +20,8 @@ export async function setupSwagger(app, opt: OptionSwagger) {
     app.use(cookieParser())
     app.use(express.json())
     app.use(express.urlencoded({ extended: true }))
+    /**全局注册验证管道**/
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
     /**初始化文档**/
     const builder = new DocumentBuilder()
         .setTitle(opt.title)
