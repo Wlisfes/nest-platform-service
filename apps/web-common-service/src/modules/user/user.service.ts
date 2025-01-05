@@ -160,6 +160,7 @@ export class UserService extends Logger {
     /**账号登录**/
     public async httpCommonTokenAuthorize(request: OmixRequest, body: dtoUser.CommonTokenAuthorize) {
         try {
+            console.log(body)
             await this.codexService.fetchCommonRequestCodex(request).then(async sid => {
                 return await this.codexService.httpSystemValidateCodex(request, {
                     kyes: [this.redisService.keys.COMMON_CODEX_ROBOT],

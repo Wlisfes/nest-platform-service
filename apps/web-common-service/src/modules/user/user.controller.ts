@@ -2,8 +2,8 @@ import { Controller, Post, Get, Body, Request, Response } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
-import { UserService } from '@web-common-service/modules/user/user.service'
 import { CodexService } from '@/modules/common/codex.service'
+import { UserService } from '@web-common-service/modules/user/user.service'
 import * as dtoUser from '@web-common-service/interface/user.resolver'
 
 @ApiTags('账号模块')
