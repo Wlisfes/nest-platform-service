@@ -33,17 +33,24 @@ export class RedisService extends Logger {
 
     /**redis存储**/
     public async setStore(scope: Omix<{ key: string; data: any; seconds?: number; logger?: boolean }>) {
+        const datetime = Date.now()
         if (scope.seconds > 0) {
             return await this.client.set(scope.key, JSON.stringify(scope.data), 'EX', scope.seconds).then(async value => {
                 if (scope.logger ?? false) {
-                    this.logger.info('RedisService:setStore', { message: 'Redis存储', ...scope })
+                    this.logger.info('RedisService:setStore', {
+                        duration: `${Date.now() - datetime}ms`,
+                        log: { message: 'Redis存储', ...scope }
+                    })
                 }
                 return { value, seconds: scope.seconds }
             })
         } else {
             return await this.client.set(scope.key, JSON.stringify(scope.data)).then(async value => {
                 if (scope.logger ?? false) {
-                    this.logger.info('RedisService:setStore', { message: 'Redis存储', ...scope })
+                    this.logger.info('RedisService:setStore', {
+                        duration: `${Date.now() - datetime}ms`,
+                        log: { message: 'Redis存储', ...scope }
+                    })
                 }
                 return { value, seconds: 0 }
             })
@@ -52,10 +59,14 @@ export class RedisService extends Logger {
 
     /**redis读取**/
     public async getStore<T>(scope: Omix<{ key: string; defaultValue?: T; logger?: boolean }>): Promise<T> {
+        const datetime = Date.now()
         return await this.client.get(scope.key).then(async data => {
             const value = data ? JSON.parse(data) : scope.defaultValue
             if (scope.logger ?? true) {
-                this.logger.info('RedisService:getStore', { message: 'Redis读取', ...scope, data })
+                this.logger.info('RedisService:getStore', {
+                    duration: `${Date.now() - datetime}ms`,
+                    log: { message: 'Redis读取', ...scope, data }
+                })
             }
             return value
         })
@@ -63,10 +74,14 @@ export class RedisService extends Logger {
 
     /**redis批量读取**/
     public async mgetStore(scope: Omix<{ keys: Array<string>; logger?: boolean }>) {
+        const datetime = Date.now()
         return await this.client.mget(scope.keys).then(async data => {
             const values = scope.keys.map((key, index) => ({ key, value: data[index] ?? false }))
             if (scope.logger ?? false) {
-                this.logger.info('RedisService:mgetStore', { message: 'Redis批量读取', values })
+                this.logger.info('RedisService:mgetStore', {
+                    duration: `${Date.now() - datetime}ms`,
+                    log: { message: 'Redis批量读取', ...scope, data: values }
+                })
             }
             return values
         })
@@ -74,9 +89,13 @@ export class RedisService extends Logger {
 
     /**redis删除**/
     public async delStore(scope: Omix<{ key: string; logger?: boolean }>) {
+        const datetime = Date.now()
         return await this.client.del(scope.key).then(async value => {
             if (scope.logger ?? false) {
-                this.logger.info('RedisService:delStore', { message: 'Redis删除', ...scope })
+                this.logger.info('RedisService:delStore', {
+                    duration: `${Date.now() - datetime}ms`,
+                    log: { message: 'Redis删除', ...scope }
+                })
             }
             return value
         })
