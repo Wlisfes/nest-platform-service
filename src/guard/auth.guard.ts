@@ -1,7 +1,8 @@
-import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, HttpStatus, Request } from '@nestjs/common'
+import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
+import { isEmpty } from 'class-validator'
 import { JwtService } from '@/modules/jwt/jwt.service'
-import { Omix } from '@/interface/instance.resolver'
+import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import { SchemaUser } from '@/modules/database/database.schema'
 import * as web from '@/config/web-common'
 
@@ -16,23 +17,36 @@ export class AuthGuard implements CanActivate {
 
     /**登录拦截入口**/
     public async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest()
-        const scope = this.reflector.get<AuthGuardOption>(`APP_AUTH_INJECT`, context.getHandler())
-        const token = request.headers[web.WEB_COMMON_HEADER_AUTHORIZE]
+        const request = context.switchToHttp().getRequest<OmixRequest>()
+        const data = this.reflector.get<AuthGuardOption>(`APP_AUTH_INJECT`, context.getHandler())
+        /**平台守卫拦截**/
+        await this.fetchGuardPlatform(request)
         /**验证登录**/
-        if (scope && scope.check) {
-            request.user = await this.fetchGuardUser(token, request)
-        } else {
-            request.user = {}
-        }
+        await this.fetchGuardUser(request, data)
+        /**默认通过**/
         return true
     }
 
-    /**消费用户守卫拦截**/
-    public async fetchGuardUser(token: string, request: Omix<Request>) {
-        return await this.jwtService.fetchJwtTokenParser<SchemaUser>(token).then(async node => {
-            return node
-        })
+    /**平台守卫拦截**/
+    public async fetchGuardPlatform(request: Omix<OmixRequest>) {
+        const platform = request.headers[web.WEB_COMMON_HEADER_PLATFORM]
+        if (isEmpty(platform)) {
+            throw new HttpException('headers头部platform标识不能为空', HttpStatus.BAD_REQUEST)
+        } else if (!['client', 'manager'].includes(platform)) {
+            throw new HttpException('headers头部platform标识格式错误', HttpStatus.BAD_REQUEST)
+        }
+        return (request.platform = platform)
+    }
+
+    /**用户守卫拦截**/
+    public async fetchGuardUser(request: Omix<OmixRequest>, data: Omix<{ check: boolean }>) {
+        const token = request.headers[web.WEB_COMMON_HEADER_AUTHORIZE]
+        if (data && data.check) {
+            return await this.jwtService.fetchJwtTokenParser<SchemaUser>(token).then(async node => {
+                return (request.user = node)
+            })
+        }
+        return request
     }
 }
 

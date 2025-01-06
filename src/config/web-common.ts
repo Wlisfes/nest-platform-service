@@ -6,3 +6,5 @@ export const WEB_COMMON_HEADER_CONTEXTID = 'requestId'
 export const WEB_COMMON_HEADER_STARTTIME = 'datetime'
 /**请求头图形验证码标识**/
 export const WEB_COMMON_HEADER_CAPHCHA = 'captcha-sid'
+/**请求头平台标识**/
+export const WEB_COMMON_HEADER_PLATFORM = 'platform'

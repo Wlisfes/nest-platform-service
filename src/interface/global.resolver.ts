@@ -14,5 +14,7 @@ export interface OmixHeaders extends Omix<IncomingHttpHeaders> {}
 /**Request类型**/
 export interface OmixRequest extends Omix<Request> {
     headers: OmixHeaders
-    user: SchemaUser
+    user: Omix<SchemaUser>
+    ipv4: string
+    platform: string
 }

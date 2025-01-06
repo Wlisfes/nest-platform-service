@@ -175,7 +175,11 @@ export class UserService extends Logger {
                     qb.where(`t.account = :account`, { account: body.account })
                 }
                 return await qb.getOne().then(async data => {
-                    if (isEmpty(data) || (data.system && body.platform === 'client') || (!data.system && body.platform === 'administer')) {
+                    if (
+                        isEmpty(data) ||
+                        (data.system && request.platform === 'client') ||
+                        (!data.system && request.platform === 'administer')
+                    ) {
                         throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
                     } else if (!compareSync(body.password, data.password)) {
                         throw new HttpException(`账号密码不正确`, HttpStatus.BAD_REQUEST)

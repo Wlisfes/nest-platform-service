@@ -17,5 +17,5 @@ export class CommonRegisterCustomer extends IntersectionType(
 /**账号登录**/
 export class CommonTokenAuthorize extends IntersectionType(
     PickType(SchemaUser, ['password', 'account']),
-    PickType(OmixPayload, ['code', 'platform'])
+    PickType(OmixPayload, ['code'])
 ) {}
