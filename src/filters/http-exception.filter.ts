@@ -18,6 +18,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             timestamp: utils.moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             url: request.url,
             method: request.method,
+            platform: request.headers[web.WEB_COMMON_HEADER_PLATFORM],
             code: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR
         }
         if (exception.response && Array.isArray(exception.response.message)) {

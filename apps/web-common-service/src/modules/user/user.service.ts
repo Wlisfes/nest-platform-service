@@ -178,7 +178,7 @@ export class UserService extends Logger {
                     if (
                         isEmpty(data) ||
                         (data.system && request.platform === 'client') ||
-                        (!data.system && request.platform === 'administer')
+                        (!data.system && request.platform === 'manager')
                     ) {
                         throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
                     } else if (!compareSync(body.password, data.password)) {

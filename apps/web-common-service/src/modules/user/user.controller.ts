@@ -34,7 +34,7 @@ export class UserController {
     @ApiDecorator({
         operation: { summary: '创建系统账号' },
         response: { status: 200, description: 'OK' },
-        authorize: { check: true }
+        authorize: { check: true, platform: 'manager' }
     })
     public async httpCommonCreateSystemUser(@Request() request: OmixRequest, @Body() body: dtoUser.CommonCreateSystemUser) {
         return await this.userService.httpCommonCreateSystemUser(request, body)
@@ -44,7 +44,7 @@ export class UserController {
     @ApiDecorator({
         operation: { summary: '创建基本账号' },
         response: { status: 200, description: 'OK' },
-        authorize: { check: true }
+        authorize: { check: true, platform: 'manager' }
     })
     public async httpCommonCreateCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CommonCreateCustomer) {
         return await this.userService.httpCommonCreateCustomer(request, body)
@@ -53,7 +53,8 @@ export class UserController {
     @Post('/register/customer')
     @ApiDecorator({
         operation: { summary: '注册基本账号' },
-        response: { status: 200, description: 'OK' }
+        response: { status: 200, description: 'OK' },
+        authorize: { platform: 'client' }
     })
     public async httpCommonRegisterCustomer(@Request() request: OmixRequest, @Body() body: dtoUser.CommonRegisterCustomer) {
         return await this.userService.httpCommonRegisterCustomer(request, body)
@@ -62,7 +63,8 @@ export class UserController {
     @Post('/token/authorize')
     @ApiDecorator({
         operation: { summary: '账号登录' },
-        response: { status: 200, description: 'OK' }
+        response: { status: 200, description: 'OK' },
+        authorize: { platform: ['client', 'manager'] }
     })
     public async httpCommonTokenAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.CommonTokenAuthorize) {
         return await this.userService.httpCommonTokenAuthorize(request, body)
