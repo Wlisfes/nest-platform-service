@@ -24,7 +24,7 @@ export class UserController {
     @ApiDecorator({
         operation: { summary: '获取账号基本信息' },
         response: { status: 200, description: 'OK' },
-        authorize: { check: true }
+        authorize: { check: true, platform: ['client', 'manager'] }
     })
     public async httpCommonBaseResolver(@Request() request: OmixRequest) {
         return await this.userService.httpCommonBaseResolver(request)

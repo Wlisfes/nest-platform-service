@@ -32,15 +32,21 @@ export class AuthGuard implements CanActivate {
     /**平台守卫拦截**/
     public async fetchGuardPlatform(request: Omix<OmixRequest>, data: Omix<AuthGuardOption>) {
         const platform = request.headers[web.WEB_COMMON_HEADER_PLATFORM]
-        if (data && isNotEmpty(data.platform) && (isString(data.platform) || (Array.isArray(data.platform) && data.platform.length > 0))) {
-            if (isEmpty(platform)) {
+        if (data && data.platform) {
+            if (isEmpty(platform) && (isString(data.platform) || (Array.isArray(data.platform) && data.platform.length > 0))) {
                 throw new HttpException('headers头部platform标识不能为空', HttpStatus.BAD_REQUEST)
-            } else if (!data.platform.includes(platform)) {
-                throw new HttpException('headers头部platform标识错误', HttpStatus.BAD_REQUEST)
+            } else if (Array.isArray(data.platform) && data.platform.length > 0) {
+                if (!data.platform.includes(platform)) {
+                    throw new HttpException('headers头部platform标识错误', HttpStatus.BAD_REQUEST)
+                }
+            } else if (isString(data.platform)) {
+                if (data.platform !== platform) {
+                    throw new HttpException('headers头部platform标识错误', HttpStatus.BAD_REQUEST)
+                }
             }
             return (request.platform = platform)
         }
-        return true
+        return request
     }
 
     /**用户守卫拦截**/
