@@ -9,9 +9,9 @@ async function bootstrap() {
         cors: true
     })
     app.useStaticAssets(path.join(__dirname, '../../../', 'src/public'))
-    app.setGlobalPrefix('/api')
+    app.setGlobalPrefix('/api/system')
     return await setupSwagger(app, {
-        title: '昆仑服务平台',
+        title: '昆仑服务平台-系统服务',
         siteTitle: '昆仑服务平台API文档',
         description: 'Kunlun Service Platform API Documentation',
         port: 3020
