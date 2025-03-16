@@ -6,8 +6,6 @@ export interface OptionSwagger {
     title: string
     siteTitle: string
     description: string
-    jwtName: string
-    link: string
     port: number
     version?: string
 }
@@ -27,10 +25,10 @@ export async function setupSwagger(app, opt: OptionSwagger) {
         .setTitle(opt.title)
         .setDescription(opt.description)
         .setVersion(opt.version ?? '1.0.0')
-        .addBearerAuth({ type: 'apiKey', in: 'header', name: opt.jwtName }, opt.jwtName)
+        .addBearerAuth({ type: 'apiKey', in: 'header', name: 'Authorization' }, 'Authorization')
         .build()
     const document = SwaggerModule.createDocument(app, builder)
-    SwaggerModule.setup(opt.link, app, document, {
+    SwaggerModule.setup('/api/swagger', app, document, {
         customSiteTitle: opt.siteTitle,
         swaggerOptions: {
             defaultModelsExpandDepth: -1,
@@ -40,6 +38,6 @@ export async function setupSwagger(app, opt: OptionSwagger) {
         }
     })
     return await app.listen(opt.port).then(() => {
-        console.log(`${opt.title}启动:`, `http://localhost:${opt.port}`, `http://localhost:${opt.port}/${opt.link}`)
+        console.log(`${opt.title}启动:`, `http://localhost:${opt.port}`, `http://localhost:${opt.port}/api/swagger`)
     })
 }
