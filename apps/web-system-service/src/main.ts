@@ -14,7 +14,7 @@ async function bootstrap() {
         title: '昆仑服务平台',
         siteTitle: '昆仑服务平台API文档',
         description: 'Kunlun Service Platform API Documentation',
-        port: 4070
+        port: 3020
     })
 }
 bootstrap()

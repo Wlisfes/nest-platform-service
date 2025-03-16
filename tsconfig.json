@@ -12,6 +12,7 @@
         "baseUrl": "./",
         "paths": {
             "@/*": ["src/*"],
+            "@web-document-service/*": ["apps/web-document-service/src/*"],
             "@web-system-service/*": ["apps/web-system-service/src/*"],
             "@web-common-service/*": ["apps/web-common-service/src/*"]
         },

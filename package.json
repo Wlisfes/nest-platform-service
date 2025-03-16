@@ -8,6 +8,9 @@
     "scripts": {
         "install": "yarn install --ignore-scripts",
         "dev": "nest start --watch",
+        "dev:web-document-service": "nest start --watch web-document-service",
+        "build:web-document-service": "nest build web-document-service",
+        "start:web-document-service": "node dist/apps/web-document-service/main",
         "dev:web-common-service": "nest start --watch web-common-service",
         "build:web-common-service": "nest build web-common-service",
         "start:web-common-service": "node dist/apps/web-common-service/main",

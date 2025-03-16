@@ -31,6 +31,15 @@
             "compilerOptions": {
                 "tsConfigPath": "apps/web-system-service/tsconfig.app.json"
             }
+        },
+        "web-document-service": {
+            "type": "application",
+            "root": "apps/web-document-service",
+            "entryFile": "main",
+            "sourceRoot": "apps/web-document-service/src",
+            "compilerOptions": {
+                "tsConfigPath": "apps/web-document-service/tsconfig.app.json"
+            }
         }
     }
 }
