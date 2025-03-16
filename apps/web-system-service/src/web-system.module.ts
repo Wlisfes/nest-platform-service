@@ -12,7 +12,6 @@ import { CommonModule } from '@/modules/common/common.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
-import { UserModule } from '@web-system-service/modules/user/user.module'
 import { SystemModule } from '@web-system-service/modules/system/system.module'
 
 @Module({
@@ -24,7 +23,6 @@ import { SystemModule } from '@web-system-service/modules/system/system.module'
         JwtModule,
         RedisModule,
         DatabaseModule,
-        UserModule,
         SystemModule
     ],
     providers: [
