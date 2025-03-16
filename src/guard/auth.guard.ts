@@ -1,9 +1,9 @@
 import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { isEmpty, isNotEmpty, isString } from 'class-validator'
 import { JwtService } from '@/modules/jwt/jwt.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import { SchemaUser } from '@/modules/database/database.schema'
+import * as utils from '@/utils/utils-common'
 import * as web from '@/config/web-common'
 
 export interface AuthGuardOption {
@@ -33,13 +33,13 @@ export class AuthGuard implements CanActivate {
     public async fetchGuardPlatform(request: Omix<OmixRequest>, data: Omix<AuthGuardOption>) {
         const platform = request.headers[web.WEB_COMMON_HEADER_PLATFORM]
         if (data && data.platform) {
-            if (isEmpty(platform) && (isString(data.platform) || (Array.isArray(data.platform) && data.platform.length > 0))) {
+            if (utils.isEmpty(platform) && (utils.isString(data.platform) || (Array.isArray(data.platform) && data.platform.length > 0))) {
                 throw new HttpException('headers头部platform标识不能为空', HttpStatus.BAD_REQUEST)
             } else if (Array.isArray(data.platform) && data.platform.length > 0) {
                 if (!data.platform.includes(platform)) {
                     throw new HttpException('headers头部platform标识错误', HttpStatus.BAD_REQUEST)
                 }
-            } else if (isString(data.platform)) {
+            } else if (utils.isString(data.platform)) {
                 if (data.platform !== platform) {
                     throw new HttpException('headers头部platform标识错误', HttpStatus.BAD_REQUEST)
                 }
@@ -53,6 +53,9 @@ export class AuthGuard implements CanActivate {
     public async fetchGuardUser(request: Omix<OmixRequest>, data: Omix<AuthGuardOption>) {
         const token = request.headers[web.WEB_COMMON_HEADER_AUTHORIZE]
         if (data && data.check) {
+            if (utils.isEmpty(token)) {
+                throw new HttpException('未登录', HttpStatus.BAD_REQUEST)
+            }
             return await this.jwtService.fetchJwtTokenParser<SchemaUser>(token).then(async node => {
                 return (request.user = node)
             })

@@ -158,7 +158,7 @@ export class UserService extends Logger {
     }
 
     /**账号登录**/
-    public async httpCommonTokenAuthorize(request: OmixRequest, body: dtoUser.CommonTokenAuthorize) {
+    public async httpCommonUserAuthorize(request: OmixRequest, body: dtoUser.CommonUserAuthorize) {
         try {
             await this.codexService.fetchCommonRequestCodex(request).then(async sid => {
                 return await this.codexService.httpSystemValidateCodex(request, {
@@ -191,16 +191,16 @@ export class UserService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('UserService:httpCommonTokenAuthorize', err)
+            return await this.fetchCatchCompiler('UserService:httpCommonUserAuthorize', err)
         }
     }
 
     /**获取账号基本信息**/
-    public async httpCommonBaseResolver(request: OmixRequest) {
+    public async httpCommonUserResolver(request: OmixRequest) {
         try {
             return await this.fetchRedisUpdateUser(request.user.uid)
         } catch (err) {
-            return await this.fetchCatchCompiler('UserService:httpCommonBaseResolver', err)
+            return await this.fetchCatchCompiler('UserService:httpCommonUserResolver', err)
         }
     }
 }

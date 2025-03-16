@@ -20,16 +20,6 @@ export class UserController {
         return await this.codexService.httpSystemCommonCodex(response)
     }
 
-    @Get('/base/resolver')
-    @ApiDecorator({
-        operation: { summary: '获取账号基本信息' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true, platform: ['client', 'manager'] }
-    })
-    public async httpCommonBaseResolver(@Request() request: OmixRequest) {
-        return await this.userService.httpCommonBaseResolver(request)
-    }
-
     @Post('/create/system')
     @ApiDecorator({
         operation: { summary: '创建系统账号' },
@@ -66,7 +56,17 @@ export class UserController {
         response: { status: 200, description: 'OK' },
         authorize: { platform: ['client', 'manager'] }
     })
-    public async httpCommonTokenAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.CommonTokenAuthorize) {
-        return await this.userService.httpCommonTokenAuthorize(request, body)
+    public async httpCommonUserAuthorize(@Request() request: OmixRequest, @Body() body: dtoUser.CommonUserAuthorize) {
+        return await this.userService.httpCommonUserAuthorize(request, body)
+    }
+
+    @Get('/token/resolver')
+    @ApiDecorator({
+        operation: { summary: '获取账号基本信息' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: ['client', 'manager'] }
+    })
+    public async httpCommonUserResolver(@Request() request: OmixRequest) {
+        return await this.userService.httpCommonUserResolver(request)
     }
 }

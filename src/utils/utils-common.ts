@@ -1,11 +1,12 @@
 import { snowflakeId } from 'snowflake-id-maker'
 import { zh_CN, Faker } from '@faker-js/faker'
-import { isNotEmpty } from 'class-validator'
+import { isNotEmpty, isEmpty, isString, isNumber, isObject } from 'class-validator'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import * as web from '@/config/web-common'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
 import * as timezone from 'dayjs/plugin/timezone'
+export { isNotEmpty, isEmpty, isString, isNumber, isObject }
 dayjs.extend(timezone)
 dayjs.extend(utc)
 /**dayjs实例**/
