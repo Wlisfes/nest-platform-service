@@ -7,7 +7,7 @@ export const documentOptions = [
         prefix: '/api/common',
         baseUrl: `http://localhost:3010`,
         url: `/api/swagger-json`,
-        location: `/api/swagger-json`
+        location: `/api/swagger`
     },
     {
         name: 'web-system-service',
@@ -15,7 +15,7 @@ export const documentOptions = [
         prefix: '/api/system',
         baseUrl: `http://localhost:3020`,
         url: `/api/swagger-json`,
-        location: `/api/swagger-json`
+        location: `/api/swagger`
     }
 ]
 
