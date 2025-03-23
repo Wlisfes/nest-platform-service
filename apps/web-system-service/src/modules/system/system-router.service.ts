@@ -4,43 +4,45 @@ import { DatabaseService } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface/instance.resolver'
 import { isNotEmpty } from 'class-validator'
 import { Not } from 'typeorm'
-import * as systemUser from '@web-system-service/interface/system.resolver'
+import * as schemas from '@web-system-service/interface/router.resolver'
 import * as enums from '@/modules/database/database.enums'
 import * as utils from '@/utils/utils-common'
 import * as plugin from '@/utils/utils-plugin'
 
 @Injectable()
-export class SystemService extends Logger {
+export class SystemRouterService extends Logger {
     constructor(private readonly database: DatabaseService) {
         super()
     }
 
     /**验证菜单是否存在**/
-    public async httpCommonCheckSystem(vid: string) {
-        return await this.database.fetchConnectNotNull(this.database.schemaSystem, {
-            message: `${vid} 不存在`,
-            dispatch: { where: { vid } }
+    public async httpCommonCheckSystem(id: string) {
+        return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+            message: `${id} 不存在`,
+            dispatch: { where: { id } }
         })
     }
 
-    /**创建系统配置**/
-    public async httpBaseCreateSystem(request: OmixRequest, body: systemUser.BaseCreateSystem) {
+    /**新增菜单配置**/
+    public async httpBaseCreateSystemRouter(request: OmixRequest, body: schemas.BaseCreateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNull(this.database.schemaSystem, {
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
                 message: `${body.key} 已存在`,
                 dispatch: { where: { key: body.key } }
             })
-            await this.database.fetchConnectNull(this.database.schemaSystem, {
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
                 message: `${body.router} 已存在`,
                 dispatch: { where: { router: body.router } }
             })
             await utils.fetchHandler(isNotEmpty(body.pid), {
-                handler: () => this.httpCommonCheckSystem(body.pid)
+                async handler() {
+                    return await this.httpCommonCheckSystem(body.pid)
+                }
             })
-            await this.database.fetchConnectCreate(this.database.schemaSystem, {
+            await this.database.fetchConnectCreate(this.database.schemaRouter, {
                 body: Object.assign(body, {
-                    vid: await utils.fetchIntNumber(),
+                    id: await utils.fetchIntNumber(),
                     uid: request.user.uid
                 })
             })
@@ -49,34 +51,32 @@ export class SystemService extends Logger {
             })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemService:httpBaseCreateSystem', err)
+            return await this.fetchCatchCompiler('SystemRouterService:httpBaseCreateSystemRouter', err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑系统配置**/
-    public async httpBaseUpdateSystem(request: OmixRequest, body: systemUser.BaseUpdateSystem) {
+    public async httpBaseUpdateSystemRouter(request: OmixRequest, body: schemas.BaseUpdateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNull(this.database.schemaSystem, {
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
                 message: `${body.key} 已存在`,
-                dispatch: { where: { key: body.key, vid: Not(body.vid) } }
+                dispatch: { where: { key: body.key, id: Not(body.id) } }
             })
-            await this.database.fetchConnectNull(this.database.schemaSystem, {
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
                 message: `${body.router} 已存在`,
-                dispatch: { where: { router: body.router, vid: Not(body.vid) } }
+                dispatch: { where: { router: body.router, id: Not(body.id) } }
             })
             await utils.fetchHandler(isNotEmpty(body.pid), {
-                handler: async () => {
-                    await plugin.fetchCatchWherer(body.pid === body.vid, {
-                        message: 'vid与pid不可相等'
-                    })
+                async handler() {
+                    await plugin.fetchCatchWherer(body.pid === body.id, { message: 'vid与pid不可相等' })
                     return await this.httpCommonCheckSystem(body.pid)
                 }
             })
-            await this.database.fetchConnectUpdate(this.database.schemaSystem, {
-                where: { vid: body.vid },
+            await this.database.fetchConnectUpdate(this.database.schemaRouter, {
+                where: { id: body.id },
                 body: Object.assign(body, { uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -84,7 +84,7 @@ export class SystemService extends Logger {
             })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemService:httpBaseUpdateSystem', err)
+            return await this.fetchCatchCompiler('SystemRouterService:httpBaseUpdateSystemRouter', err)
         } finally {
             await ctx.release()
         }

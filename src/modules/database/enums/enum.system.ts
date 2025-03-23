@@ -1,15 +1,11 @@
-/**系统配置类型**/
-export enum SchemaSystem_Source {
-    /**菜单**/
-    router = 'router',
-    /**按钮**/
-    button = 'button'
+/**菜单资源类型**/
+export enum SchemaSystemRouter_Type {
+    router = 'router', //菜单
+    button = 'button' //按钮
 }
 
-/**系统配置状态**/
-export enum SchemaSystem_Status {
-    /**启用**/
-    enable = 'enable',
-    /**禁用**/
-    disable = 'disable'
+/**菜单资源状态**/
+export enum SchemaSystemRouter_Status {
+    enable = 'enable', //启用
+    disable = 'disable' //禁用
 }

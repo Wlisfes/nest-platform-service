@@ -6,17 +6,17 @@ import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/database.enums'
 
-@Entity({ name: 'tb_system', comment: '系统配置表' })
-export class SchemaSystem extends DatabaseAdapter {
+@Entity({ name: 'tb_system_router', comment: '菜单资源配置表' })
+export class SchemaRouter extends DatabaseAdapter {
+    @ApiProperty({ description: 'ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'ID必填' })
+    @Column({ comment: '唯一ID', length: 19, nullable: false })
+    id: string
+
     @ApiProperty({ description: '用户UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '用户UID必填' })
     @Column({ comment: '用户UID', length: 19, nullable: false })
     uid: string
-
-    @ApiProperty({ description: 'VID', example: '2149446185344106496' })
-    @IsNotEmpty({ message: 'VID必填' })
-    @Column({ comment: '唯一ID', length: 19, nullable: false })
-    vid: string
 
     @ApiProperty({ description: '权限标识' })
     @IsNotEmpty({ message: '权限标识必填' })
@@ -35,8 +35,8 @@ export class SchemaSystem extends DatabaseAdapter {
 
     @ApiPropertyOptional({ description: '菜单图标' })
     @IsOptional()
-    @Column({ comment: '菜单图标', length: 64, nullable: true })
-    icon: string
+    @Column({ name: 'icon_name', comment: '菜单图标', length: 64, nullable: true })
+    iconName: string
 
     @ApiPropertyOptional({ description: '上级菜单ID', example: '2149446185344106496' })
     @IsOptional()
@@ -48,16 +48,16 @@ export class SchemaSystem extends DatabaseAdapter {
     @Column({ comment: '是否可见', default: true, nullable: false })
     check: boolean
 
-    @ApiProperty({ description: '类型: 菜单-router、按钮-button', enum: enums.SchemaSystem_Source })
+    @ApiProperty({ description: '类型: 菜单-router、按钮-button', enum: enums.SchemaSystemRouter_Type })
     @IsNotEmpty({ message: '类型必填' })
-    @IsEnum(enums.SchemaSystem_Source, { message: '类型参数格式错误' })
-    @Column({ comment: '类型: 菜单-router、按钮-button', length: 64, default: enums.SchemaSystem_Source.router, nullable: false })
-    source: string
+    @IsEnum(enums.SchemaSystemRouter_Type, { message: '类型参数格式错误' })
+    @Column({ comment: '类型: 菜单-router、按钮-button', length: 64, default: enums.SchemaSystemRouter_Type.router, nullable: false })
+    type: string
 
-    @ApiProperty({ description: '状态: 禁用-disable、启用-enable', enum: enums.SchemaSystem_Status })
+    @ApiProperty({ description: '状态: 禁用-disable、启用-enable', enum: enums.SchemaSystemRouter_Status })
     @IsNotEmpty({ message: '状态必填' })
-    @IsEnum(enums.SchemaSystem_Status, { message: '状态参数格式错误' })
-    @Column({ comment: '状态: 禁用-disable、启用-enable', default: enums.SchemaSystem_Status.enable, nullable: false })
+    @IsEnum(enums.SchemaSystemRouter_Status, { message: '状态参数格式错误' })
+    @Column({ comment: '状态: 禁用-disable、启用-enable', default: enums.SchemaSystemRouter_Status.enable, nullable: false })
     status: string
 
     @ApiProperty({ description: '版本号', example: 'v1.0.0' })

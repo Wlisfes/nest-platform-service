@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common'
-import { SystemService } from '@web-system-service/modules/system/system.service'
-import { SystemController } from '@web-system-service/modules/system/system.controller'
+import { SystemRouterController } from '@web-system-service/modules/system/system-router.controller'
+import { SystemRouterService } from '@web-system-service/modules/system/system-router.service'
 
 @Module({
-    controllers: [SystemController],
-    providers: [SystemService],
-    exports: [SystemService]
+    controllers: [SystemRouterController],
+    providers: [SystemRouterService],
+    exports: [SystemRouterService]
 })
 export class SystemModule {}

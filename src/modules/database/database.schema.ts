@@ -1,2 +1,2 @@
 export * from '@/modules/database/schema/tb_user'
-export * from '@/modules/database/schema/tb_system'
+export * from '@/modules/database/schema/tb_system_router'
