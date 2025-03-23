@@ -24,9 +24,13 @@ export class OmixColumn {
 }
 
 export class OmixPayload extends OmixColumn {
-    @ApiProperty({ description: 'ID', example: '2279965746312249344' })
-    @IsNotEmpty({ message: 'ID 必填' })
-    id: string
+    @ApiProperty({ description: 'id', example: 1000 })
+    @IsNotEmpty({ message: 'id 必填' })
+    id: number
+
+    @ApiProperty({ description: 'keyId', example: '2279965746312249344' })
+    @IsNotEmpty({ message: 'keyId 必填' })
+    keyId: string
 
     @ApiProperty({ description: '验证码', example: '495673' })
     @IsNotEmpty({ message: '验证码 必填' })

@@ -10,8 +10,8 @@ import * as enums from '@/modules/database/database.enums'
 export class SchemaRouter extends DatabaseAdapter {
     @ApiProperty({ description: 'ID', example: '2149446185344106496' })
     @IsNotEmpty({ message: 'ID必填' })
-    @Column({ comment: '唯一ID', length: 19, nullable: false })
-    id: string
+    @Column({ name: 'key_id', comment: '唯一ID', length: 19, nullable: false })
+    keyId: string
 
     @ApiProperty({ description: '用户UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '用户UID必填' })

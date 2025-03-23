@@ -29,11 +29,11 @@ export class SystemRouterService extends Logger {
             await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
                 return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
                     message: `pid:${body.pid} 不存在`,
-                    dispatch: { where: { id: body.pid } }
+                    dispatch: { where: { keyId: body.pid } }
                 })
             })
             await this.database.fetchConnectCreate(this.database.schemaRouter, {
-                body: Object.assign(body, { id: await utils.fetchIntNumber(), uid: request.user.uid })
+                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
                 return await utils.fetchResolver({ message: '新增成功' })
@@ -51,16 +51,16 @@ export class SystemRouterService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                message: `id:${body.id} 不存在`,
-                dispatch: { where: { id: body.pid } }
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
-                qb.where(`(t.key = :key AND t.id != id) OR (t.router = :router AND t.id != id)`, { ...body })
+                qb.where(`(t.key = :key AND t.keyId != keyId) OR (t.router = :router AND t.keyId != keyId)`, { ...body })
                 return await qb.getOne().then(async node => {
                     await plugin.fetchCatchWherer(node?.key === body.key, { message: `${body.key} 已存在` })
                     await plugin.fetchCatchWherer(node?.key === body.key, { message: `${body.router} 已存在` })
                     if (utils.isNotEmpty(body.pid)) {
-                        await plugin.fetchCatchWherer(body.pid === body.id, { message: `id与pid不可相等` })
+                        await plugin.fetchCatchWherer(body.pid === body.keyId, { message: `keyId与pid不可相等` })
                         return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
                             message: `${body.pid} 不存在`,
                             dispatch: { where: { pid: body.pid } }
@@ -69,7 +69,7 @@ export class SystemRouterService extends Logger {
                 })
             })
             await this.database.fetchConnectUpdate(this.database.schemaRouter, {
-                where: { id: body.id },
+                where: { keyId: body.keyId },
                 body: Object.assign(body, { uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -109,8 +109,8 @@ export class SystemRouterService extends Logger {
     public async httpBaseSystemRouterResolver(request: OmixRequest, body: field.BaseSystemRouterResolver) {
         try {
             return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                message: `id:${body.id} 不存在`,
-                dispatch: { where: { id: body.id } }
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
             })
         } catch (err) {
             return await this.fetchCatchCompiler('SystemRouterService:httpBaseSystemRouterResolver', err)

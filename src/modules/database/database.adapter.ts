@@ -6,8 +6,8 @@ import * as utils from '@/utils/utils-common'
 export abstract class DatabaseAdapter {
     @ApiProperty({ description: '主键ID', example: 1000 })
     @IsNotEmpty({ message: '主键ID必填' })
-    @PrimaryGeneratedColumn('increment', { name: 'key_id', comment: '自增长主键' })
-    keyId: number
+    @PrimaryGeneratedColumn('increment', { comment: '自增长主键' })
+    id: number
 
     @ApiProperty({ description: '创建时间', example: '2023-10-26 16:03:38' })
     @CreateDateColumn({

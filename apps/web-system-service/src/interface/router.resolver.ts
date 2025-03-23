@@ -10,7 +10,7 @@ export class BaseCreateSystemRouter extends IntersectionType(
 
 /**编辑菜单配置**/
 export class BaseUpdateSystemRouter extends IntersectionType(
-    PickType(SchemaRouter, ['id', 'key', 'name', 'iconName', 'check', 'type', 'router', 'pid']),
+    PickType(SchemaRouter, ['keyId', 'key', 'name', 'iconName', 'check', 'type', 'router', 'pid']),
     PickType(SchemaRouter, ['status', 'version', 'active', 'sort'])
 ) {}
 
@@ -21,4 +21,4 @@ export class BaseColumnSystemRouter extends IntersectionType(
 ) {}
 
 /**菜单资源详情**/
-export class BaseSystemRouterResolver extends PickType(OmixPayload, ['id']) {}
+export class BaseSystemRouterResolver extends PickType(OmixPayload, ['keyId']) {}
