@@ -36,7 +36,7 @@ export class LoggerMiddleware implements NestMiddleware {
                     origin: headers.origin ?? '',
                     referer: headers.referer ?? '',
                     platform: headers[web.WEB_COMMON_HEADER_PLATFORM],
-                    ['user-agent']: headers['user-agent'] ?? '',
+                    device: headers['user-agent'] ?? '',
                     authorization: headers[web.WEB_COMMON_HEADER_AUTHORIZE] ?? ''
                 }
             })

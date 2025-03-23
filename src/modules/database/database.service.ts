@@ -1,7 +1,6 @@
-import { Injectable, HttpStatus } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Repository, DataSource, DeepPartial, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import { isEmpty, isNotEmpty } from 'class-validator'
 import { Logger } from '@/modules/logger/logger.service'
 import { Omix } from '@/interface/global.resolver'
 import * as schema from '@/modules/database/database.schema'
@@ -24,6 +23,12 @@ export class DatabaseService extends Logger {
         @InjectRepository(schema.SchemaRouter) public readonly schemaRouter: Repository<schema.SchemaRouter>
     ) {
         super()
+    }
+
+    /**字段查询输出组合**/
+    public async fetchSelection<T>(qb: SelectQueryBuilder<T>, keys: Array<[string, Array<string>]>) {
+        const fields = new Set(keys.map(([alias, names]) => plugin.fetchSelection(alias, names)).flat(Infinity)) as never as Array<string>
+        return await qb.select([...fields])
     }
 
     /**typeorm事务**/
@@ -55,7 +60,7 @@ export class DatabaseService extends Logger {
                     return await utils.fetchResolver(node)
                 })
             } else {
-                return await plugin.fetchCatchWherer(isNotEmpty(node), data).then(async () => {
+                return await plugin.fetchCatchWherer(utils.isNotEmpty(node), data).then(async () => {
                     return await utils.fetchResolver(node)
                 })
             }
@@ -75,7 +80,7 @@ export class DatabaseService extends Logger {
                     return await utils.fetchResolver(node)
                 })
             } else {
-                return await plugin.fetchCatchWherer(isEmpty(node), data).then(async () => {
+                return await plugin.fetchCatchWherer(utils.isEmpty(node), data).then(async () => {
                     return await utils.fetchResolver(node)
                 })
             }

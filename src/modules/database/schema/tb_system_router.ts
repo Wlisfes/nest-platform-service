@@ -18,17 +18,17 @@ export class SchemaRouter extends DatabaseAdapter {
     @Column({ comment: '用户UID', length: 19, nullable: false })
     uid: string
 
-    @ApiProperty({ description: '权限标识' })
+    @ApiProperty({ description: '权限标识', example: 'base:manager' })
     @IsNotEmpty({ message: '权限标识必填' })
     @Column({ comment: '权限标识', length: 128, nullable: false })
     key: string
 
-    @ApiProperty({ description: '菜单名称', example: '控制台' })
+    @ApiProperty({ description: '菜单名称', example: '工作台' })
     @IsNotEmpty({ message: '菜单名称必填' })
     @Column({ comment: '菜单名称', length: 32, nullable: false })
     name: string
 
-    @ApiPropertyOptional({ description: '菜单地址' })
+    @ApiPropertyOptional({ description: '菜单地址', example: '/manager' })
     @IsOptional()
     @Column({ comment: '菜单地址', length: 255, nullable: true })
     router: string
@@ -43,18 +43,26 @@ export class SchemaRouter extends DatabaseAdapter {
     @Column({ comment: '上级菜单ID', length: 19, nullable: true })
     pid: string
 
-    @ApiProperty({ description: '是否可见', example: false })
+    @ApiProperty({ description: '是否可见', example: true })
     @IsNotEmpty({ message: '是否可见必填' })
     @Column({ comment: '是否可见', default: true, nullable: false })
     check: boolean
 
-    @ApiProperty({ description: '类型: 菜单-router、按钮-button', enum: enums.SchemaSystemRouter_Type })
+    @ApiProperty({
+        description: '类型: 菜单-router、按钮-button',
+        enum: enums.SchemaSystemRouter_Type,
+        example: enums.SchemaSystemRouter_Type.router
+    })
     @IsNotEmpty({ message: '类型必填' })
     @IsEnum(enums.SchemaSystemRouter_Type, { message: '类型参数格式错误' })
     @Column({ comment: '类型: 菜单-router、按钮-button', length: 64, default: enums.SchemaSystemRouter_Type.router, nullable: false })
     type: string
 
-    @ApiProperty({ description: '状态: 禁用-disable、启用-enable', enum: enums.SchemaSystemRouter_Status })
+    @ApiProperty({
+        description: '状态: 禁用-disable、启用-enable',
+        enum: enums.SchemaSystemRouter_Status,
+        example: enums.SchemaSystemRouter_Status.enable
+    })
     @IsNotEmpty({ message: '状态必填' })
     @IsEnum(enums.SchemaSystemRouter_Status, { message: '状态参数格式错误' })
     @Column({ comment: '状态: 禁用-disable、启用-enable', default: enums.SchemaSystemRouter_Status.enable, nullable: false })

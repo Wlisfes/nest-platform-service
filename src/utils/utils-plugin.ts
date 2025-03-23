@@ -16,9 +16,12 @@ export async function fetchCatchWherer(
     where: boolean,
     scope: Omix<{ message: string; code?: number; cause?: Omix<HttpExceptionOptions> }>
 ) {
-    return await utils.fetchHandler(where, {
-        async handler() {
-            throw new HttpException(scope.message, scope.code ?? HttpStatus.BAD_REQUEST, scope.cause)
-        }
+    return await utils.fetchHandler(where, function () {
+        throw new HttpException(scope.message, scope.code ?? HttpStatus.BAD_REQUEST, scope.cause)
     })
+}
+
+/**字段输出控制**/
+export function fetchSelection(alias: string, fields: string[]) {
+    return (fields ?? []).map(field => (utils.isNotEmpty(alias) ? `${alias}.${field}` : field))
 }
