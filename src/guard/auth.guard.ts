@@ -56,6 +56,9 @@ export class AuthGuard implements CanActivate {
             if (utils.isEmpty(token)) {
                 throw new HttpException('未登录', HttpStatus.BAD_REQUEST)
             }
+            if (token.startsWith('Bearer ')) {
+            }
+
             return await this.jwtService.fetchJwtTokenParser<SchemaUser>(token).then(async node => {
                 return (request.user = node)
             })

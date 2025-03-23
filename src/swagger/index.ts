@@ -26,7 +26,8 @@ export async function setupSwagger(app, opt: OptionSwagger) {
         .setDescription(opt.description)
         .setVersion(opt.version ?? '1.0.0')
         .setBasePath(`http://localhost:${opt.port}`)
-        .addBearerAuth({ type: 'apiKey', in: 'header', name: 'Authorization' }, 'Authorization')
+        .addBearerAuth({ type: 'apiKey', in: 'header', name: 'authorization' }, 'authorization')
+        .addGlobalParameters({ name: 'platform', in: 'header' })
         .build()
     const document = SwaggerModule.createDocument(app, builder)
     SwaggerModule.setup('/api/swagger', app, document, {
