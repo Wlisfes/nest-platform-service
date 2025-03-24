@@ -51,14 +51,11 @@ export class AuthGuard implements CanActivate {
 
     /**用户守卫拦截**/
     public async fetchGuardUser(request: Omix<OmixRequest>, data: Omix<AuthGuardOption>) {
-        const token = request.headers[web.WEB_COMMON_HEADER_AUTHORIZE]
+        const token = (request.headers[web.WEB_COMMON_HEADER_AUTHORIZE] ?? '').replace(/^Bearer\s+/i, '')
         if (data && data.check) {
             if (utils.isEmpty(token)) {
                 throw new HttpException('未登录', HttpStatus.BAD_REQUEST)
             }
-            if (token.startsWith('Bearer ')) {
-            }
-
             return await this.jwtService.fetchJwtTokenParser<SchemaUser>(token).then(async node => {
                 return (request.user = node)
             })
