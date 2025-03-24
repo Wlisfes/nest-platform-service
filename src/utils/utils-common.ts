@@ -1,5 +1,6 @@
 import { snowflakeId } from 'snowflake-id-maker'
 import { zh_CN, Faker } from '@faker-js/faker'
+import { cloneDeep, concat, pick, omit } from 'lodash'
 import { isNotEmpty, isEmpty, isString, isNumber, isObject } from 'class-validator'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import * as tree from 'tree-tool'
@@ -7,7 +8,7 @@ import * as web from '@/config/web-common'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
 import * as timezone from 'dayjs/plugin/timezone'
-export { tree, isNotEmpty, isEmpty, isString, isNumber, isObject }
+export { tree, cloneDeep, concat, pick, omit, isNotEmpty, isEmpty, isString, isNumber, isObject }
 dayjs.extend(timezone)
 dayjs.extend(utc)
 /**dayjs实例**/

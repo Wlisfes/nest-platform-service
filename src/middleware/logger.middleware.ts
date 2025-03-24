@@ -31,13 +31,13 @@ export class LoggerMiddleware implements NestMiddleware {
                     body,
                     query,
                     params,
-                    host: headers.host ?? '',
                     ip: ip,
+                    host: headers.host ?? '',
                     origin: headers.origin ?? '',
                     referer: headers.referer ?? '',
                     platform: headers[web.WEB_COMMON_HEADER_PLATFORM],
                     device: headers['user-agent'] ?? '',
-                    authorization: headers[web.WEB_COMMON_HEADER_AUTHORIZE] ?? ''
+                    user: request.user ? utils.pick(request.user, ['nickname', 'uid']) : {}
                 }
             })
         })
