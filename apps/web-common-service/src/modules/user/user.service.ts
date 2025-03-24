@@ -76,7 +76,7 @@ export class UserService extends Logger {
                 }
             })
             return await ctx.commitTransaction().then(async () => {
-                return await utils.fetchResolver({ message: '操作成功' })
+                return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -108,7 +108,7 @@ export class UserService extends Logger {
                     }
                 })
                 return await ctx.commitTransaction().then(async () => {
-                    return await utils.fetchResolver({ message: '操作成功' })
+                    return await this.fetchResolver({ message: '操作成功' })
                 })
             })
         } catch (err) {
@@ -146,7 +146,7 @@ export class UserService extends Logger {
                     }
                 })
                 return await ctx.commitTransaction().then(async () => {
-                    return await utils.fetchResolver({ message: '操作成功' })
+                    return await this.fetchResolver({ message: '操作成功' })
                 })
             })
         } catch (err) {

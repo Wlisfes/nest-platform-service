@@ -35,15 +35,6 @@ export async function fetchParameter<T>(params: Omix<T>): Promise<Omix<T>> {
     return params
 }
 
-/**返回包装**/
-export async function fetchResolver<T = Partial<Omix<{ message: string; list: Array<Omix>; total: number; page: number; size: number }>>>(
-    data: T,
-    handler?: Function
-) {
-    await fetchHandler(Boolean(handler), handler)
-    return data
-}
-
 /**条件链式执行函数**/
 export async function fetchHandler<T>(where: boolean | Function, handler?: Function): Promise<T> {
     const value = typeof where === 'function' ? await where() : where

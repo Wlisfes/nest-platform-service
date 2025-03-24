@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Logger } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
-import { OmixRequest } from '@/interface/instance.resolver'
+import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/router.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -36,7 +36,7 @@ export class SystemRouterService extends Logger {
                 body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
-                return await utils.fetchResolver({ message: '新增成功' })
+                return await this.fetchResolver({ message: '新增成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -73,7 +73,7 @@ export class SystemRouterService extends Logger {
                 body: Object.assign(body, { uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
-                return await utils.fetchResolver({ message: '操作成功' })
+                return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -96,12 +96,33 @@ export class SystemRouterService extends Logger {
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return {
                         total,
-                        list: utils.tree.fromList(list, { pid: 'pid' })
+                        list: utils.tree.fromList(list, { id: 'keyId', pid: 'pid' })
                     }
                 })
             })
         } catch (err) {
             return await this.fetchCatchCompiler('SystemRouterService:httpBaseColumnSystemRouter', err)
+        }
+    }
+
+    /**菜单资源详情**/
+    public async httpBaseColumnUserSystemRouter(request: OmixRequest) {
+        try {
+            return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
+                await this.database.fetchSelection(qb, [
+                    ['t', ['keyId', 'pid', 'key', 'name', 'router', 'active', 'check']],
+                    ['t', ['iconName', 'type', 'status', 'version']]
+                ])
+                return await qb.getMany().then(async data => {
+                    const list = utils.tree.fromList(data, { id: 'keyId', pid: 'pid' })
+                    console.log(utils.tree.removeNode(list, (node: Omix) => node.keyId === '2280242606426357760'))
+                    return {
+                        list: utils.tree.fromList(list, { id: 'keyId', pid: 'pid' })
+                    }
+                })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler('SystemRouterService:httpBaseColumnUserSystemRouter', err)
         }
     }
 

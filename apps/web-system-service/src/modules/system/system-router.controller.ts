@@ -40,9 +40,19 @@ export class SystemRouterController {
         return this.systemRouterService.httpBaseColumnSystemRouter(request, body)
     }
 
+    @Get('/user/resource')
+    @ApiDecorator({
+        operation: { summary: '获取当前用户菜单资源' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseColumnUserSystemRouter(@Request() request: OmixRequest) {
+        return this.systemRouterService.httpBaseColumnUserSystemRouter(request)
+    }
+
     @Get('/resolver')
     @ApiDecorator({
-        operation: { summary: '菜单资源列表' },
+        operation: { summary: '菜单资源信息' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })

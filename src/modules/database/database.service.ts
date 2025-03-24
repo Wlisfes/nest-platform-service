@@ -57,11 +57,11 @@ export class DatabaseService extends Logger {
             })
             if (data.transform) {
                 return await plugin.fetchCatchWherer(await data.transform(node), data).then(async () => {
-                    return await utils.fetchResolver(node)
+                    return await this.fetchResolver(node)
                 })
             } else {
                 return await plugin.fetchCatchWherer(utils.isNotEmpty(node), data).then(async () => {
-                    return await utils.fetchResolver(node)
+                    return await this.fetchResolver(node)
                 })
             }
         })
@@ -77,11 +77,11 @@ export class DatabaseService extends Logger {
             })
             if (data.transform) {
                 return await plugin.fetchCatchWherer(await data.transform(node), data).then(async () => {
-                    return await utils.fetchResolver(node)
+                    return await this.fetchResolver(node)
                 })
             } else {
                 return await plugin.fetchCatchWherer(utils.isEmpty(node), data).then(async () => {
-                    return await utils.fetchResolver(node)
+                    return await this.fetchResolver(node)
                 })
             }
         })
@@ -151,7 +151,7 @@ export class DatabaseService extends Logger {
                 duration: `${Date.now() - datetime}ms`,
                 log: { message: `[${model.metadata.name}]:查询出参`, where, total }
             })
-            return await utils.fetchResolver({ list, total })
+            return await this.fetchResolver({ list, total })
         })
     }
 }
