@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Request } from '@nestjs/common'
+import { Controller, Post, Get, Body, Query, Request } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
@@ -46,7 +46,7 @@ export class SystemRouterController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseSystemRouterResolver(@Request() request: OmixRequest, @Body() body: schemas.BaseSystemRouterResolver) {
-        return this.systemRouterService.httpBaseSystemRouterResolver(request, body)
+    public async httpBaseSystemRouterResolver(@Request() request: OmixRequest, @Query() query: schemas.BaseSystemRouterResolver) {
+        return this.systemRouterService.httpBaseSystemRouterResolver(request, query)
     }
 }

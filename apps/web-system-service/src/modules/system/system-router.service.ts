@@ -91,7 +91,7 @@ export class SystemRouterService extends Logger {
                 await this.database.fetchSelection(qb, [
                     ['t', ['uid', 'pid', 'key', 'name', 'router', 'active', 'check', 'iconName', 'sort', 'type', 'status', 'version']],
                     ['t', ['keyId', 'id', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'nickname', 'status', 'keyId', 'system']]
+                    ['user', ['uid', 'nickname', 'status', 'id', 'system']]
                 ])
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return {

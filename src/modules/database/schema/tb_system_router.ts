@@ -8,7 +8,7 @@ import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_router', comment: '菜单资源配置表' })
 export class SchemaRouter extends DatabaseAdapter {
-    @ApiProperty({ description: 'ID', example: '2149446185344106496' })
+    @ApiProperty({ description: 'ID', example: '2280241553538613248' })
     @IsNotEmpty({ message: 'ID必填' })
     @Column({ name: 'key_id', comment: '唯一ID', length: 19, nullable: false })
     keyId: string

@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsNotEmpty, IsNumber, Min } from 'class-validator'
 import { Type } from 'class-transformer'
-import { IsOptional } from '@/decorator/common.decorator'
+import { IsOptional, IsDateCustomize } from '@/decorator/common.decorator'
 
 export class OmixColumn {
     @ApiProperty({ description: '分页数', required: false, example: 1 })
@@ -17,6 +17,16 @@ export class OmixColumn {
     @Min(1, { message: 'size必须大于0' })
     @Type(type => Number)
     size: number = 20
+
+    @ApiPropertyOptional({ description: '开始时间' })
+    @IsOptional()
+    @IsDateCustomize()
+    startTime: string
+
+    @ApiPropertyOptional({ description: '结束时间' })
+    @IsOptional()
+    @IsDateCustomize()
+    endTime: string
 
     @ApiPropertyOptional({ description: '模糊关键字' })
     @IsOptional()
