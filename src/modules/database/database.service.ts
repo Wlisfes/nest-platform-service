@@ -20,7 +20,8 @@ export class DatabaseService extends Logger {
     constructor(
         private readonly dataSource: DataSource,
         @InjectRepository(schema.SchemaUser) public readonly schemaUser: Repository<schema.SchemaUser>,
-        @InjectRepository(schema.SchemaRouter) public readonly schemaRouter: Repository<schema.SchemaRouter>
+        @InjectRepository(schema.SchemaRouter) public readonly schemaRouter: Repository<schema.SchemaRouter>,
+        @InjectRepository(schema.SchemaRole) public readonly schemaRole: Repository<schema.SchemaRole>
     ) {
         super()
     }
