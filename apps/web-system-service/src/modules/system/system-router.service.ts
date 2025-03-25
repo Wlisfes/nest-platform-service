@@ -125,12 +125,12 @@ export class SystemRouterService extends Logger {
                         qb.andWhere('t.createTime <= :endTime', { endTime: body.endTime })
                     }
                 })
-
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                    return {
+                    return await this.fetchResolver({
+                        message: '操作成功',
                         total,
                         list: utils.tree.fromList(list, { id: 'keyId', pid: 'pid' })
-                    }
+                    })
                 })
             })
         } catch (err) {
