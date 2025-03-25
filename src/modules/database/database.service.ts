@@ -25,6 +25,14 @@ export class DatabaseService extends Logger {
         super()
     }
 
+    /**条件SQL组合**/
+    public async fetchBrackets(where: boolean, handler?: Function) {
+        if (where && handler) {
+            return await handler(where)
+        }
+        return where
+    }
+
     /**字段查询输出组合**/
     public async fetchSelection<T>(qb: SelectQueryBuilder<T>, keys: Array<[string, Array<string>]>) {
         const fields = new Set(keys.map(([alias, names]) => plugin.fetchSelection(alias, names)).flat(Infinity)) as never as Array<string>
