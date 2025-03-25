@@ -30,7 +30,7 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseUpdateSystemRole(request, body)
     }
 
-    @Post('/update/resource')
+    @Post('/update/router')
     @ApiDecorator({
         operation: { summary: '编辑角色权限' },
         response: { status: 200, description: 'OK' },

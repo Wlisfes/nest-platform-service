@@ -1,8 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsNotEmpty, IsNumber, IsEnum, IsString, IsArray, IsOptional } from 'class-validator'
-import { Type, Transform } from 'class-transformer'
-// import { IsOptional } from '@/decorator/common.decorator'
+import { Type } from 'class-transformer'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import { ArrayStringTransform } from '@/utils/utils-schema'
 import * as enums from '@/modules/database/database.enums'
@@ -25,16 +24,18 @@ export class SchemaRole extends DatabaseAdapter {
     name: string
 
     @ApiProperty({ description: '用户列表' })
+    @Type(() => String)
     @IsOptional()
     @IsArray()
-    @IsString({ each: true })
+    @IsString({ each: true, message: 'uids 格式错误' })
     @Column({ type: 'text', nullable: true, transformer: ArrayStringTransform })
     uids: string[]
 
     @ApiProperty({ description: '权限列表' })
+    @Type(() => String)
     @IsOptional()
     @IsArray()
-    @IsString({ each: true })
+    @IsString({ each: true, message: 'auxs 格式错误' })
     @Column({ type: 'text', nullable: true, transformer: ArrayStringTransform })
     auxs: string[]
 
