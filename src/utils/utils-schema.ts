@@ -1,0 +1,17 @@
+import * as utils from '@/utils/utils-common'
+
+/**日期时间转换**/
+export const DateTimeTransform = {
+    from: s => utils.moment(s).format('YYYY-MM-DD HH:mm:ss'),
+    to: s => s
+}
+
+/**数组字符串转换**/
+export const ArrayStringTransform = {
+    from: (s: string) => {
+        return utils.isEmpty(s) ? [] : s.toString().split(',')
+    },
+    to: (s: Array<string>) => {
+        return s.length === 0 ? null : s.join(',')
+    }
+}

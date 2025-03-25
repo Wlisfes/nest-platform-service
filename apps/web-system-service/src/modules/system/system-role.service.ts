@@ -68,6 +68,19 @@ export class SystemRoleService extends Logger {
     public async httpBaseUpdateSystemRoleRouter(request: OmixRequest, body: field.BaseUpdateSystemRoleRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
+            await this.database.fetchConnectNotNull(this.database.schemaRole, {
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            console.log(body, '----------------------', body.auxs)
+            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
+            //     where: { keyId: body.keyId },
+            //     body: { kyes: [] }
+            // })
+
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRoleRouter', err)
@@ -80,6 +93,7 @@ export class SystemRoleService extends Logger {
     public async httpBaseUpdateSystemRoleUser(request: OmixRequest, body: field.BaseUpdateSystemRoleUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
+            console.log(body)
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRoleUser', err)

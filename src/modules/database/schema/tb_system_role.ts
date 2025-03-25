@@ -1,9 +1,10 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber, IsEnum, IsString, IsArray } from 'class-validator'
-import { Type } from 'class-transformer'
-import { IsOptional } from '@/decorator/common.decorator'
+import { IsNotEmpty, IsNumber, IsEnum, IsString, IsArray, IsOptional } from 'class-validator'
+import { Type, Transform } from 'class-transformer'
+// import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
+import { ArrayStringTransform } from '@/utils/utils-schema'
 import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_role', comment: '角色权限配置表' })
@@ -27,23 +28,15 @@ export class SchemaRole extends DatabaseAdapter {
     @IsOptional()
     @IsArray()
     @IsString({ each: true })
-    @Column({
-        type: 'text',
-        nullable: true,
-        transformer: { from: s => s.toString().split(','), to: s => s.join(',') }
-    })
+    @Column({ type: 'text', nullable: true, transformer: ArrayStringTransform })
     uids: string[]
 
     @ApiProperty({ description: '权限列表' })
     @IsOptional()
     @IsArray()
     @IsString({ each: true })
-    @Column({
-        type: 'text',
-        nullable: true,
-        transformer: { from: s => s.toString().split(','), to: s => s.join(',') }
-    })
-    kyes: string[]
+    @Column({ type: 'text', nullable: true, transformer: ArrayStringTransform })
+    auxs: string[]
 
     @ApiProperty({
         description: '状态: 禁用-disable、启用-enable',
