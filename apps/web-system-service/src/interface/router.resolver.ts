@@ -17,7 +17,7 @@ export class BaseUpdateSystemRouter extends IntersectionType(
 /**菜单资源列表**/
 export class BaseColumnSystemRouter extends IntersectionType(
     PickType(OmixColumn, ['page', 'size', 'vague', 'startTime', 'endTime']),
-    PickType(PartialType(SchemaRouter), ['name', 'key', 'router', 'version', 'uid'])
+    PickType(PartialType(SchemaRouter), ['name', 'key', 'router', 'version', 'uid', 'pid'])
 ) {}
 
 /**菜单资源详情**/

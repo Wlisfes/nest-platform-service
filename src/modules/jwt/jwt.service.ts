@@ -20,7 +20,8 @@ export class JwtService {
     public async fetchJwtTokenSecret<T>(node: Omix<T>, scope: Partial<Omix<{ expires: number; message: string; code: number }>> = {}) {
         try {
             const jwtSecret = this.configService.get('JWT_SECRET')
-            const expires = Number(scope.expires ?? 7200)
+            // const expires = Number(scope.expires ?? 7200)
+            const expires = Number(scope.expires ?? 3600 * 24 * 30)
             const datetime = new Date().getTime()
             const token = await this.jwt.signAsync({ ...node, datetime, auth: 'token' }, { expiresIn: expires, secret: jwtSecret })
             const secret = await this.jwt.signAsync({ ...node, datetime, auth: 'secret' }, { expiresIn: expires * 2, secret: jwtSecret })

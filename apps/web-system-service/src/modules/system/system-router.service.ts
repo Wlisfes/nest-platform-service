@@ -55,7 +55,7 @@ export class SystemRouterService extends Logger {
                 dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
-                qb.where(`(t.key = :key AND t.keyId != keyId) OR (t.router = :router AND t.keyId != keyId)`, { ...body })
+                qb.where(`(t.key = :key AND t.keyId != :keyId) OR (t.router = :router AND t.keyId != :keyId)`, { ...body })
                 return await qb.getOne().then(async node => {
                     await plugin.fetchCatchWherer(node?.key === body.key, { message: `${body.key} 已存在` })
                     await plugin.fetchCatchWherer(node?.key === body.key, { message: `${body.router} 已存在` })
@@ -93,6 +93,41 @@ export class SystemRouterService extends Logger {
                     ['t', ['keyId', 'id', 'createTime', 'modifyTime']],
                     ['user', ['uid', 'nickname', 'status', 'id', 'system']]
                 ])
+                if (utils.isNotEmpty(body.vague)) {
+                    /**模糊查询**/
+                    qb.where(`t.keyId LIKE :vague OR t.key LIKE :vague OR t.name LIKE :vague OR t.router LIKE :vague`, {
+                        vague: `%${body.vague}%`
+                    })
+                }
+                if (utils.isNotEmpty(body.key)) {
+                    qb.andWhere('t.key = :key', { key: body.key })
+                }
+                if (utils.isNotEmpty(body.name)) {
+                    qb.andWhere('t.name = :name', { name: body.name })
+                }
+                if (utils.isNotEmpty(body.router)) {
+                    qb.andWhere('t.router = :router', { router: body.router })
+                }
+                if (utils.isNotEmpty(body.version)) {
+                    qb.andWhere('t.version = :version', { version: body.version })
+                }
+                if (utils.isNotEmpty(body.uid)) {
+                    qb.andWhere('t.uid = :uid', { uid: body.uid })
+                }
+                if (utils.isNotEmpty(body.pid)) {
+                    qb.andWhere('t.pid = :pid', { pid: body.pid })
+                }
+                if (utils.isNotEmpty(body.startTime) && utils.isNotEmpty(body.endTime)) {
+                    qb.andWhere('t.createTime >= :startTime AND t.createTime <= :endTime', {
+                        startTime: body.startTime,
+                        endTime: body.endTime
+                    })
+                } else if (utils.isNotEmpty(body.startTime)) {
+                    qb.andWhere('t.createTime >= :startTime', { startTime: body.startTime })
+                } else if (utils.isNotEmpty(body.endTime)) {
+                    qb.andWhere('t.createTime <= :endTime', { endTime: body.endTime })
+                }
+
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return {
                         total,
@@ -105,7 +140,7 @@ export class SystemRouterService extends Logger {
         }
     }
 
-    /**菜单资源详情**/
+    /**获取当前用户菜单资源**/
     public async httpBaseColumnUserSystemRouter(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
