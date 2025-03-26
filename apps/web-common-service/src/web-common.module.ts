@@ -12,7 +12,6 @@ import { CommonModule } from '@/modules/common/common.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
-import { UserModule } from '@web-common-service/modules/user/user.module'
 
 @Module({
     imports: [
@@ -22,8 +21,7 @@ import { UserModule } from '@web-common-service/modules/user/user.module'
         CommonModule,
         JwtModule,
         RedisModule,
-        DatabaseModule,
-        UserModule
+        DatabaseModule
     ],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },
