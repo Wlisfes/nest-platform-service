@@ -6,7 +6,7 @@ import { SystemUserService } from '@web-system-service/modules/system/system-use
 import * as field from '@web-system-service/interface/instance.resolver'
 
 @ApiTags('系统用户模块')
-@Controller('system/user')
+@Controller('user')
 export class SystemUserController {
     constructor(private readonly systemUserService: SystemUserService) {}
 

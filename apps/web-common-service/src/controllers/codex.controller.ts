@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Query, Request, Response } from '@nestjs/common'
+import { Controller, Get, Request, Response } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
@@ -18,7 +18,7 @@ export class CommonCodexController {
     public async httpCommonCodexWriteUserAuthorize(@Request() request: OmixRequest, @Response() response) {
         return await this.codexService.httpCommonCodexWrite(response, {
             key: this.redisService.keys.COMMON_CODEX_USER_TOKEN,
-            cookie: ''
+            cookie: 'x-request-captcha-sid'
         })
     }
 }

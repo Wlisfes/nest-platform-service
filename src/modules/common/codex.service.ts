@@ -20,11 +20,19 @@ export class CodexService extends Logger {
                 this.logger.info('SystemService:httpCommonCodexWrite', {
                     log: { message: '图形验证码发送成功', seconds, key, data: text }
                 })
-                await response.cookie(opts.cookie, sid, { httpOnly: true })
+                await response.cookie(opts.cookie, sid, { httpOnly: true, maxAge: 300 * 1000 })
                 await response.type('svg')
                 return await response.send(data)
             })
         })
+    }
+
+    /**验证请求头图形验证码sid**/
+    public async fetchCommonCodexReader(request: OmixRequest, key: string): Promise<string> {
+        if (isEmpty(request.cookies[key])) {
+            throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
+        }
+        return request.cookies[key]
     }
 
     /**校验redis验证码**/

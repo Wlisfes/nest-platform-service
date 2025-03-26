@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common'
-import { Not } from 'typeorm'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { compareSync } from 'bcryptjs'
 import { Logger } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
@@ -65,7 +65,32 @@ export class SystemUserService extends Logger {
     }
 
     /**授权登录**/
-    public async httpBaseCreateSystemUserAuthorize(request: OmixRequest, body: field.BaseCreateSystemUserAuthorize) {}
+    public async httpBaseCreateSystemUserAuthorize(request: OmixRequest, body: field.BaseCreateSystemUserAuthorize) {
+        try {
+            await this.codexService.fetchCommonCodexReader(request, 'x-request-captcha-sid').then(async sid => {
+                return await this.codexService.httpCommonCodexCheck(request, {
+                    key: await this.redisService.fetchCompose(this.redisService.keys.COMMON_CODEX_USER_TOKEN, { sid }),
+                    code: body.code
+                })
+            })
+            return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                qb.addSelect('t.password')
+                qb.where(`t.number = :number OR t.phone = :number OR t.email = :number`, { number: body.number })
+                return await qb.getOne().then(async node => {
+                    if (utils.isEmpty(node)) {
+                        throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
+                    } else if (!compareSync(body.password, node.password)) {
+                        throw new HttpException(`账号密码不正确`, HttpStatus.BAD_REQUEST)
+                    } else if (node.status === enums.SchemaUser_Status.disable) {
+                        throw new HttpException(`账号已被禁用`, HttpStatus.BAD_REQUEST)
+                    }
+                    return await this.jwtService.fetchJwtTokenSecret(utils.pick(node, ['uid', 'number', 'name', 'status']))
+                })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler('SystemUserService:httpBaseCreateSystemUserAuthorize', err)
+        }
+    }
 
     /**编辑账号状态**/
     public async httpBaseUpdateSwitchSystemUser(request: OmixRequest, body: field.BaseSwitchSystemUser) {
