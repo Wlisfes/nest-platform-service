@@ -9,6 +9,7 @@ import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
+import * as keys from '@/modules/redis/redis.keys'
 import * as plugin from '@/utils/utils-plugin'
 import * as utils from '@/utils/utils-common'
 
@@ -30,7 +31,7 @@ export class SystemUserService extends Logger {
             return await qb.getOne().then(async node => {
                 await this.redisService.setStore({
                     data: node.status,
-                    key: await this.redisService.fetchCompose(this.redisService.keys.COMMON_SYSTEM_USER_STATUS, { uid })
+                    key: await this.redisService.fetchCompose(keys.COMMON_SYSTEM_USER_STATUS, { uid })
                 })
                 return node
             })
