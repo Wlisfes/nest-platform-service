@@ -15,9 +15,10 @@ export class CodexService extends Logger {
     /**图形验证码**/
     public async httpCommonCodexWrite(response: Response, opts: Omix<{ key: string; cookie: string }>) {
         return await plugin.fetchCommonCodexer({ width: 120, height: 40 }).then(async ({ sid, text, data }) => {
-            return await this.redisService.setStore({ key: opts.key, data: text, seconds: 300 }).then(async ({ seconds }) => {
+            const key = await this.redisService.fetchCompose(opts.key, { sid })
+            return await this.redisService.setStore({ key, data: text, seconds: 300 }).then(async ({ seconds }) => {
                 this.logger.info('SystemService:httpCommonCodexWrite', {
-                    log: { message: '图形验证码发送成功', seconds, key: opts.key, data: text }
+                    log: { message: '图形验证码发送成功', seconds, key, data: text }
                 })
                 await response.cookie(opts.cookie, sid, { httpOnly: true })
                 await response.type('svg')
