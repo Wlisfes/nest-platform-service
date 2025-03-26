@@ -64,6 +64,29 @@ export class SystemRoleService extends Logger {
         }
     }
 
+    /**编辑角色状态**/
+    public async httpBaseUpdateSwitchSystemRole(request: OmixRequest, body: field.BaseSwitchSystemRole) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.database.fetchConnectNotNull(this.database.schemaRole, {
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectUpdate(this.database.schemaRole, {
+                where: { keyId: body.keyId },
+                body: { status: body.status, uid: request.user.uid }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler('SystemRoleService:httpBaseSwitchSystemRole', err)
+        } finally {
+            await ctx.release()
+        }
+    }
+
     /**编辑角色权限**/
     public async httpBaseUpdateSystemRoleRouter(request: OmixRequest, body: field.BaseUpdateSystemRoleRouter) {
         const ctx = await this.database.fetchConnectTransaction()
