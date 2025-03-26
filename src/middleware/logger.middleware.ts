@@ -5,7 +5,6 @@ import { Logger } from 'winston'
 import { getClientIp } from 'request-ip'
 import { Omix } from '@/interface/instance.resolver'
 import * as utils from '@/utils/utils-common'
-import * as web from '@/config/web-common'
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -18,12 +17,12 @@ export class LoggerMiddleware implements NestMiddleware {
         const context = await utils.fetchIntNumber({ random: true, bit: 32 })
         const ip = ['localhost', '::1', '::ffff:127.0.0.1'].includes(clientIp) ? '127.0.0.1' : clientIp.replace(/^.*:/, '')
         request.ipv4 = ip
-        request.headers[web.WEB_COMMON_HEADER_STARTTIME] = start.toString()
-        request.headers[web.WEB_COMMON_HEADER_CONTEXTID] = context.toString()
+        request.headers.datetime = start.toString()
+        request.headers.context = context.toString()
         response.on('finish', () => {
             /**结束日志 endTime**/
             this.logger.info(LoggerMiddleware.name, {
-                [web.WEB_COMMON_HEADER_CONTEXTID]: context.toString(),
+                context: context.toString(),
                 duration: `${Date.now() - start}ms`,
                 log: {
                     url: baseUrl,
@@ -35,7 +34,7 @@ export class LoggerMiddleware implements NestMiddleware {
                     host: headers.host ?? '',
                     origin: headers.origin ?? '',
                     referer: headers.referer ?? '',
-                    platform: headers[web.WEB_COMMON_HEADER_PLATFORM],
+                    platform: headers.platform,
                     device: headers['user-agent'] ?? '',
                     user: request.user ? utils.pick(request.user, ['nickname', 'uid']) : {}
                 }

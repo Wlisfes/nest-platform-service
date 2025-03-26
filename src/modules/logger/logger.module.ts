@@ -2,7 +2,6 @@ import { Module, Global, DynamicModule } from '@nestjs/common'
 import { isNotEmpty } from 'class-validator'
 import { WinstonModule } from 'nest-winston'
 import { Logger } from '@/modules/logger/logger.service'
-import * as web from '@/config/web-common'
 import * as utils from '@/utils/utils-common'
 import * as winston from 'winston'
 import * as chalk from 'chalk'
@@ -37,8 +36,8 @@ export class LoggerModule {
                                     const pid = chalk.hex('#fc5404 ')(`服务进程:[${process.pid}]`)
                                     const timestamp = chalk.hex('#fb9300')(`${data.timestamp}`)
                                     const message = chalk.hex('#ff3d68')(`执行方法:[${data.message}]`)
-                                    const contextId = utils.fetchCaseWherer(Boolean(data[web.WEB_COMMON_HEADER_CONTEXTID]), {
-                                        value: chalk.hex("#536dfe")(`上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]`),
+                                    const contextId = utils.fetchCaseWherer(Boolean(data.context), {
+                                        value: chalk.hex("#536dfe")(`上下文ID:[${data.context?? ''}]`),
                                         defaultValue: ""
                                     })
                                     const level = utils.fetchCaseWherer(data.level === 'error', {
@@ -57,16 +56,16 @@ export class LoggerModule {
                                             return (current += `	"${key.toString()}": ${JSON.stringify(data.log[key.toString()])}, \n`)
 										}, '')
                                         console[data.level](`${module}  ${url}  ${duration}`, { ...data.log })
-                                        return `服务名称:[${option.name}]  服务进程:[${process.pid}]  ${data.timestamp}  ${data.level.toUpperCase()}  上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]  执行方法:[${data.message}]  接口地址:${data.log.url}  耗时:${data.duration}  {\n${text}}`
+                                        return `服务名称:[${option.name}]  服务进程:[${process.pid}]  ${data.timestamp}  ${data.level.toUpperCase()}  上下文ID:[${data.context ?? ''}]  执行方法:[${data.message}]  接口地址:${data.log.url}  耗时:${data.duration}  {\n${text}}`
                                     } else if(typeof data.log === 'string') {
                                         console[data.level](`${module}  ${duration}  {\n    log: ${chalk.red(data.log)}\n}`)
-                                        return `服务名称:[${option.name}] ${process.pid} ${data.timestamp} ${data.level.toUpperCase()}  上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]  执行方法:[${data.message}]  耗时:${data.duration}  {\n    "log": ${data.log}\n}`
+                                        return `服务名称:[${option.name}] ${process.pid} ${data.timestamp} ${data.level.toUpperCase()}  上下文ID:[${data.context ?? ''}]  执行方法:[${data.message}]  耗时:${data.duration}  {\n    "log": ${data.log}\n}`
                                     } else {
                                         const text = Object.keys(data.log ?? {}).reduce((current, key) => {
                                             return (current += `	"${key.toString()}": ${JSON.stringify(data.log[key.toString()])}, \n`)
 										}, '')
                                         console[data.level](`${module}  ${duration}`, { ...data.log })
-                                        return `服务名称:[${option.name}]  服务进程:[${process.pid}]  ${data.timestamp}  ${data.level.toUpperCase()}  上下文ID:[${data[web.WEB_COMMON_HEADER_CONTEXTID] ?? ''}]  执行方法:[${data.message}]  耗时:${data.duration}  {\n${text}}`
+                                        return `服务名称:[${option.name}]  服务进程:[${process.pid}]  ${data.timestamp}  ${data.level.toUpperCase()}  上下文ID:[${data.context ?? ''}]  执行方法:[${data.message}]  耗时:${data.duration}  {\n${text}}`
                                     }
                                 })
                             )

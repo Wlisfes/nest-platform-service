@@ -2,7 +2,6 @@ import { Inject, ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nest
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
 import * as utils from '@/utils/utils-common'
-import * as web from '@/config/web-common'
 import * as env from '@/interface/instance.resolver'
 
 @Catch()
@@ -14,11 +13,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse()
         const request = ctx.getRequest()
         const Result: env.Omix = {
-            requestId: request.headers[web.WEB_COMMON_HEADER_CONTEXTID],
+            requestId: request.headers.track,
             timestamp: utils.moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             url: request.url,
             method: request.method,
-            platform: request.headers[web.WEB_COMMON_HEADER_PLATFORM],
+            platform: request.headers.platform,
             code: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR
         }
         if (exception.response && Array.isArray(exception.response.message)) {

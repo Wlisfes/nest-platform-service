@@ -4,7 +4,6 @@ import { cloneDeep, concat, pick, omit } from 'lodash'
 import { isNotEmpty, isEmpty, isString, isNumber, isObject } from 'class-validator'
 import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import * as tree from 'tree-tool'
-import * as web from '@/config/web-common'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
 import * as timezone from 'dayjs/plugin/timezone'
@@ -54,10 +53,10 @@ export function fetchCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallb
 
 /**日志聚合**/
 export function fetchCompiler(headers: OmixHeaders = {}, log: Omix | string = {}) {
-    const duration = headers[web.WEB_COMMON_HEADER_STARTTIME]
+    const duration = headers.datetime ?? 0
     return {
         log,
         duration: fetchCaseWherer(isNotEmpty(duration), { value: `${Date.now() - Number(duration)}ms`, defaultValue: null }),
-        [web.WEB_COMMON_HEADER_CONTEXTID]: headers[web.WEB_COMMON_HEADER_CONTEXTID]
+        context: headers.context
     }
 }

@@ -4,7 +4,6 @@ import { applyDecorators, Type } from '@nestjs/common'
 import { Throttle, SkipThrottle } from '@nestjs/throttler'
 import { isEmpty, isNotEmpty, isNotEmptyObject } from 'class-validator'
 import { ApiGuardBearer, AuthGuardOption } from '@/guard/auth.guard'
-import * as web from '@/config/web-common'
 import * as thr from '@/config/web-throttle'
 
 export interface OptionDecorator {
@@ -63,7 +62,7 @@ export function ApiDecorator(option: Partial<OptionDecorator> = {}) {
     /**开启登录验证**/
     if (option.authorize && isNotEmptyObject(option.authorize)) {
         if (option.authorize.check) {
-            decorator.push(ApiBearerAuth(web.WEB_COMMON_HEADER_AUTHORIZE))
+            decorator.push(ApiBearerAuth('authorization'))
         }
         if (isNotEmpty(option.authorize.platform)) {
             decorator.push(ApiGuardBearer(option.authorize))
