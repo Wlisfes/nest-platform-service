@@ -91,7 +91,7 @@ export class SystemRouterService extends Logger {
                 await this.database.fetchSelection(qb, [
                     ['t', ['uid', 'pid', 'key', 'name', 'router', 'active', 'check', 'iconName', 'sort', 'type', 'status', 'version']],
                     ['t', ['keyId', 'id', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'nickname', 'status', 'id', 'system']]
+                    ['user', ['uid', 'name', 'status', 'id']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.keyId LIKE :vague OR t.key LIKE :vague OR t.name LIKE :vague OR t.router LIKE :vague`, {

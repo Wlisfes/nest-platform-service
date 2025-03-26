@@ -36,7 +36,7 @@ export class LoggerMiddleware implements NestMiddleware {
                     referer: headers.referer ?? '',
                     platform: headers.platform,
                     device: headers['user-agent'] ?? '',
-                    user: request.user ? utils.pick(request.user, ['nickname', 'uid']) : {}
+                    user: request.user ? utils.pick(request.user, ['name', 'uid']) : {}
                 }
             })
         })
