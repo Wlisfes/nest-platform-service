@@ -16,7 +16,7 @@ import { SystemModule } from '@web-system-service/modules/system/system.module'
 
 @Module({
     imports: [
-        LoggerModule.forRoot({ name: 'web-account-service' }),
+        LoggerModule.forRoot({ name: 'web-system-service' }),
         ConfigModule,
         ThrottlerModule,
         CommonModule,
