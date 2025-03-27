@@ -6,7 +6,7 @@ import { SystemRoleService } from '@web-system-service/modules/system/system-rol
 import * as field from '@web-system-service/interface/instance.resolver'
 
 @ApiTags('角色权限模块')
-@Controller('system/role')
+@Controller('role')
 export class SystemRoleController {
     constructor(private readonly systemRoleService: SystemRoleService) {}
 

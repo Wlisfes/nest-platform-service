@@ -1,3 +1,4 @@
+import { Omix } from '@/interface/global.resolver'
 import * as utils from '@/utils/utils-common'
 
 /**日期时间转换**/
@@ -14,4 +15,12 @@ export const ArrayStringTransform = {
     to: (s: Array<string>) => {
         return s.length === 0 ? null : s.join(',')
     }
+}
+
+/**Json字符串转换**/
+export const JsonStringTransform = {
+    from: (s: string) => {
+        return JSON.parse(s ?? '{}')
+    },
+    to: (s: Omix) => s
 }

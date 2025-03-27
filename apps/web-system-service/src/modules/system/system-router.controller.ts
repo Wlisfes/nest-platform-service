@@ -6,7 +6,7 @@ import { SystemRouterService } from '@web-system-service/modules/system/system-r
 import * as schemas from '@web-system-service/interface/router.resolver'
 
 @ApiTags('菜单资源模块')
-@Controller('system/router')
+@Controller('router')
 export class SystemRouterController {
     constructor(private readonly systemRouterService: SystemRouterService) {}
 
