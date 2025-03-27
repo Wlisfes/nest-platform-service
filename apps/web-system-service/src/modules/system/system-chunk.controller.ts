@@ -17,8 +17,8 @@ export class SystemChunkController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseColumnSystemDictType(@Request() request: OmixRequest) {
-        console.log(enums.SchemaDictTypeOptions)
+    public async httpBaseColumnSystemChunkType(@Request() request: OmixRequest) {
+        return Object.keys(enums.SCHEMA_CHUNK_OPTIONS).map(value => ({ name: enums.SCHEMA_CHUNK_OPTIONS[value], value }))
     }
 
     @Post('/create')
@@ -28,6 +28,6 @@ export class SystemChunkController {
         authorize: { check: true, platform: 'manager' }
     })
     public async httpBaseCreateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseCreateSystemChunk) {
-        // return await this.systemChunkService.httpBaseCreateSystemChunk(request, body)
+        return await this.systemChunkService.httpBaseCreateSystemChunk(request, body)
     }
 }

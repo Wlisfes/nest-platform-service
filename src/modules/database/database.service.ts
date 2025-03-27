@@ -19,6 +19,7 @@ export interface ConnectOption<T, U> extends Omix {
 export class DatabaseService extends Logger {
     constructor(
         private readonly dataSource: DataSource,
+        @InjectRepository(schema.SchemaChunk) public readonly schemaChunk: Repository<schema.SchemaChunk>,
         @InjectRepository(schema.SchemaUser) public readonly schemaUser: Repository<schema.SchemaUser>,
         @InjectRepository(schema.SchemaRouter) public readonly schemaRouter: Repository<schema.SchemaRouter>,
         @InjectRepository(schema.SchemaRole) public readonly schemaRole: Repository<schema.SchemaRole>

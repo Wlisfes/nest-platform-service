@@ -16,5 +16,24 @@ export class SystemChunkService extends Logger {
     }
 
     /**新增字典**/
-    public async httpBaseCreateSystemChunk(request: OmixRequest, body: field.BaseCreateSystemChunk) {}
+    public async httpBaseCreateSystemChunk(request: OmixRequest, body: field.BaseCreateSystemChunk) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.database.fetchConnectNull(this.database.schemaChunk, {
+                message: `value:${body.name} 已存在`,
+                dispatch: { where: { value: body.value, type: body.type } }
+            })
+            // await this.database.fetchConnectCreate(this.database.schemaRole, {
+            //     body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
+            // })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '新增成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler('SystemChunkService:httpBaseCreateSystemChunk', err)
+        } finally {
+            await ctx.release()
+        }
+    }
 }

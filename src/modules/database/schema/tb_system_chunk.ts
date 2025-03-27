@@ -1,10 +1,11 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsNotEmpty, Max, IsObject } from 'class-validator'
+import { IsNotEmpty, Length, IsEnum } from 'class-validator'
 import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import { JsonStringTransform } from '@/utils/utils-schema'
+import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_chunk', comment: '字典配置表' })
 export class SchemaChunk extends DatabaseAdapter {
@@ -13,18 +14,22 @@ export class SchemaChunk extends DatabaseAdapter {
     @Column({ name: 'key_id', comment: '唯一ID', length: 19, nullable: false })
     keyId: string
 
-    @ApiProperty({ description: '字典类型', example: '管理员' })
+    @ApiProperty({ description: '字典类型', enum: Object.keys(enums.SCHEMA_CHUNK_OPTIONS) })
     @IsNotEmpty({ message: '字典类型必填' })
+    @Length(0, 32, { message: '字典类型不能超过32个字符' })
+    @IsEnum(Object.keys(enums.SCHEMA_CHUNK_OPTIONS), { message: '字典类型格式错误' })
     @Column({ comment: '字典类型', length: 32, nullable: false })
     type: string
 
-    @ApiProperty({ description: '字典名称', example: '账号状态' })
+    @ApiProperty({ description: '字典名称', example: '用户账号状态' })
     @IsNotEmpty({ message: '字典名称必填' })
+    @Length(0, 32, { message: '字典名称不能超过32个字符' })
     @Column({ comment: '字典名称', length: 32, nullable: false })
     name: string
 
     @ApiProperty({ description: '字典值', example: 'enable' })
     @IsNotEmpty({ message: '字典值必填' })
+    @Length(0, 32, { message: '字典值不能超过32个字符' })
     @Column({ comment: '字典值名称', length: 32, nullable: false })
     value: string
 
@@ -40,14 +45,13 @@ export class SchemaChunk extends DatabaseAdapter {
     pid: string
 
     @ApiProperty({ description: '字典备注', required: false })
-    @IsOptional()
-    @Max(255, { message: '字典备注不能超过255个字符' })
+    @IsOptional({}, { string: true, number: true })
+    @Length(0, 255, { message: '字典备注不能超过255个字符' })
     @Column({ comment: '字典备注', length: 255, nullable: true })
     comment: string
 
     @ApiProperty({ description: '字典其他配置', required: false, example: {} })
     @IsOptional()
-    @IsObject({ message: '字典其他配置必须为json格式' })
     @Column({ type: 'text', comment: '字典其他配置', nullable: true, transformer: JsonStringTransform })
     json: string
 }
