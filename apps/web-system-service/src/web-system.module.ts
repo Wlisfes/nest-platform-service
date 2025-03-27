@@ -19,10 +19,10 @@ import { SystemModule } from '@web-system-service/modules/system/system.module'
         LoggerModule.forRoot({ name: 'web-system-service' }),
         ConfigModule,
         ThrottlerModule,
-        CommonModule,
         JwtModule,
         RedisModule,
         DatabaseModule,
+        CommonModule,
         SystemModule
     ],
     providers: [

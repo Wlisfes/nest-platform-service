@@ -19,10 +19,10 @@ import { CommonCodexController } from '@web-common-service/controllers/codex.con
         LoggerModule.forRoot({ name: 'web-common-service' }),
         ConfigModule,
         ThrottlerModule,
-        CommonModule,
         JwtModule,
         RedisModule,
-        DatabaseModule
+        DatabaseModule,
+        CommonModule
     ],
     providers: [
         { provide: APP_GUARD, useClass: AuthGuard },

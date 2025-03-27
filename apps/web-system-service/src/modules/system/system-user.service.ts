@@ -1,4 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import { compareSync } from 'bcryptjs'
 import { Logger } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
@@ -16,6 +17,7 @@ import * as utils from '@/utils/utils-common'
 @Injectable()
 export class SystemUserService extends Logger {
     constructor(
+        private readonly httpService: HttpService,
         private readonly jwtService: JwtService,
         private readonly redisService: RedisService,
         private readonly codexService: CodexService,
