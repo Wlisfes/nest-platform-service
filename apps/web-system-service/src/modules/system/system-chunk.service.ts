@@ -10,8 +10,11 @@ import * as plugin from '@/utils/utils-plugin'
 import * as utils from '@/utils/utils-common'
 
 @Injectable()
-export class SystemDictService extends Logger {
+export class SystemChunkService extends Logger {
     constructor(private readonly database: DatabaseService) {
         super()
     }
+
+    /**新增字典**/
+    public async httpBaseCreateSystemChunk(request: OmixRequest, body: field.BaseCreateSystemChunk) {}
 }

@@ -6,8 +6,8 @@ import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import { JsonStringTransform } from '@/utils/utils-schema'
 
-@Entity({ name: 'tb_system_dict', comment: '字典配置表' })
-export class SchemaDict extends DatabaseAdapter {
+@Entity({ name: 'tb_system_chunk', comment: '字典配置表' })
+export class SchemaChunk extends DatabaseAdapter {
     @ApiProperty({ description: 'ID', example: '2280241553538613248' })
     @IsNotEmpty({ message: 'ID必填' })
     @Column({ name: 'key_id', comment: '唯一ID', length: 19, nullable: false })
@@ -18,12 +18,12 @@ export class SchemaDict extends DatabaseAdapter {
     @Column({ comment: '字典类型', length: 32, nullable: false })
     type: string
 
-    @ApiProperty({ description: '字典名称', example: '管理员' })
+    @ApiProperty({ description: '字典名称', example: '账号状态' })
     @IsNotEmpty({ message: '字典名称必填' })
     @Column({ comment: '字典名称', length: 32, nullable: false })
     name: string
 
-    @ApiProperty({ description: '字典值', example: '管理员' })
+    @ApiProperty({ description: '字典值', example: 'enable' })
     @IsNotEmpty({ message: '字典值必填' })
     @Column({ comment: '字典值名称', length: 32, nullable: false })
     value: string
@@ -39,13 +39,13 @@ export class SchemaDict extends DatabaseAdapter {
     @Column({ comment: '上级ID', length: 19, nullable: true })
     pid: string
 
-    @ApiProperty({ description: '字典备注' })
+    @ApiProperty({ description: '字典备注', required: false })
     @IsOptional()
     @Max(255, { message: '字典备注不能超过255个字符' })
     @Column({ comment: '字典备注', length: 255, nullable: true })
     comment: string
 
-    @ApiProperty({ description: '字典其他配置' })
+    @ApiProperty({ description: '字典其他配置', required: false, example: {} })
     @IsOptional()
     @IsObject({ message: '字典其他配置必须为json格式' })
     @Column({ type: 'text', comment: '字典其他配置', nullable: true, transformer: JsonStringTransform })
