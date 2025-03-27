@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, HttpExceptionOptions } from '@nestjs/common'
-import { Omix } from '@/interface/instance.resolver'
+import { Omix, OmixHeaders } from '@/interface/instance.resolver'
 import { create } from 'svg-captcha'
 import * as utils from '@/utils/utils-common'
 
@@ -9,6 +9,16 @@ export async function fetchCommonCodexer({ width, height, preset }: Omix<{ width
         const charPreset = preset ?? `ABCDEFGHJKLMNPQRSTUVWXYZ123456789`
         return Object.assign(node, create({ width, height, charPreset, fontSize: 40, size: 4, color: true, noise: 2, inverse: true }))
     })
+}
+
+/**日志聚合**/
+export function fetchCompiler(headers: OmixHeaders = {}, log: Omix | string = {}) {
+    const duration = headers.datetime ?? 0
+    return {
+        log,
+        duration: utils.fetchCaseWherer(utils.isNotEmpty(duration), { value: `${Date.now() - Number(duration)}ms`, defaultValue: null }),
+        context: headers.context
+    }
 }
 
 /**条件捕获、异常抛出**/

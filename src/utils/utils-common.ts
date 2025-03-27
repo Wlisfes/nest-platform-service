@@ -2,7 +2,7 @@ import { snowflakeId } from 'snowflake-id-maker'
 import { zh_CN, Faker } from '@faker-js/faker'
 import { cloneDeep, concat, pick, omit } from 'lodash'
 import { isNotEmpty, isEmpty, isString, isNumber, isObject } from 'class-validator'
-import { Omix, OmixHeaders } from '@/interface/instance.resolver'
+import { Omix } from '@/interface/instance.resolver'
 import * as tree from 'tree-tool'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
@@ -51,12 +51,12 @@ export function fetchCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallb
     return scope.fallback ?? scope.defaultValue
 }
 
-/**日志聚合**/
-export function fetchCompiler(headers: OmixHeaders = {}, log: Omix | string = {}) {
-    const duration = headers.datetime ?? 0
-    return {
-        log,
-        duration: fetchCaseWherer(isNotEmpty(duration), { value: `${Date.now() - Number(duration)}ms`, defaultValue: null }),
-        context: headers.context
-    }
+/**字节转换文字输出**/
+export async function fetchBytefor(byte: number, dec: number = 2) {
+    if (byte === 0) return 'Byte'
+    const k = 1024
+    const dm = dec < 0 ? 0 : dec
+    const sizes = ['Byte', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    const i = Math.floor(Math.log(byte) / Math.log(k))
+    return parseFloat((byte / Math.pow(k, i)).toFixed(dm)) + sizes[i]
 }

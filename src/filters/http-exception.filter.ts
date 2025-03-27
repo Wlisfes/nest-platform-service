@@ -2,6 +2,7 @@ import { Inject, ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nest
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger } from 'winston'
 import * as utils from '@/utils/utils-common'
+import * as plugin from '@/utils/utils-plugin'
 import * as env from '@/interface/instance.resolver'
 
 @Catch()
@@ -13,7 +14,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse()
         const request = ctx.getRequest()
         const Result: env.Omix = {
-            requestId: request.headers.track,
+            context: request.headers.context,
             timestamp: utils.moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             url: request.url,
             method: request.method,
@@ -26,7 +27,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             Result.message = exception.message
         }
         Result.data = exception.options ?? null
-        this.logger.error(HttpExceptionFilter.name, utils.fetchCompiler(request.headers, Result))
+        this.logger.error(HttpExceptionFilter.name, plugin.fetchCompiler(request.headers, Result))
         response.status(HttpStatus.OK)
         response.header('Content-Type', 'application/json; charset=utf-8')
         response.send(Result)
