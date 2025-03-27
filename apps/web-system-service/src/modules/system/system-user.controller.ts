@@ -30,6 +30,16 @@ export class SystemUserController {
         return await this.systemUserService.httpBaseCreateSystemUserAuthorize(request, body)
     }
 
+    @Post('/column')
+    @ApiDecorator({
+        operation: { summary: '用户账号列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseColumnSystemUser(@Request() request: OmixRequest, @Body() body: field.BaseColumnSystemUser) {
+        return this.systemUserService.httpBaseColumnSystemUser(request, body)
+    }
+
     @Post('/update/switch')
     @ApiDecorator({
         operation: { summary: '编辑账号状态' },

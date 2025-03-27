@@ -94,6 +94,52 @@ export class SystemUserService extends Logger {
         }
     }
 
+    /**用户账号列表**/
+    public async httpBaseColumnSystemUser(request: OmixRequest, body: field.BaseColumnSystemUser) {
+        try {
+            return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
+                    return qb.where(`t.number LIKE :vague OR t.phone LIKE :vague OR t.email LIKE :vague OR t.name LIKE :vague`, {
+                        vague: `%${body.vague}%`
+                    })
+                })
+                await this.database.fetchBrackets(utils.isNotEmpty(body.number), () => {
+                    return qb.andWhere('t.number = :number', { number: body.number })
+                })
+                await this.database.fetchBrackets(utils.isNotEmpty(body.phone), () => {
+                    return qb.andWhere('t.phone = :phone', { phone: body.phone })
+                })
+                await this.database.fetchBrackets(utils.isNotEmpty(body.email), () => {
+                    return qb.andWhere('t.email = :email', { email: body.email })
+                })
+                await this.database.fetchBrackets(utils.isNotEmpty(body.name), () => {
+                    return qb.andWhere('t.name = :name', { name: body.name })
+                })
+                await this.database.fetchBrackets(utils.isNotEmpty(body.status), () => {
+                    return qb.andWhere('t.status = :status', { status: body.status })
+                })
+                await this.database.fetchBrackets(utils.isNotEmpty(body.startTime) && utils.isNotEmpty(body.endTime)).then(async where => {
+                    if (where) {
+                        return qb.andWhere('t.createTime >= :startTime AND t.createTime <= :endTime', {
+                            startTime: body.startTime,
+                            endTime: body.endTime
+                        })
+                    } else if (utils.isNotEmpty(body.startTime)) {
+                        qb.andWhere('t.createTime >= :startTime', { startTime: body.startTime })
+                    } else if (utils.isNotEmpty(body.endTime)) {
+                        qb.andWhere('t.createTime <= :endTime', { endTime: body.endTime })
+                    }
+                })
+
+                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                    return await this.fetchResolver({ message: '操作成功', total, list })
+                })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler('SystemUserService:httpBaseColumnSystemUser', err)
+        }
+    }
+
     /**编辑账号状态**/
     public async httpBaseUpdateSwitchSystemUser(request: OmixRequest, body: field.BaseSwitchSystemUser) {
         const ctx = await this.database.fetchConnectTransaction()
@@ -125,7 +171,7 @@ export class SystemUserService extends Logger {
                 dispatch: { where: { uid: request.user.uid } }
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('UserService:httpCommonUserResolver', err)
+            return await this.fetchCatchCompiler('UserService:httpBaseSystemUserResolver', err)
         }
     }
 }
