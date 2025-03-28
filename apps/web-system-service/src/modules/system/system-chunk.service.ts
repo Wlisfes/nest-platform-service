@@ -104,9 +104,9 @@ export class SystemChunkService extends Logger {
                         message: '操作成功',
                         total,
                         list: list.map(item => ({
-                            typeChunk: utils.fetchColumn(enums.SCHEMA_CHUNK_OPTIONS, item.type),
-                            statusChunk: utils.fetchColumn(enums.SCHEMA_CHUNK_STATUS_OPTIONS, item.status),
-                            ...item
+                            ...item,
+                            type: utils.fetchColumn(enums.SCHEMA_CHUNK_OPTIONS, item.type),
+                            status: utils.fetchColumn(enums.SCHEMA_CHUNK_STATUS_OPTIONS, item.status)
                         }))
                     })
                 })

@@ -137,6 +137,13 @@ export class SystemRoleService extends Logger {
     public async httpBaseColumnSystemRole(request: OmixRequest, body: field.BaseColumnSystemRole) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
+                await qb.leftJoinAndMapOne('t.status', schema.SchemaChunk, 'status', `status.value = t.status AND status.type = :type`, {
+                    type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value
+                })
+                await this.database.fetchSelection(qb, [
+                    ['t', ['id', 'keyId', 'name', 'uid', 'uids', 'auxs', 'status', 'createTime', 'modifyTime']],
+                    ['status', ['name', 'value', 'json']]
+                ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.keyId LIKE :vague OR t.name LIKE :vague`, { vague: `%${body.vague}%` })
                 })
@@ -149,6 +156,9 @@ export class SystemRoleService extends Logger {
                 await this.database.fetchBrackets(utils.isNotEmpty(body.uid), () => {
                     return qb.andWhere('t.uid = :uid', { uid: body.uid })
                 })
+                await qb.orderBy({ 't.id': 'DESC' })
+                await qb.offset((body.page - 1) * body.size)
+                await qb.limit(body.size)
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return await this.fetchResolver({ message: '操作成功', total, list })
                 })

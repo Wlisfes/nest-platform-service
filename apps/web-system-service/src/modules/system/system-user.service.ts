@@ -98,16 +98,12 @@ export class SystemUserService extends Logger {
     public async httpBaseColumnSystemUser(request: OmixRequest, body: field.BaseColumnSystemUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
-                await qb.leftJoinAndMapOne(
-                    't.statusChunk',
-                    schema.SchemaChunk,
-                    'statusChunk',
-                    `statusChunk.value = t.status AND statusChunk.type = :type`,
-                    { type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
-                )
+                await qb.leftJoinAndMapOne('t.status', schema.SchemaChunk, 'status', `status.value = t.status AND status.type = :type`, {
+                    type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value
+                })
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']],
-                    ['statusChunk', ['name', 'value', 'json']]
+                    ['status', ['name', 'value', 'json']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.number LIKE :vague OR t.phone LIKE :vague OR t.email LIKE :vague OR t.name LIKE :vague`, {

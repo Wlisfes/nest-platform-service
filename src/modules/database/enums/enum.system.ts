@@ -9,9 +9,3 @@ export enum SchemaSystemRouter_Status {
     enable = 'enable', //启用
     disable = 'disable' //禁用
 }
-
-/**角色权限状态**/
-export enum SchemaSystemRole_Status {
-    enable = 'enable', //启用
-    disable = 'disable' //禁用
-}

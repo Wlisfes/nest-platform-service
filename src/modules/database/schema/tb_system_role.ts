@@ -1,10 +1,9 @@
 import { Entity, Column } from 'typeorm'
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber, IsEnum, IsString, IsArray, IsOptional } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { IsNotEmpty, Length, IsString, IsArray, IsOptional } from 'class-validator'
 import { Type } from 'class-transformer'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import { ArrayStringTransform } from '@/utils/utils-schema'
-import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_role', comment: '角色权限配置表' })
 export class SchemaRole extends DatabaseAdapter {
@@ -39,13 +38,9 @@ export class SchemaRole extends DatabaseAdapter {
     @Column({ type: 'text', nullable: true, transformer: ArrayStringTransform })
     auxs: string[]
 
-    @ApiProperty({
-        description: '状态: 禁用-disable、启用-enable',
-        enum: enums.SchemaSystemRole_Status,
-        example: enums.SchemaSystemRole_Status.enable
-    })
+    @ApiProperty({ description: '状态: 禁用-disable、启用-enable' })
     @IsNotEmpty({ message: '状态必填' })
-    @IsEnum(enums.SchemaSystemRole_Status, { message: '状态参数格式错误' })
-    @Column({ comment: '状态: 禁用-disable、启用-enable', default: enums.SchemaSystemRole_Status.enable, nullable: false })
+    @Length(0, 32, { message: '账号状态不能超过32个字符' })
+    @Column({ comment: '状态: 禁用-disable、启用-enable', nullable: false })
     status: string
 }
