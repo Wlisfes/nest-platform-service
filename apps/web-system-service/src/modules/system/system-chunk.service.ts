@@ -28,6 +28,26 @@ export class SystemChunkService extends Logger {
         }
     }
 
+    /**查询字典类型列表**/
+    public async httpBaseChaxunSystemChunk<T extends schema.SchemaChunk, K extends keyof T>(
+        request: OmixRequest,
+        body: field.BaseChaxunSystemChunk<T, K>
+    ) {
+        try {
+            const keys = Object.keys(utils.omit(body, ['field'])) as Array<keyof typeof enums.SCHEMA_CHUNK_OPTIONS>
+            return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
+                await qb.where(`t.type IN(:keys)`, { keys })
+                return await qb.getMany().then(async list => {
+                    console.log(list)
+
+                    return list
+                })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler('SystemChunkService:httpBaseChaxunSystemChunk', err)
+        }
+    }
+
     /**新增字典**/
     public async httpBaseCreateSystemChunk(request: OmixRequest, body: field.BaseCreateSystemChunk) {
         const ctx = await this.database.fetchConnectTransaction()

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Logger } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
+import { SystemChunkService } from '@web-system-service/modules/system/system-chunk.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/router.resolver'
 import * as schema from '@/modules/database/database.schema'
@@ -10,7 +11,7 @@ import * as utils from '@/utils/utils-common'
 
 @Injectable()
 export class SystemRouterService extends Logger {
-    constructor(private readonly database: DatabaseService) {
+    constructor(private readonly database: DatabaseService, private readonly systemChunkService: SystemChunkService) {
         super()
     }
 
@@ -86,12 +87,28 @@ export class SystemRouterService extends Logger {
     /**菜单资源列表**/
     public async httpBaseColumnSystemRouter(request: OmixRequest, body: field.BaseColumnSystemRouter) {
         try {
+            await this.systemChunkService.httpBaseChaxunSystemChunk(request, {
+                COMMON_SYSTEM_ROLE_STATUS: true,
+                field: ['comment']
+            })
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
+                await qb.leftJoinAndMapOne('t.type', schema.SchemaChunk, 'type', `type.value = t.type AND type.type = :type`, {
+                    type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_TYPE.value
+                })
+                // await qb.leftJoinAndMapOne(
+                //     't.statusChunk',
+                //     schema.SchemaChunk,
+                //     'statusChunk',
+                //     `statusChunk.value = t.status AND statusChunk.type = :type`,
+                //     { type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_STATUS.value }
+                // )
                 await this.database.fetchSelection(qb, [
                     ['t', ['uid', 'pid', 'key', 'name', 'router', 'active', 'check', 'iconName', 'sort', 'type', 'status', 'version']],
                     ['t', ['keyId', 'id', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'name', 'status', 'id']]
+                    ['user', ['uid', 'name', 'status', 'id']],
+                    ['type', ['name', 'value', 'json']]
+                    // ['statusChunk', ['name', 'value', 'json']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.keyId LIKE :vague OR t.key LIKE :vague OR t.name LIKE :vague OR t.router LIKE :vague`, {

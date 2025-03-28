@@ -9,6 +9,11 @@ export class BaseUpdateRedisSystemChunk {
     value: string
 }
 
+/**查询字典类型列表**/
+export interface BaseChaxunSystemChunk<T, K extends keyof T> extends Partial<Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, boolean>> {
+    field?: Array<K>
+}
+
 /**新增字典**/
 export class BaseCreateSystemChunk extends PickType(SchemaChunk, ['type', 'name', 'value', 'pid', 'comment', 'json']) {}
 
