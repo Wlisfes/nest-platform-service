@@ -30,4 +30,34 @@ export class SystemChunkController {
     public async httpBaseCreateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseCreateSystemChunk) {
         return await this.systemChunkService.httpBaseCreateSystemChunk(request, body)
     }
+
+    @Post('/column')
+    @ApiDecorator({
+        operation: { summary: '字典列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseColumnSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseColumnSystemChunk) {
+        return this.systemChunkService.httpBaseColumnSystemChunk(request, body)
+    }
+
+    @Post('/update')
+    @ApiDecorator({
+        operation: { summary: '编辑字典' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseUpdateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemChunk) {
+        return await this.systemChunkService.httpBaseUpdateSystemChunk(request, body)
+    }
+
+    @Post('/update/switch')
+    @ApiDecorator({
+        operation: { summary: '编辑编辑字典' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseUpdateSwitchSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseSwitchSystemChunk) {
+        return await this.systemChunkService.httpBaseUpdateSwitchSystemChunk(request, body)
+    }
 }

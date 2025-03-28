@@ -26,7 +26,14 @@ export class SchemaChunk extends DatabaseAdapter {
     @Column({ comment: '字典类型', length: 32, nullable: false })
     type: string
 
-    @ApiProperty({ description: '字典名称', example: '用户账号状态' })
+    @ApiProperty({ description: '字典状态', enum: Object.keys(enums.SCHEMA_CHUNK_STATUS_OPTIONS) })
+    @IsNotEmpty({ message: '字典状态必填' })
+    @Length(0, 32, { message: '字典状态不能超过32个字符' })
+    @IsEnum(Object.keys(enums.SCHEMA_CHUNK_STATUS_OPTIONS), { message: '字典状态格式错误' })
+    @Column({ comment: '字典状态', length: 32, nullable: false })
+    status: string
+
+    @ApiProperty({ description: '字典名称', example: '账号状态' })
     @IsNotEmpty({ message: '字典名称必填' })
     @Length(0, 32, { message: '字典名称不能超过32个字符' })
     @Column({ comment: '字典名称', length: 32, nullable: false })

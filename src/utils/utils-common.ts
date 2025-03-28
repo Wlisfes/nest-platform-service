@@ -29,6 +29,14 @@ export async function fetchIntNumber(scope: Partial<Omix<{ worker: number; epoch
     })
 }
 
+/**对象、列表转换回显**/
+export function fetchColumn(data: Array<Omix> | Omix, value: any) {
+    if (Array.isArray(data)) {
+        return data.find(item => item.value == value) ?? null
+    }
+    return data[value] ?? null
+}
+
 /**参数组合**/
 export async function fetchParameter<T>(params: Omix<T>): Promise<Omix<T>> {
     return params
