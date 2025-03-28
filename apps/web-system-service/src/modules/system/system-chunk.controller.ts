@@ -18,7 +18,7 @@ export class SystemChunkController {
         authorize: { check: true, platform: 'manager' }
     })
     public async httpBaseColumnSystemChunkType(@Request() request: OmixRequest) {
-        return Object.keys(enums.SCHEMA_CHUNK_OPTIONS).map(value => ({ name: enums.SCHEMA_CHUNK_OPTIONS[value], value }))
+        return Object.values(enums.SCHEMA_CHUNK_OPTIONS)
     }
 
     @Post('/create')
@@ -53,7 +53,7 @@ export class SystemChunkController {
 
     @Post('/update/switch')
     @ApiDecorator({
-        operation: { summary: '编辑编辑字典' },
+        operation: { summary: '编辑字典状态' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })

@@ -83,8 +83,8 @@ export class SystemUserService extends Logger {
                         throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
                     } else if (!compareSync(body.password, node.password)) {
                         throw new HttpException(`账号密码不正确`, HttpStatus.BAD_REQUEST)
-                    } else if (node.status === enums.SchemaUser_Status.disable) {
-                        throw new HttpException(`账号已被禁用`, HttpStatus.BAD_REQUEST)
+                    } else if (['disable'].includes(node.status)) {
+                        throw new HttpException(`账号已被禁用`, HttpStatus.FORBIDDEN)
                     }
                     return await this.jwtService.fetchJwtTokenSecret(utils.pick(node, ['uid', 'number', 'name', 'status']))
                 })
@@ -98,6 +98,17 @@ export class SystemUserService extends Logger {
     public async httpBaseColumnSystemUser(request: OmixRequest, body: field.BaseColumnSystemUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                await qb.leftJoinAndMapOne(
+                    't.statusChunk',
+                    schema.SchemaChunk,
+                    'statusChunk',
+                    `statusChunk.value = t.status AND statusChunk.type = :type`,
+                    { type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
+                )
+                await this.database.fetchSelection(qb, [
+                    ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']],
+                    ['statusChunk', ['name', 'value', 'json']]
+                ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.number LIKE :vague OR t.phone LIKE :vague OR t.email LIKE :vague OR t.name LIKE :vague`, {
                         vague: `%${body.vague}%`
@@ -130,7 +141,9 @@ export class SystemUserService extends Logger {
                         qb.andWhere('t.createTime <= :endTime', { endTime: body.endTime })
                     }
                 })
-
+                await qb.orderBy({ 't.id': 'DESC' })
+                await qb.offset((body.page - 1) * body.size)
+                await qb.limit(body.size)
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return await this.fetchResolver({ message: '操作成功', total, list })
                 })

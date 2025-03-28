@@ -5,14 +5,12 @@ import { IsOptional, IsDateCustomize } from '@/decorator/common.decorator'
 
 export class OmixColumn {
     @ApiProperty({ description: '分页数', required: false, example: 1 })
-    @IsOptional()
     @IsNumber({}, { message: 'page必须是数字' })
-    @Min(0, { message: 'page必须大于或等于0' })
+    @Min(1, { message: 'page必须大于或等于0' })
     @Type(type => Number)
     page: number = 1
 
     @ApiProperty({ description: '分页数量', required: false, example: 20 })
-    @IsOptional()
     @IsNumber({}, { message: 'size必须是数字' })
     @Min(1, { message: 'size必须大于0' })
     @Type(type => Number)

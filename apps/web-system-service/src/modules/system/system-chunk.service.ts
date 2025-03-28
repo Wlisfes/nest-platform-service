@@ -96,13 +96,16 @@ export class SystemChunkService extends Logger {
                         qb.andWhere('t.modifyTime <= :endTime', { endTime: body.endTime })
                     }
                 })
+                await qb.orderBy({ 't.id': 'DESC' })
+                await qb.offset((body.page - 1) * body.size)
+                await qb.limit(body.size)
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return await this.fetchResolver({
                         message: '操作成功',
                         total,
                         list: list.map(item => ({
-                            typeStr: utils.fetchColumn(enums.SCHEMA_CHUNK_OPTIONS, item.type),
-                            statusStr: utils.fetchColumn(enums.SCHEMA_CHUNK_STATUS_OPTIONS, item.status),
+                            typeChunk: utils.fetchColumn(enums.SCHEMA_CHUNK_OPTIONS, item.type),
+                            statusChunk: utils.fetchColumn(enums.SCHEMA_CHUNK_STATUS_OPTIONS, item.status),
                             ...item
                         }))
                     })
