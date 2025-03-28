@@ -22,5 +22,7 @@ export const JsonStringTransform = {
     from: (s: string) => {
         return JSON.parse(s ?? '{}')
     },
-    to: (s: Omix) => s
+    to: (s: Omix) => {
+        return s ? JSON.stringify(s) : null
+    }
 }

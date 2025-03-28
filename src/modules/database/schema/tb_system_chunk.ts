@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsNotEmpty, Length, IsEnum } from 'class-validator'
+import { IsNotEmpty, Length, IsEnum, IsObject } from 'class-validator'
 import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import { JsonStringTransform } from '@/utils/utils-schema'
@@ -13,6 +13,11 @@ export class SchemaChunk extends DatabaseAdapter {
     @IsNotEmpty({ message: 'ID必填' })
     @Column({ name: 'key_id', comment: '唯一ID', length: 19, nullable: false })
     keyId: string
+
+    @ApiProperty({ description: '用户UID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: '用户UID必填' })
+    @Column({ comment: '用户UID', length: 19, nullable: false })
+    uid: string
 
     @ApiProperty({ description: '字典类型', enum: Object.keys(enums.SCHEMA_CHUNK_OPTIONS) })
     @IsNotEmpty({ message: '字典类型必填' })
@@ -52,6 +57,7 @@ export class SchemaChunk extends DatabaseAdapter {
 
     @ApiProperty({ description: '字典其他配置', required: false, example: {} })
     @IsOptional()
+    @IsObject({ message: '其他配置必须为json格式' })
     @Column({ type: 'text', comment: '字典其他配置', nullable: true, transformer: JsonStringTransform })
     json: string
 }
