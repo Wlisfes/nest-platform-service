@@ -1,10 +1,9 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber, IsEnum } from 'class-validator'
+import { IsNotEmpty, IsNumber, Length } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
-import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_router', comment: '菜单资源配置表' })
 export class SchemaRouter extends DatabaseAdapter {
@@ -48,24 +47,16 @@ export class SchemaRouter extends DatabaseAdapter {
     @Column({ comment: '是否可见', default: true, nullable: false })
     check: boolean
 
-    @ApiProperty({
-        description: '类型: 菜单-router、按钮-button',
-        enum: enums.SchemaSystemRouter_Type,
-        example: enums.SchemaSystemRouter_Type.router
-    })
+    @ApiProperty({ description: '类型: 菜单-router、按钮-button' })
     @IsNotEmpty({ message: '类型必填' })
-    @IsEnum(enums.SchemaSystemRouter_Type, { message: '类型参数格式错误' })
-    @Column({ comment: '类型: 菜单-router、按钮-button', length: 64, default: enums.SchemaSystemRouter_Type.router, nullable: false })
+    @Length(0, 32, { message: '类型不能超过32个字符' })
+    @Column({ comment: '类型: 菜单-router、按钮-button', length: 32, nullable: false })
     type: string
 
-    @ApiProperty({
-        description: '状态: 禁用-disable、启用-enable',
-        enum: enums.SchemaSystemRouter_Status,
-        example: enums.SchemaSystemRouter_Status.enable
-    })
+    @ApiProperty({ description: '状态: 禁用-disable、启用-enable' })
     @IsNotEmpty({ message: '状态必填' })
-    @IsEnum(enums.SchemaSystemRouter_Status, { message: '状态参数格式错误' })
-    @Column({ comment: '状态: 禁用-disable、启用-enable', default: enums.SchemaSystemRouter_Status.enable, nullable: false })
+    @Length(0, 32, { message: '状态不能超过32个字符' })
+    @Column({ comment: '状态: 禁用-disable、启用-enable', nullable: false })
     status: string
 
     @ApiProperty({ description: '版本号', example: 'v1.0.0' })
