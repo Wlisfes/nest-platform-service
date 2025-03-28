@@ -7,7 +7,6 @@ import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
-import * as plugin from '@/utils/utils-plugin'
 import * as utils from '@/utils/utils-common'
 
 @Injectable()
@@ -29,22 +28,26 @@ export class SystemChunkService extends Logger {
     }
 
     /**查询字典类型列表**/
-    public async httpBaseChaxunSystemChunk<T extends schema.SchemaChunk, K extends keyof T>(
-        request: OmixRequest,
-        body: field.BaseChaxunSystemChunk<T, K>
-    ) {
+    public async httpBaseChaxunSystemChunk<
+        T extends schema.SchemaChunk,
+        K extends keyof T,
+        R extends Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, Array<T>>
+    >(request: OmixRequest, body: field.BaseChaxunSystemChunk<T, K>): Promise<Omix<R>> {
         try {
-            const keys = Object.keys(utils.omit(body, ['field'])) as Array<keyof typeof enums.SCHEMA_CHUNK_OPTIONS>
+            const keys = Object.keys(utils.omit(body, ['field'])) as Array<keyof R>
+            const chunk = Object.keys(enums.SCHEMA_CHUNK_OPTIONS).reduce((o, k) => ({ ...o, [k]: [] }), {}) as Omix<R>
             return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
                 await qb.where(`t.type IN(:keys)`, { keys })
+                await this.database.fetchSelection(qb, [
+                    ['t', [...new Set(['type', 'name', 'value', 'json', ...((body.field ?? []) as Array<string>)])]]
+                ])
                 return await qb.getMany().then(async list => {
-                    console.log(list)
-
-                    return list
+                    list.forEach(item => chunk[item.type].push(item))
+                    return chunk
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemChunkService:httpBaseChaxunSystemChunk', err)
+            return (await this.fetchCatchCompiler('SystemChunkService:httpBaseChaxunSystemChunk', err)) as never as Omix<R>
         }
     }
 

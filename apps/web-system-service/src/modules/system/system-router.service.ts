@@ -87,28 +87,16 @@ export class SystemRouterService extends Logger {
     /**菜单资源列表**/
     public async httpBaseColumnSystemRouter(request: OmixRequest, body: field.BaseColumnSystemRouter) {
         try {
-            await this.systemChunkService.httpBaseChaxunSystemChunk(request, {
-                COMMON_SYSTEM_ROLE_STATUS: true,
-                field: ['comment']
+            const chunk = await this.systemChunkService.httpBaseChaxunSystemChunk(request, {
+                COMMON_SYSTEM_ROUTER_TYPE: true,
+                COMMON_SYSTEM_ROUTER_STATUS: true
             })
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
-                await qb.leftJoinAndMapOne('t.type', schema.SchemaChunk, 'type', `type.value = t.type AND type.type = :type`, {
-                    type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_TYPE.value
-                })
-                // await qb.leftJoinAndMapOne(
-                //     't.statusChunk',
-                //     schema.SchemaChunk,
-                //     'statusChunk',
-                //     `statusChunk.value = t.status AND statusChunk.type = :type`,
-                //     { type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_STATUS.value }
-                // )
                 await this.database.fetchSelection(qb, [
                     ['t', ['uid', 'pid', 'key', 'name', 'router', 'active', 'check', 'iconName', 'sort', 'type', 'status', 'version']],
                     ['t', ['keyId', 'id', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'name', 'status', 'id']],
-                    ['type', ['name', 'value', 'json']]
-                    // ['statusChunk', ['name', 'value', 'json']]
+                    ['user', ['uid', 'name', 'status', 'id']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.keyId LIKE :vague OR t.key LIKE :vague OR t.name LIKE :vague OR t.router LIKE :vague`, {
@@ -143,10 +131,15 @@ export class SystemRouterService extends Logger {
                     }
                 })
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                    const node = list.map(item => ({
+                        ...item,
+                        type: utils.fetchColumn(chunk.COMMON_SYSTEM_ROUTER_TYPE, item.type),
+                        status: utils.fetchColumn(chunk.COMMON_SYSTEM_ROUTER_STATUS, item.status)
+                    }))
                     return await this.fetchResolver({
                         message: '操作成功',
                         total,
-                        list: utils.tree.fromList(list, { id: 'keyId', pid: 'pid' })
+                        list: utils.tree.fromList(node, { id: 'keyId', pid: 'pid' })
                     })
                 })
             })
