@@ -98,9 +98,9 @@ export class DatabaseService extends Logger {
     }
 
     /**创建数据模型**/
-    public async fetchConnectCreate<T>(model: Repository<T>, data: { body: DeepPartial<T> }) {
+    public async fetchConnectCreate<T>(model: Repository<T>, data: { body: DeepPartial<T> | Array<DeepPartial<T>> }) {
         const datetime = Date.now()
-        const state = await model.create(data.body)
+        const state = await model.create(data.body as Parameters<typeof model.create>['0'])
         return await model.save(state).then(async node => {
             this.logger.info(`${DatabaseService.name}:fetchConnectCreate`, {
                 duration: `${Date.now() - datetime}ms`,

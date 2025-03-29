@@ -1,5 +1,5 @@
 import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { OmixColumn } from '@/interface/instance.resolver'
+import { OmixColumn, OmixPayload } from '@/interface/instance.resolver'
 import { SchemaRouter } from '@/modules/database/database.schema'
 
 /**新增菜单**/
@@ -15,7 +15,7 @@ export class BaseUpdateSystemRouter extends IntersectionType(
 ) {}
 
 /**编辑菜单状态**/
-export class BaseStateSystemRouter extends PickType(SchemaRouter, ['keyId', 'status']) {}
+export class BaseStateSystemRouter extends IntersectionType(PickType(OmixPayload, ['keys']), PickType(SchemaRouter, ['status'])) {}
 
 /**菜单列表**/
 export class BaseColumnSystemRouter extends IntersectionType(

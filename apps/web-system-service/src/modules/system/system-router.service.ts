@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Not } from 'typeorm'
 import { Logger } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { SystemChunkService } from '@web-system-service/modules/system/system-chunk.service'
@@ -33,8 +34,10 @@ export class SystemRouterService extends Logger {
                     dispatch: { where: { keyId: body.pid } }
                 })
             })
-            await this.database.fetchConnectCreate(this.database.schemaRouter, {
-                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
+            await ctx.manager.getRepository(schema.SchemaRouter).save({
+                ...body,
+                keyId: await utils.fetchIntNumber(),
+                uid: request.user.uid
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '新增成功' })
@@ -55,24 +58,15 @@ export class SystemRouterService extends Logger {
                 message: `keyId:${body.keyId} 不存在`,
                 dispatch: { where: { keyId: body.keyId } }
             })
-            await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
-                qb.where(`(t.key = :key AND t.keyId != :keyId) OR (t.router = :router AND t.keyId != :keyId)`, { ...body })
-                return await qb.getOne().then(async node => {
-                    await plugin.fetchCatchWherer(node?.key === body.key, { message: `${body.key} 已存在` })
-                    await plugin.fetchCatchWherer(node?.key === body.key, { message: `${body.router} 已存在` })
-                    if (utils.isNotEmpty(body.pid)) {
-                        await plugin.fetchCatchWherer(body.pid === body.keyId, { message: `keyId与pid不可相等` })
-                        return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                            message: `${body.pid} 不存在`,
-                            dispatch: { where: { pid: body.pid } }
-                        })
-                    }
-                })
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
+                message: `key:${body.key} 已存在`,
+                dispatch: { where: { key: body.key, keyId: Not(body.keyId) } }
             })
-            await this.database.fetchConnectUpdate(this.database.schemaRouter, {
-                where: { keyId: body.keyId },
-                body: Object.assign(body, { uid: request.user.uid })
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
+                message: `router:${body.router} 已存在`,
+                dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
             })
+            await ctx.manager.getRepository(schema.SchemaRouter).update({ keyId: body.keyId }, { ...body, uid: request.user.uid })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })
@@ -93,7 +87,24 @@ export class SystemRouterService extends Logger {
                 value: body.status,
                 message: `status:${body.status} 格式错误`
             })
-            console.log(body)
+            const items = await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
+                await qb.where(`t.keyId IN(:keys)`, { keys: body.keys })
+                await this.database.fetchSelection(qb, [['t', ['id', 'keyId']]])
+                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                    if (body.keys.length !== total) {
+                        throw new HttpException('keyId不存在', HttpStatus.BAD_REQUEST, {
+                            cause: body.keys.filter(key => !list.some(k => k.keyId == key))
+                        })
+                    }
+                    return list.map(item => ({ id: item.id, status: body.status }))
+                })
+            })
+            /**事务批量更新**/
+            await ctx.manager.getRepository(schema.SchemaRouter).save(items)
+            /**提交事务**/
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRouterService:httpBaseUpdateStateSystemRouter', err)

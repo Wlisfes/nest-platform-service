@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber, Min } from 'class-validator'
+import { IsNotEmpty, IsNumber, Min, IsArray, IsString } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsOptional, IsDateCustomize } from '@/decorator/common.decorator'
 
@@ -39,6 +39,12 @@ export class OmixPayload extends OmixColumn {
     @ApiProperty({ description: 'keyId', example: '2279965746312249344' })
     @IsNotEmpty({ message: 'keyId 必填' })
     keyId: string
+
+    @ApiProperty({ description: 'keyId列表', example: [] })
+    @IsNotEmpty({ message: 'keys 必填' })
+    @IsArray({ message: 'keys 必须为Array<string>格式' })
+    @IsString({ each: true, message: 'keys 必须为Array<string>格式' })
+    keys: Array<string>
 
     @ApiProperty({ description: '验证码', example: '495673' })
     @IsNotEmpty({ message: '验证码 必填' })

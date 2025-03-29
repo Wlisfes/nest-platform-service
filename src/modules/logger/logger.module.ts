@@ -37,7 +37,7 @@ export class LoggerModule {
                                     const timestamp = chalk.hex('#fb9300')(`${data.timestamp}`)
                                     const message = chalk.hex('#ff3d68')(`执行方法:[${data.message}]`)
                                     const contextId = utils.fetchCaseWherer(Boolean(data.context), {
-                                        value: chalk.hex("#536dfe")(`上下文ID:[${data.context?? ''}]`),
+                                        value: chalk.hex("#536dfe")(`日志ID:[${data.context?? ''}]`),
                                         defaultValue: ""
                                     })
                                     const level = utils.fetchCaseWherer(data.level === 'error', {
