@@ -1,10 +1,31 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { isEmpty, isNotEmpty, isString, isObject } from 'class-validator'
-import { Omix } from '@/interface/instance.resolver'
+import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import { Logger } from '@/modules/logger/logger.service'
 import { CLIENT_REDIS, ClientRedis } from '@/modules/redis/redis.provider'
 import * as keys from '@/modules/redis/redis.keys'
+export interface SetRedisOption extends Omix {
+    /**存储键**/
+    key: string
+    /**存储数据**/
+    data: any
+    /**存储有效时间**/
+    seconds?: number
+    /**开启日志**/
+    logger?: boolean
+    /**输出日志方法名**/
+    fnName?: string
+}
+export interface GetRedisOption<T> extends Omit<SetRedisOption, 'data' | 'seconds'> {
+    /**未读取数据默认值**/
+    defaultValue?: T
+}
+export interface MgetRedisOption extends Pick<SetRedisOption, 'logger' | 'fnName'> {
+    /**存储键列表**/
+    keys: Array<string>
+}
+export interface DelRedisOption extends Pick<SetRedisOption, 'logger' | 'key' | 'fnName'> {}
 
 @Injectable()
 export class RedisService extends Logger {
@@ -32,24 +53,26 @@ export class RedisService extends Logger {
     }
 
     /**redis存储**/
-    public async setStore(scope: Omix<{ key: string; data: any; seconds?: number; logger?: boolean }>) {
+    public async setStore(request: OmixRequest, body: SetRedisOption) {
         const datetime = Date.now()
-        if (scope.seconds > 0) {
-            return await this.client.set(scope.key, JSON.stringify(scope.data), 'EX', scope.seconds).then(async value => {
-                if (scope.logger ?? false) {
-                    this.logger.info('RedisService:setStore', {
+        if (body.seconds > 0) {
+            return await this.client.set(body.key, JSON.stringify(body.data), 'EX', body.seconds).then(async value => {
+                if (body.logger ?? false) {
+                    this.logger.info(body.fnName || 'RedisService:setStore', {
                         duration: `${Date.now() - datetime}ms`,
-                        log: { message: 'Redis存储', ...scope }
+                        context: request.headers?.context,
+                        log: { message: 'Redis存储', key: body.key, data: body.data }
                     })
                 }
-                return { value, seconds: scope.seconds }
+                return { value, seconds: body.seconds }
             })
         } else {
-            return await this.client.set(scope.key, JSON.stringify(scope.data)).then(async value => {
-                if (scope.logger ?? false) {
-                    this.logger.info('RedisService:setStore', {
+            return await this.client.set(body.key, JSON.stringify(body.data)).then(async value => {
+                if (body.logger ?? false) {
+                    this.logger.info(body.fnName || 'RedisService:setStore', {
                         duration: `${Date.now() - datetime}ms`,
-                        log: { message: 'Redis存储', ...scope }
+                        context: request.headers?.context,
+                        log: { message: 'Redis存储', key: body.key, data: body.data }
                     })
                 }
                 return { value, seconds: 0 }
@@ -58,14 +81,15 @@ export class RedisService extends Logger {
     }
 
     /**redis读取**/
-    public async getStore<T>(scope: Omix<{ key: string; defaultValue?: T; logger?: boolean }>): Promise<T> {
+    public async getStore<T>(request: OmixRequest, body: GetRedisOption<T>): Promise<T> {
         const datetime = Date.now()
-        return await this.client.get(scope.key).then(async data => {
-            const value = data ? JSON.parse(data) : scope.defaultValue
-            if (scope.logger ?? true) {
-                this.logger.info('RedisService:getStore', {
+        return await this.client.get(body.key).then(async data => {
+            const value = data ? JSON.parse(data) : body.defaultValue
+            if (body.logger ?? true) {
+                this.logger.info(body.fnName || 'RedisService:getStore', {
                     duration: `${Date.now() - datetime}ms`,
-                    log: { message: 'Redis读取', ...scope, data }
+                    context: request.headers?.context,
+                    log: { message: 'Redis读取', ...body, data }
                 })
             }
             return value
@@ -73,14 +97,15 @@ export class RedisService extends Logger {
     }
 
     /**redis批量读取**/
-    public async mgetStore(scope: Omix<{ keys: Array<string>; logger?: boolean }>) {
+    public async mgetStore(request: OmixRequest, body: MgetRedisOption) {
         const datetime = Date.now()
-        return await this.client.mget(scope.keys).then(async data => {
-            const values = scope.keys.map((key, index) => ({ key, value: data[index] ?? false }))
-            if (scope.logger ?? false) {
-                this.logger.info('RedisService:mgetStore', {
+        return await this.client.mget(body.keys).then(async data => {
+            const values = body.keys.map((key, index) => ({ key, value: data[index] ?? false }))
+            if (body.logger ?? false) {
+                this.logger.info(body.fnName || 'RedisService:mgetStore', {
                     duration: `${Date.now() - datetime}ms`,
-                    log: { message: 'Redis批量读取', ...scope, data: values }
+                    context: request.headers?.context,
+                    log: { message: 'Redis批量读取', ...body, data: values }
                 })
             }
             return values
@@ -88,13 +113,14 @@ export class RedisService extends Logger {
     }
 
     /**redis删除**/
-    public async delStore(scope: Omix<{ key: string; logger?: boolean }>) {
+    public async delStore(request: OmixRequest, body: DelRedisOption) {
         const datetime = Date.now()
-        return await this.client.del(scope.key).then(async value => {
-            if (scope.logger ?? false) {
-                this.logger.info('RedisService:delStore', {
+        return await this.client.del(body.key).then(async value => {
+            if (body.logger ?? false) {
+                this.logger.info(body.fnName || 'RedisService:delStore', {
                     duration: `${Date.now() - datetime}ms`,
-                    log: { message: 'Redis删除', ...scope }
+                    context: request.headers?.context,
+                    log: { message: 'Redis删除', ...body }
                 })
             }
             return value

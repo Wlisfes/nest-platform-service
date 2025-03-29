@@ -27,11 +27,11 @@ export class SystemUserService extends Logger {
     }
 
     /**刷新redis用户账号缓存**/
-    public async fetchRedisUpdateSystemUser(uid: string) {
+    public async fetchRedisUpdateSystemUser(request: OmixRequest, uid: string) {
         return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
             qb.where(`t.uid = :uid`, { uid })
             return await qb.getOne().then(async node => {
-                await this.redisService.setStore({
+                await this.redisService.setStore(request, {
                     data: node.status,
                     key: await this.redisService.fetchCompose(keys.COMMON_SYSTEM_USER_STATUS, { uid })
                 })

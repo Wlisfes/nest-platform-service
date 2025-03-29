@@ -9,6 +9,13 @@ export class BaseUpdateRedisSystemChunk {
     value: string
 }
 
+/**验证字典值缓存是否合规**/
+export class BaseCheckSystemChunk {
+    type: keyof typeof enums.SCHEMA_CHUNK_OPTIONS
+    value: string
+    message: string
+}
+
 /**查询字典类型列表**/
 export interface BaseChaxunSystemChunk<T, K extends keyof T> extends Partial<Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, boolean>> {
     field?: Array<K>

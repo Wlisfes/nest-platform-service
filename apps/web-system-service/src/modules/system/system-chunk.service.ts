@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Not } from 'typeorm'
 import { Logger } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
@@ -18,12 +18,31 @@ export class SystemChunkService extends Logger {
     /**刷新redis字典缓存**/
     public async fetchBaseUpdateRedisSystemChunk(request: OmixRequest, body: field.BaseUpdateRedisSystemChunk) {
         try {
-            return await this.redisService.setStore({
+            return await this.redisService.setStore(request, {
                 data: body.value,
-                key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':')
+                key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
+                fnName: 'SystemChunkService:fetchBaseUpdateRedisSystemChunk'
             })
         } catch (err) {
             return await this.fetchCatchCompiler('SystemChunkService:fetchBaseUpdateRedisSystemChunk', err)
+        }
+    }
+
+    /**验证字典值缓存是否合规**/ //prettier-ignore
+    public async fetchBaseCheckSystemChunk(request: OmixRequest, body: field.BaseCheckSystemChunk) {
+        try {
+            return await this.redisService.getStore<string>(request, {
+                logger: true ,
+                key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
+                fnName: 'SystemChunkService:fetchBaseCheckSystemChunk'
+            }).then(async value => {
+                if (utils.isEmpty(value) || body.value != value) {
+                    throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
+                }
+                return await this.fetchResolver({ data: value })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler('SystemChunkService:fetchBaseCheckSystemChunk', err)
         }
     }
 

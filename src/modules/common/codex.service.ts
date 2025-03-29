@@ -13,10 +13,10 @@ export class CodexService extends Logger {
     }
 
     /**图形验证码**/
-    public async httpCommonCodexWrite(response: Response, opts: Omix<{ key: string; cookie: string }>) {
+    public async httpCommonCodexWrite(request: OmixRequest, response: Response, opts: Omix<{ key: string; cookie: string }>) {
         return await plugin.fetchCommonCodexer({ width: 120, height: 40 }).then(async ({ sid, text, data }) => {
             const key = await this.redisService.fetchCompose(opts.key, { sid })
-            return await this.redisService.setStore({ key, data: text, seconds: 300 }).then(async ({ seconds }) => {
+            return await this.redisService.setStore(request, { key, data: text, seconds: 300 }).then(async ({ seconds }) => {
                 this.logger.info('SystemService:httpCommonCodexWrite', {
                     log: { message: '图形验证码发送成功', seconds, key, data: text }
                 })
@@ -37,11 +37,11 @@ export class CodexService extends Logger {
 
     /**校验redis验证码**/
     public async httpCommonCodexCheck(request: OmixRequest, opts: Omix<{ key: string; code: string }>) {
-        return await this.redisService.getStore<string>({ key: opts.key }).then(async code => {
+        return await this.redisService.getStore<string>(request, { key: opts.key }).then(async code => {
             if (isEmpty(code) || opts.code.toUpperCase() !== code.toUpperCase()) {
                 throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
             }
-            return await this.redisService.delStore({ key: opts.key })
+            return await this.redisService.delStore(request, { key: opts.key })
         })
     }
 }

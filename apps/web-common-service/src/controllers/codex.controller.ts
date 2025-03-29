@@ -16,7 +16,7 @@ export class CommonCodexController {
         response: { status: 200, description: 'OK' }
     })
     public async httpCommonCodexWriteUserAuthorize(@Request() request: OmixRequest, @Response() response) {
-        return await this.codexService.httpCommonCodexWrite(response, {
+        return await this.codexService.httpCommonCodexWrite(request, response, {
             key: this.redisService.keys.COMMON_CODEX_USER_TOKEN,
             cookie: 'x-request-captcha-sid'
         })

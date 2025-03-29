@@ -15,7 +15,7 @@ export class SystemRouterService extends Logger {
         super()
     }
 
-    /**新增菜单资源**/
+    /**新增菜单**/
     public async httpBaseCreateSystemRouter(request: OmixRequest, body: field.BaseCreateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
@@ -47,7 +47,7 @@ export class SystemRouterService extends Logger {
         }
     }
 
-    /**编辑菜单资源**/
+    /**编辑菜单**/
     public async httpBaseUpdateSystemRouter(request: OmixRequest, body: field.BaseUpdateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
@@ -84,7 +84,25 @@ export class SystemRouterService extends Logger {
         }
     }
 
-    /**菜单资源列表**/
+    /**编辑菜单状态**/
+    public async httpBaseUpdateStateSystemRouter(request: OmixRequest, body: field.BaseStateSystemRouter) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                type: 'COMMON_SYSTEM_ROUTER_STATUS',
+                value: body.status,
+                message: `status:${body.status} 格式错误`
+            })
+            console.log(body)
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler('SystemRouterService:httpBaseUpdateStateSystemRouter', err)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**菜单列表**/
     public async httpBaseColumnSystemRouter(request: OmixRequest, body: field.BaseColumnSystemRouter) {
         try {
             const chunk = await this.systemChunkService.httpBaseChaxunSystemChunk(request, {
@@ -148,7 +166,7 @@ export class SystemRouterService extends Logger {
         }
     }
 
-    /**获取当前用户菜单资源**/
+    /**获取当前用户菜单**/
     public async httpBaseColumnUserSystemRouter(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
@@ -169,7 +187,7 @@ export class SystemRouterService extends Logger {
         }
     }
 
-    /**菜单资源详情**/
+    /**菜单详情**/
     public async httpBaseSystemRouterResolver(request: OmixRequest, body: field.BaseSystemRouterResolver) {
         try {
             return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
