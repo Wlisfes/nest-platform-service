@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { Logger } from '@/modules/logger/logger.service'
+import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import { isEmpty } from 'class-validator'
@@ -13,11 +13,16 @@ export class CodexService extends Logger {
     }
 
     /**图形验证码**/
-    public async httpCommonCodexWrite(request: OmixRequest, response: Response, opts: Omix<{ key: string; cookie: string }>) {
+    @AutoMethodDescriptor
+    public async httpCommonCodexWrite(
+        request: OmixRequest,
+        response: Response,
+        opts: Omix<{ key: string; cookie: string; deplayName?: string }>
+    ) {
         return await plugin.fetchCommonCodexer({ width: 120, height: 40 }).then(async ({ sid, text, data }) => {
             const key = await this.redisService.fetchCompose(opts.key, { sid })
             return await this.redisService.setStore(request, { key, data: text, seconds: 300 }).then(async ({ seconds }) => {
-                this.logger.info('SystemService:httpCommonCodexWrite', {
+                this.logger.info(opts.deplayName || this.deplayName, {
                     log: { message: '图形验证码发送成功', seconds, key, data: text }
                 })
                 await response.cookie(opts.cookie, sid, { httpOnly: true, maxAge: 300 * 1000 })
