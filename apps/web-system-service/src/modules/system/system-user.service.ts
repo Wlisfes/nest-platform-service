@@ -52,12 +52,14 @@ export class SystemUserService extends Logger {
             //     message: `phone:${body.name} 已存在`,
             //     dispatch: { where: { phone: body.phone } }
             // })
-            // await this.database.fetchConnectCreate(this.database.schemaUser, {
-            //     body: Object.assign(body, { uid: await utils.fetchIntNumber() })
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '新增成功' })
-            // })
+            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaUser), {
+                fnName: 'SystemUserService:httpBaseCreateSystemUser',
+                request,
+                body: Object.assign(body, { uid: await utils.fetchIntNumber() })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '新增成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemUserService:httpBaseCreateSystemUser', err)
@@ -175,10 +177,10 @@ export class SystemUserService extends Logger {
     /**获取账号基本信息**/
     public async httpBaseSystemUserResolver(request: OmixRequest) {
         try {
-            return await this.database.fetchConnectNotNull(this.database.schemaUser, {
-                message: `uid:${request.user.uid} 不存在`,
-                dispatch: { where: { uid: request.user.uid } }
-            })
+            // return await this.database.fetchConnectNotNull(this.database.schemaUser, {
+            //     message: `uid:${request.user.uid} 不存在`,
+            //     dispatch: { where: { uid: request.user.uid } }
+            // })
         } catch (err) {
             return await this.fetchCatchCompiler('UserService:httpBaseSystemUserResolver', err)
         }

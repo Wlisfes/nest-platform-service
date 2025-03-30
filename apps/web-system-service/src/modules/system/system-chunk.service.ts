@@ -168,14 +168,14 @@ export class SystemChunkService extends Logger {
     public async httpBaseUpdateSystemChunk(request: OmixRequest, body: field.BaseUpdateSystemChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaChunk, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.fetchConnectNull(this.database.schemaChunk, {
-                message: `value:${body.value} 已存在`,
-                dispatch: { where: { value: body.value, type: body.type, keyId: Not(body.keyId) } }
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaChunk, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectNull(this.database.schemaChunk, {
+            //     message: `value:${body.value} 已存在`,
+            //     dispatch: { where: { value: body.value, type: body.type, keyId: Not(body.keyId) } }
+            // })
             await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaChunk), {
                 request,
                 fnName: 'SystemChunkService:httpBaseUpdateSystemChunk',

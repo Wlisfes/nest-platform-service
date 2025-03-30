@@ -20,20 +20,20 @@ export class SystemRouterService extends Logger {
     public async httpBaseCreateSystemRouter(request: OmixRequest, body: field.BaseCreateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNull(this.database.schemaRouter, {
-                message: `key:${body.key} 已存在`,
-                dispatch: { where: { key: body.key } }
-            })
-            await this.database.fetchConnectNull(this.database.schemaRouter, {
-                message: `router:${body.router} 已存在`,
-                dispatch: { where: { router: body.router } }
-            })
-            await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
-                return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                    message: `pid:${body.pid} 不存在`,
-                    dispatch: { where: { keyId: body.pid } }
-                })
-            })
+            // await this.database.fetchConnectNull(this.database.schemaRouter, {
+            //     message: `key:${body.key} 已存在`,
+            //     dispatch: { where: { key: body.key } }
+            // })
+            // await this.database.fetchConnectNull(this.database.schemaRouter, {
+            //     message: `router:${body.router} 已存在`,
+            //     dispatch: { where: { router: body.router } }
+            // })
+            // await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
+            //     return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+            //         message: `pid:${body.pid} 不存在`,
+            //         dispatch: { where: { keyId: body.pid } }
+            //     })
+            // })
             await ctx.manager.getRepository(schema.SchemaRouter).save({
                 ...body,
                 keyId: await utils.fetchIntNumber(),
@@ -54,18 +54,18 @@ export class SystemRouterService extends Logger {
     public async httpBaseUpdateSystemRouter(request: OmixRequest, body: field.BaseUpdateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.fetchConnectNull(this.database.schemaRouter, {
-                message: `key:${body.key} 已存在`,
-                dispatch: { where: { key: body.key, keyId: Not(body.keyId) } }
-            })
-            await this.database.fetchConnectNull(this.database.schemaRouter, {
-                message: `router:${body.router} 已存在`,
-                dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectNull(this.database.schemaRouter, {
+            //     message: `key:${body.key} 已存在`,
+            //     dispatch: { where: { key: body.key, keyId: Not(body.keyId) } }
+            // })
+            // await this.database.fetchConnectNull(this.database.schemaRouter, {
+            //     message: `router:${body.router} 已存在`,
+            //     dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
+            // })
             await ctx.manager.getRepository(schema.SchemaRouter).update({ keyId: body.keyId }, { ...body, uid: request.user.uid })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -201,10 +201,10 @@ export class SystemRouterService extends Logger {
     /**菜单详情**/
     public async httpBaseSystemRouterResolver(request: OmixRequest, body: field.BaseSystemRouterResolver) {
         try {
-            return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
+            // return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
         } catch (err) {
             return await this.fetchCatchCompiler('SystemRouterService:httpBaseSystemRouterResolver', err)
         }
