@@ -13,7 +13,7 @@ export interface BaseConnectOption {
     /**开启日志**/
     logger?: boolean
     /**输出日志方法名**/
-    fnName?: string
+    deplayName?: string
 }
 
 /**通用查询配置**/
@@ -103,7 +103,7 @@ export class DatabaseService extends Logger {
         const datetime = Date.now()
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
-                this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectNull`, {
+                this.logger.info(data.deplayName || `${DatabaseService.name}:fetchConnectNull`, {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node }
@@ -126,7 +126,7 @@ export class DatabaseService extends Logger {
         const datetime = Date.now()
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
-                this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectNotNull`, {
+                this.logger.info(data.deplayName || `${DatabaseService.name}:fetchConnectNotNull`, {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node }
@@ -150,7 +150,7 @@ export class DatabaseService extends Logger {
         const state = await model.create(data.body)
         return await model.save(state).then(async node => {
             if (data.logger ?? true) {
-                this.logger.info(data.fnName ?? `${DatabaseService.name}:fetchConnectCreate`, {
+                this.logger.info(data.deplayName ?? `${DatabaseService.name}:fetchConnectCreate`, {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:事务等待创建结果`, node }
@@ -165,7 +165,7 @@ export class DatabaseService extends Logger {
         const datetime = Date.now()
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
-                this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectUpsert`, {
+                this.logger.info(data.deplayName || `${DatabaseService.name}:fetchConnectUpsert`, {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:事务等待批量创建结果`, node }
@@ -180,7 +180,7 @@ export class DatabaseService extends Logger {
         const datetime = Date.now()
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
-                this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectUpsert`, {
+                this.logger.info(data.deplayName || `${DatabaseService.name}:fetchConnectUpsert`, {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:事务等待批量更新结果`, node }
@@ -195,7 +195,7 @@ export class DatabaseService extends Logger {
         const datetime = Date.now()
         return await model.update(data.where, data.body).then(async node => {
             if (data.logger ?? true) {
-                this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectUpdate`, {
+                this.logger.info(data.deplayName || `${DatabaseService.name}:fetchConnectUpdate`, {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:事务等待更新结果`, where: data.where, node }

@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Not } from 'typeorm'
-import { Logger } from '@/modules/logger/logger.service'
+import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { SystemChunkService } from '@web-system-service/modules/system/system-chunk.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
@@ -17,72 +17,93 @@ export class SystemRouterService extends Logger {
     }
 
     /**新增菜单**/
+    @AutoMethodDescriptor
     public async httpBaseCreateSystemRouter(request: OmixRequest, body: field.BaseCreateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNull(this.database.schemaRouter, {
-            //     message: `key:${body.key} 已存在`,
-            //     dispatch: { where: { key: body.key } }
-            // })
-            // await this.database.fetchConnectNull(this.database.schemaRouter, {
-            //     message: `router:${body.router} 已存在`,
-            //     dispatch: { where: { router: body.router } }
-            // })
-            // await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
-            //     return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-            //         message: `pid:${body.pid} 不存在`,
-            //         dispatch: { where: { keyId: body.pid } }
-            //     })
-            // })
-            await ctx.manager.getRepository(schema.SchemaRouter).save({
-                ...body,
-                keyId: await utils.fetchIntNumber(),
-                uid: request.user.uid
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
+                deplayName: this.deplayName,
+                request,
+                message: `key:${body.key} 已存在`,
+                dispatch: { where: { key: body.key } }
+            })
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
+                deplayName: this.deplayName,
+                request,
+                message: `router:${body.router} 已存在`,
+                dispatch: { where: { router: body.router } }
+            })
+            await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
+                return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+                    deplayName: this.deplayName,
+                    request,
+                    message: `pid:${body.pid} 不存在`,
+                    dispatch: { where: { keyId: body.pid } }
+                })
+            })
+            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaRouter), {
+                deplayName: this.deplayName,
+                request,
+                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '新增成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRouterService:httpBaseCreateSystemRouter', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑菜单**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateSystemRouter(request: OmixRequest, body: field.BaseUpdateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectNull(this.database.schemaRouter, {
-            //     message: `key:${body.key} 已存在`,
-            //     dispatch: { where: { key: body.key, keyId: Not(body.keyId) } }
-            // })
-            // await this.database.fetchConnectNull(this.database.schemaRouter, {
-            //     message: `router:${body.router} 已存在`,
-            //     dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
-            // })
-            await ctx.manager.getRepository(schema.SchemaRouter).update({ keyId: body.keyId }, { ...body, uid: request.user.uid })
+            await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
+                deplayName: this.deplayName,
+                request,
+                message: `key:${body.key} 已存在`,
+                dispatch: { where: { key: body.key, keyId: Not(body.keyId) } }
+            })
+            await this.database.fetchConnectNull(this.database.schemaRouter, {
+                deplayName: this.deplayName,
+                request,
+                message: `router:${body.router} 已存在`,
+                dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRouter), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { uid: request.user.uid })
+            })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRouterService:httpBaseUpdateSystemRouter', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑菜单状态**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateStateSystemRouter(request: OmixRequest, body: field.BaseStateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                deplayName: this.deplayName,
                 type: 'COMMON_SYSTEM_ROUTER_STATUS',
                 value: body.status,
                 message: `status:${body.status} 格式错误`
@@ -99,21 +120,24 @@ export class SystemRouterService extends Logger {
                     return list.map(item => ({ id: item.id, status: body.status }))
                 })
             })
-            /**事务批量更新**/
-            await ctx.manager.getRepository(schema.SchemaRouter).save(items)
-            /**提交事务**/
+            await this.database.fetchConnectUpsert(ctx.manager.getRepository(schema.SchemaRouter), {
+                deplayName: this.deplayName,
+                request,
+                body: items
+            })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRouterService:httpBaseUpdateStateSystemRouter', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**菜单列表**/
+    @AutoMethodDescriptor
     public async httpBaseColumnSystemRouter(request: OmixRequest, body: field.BaseColumnSystemRouter) {
         try {
             const chunk = await this.systemChunkService.httpBaseChaxunSystemChunk(request, {
@@ -173,11 +197,12 @@ export class SystemRouterService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemRouterService:httpBaseColumnSystemRouter', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 
     /**获取当前用户菜单**/
+    @AutoMethodDescriptor
     public async httpBaseColumnUserSystemRouter(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
@@ -194,19 +219,22 @@ export class SystemRouterService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemRouterService:httpBaseColumnUserSystemRouter', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 
     /**菜单详情**/
+    @AutoMethodDescriptor
     public async httpBaseSystemRouterResolver(request: OmixRequest, body: field.BaseSystemRouterResolver) {
         try {
-            // return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
+            return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemRouterService:httpBaseSystemRouterResolver', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 }

@@ -1,12 +1,12 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { compareSync } from 'bcryptjs'
-import { Logger } from '@/modules/logger/logger.service'
+import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
 import { CodexService } from '@/modules/common/codex.service'
 import { DatabaseService } from '@/modules/database/database.service'
-import { Omix, OmixRequest } from '@/interface/instance.resolver'
+import { OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -27,11 +27,13 @@ export class SystemUserService extends Logger {
     }
 
     /**刷新redis用户账号缓存**/
+    @AutoMethodDescriptor
     public async fetchRedisUpdateSystemUser(request: OmixRequest, uid: string) {
         return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
             qb.where(`t.uid = :uid`, { uid })
             return await qb.getOne().then(async node => {
                 await this.redisService.setStore(request, {
+                    deplayName: this.deplayName,
                     data: node.status,
                     key: await this.redisService.fetchCompose(keys.COMMON_SYSTEM_USER_STATUS, { uid })
                 })
@@ -41,19 +43,23 @@ export class SystemUserService extends Logger {
     }
 
     /**新增用户账号**/
+    @AutoMethodDescriptor
     public async httpBaseCreateSystemUser(request: OmixRequest, body: field.BaseCreateSystemUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNull(this.database.schemaUser, {
-            //     message: `number:${body.name} 已存在`,
-            //     dispatch: { where: { number: body.number } }
-            // })
-            // await this.database.fetchConnectNull(this.database.schemaUser, {
-            //     message: `phone:${body.name} 已存在`,
-            //     dispatch: { where: { phone: body.phone } }
-            // })
+            await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                qb.where(`t.number = :number OR t.phone = :phone`, { number: body.number, phone: body.phone })
+                return await qb.getOne().then(async node => {
+                    if (utils.isNotEmpty(node) && node.number == body.number) {
+                        throw new HttpException(`number:${body.name} 已存在`, HttpStatus.BAD_REQUEST)
+                    } else if (utils.isNotEmpty(node) && node.phone == body.phone) {
+                        throw new HttpException(`phone:${body.name} 已存在`, HttpStatus.BAD_REQUEST)
+                    }
+                    return node
+                })
+            })
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaUser), {
-                fnName: 'SystemUserService:httpBaseCreateSystemUser',
+                deplayName: this.deplayName,
                 request,
                 body: Object.assign(body, { uid: await utils.fetchIntNumber() })
             })
@@ -62,13 +68,14 @@ export class SystemUserService extends Logger {
             })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemUserService:httpBaseCreateSystemUser', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**授权登录**/
+    @AutoMethodDescriptor
     public async httpBaseCreateSystemUserAuthorize(request: OmixRequest, body: field.BaseCreateSystemUserAuthorize) {
         try {
             await this.codexService.fetchCommonCodexReader(request, 'x-request-captcha-sid').then(async sid => {
@@ -92,11 +99,12 @@ export class SystemUserService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemUserService:httpBaseCreateSystemUserAuthorize', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 
     /**用户账号列表**/
+    @AutoMethodDescriptor
     public async httpBaseColumnSystemUser(request: OmixRequest, body: field.BaseColumnSystemUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
@@ -147,7 +155,7 @@ export class SystemUserService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemUserService:httpBaseColumnSystemUser', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 
@@ -155,34 +163,41 @@ export class SystemUserService extends Logger {
     public async httpBaseUpdateSwitchSystemUser(request: OmixRequest, body: field.BaseSwitchSystemUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNotNull(this.database.schemaUser, {
-            //     message: `uid:${body.uid} 不存在`,
-            //     dispatch: { where: { uid: body.uid } }
-            // })
-            // await this.database.fetchConnectUpdate(this.database.schemaUser, {
-            //     where: { uid: body.uid },
-            //     body: { status: body.status }
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '操作成功' })
-            // })
+            await this.database.fetchConnectNotNull(this.database.schemaUser, {
+                deplayName: this.deplayName,
+                request,
+                message: `uid:${body.uid} 不存在`,
+                dispatch: { where: { uid: body.uid } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaUser), {
+                deplayName: this.deplayName,
+                request,
+                where: { uid: body.uid },
+                body: { status: body.status }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemUserService:httpBaseUpdateSwitchSystemUser', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**获取账号基本信息**/
+    @AutoMethodDescriptor
     public async httpBaseSystemUserResolver(request: OmixRequest) {
         try {
-            // return await this.database.fetchConnectNotNull(this.database.schemaUser, {
-            //     message: `uid:${request.user.uid} 不存在`,
-            //     dispatch: { where: { uid: request.user.uid } }
-            // })
+            return await this.database.fetchConnectNotNull(this.database.schemaUser, {
+                request,
+                deplayName: this.deplayName,
+                message: `uid:${request.user.uid} 不存在`,
+                dispatch: { where: { uid: request.user.uid } }
+            })
         } catch (err) {
-            return await this.fetchCatchCompiler('UserService:httpBaseSystemUserResolver', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 }

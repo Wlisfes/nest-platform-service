@@ -3,8 +3,20 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger as WinstonLogger } from 'winston'
 import { Omix } from '@/interface/instance.resolver'
 
+/**注入日志配置**/
+export function AutoMethodDescriptor(target: any, propertyName: string, descriptor: PropertyDescriptor) {
+    const className = target.constructor.name
+    const methodName = propertyName
+    const originalMethod = descriptor.value
+    descriptor.value = function (...args: any[]) {
+        this.deplayName = [className, methodName].join(':')
+        return originalMethod.apply(this, args)
+    }
+}
+
 @Injectable()
 export class Logger {
+    public readonly deplayName: string
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly logger: WinstonLogger
 
     /**返回包装**/

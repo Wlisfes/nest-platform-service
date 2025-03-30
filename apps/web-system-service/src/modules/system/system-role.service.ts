@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Not } from 'typeorm'
-import { Logger } from '@/modules/logger/logger.service'
+import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
@@ -16,124 +16,152 @@ export class SystemRoleService extends Logger {
     }
 
     /**新增角色权限**/
+    @AutoMethodDescriptor
     public async httpBaseCreateSystemRole(request: OmixRequest, body: field.BaseCreateSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNull(this.database.schemaRole, {
-            //     message: `name:${body.name} 已存在`,
-            //     dispatch: { where: { name: body.name } }
-            // })
-            // await this.database.fetchConnectCreate(this.database.schemaRole, {
-            //     body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '新增成功' })
-            // })
+            await this.database.fetchConnectNull(this.database.schemaRole, {
+                deplayName: this.deplayName,
+                request,
+                message: `name:${body.name} 已存在`,
+                dispatch: { where: { name: body.name } }
+            })
+            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '新增成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRoleService:httpBaseCreateSystemRole', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑角色**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateSystemRole(request: OmixRequest, body: field.BaseUpdateSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectNull(this.database.schemaRole, {
-            //     message: `name:${body.name} 已存在`,
-            //     dispatch: { where: { name: body.name, keyId: Not(body.keyId) } }
-            // })
-            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
-            //     where: { keyId: body.keyId },
-            //     body: Object.assign(body, { uid: request.user.uid })
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '操作成功' })
-            // })
+            await this.database.fetchConnectNotNull(this.database.schemaRole, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectNull(this.database.schemaRole, {
+                deplayName: this.deplayName,
+                request,
+                message: `name:${body.name} 已存在`,
+                dispatch: { where: { name: body.name, keyId: Not(body.keyId) } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRole', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑角色状态**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateSwitchSystemRole(request: OmixRequest, body: field.BaseSwitchSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
-            //     where: { keyId: body.keyId },
-            //     body: { status: body.status, uid: request.user.uid }
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '操作成功' })
-            // })
+            await this.database.fetchConnectNotNull(this.database.schemaRole, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRoleService:httpBaseSwitchSystemRole', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑角色权限**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateSystemRoleRouter(request: OmixRequest, body: field.BaseUpdateSystemRoleRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
-            //     where: { keyId: body.keyId },
-            //     body: { auxs: body.auxs ?? [], uid: request.user.uid }
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '操作成功' })
-            // })
+            await this.database.fetchConnectNotNull(this.database.schemaRole, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRoleRouter', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑角色用户**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateSystemRoleUser(request: OmixRequest, body: field.BaseUpdateSystemRoleUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
-            //     where: { keyId: body.keyId },
-            //     body: { uids: body.uids ?? [], uid: request.user.uid }
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '操作成功' })
-            // })
+            await this.database.fetchConnectNotNull(this.database.schemaRole, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRoleUser', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**角色权限列表**/
+    @AutoMethodDescriptor
     public async httpBaseColumnSystemRole(request: OmixRequest, body: field.BaseColumnSystemRole) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
@@ -164,7 +192,7 @@ export class SystemRoleService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemRoleService:httpBaseColumnSystemRole', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 }

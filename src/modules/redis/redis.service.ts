@@ -15,17 +15,17 @@ export interface SetRedisOption extends Omix {
     /**开启日志**/
     logger?: boolean
     /**输出日志方法名**/
-    fnName?: string
+    deplayName?: string
 }
 export interface GetRedisOption<T> extends Omit<SetRedisOption, 'data' | 'seconds'> {
     /**未读取数据默认值**/
     defaultValue?: T
 }
-export interface MgetRedisOption extends Pick<SetRedisOption, 'logger' | 'fnName'> {
+export interface MgetRedisOption extends Pick<SetRedisOption, 'logger' | 'deplayName'> {
     /**存储键列表**/
     keys: Array<string>
 }
-export interface DelRedisOption extends Pick<SetRedisOption, 'logger' | 'key' | 'fnName'> {}
+export interface DelRedisOption extends Pick<SetRedisOption, 'logger' | 'key' | 'deplayName'> {}
 
 @Injectable()
 export class RedisService extends Logger {
@@ -58,7 +58,7 @@ export class RedisService extends Logger {
         if (body.seconds > 0) {
             return await this.client.set(body.key, JSON.stringify(body.data), 'EX', body.seconds).then(async value => {
                 if (body.logger ?? false) {
-                    this.logger.info(body.fnName || 'RedisService:setStore', {
+                    this.logger.info(body.deplayName || 'RedisService:setStore', {
                         duration: `${Date.now() - datetime}ms`,
                         context: request.headers?.context,
                         log: { message: 'Redis存储', key: body.key, data: body.data }
@@ -69,7 +69,7 @@ export class RedisService extends Logger {
         } else {
             return await this.client.set(body.key, JSON.stringify(body.data)).then(async value => {
                 if (body.logger ?? false) {
-                    this.logger.info(body.fnName || 'RedisService:setStore', {
+                    this.logger.info(body.deplayName || 'RedisService:setStore', {
                         duration: `${Date.now() - datetime}ms`,
                         context: request.headers?.context,
                         log: { message: 'Redis存储', key: body.key, data: body.data }
@@ -86,7 +86,7 @@ export class RedisService extends Logger {
         return await this.client.get(body.key).then(async data => {
             const value = data ? JSON.parse(data) : body.defaultValue
             if (body.logger ?? true) {
-                this.logger.info(body.fnName || 'RedisService:getStore', {
+                this.logger.info(body.deplayName || 'RedisService:getStore', {
                     duration: `${Date.now() - datetime}ms`,
                     context: request.headers?.context,
                     log: { message: 'Redis读取', ...body, data }
@@ -102,7 +102,7 @@ export class RedisService extends Logger {
         return await this.client.mget(body.keys).then(async data => {
             const values = body.keys.map((key, index) => ({ key, value: data[index] ?? false }))
             if (body.logger ?? false) {
-                this.logger.info(body.fnName || 'RedisService:mgetStore', {
+                this.logger.info(body.deplayName || 'RedisService:mgetStore', {
                     duration: `${Date.now() - datetime}ms`,
                     context: request.headers?.context,
                     log: { message: 'Redis批量读取', ...body, data: values }
@@ -117,7 +117,7 @@ export class RedisService extends Logger {
         const datetime = Date.now()
         return await this.client.del(body.key).then(async value => {
             if (body.logger ?? false) {
-                this.logger.info(body.fnName || 'RedisService:delStore', {
+                this.logger.info(body.deplayName || 'RedisService:delStore', {
                     duration: `${Date.now() - datetime}ms`,
                     context: request.headers?.context,
                     log: { message: 'Redis删除', ...body }

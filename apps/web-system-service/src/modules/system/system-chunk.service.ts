@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Not } from 'typeorm'
-import { Logger } from '@/modules/logger/logger.service'
+import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
@@ -16,25 +16,27 @@ export class SystemChunkService extends Logger {
     }
 
     /**刷新redis字典缓存**/
+    @AutoMethodDescriptor
     public async fetchBaseUpdateRedisSystemChunk(request: OmixRequest, body: field.BaseUpdateRedisSystemChunk) {
         try {
             return await this.redisService.setStore(request, {
+                deplayName: this.deplayName,
                 data: body.value,
-                key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
-                fnName: 'SystemChunkService:fetchBaseUpdateRedisSystemChunk'
+                key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':')
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemChunkService:fetchBaseUpdateRedisSystemChunk', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 
     /**验证字典值缓存是否合规**/ //prettier-ignore
+    @AutoMethodDescriptor
     public async fetchBaseCheckSystemChunk(request: OmixRequest, body: field.BaseCheckSystemChunk) {
         try {
             return await this.redisService.getStore<string>(request, {
                 logger: true ,
                 key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
-                fnName: body.fnName || 'SystemChunkService:fetchBaseCheckSystemChunk'
+                deplayName: body.deplayName || this.deplayName
             }).then(async value => {
                 if (utils.isEmpty(value) || body.value != value) {
                     throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
@@ -42,18 +44,19 @@ export class SystemChunkService extends Logger {
                 return await this.fetchResolver({ data: value })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler(body.fnName || 'SystemChunkService:fetchBaseCheckSystemChunk', err)
+            return await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)
         }
     }
 
     /**查询字典类型列表**/
+    @AutoMethodDescriptor
     public async httpBaseChaxunSystemChunk<
         T extends schema.SchemaChunk,
         K extends keyof T,
         R extends Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, Array<T>>
     >(request: OmixRequest, body: field.BaseChaxunSystemChunk<T, K>): Promise<Omix<R>> {
         try {
-            const keys = Object.keys(utils.omit(body, ['field', 'fnName'])) as Array<keyof R>
+            const keys = Object.keys(utils.omit(body, ['field', 'deplayName'])) as Array<keyof R>
             const chunk = Object.keys(enums.SCHEMA_CHUNK_OPTIONS).reduce((o, k) => ({ ...o, [k]: [] }), {}) as Omix<R>
             return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
                 await qb.where(`t.type IN(:keys)`, { keys })
@@ -66,43 +69,43 @@ export class SystemChunkService extends Logger {
                 })
             })
         } catch (err) {
-            return (await this.fetchCatchCompiler(body.fnName || 'SystemChunkService:httpBaseChaxunSystemChunk', err)) as never as Omix<R>
+            return (await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)) as never as Omix<R>
         }
     }
 
     /**新增字典**/
+    @AutoMethodDescriptor
     public async httpBaseCreateSystemChunk(request: OmixRequest, body: field.BaseCreateSystemChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNull(this.database.schemaChunk, {
-            //     message: `value:${body.value} 已存在`,
-            //     dispatch: { where: { value: body.value, type: body.type } }
-            // })
-            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaChunk), {
+            await this.database.fetchConnectNull(this.database.schemaChunk, {
+                deplayName: this.deplayName,
                 request,
-                body: this.database.schemaChunk.create({
-                    ...body,
-                    keyId: await utils.fetchIntNumber(),
-                    uid: request.user.uid
-                })
+                message: `value:${body.value} 已存在`,
+                dispatch: { where: { value: body.value, type: body.type } }
             })
-            throw new HttpException('事务中断', HttpStatus.BAD_REQUEST)
-            // return await ctx.commitTransaction().then(async () => {
-            //     await this.fetchBaseUpdateRedisSystemChunk(request, {
-            //         type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
-            //         value: body.value
-            //     })
-            //     return await this.fetchResolver({ message: '新增成功' })
-            // })
+            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaChunk), {
+                deplayName: this.deplayName,
+                request,
+                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                await this.fetchBaseUpdateRedisSystemChunk(request, {
+                    type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
+                    value: body.value
+                })
+                return await this.fetchResolver({ message: '新增成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemChunkService:httpBaseCreateSystemChunk', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**字典列表**/
+    @AutoMethodDescriptor
     public async httpBaseColumnSystemChunk(request: OmixRequest, body: field.BaseColumnSystemChunk) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
@@ -160,29 +163,33 @@ export class SystemChunkService extends Logger {
                 })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemChunkService:httpBaseCreateSystemChunk', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 
     /**编辑字典**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateSystemChunk(request: OmixRequest, body: field.BaseUpdateSystemChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            // await this.database.fetchConnectNotNull(this.database.schemaChunk, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectNull(this.database.schemaChunk, {
-            //     message: `value:${body.value} 已存在`,
-            //     dispatch: { where: { value: body.value, type: body.type, keyId: Not(body.keyId) } }
-            // })
-            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaChunk), {
+            await this.database.fetchConnectNotNull(this.database.schemaChunk, {
+                deplayName: this.deplayName,
                 request,
-                fnName: 'SystemChunkService:httpBaseUpdateSystemChunk',
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectNull(this.database.schemaChunk, {
+                deplayName: this.deplayName,
+                request,
+                message: `value:${body.value} 已存在`,
+                dispatch: { where: { value: body.value, type: body.type, keyId: Not(body.keyId) } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaChunk), {
+                deplayName: this.deplayName,
+                request,
                 where: { keyId: body.keyId },
                 body: Object.assign(body, { uid: request.user.uid })
             })
-            // throw new HttpException('事务中断', HttpStatus.BAD_REQUEST)
             return await ctx.commitTransaction().then(async () => {
                 await this.fetchBaseUpdateRedisSystemChunk(request, {
                     type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
@@ -192,31 +199,35 @@ export class SystemChunkService extends Logger {
             })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemChunkService:httpBaseUpdateSystemChunk', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }
     }
 
     /**编辑字典状态**/
+    @AutoMethodDescriptor
     public async httpBaseUpdateStateSystemChunk(request: OmixRequest, body: field.BaseUpdateStateSystemChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            console.log(body)
-            // await this.database.fetchConnectNotNull(this.database.schemaChunk, {
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectUpdate(this.database.schemaChunk, {
-            //     where: { keyId: body.keyId },
-            //     body: { status: body.status, uid: request.user.uid }
-            // })
-            // return await ctx.commitTransaction().then(async () => {
-            //     return await this.fetchResolver({ message: '操作成功' })
-            // })
+            await this.database.fetchConnectNotNull(this.database.schemaChunk, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaChunk), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSwitchSystemChunk', err)
+            return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
         }

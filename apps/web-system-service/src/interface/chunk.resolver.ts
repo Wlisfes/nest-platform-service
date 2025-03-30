@@ -16,13 +16,13 @@ export class BaseCheckSystemChunk extends BaseUpdateRedisSystemChunk {
     /**验证错误描述**/
     message?: string
     /**输出日志方法名**/
-    fnName?: string
+    deplayName?: string
 }
 
 /**查询字典类型列表**/
 export interface BaseChaxunSystemChunk<T, K extends keyof T> extends Partial<Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, boolean>> {
     /**输出日志方法名**/
-    fnName?: string
+    deplayName?: string
     /**表字段列表**/
     field?: Array<K>
 }
