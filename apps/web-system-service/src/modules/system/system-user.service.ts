@@ -44,20 +44,20 @@ export class SystemUserService extends Logger {
     public async httpBaseCreateSystemUser(request: OmixRequest, body: field.BaseCreateSystemUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNull(this.database.schemaUser, {
-                message: `number:${body.name} 已存在`,
-                dispatch: { where: { number: body.number } }
-            })
-            await this.database.fetchConnectNull(this.database.schemaUser, {
-                message: `phone:${body.name} 已存在`,
-                dispatch: { where: { phone: body.phone } }
-            })
-            await this.database.fetchConnectCreate(this.database.schemaUser, {
-                body: Object.assign(body, { uid: await utils.fetchIntNumber() })
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '新增成功' })
-            })
+            // await this.database.fetchConnectNull(this.database.schemaUser, {
+            //     message: `number:${body.name} 已存在`,
+            //     dispatch: { where: { number: body.number } }
+            // })
+            // await this.database.fetchConnectNull(this.database.schemaUser, {
+            //     message: `phone:${body.name} 已存在`,
+            //     dispatch: { where: { phone: body.phone } }
+            // })
+            // await this.database.fetchConnectCreate(this.database.schemaUser, {
+            //     body: Object.assign(body, { uid: await utils.fetchIntNumber() })
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '新增成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemUserService:httpBaseCreateSystemUser', err)
@@ -153,17 +153,17 @@ export class SystemUserService extends Logger {
     public async httpBaseUpdateSwitchSystemUser(request: OmixRequest, body: field.BaseSwitchSystemUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaUser, {
-                message: `uid:${body.uid} 不存在`,
-                dispatch: { where: { uid: body.uid } }
-            })
-            await this.database.fetchConnectUpdate(this.database.schemaUser, {
-                where: { uid: body.uid },
-                body: { status: body.status }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaUser, {
+            //     message: `uid:${body.uid} 不存在`,
+            //     dispatch: { where: { uid: body.uid } }
+            // })
+            // await this.database.fetchConnectUpdate(this.database.schemaUser, {
+            //     where: { uid: body.uid },
+            //     body: { status: body.status }
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '操作成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemUserService:httpBaseUpdateSwitchSystemUser', err)

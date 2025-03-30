@@ -34,7 +34,7 @@ export class SystemChunkService extends Logger {
             return await this.redisService.getStore<string>(request, {
                 logger: true ,
                 key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
-                fnName: 'SystemChunkService:fetchBaseCheckSystemChunk'
+                fnName: body.fnName || 'SystemChunkService:fetchBaseCheckSystemChunk'
             }).then(async value => {
                 if (utils.isEmpty(value) || body.value != value) {
                     throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
@@ -42,7 +42,7 @@ export class SystemChunkService extends Logger {
                 return await this.fetchResolver({ data: value })
             })
         } catch (err) {
-            return await this.fetchCatchCompiler('SystemChunkService:fetchBaseCheckSystemChunk', err)
+            return await this.fetchCatchCompiler(body.fnName || 'SystemChunkService:fetchBaseCheckSystemChunk', err)
         }
     }
 
@@ -53,7 +53,7 @@ export class SystemChunkService extends Logger {
         R extends Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, Array<T>>
     >(request: OmixRequest, body: field.BaseChaxunSystemChunk<T, K>): Promise<Omix<R>> {
         try {
-            const keys = Object.keys(utils.omit(body, ['field'])) as Array<keyof R>
+            const keys = Object.keys(utils.omit(body, ['field', 'fnName'])) as Array<keyof R>
             const chunk = Object.keys(enums.SCHEMA_CHUNK_OPTIONS).reduce((o, k) => ({ ...o, [k]: [] }), {}) as Omix<R>
             return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
                 await qb.where(`t.type IN(:keys)`, { keys })
@@ -66,7 +66,7 @@ export class SystemChunkService extends Logger {
                 })
             })
         } catch (err) {
-            return (await this.fetchCatchCompiler('SystemChunkService:httpBaseChaxunSystemChunk', err)) as never as Omix<R>
+            return (await this.fetchCatchCompiler(body.fnName || 'SystemChunkService:httpBaseChaxunSystemChunk', err)) as never as Omix<R>
         }
     }
 
@@ -74,20 +74,26 @@ export class SystemChunkService extends Logger {
     public async httpBaseCreateSystemChunk(request: OmixRequest, body: field.BaseCreateSystemChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNull(this.database.schemaChunk, {
-                message: `value:${body.value} 已存在`,
-                dispatch: { where: { value: body.value, type: body.type } }
-            })
-            await this.database.fetchConnectCreate(this.database.schemaChunk, {
-                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
-            })
-            return await ctx.commitTransaction().then(async () => {
-                await this.fetchBaseUpdateRedisSystemChunk(request, {
-                    type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
-                    value: body.value
+            // await this.database.fetchConnectNull(this.database.schemaChunk, {
+            //     message: `value:${body.value} 已存在`,
+            //     dispatch: { where: { value: body.value, type: body.type } }
+            // })
+            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaChunk), {
+                request,
+                body: this.database.schemaChunk.create({
+                    ...body,
+                    keyId: await utils.fetchIntNumber(),
+                    uid: request.user.uid
                 })
-                return await this.fetchResolver({ message: '新增成功' })
             })
+            throw new HttpException('事务中断', HttpStatus.BAD_REQUEST)
+            // return await ctx.commitTransaction().then(async () => {
+            //     await this.fetchBaseUpdateRedisSystemChunk(request, {
+            //         type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
+            //         value: body.value
+            //     })
+            //     return await this.fetchResolver({ message: '新增成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemChunkService:httpBaseCreateSystemChunk', err)
@@ -170,10 +176,13 @@ export class SystemChunkService extends Logger {
                 message: `value:${body.value} 已存在`,
                 dispatch: { where: { value: body.value, type: body.type, keyId: Not(body.keyId) } }
             })
-            await this.database.fetchConnectUpdate(this.database.schemaChunk, {
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaChunk), {
+                request,
+                fnName: 'SystemChunkService:httpBaseUpdateSystemChunk',
                 where: { keyId: body.keyId },
                 body: Object.assign(body, { uid: request.user.uid })
             })
+            // throw new HttpException('事务中断', HttpStatus.BAD_REQUEST)
             return await ctx.commitTransaction().then(async () => {
                 await this.fetchBaseUpdateRedisSystemChunk(request, {
                     type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
@@ -190,20 +199,21 @@ export class SystemChunkService extends Logger {
     }
 
     /**编辑字典状态**/
-    public async httpBaseUpdateSwitchSystemChunk(request: OmixRequest, body: field.BaseSwitchSystemChunk) {
+    public async httpBaseUpdateStateSystemChunk(request: OmixRequest, body: field.BaseUpdateStateSystemChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaChunk, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.fetchConnectUpdate(this.database.schemaChunk, {
-                where: { keyId: body.keyId },
-                body: { status: body.status, uid: request.user.uid }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            console.log(body)
+            // await this.database.fetchConnectNotNull(this.database.schemaChunk, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectUpdate(this.database.schemaChunk, {
+            //     where: { keyId: body.keyId },
+            //     body: { status: body.status, uid: request.user.uid }
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '操作成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSwitchSystemChunk', err)

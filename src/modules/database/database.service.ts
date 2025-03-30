@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Repository, DataSource, DeepPartial, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Logger } from '@/modules/logger/logger.service'
-import { Omix } from '@/interface/global.resolver'
+import { Omix, OmixRequest } from '@/interface/global.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as plugin from '@/utils/utils-plugin'
 import * as utils from '@/utils/utils-common'
@@ -13,6 +13,41 @@ export interface ConnectOption<T, U> extends Omix {
     code?: number
     cause?: Omix
     transform?: (data: T) => boolean | Promise<boolean>
+}
+
+export interface BaseConnectOption {
+    /**请求实例**/
+    request: OmixRequest
+    /**开启日志**/
+    logger?: boolean
+    /**输出日志方法名**/
+    fnName?: string
+}
+
+/**更新数据模型**/
+export interface BaseConnectUpdate<T> extends BaseConnectOption {
+    /**更新条件**/
+    where: Parameters<Repository<T>['update']>['0']
+    /**更新数据**/
+    body: Parameters<Repository<T>['update']>['1']
+}
+
+/**批量更新数据模型：需要主键ID**/
+export interface BaseConnectUpsert<T> extends BaseConnectOption {
+    /**更新数据**/
+    body: Array<Parameters<Repository<T>['save']>['0']>
+}
+
+/**批量创建数据模型**/
+export interface BaseConnectInsert<T> extends BaseConnectOption {
+    /**创建数据**/
+    body: Array<Parameters<Repository<T>['save']>['0']>
+}
+
+/**创建数据模型**/
+export interface BaseConnectCreate<T> extends BaseConnectOption {
+    /**创建数据**/
+    body: Parameters<Repository<T>['save']>['0']
 }
 
 @Injectable()
@@ -98,56 +133,62 @@ export class DatabaseService extends Logger {
     }
 
     /**创建数据模型**/
-    public async fetchConnectCreate<T>(model: Repository<T>, data: { body: DeepPartial<T> | Array<DeepPartial<T>> }) {
+    public async fetchConnectCreate<T>(model: Repository<T>, data: BaseConnectCreate<T>) {
         const datetime = Date.now()
         const state = await model.create(data.body as Parameters<typeof model.create>['0'])
+        console.log(state)
         return await model.save(state).then(async node => {
-            this.logger.info(`${DatabaseService.name}:fetchConnectCreate`, {
-                duration: `${Date.now() - datetime}ms`,
-                log: { message: `[${model.metadata.name}]:创建结果`, node }
-            })
+            //     this.logger.info(data.fnName ?? `${DatabaseService.name}:fetchConnectCreate`, {
+            //         duration: `${Date.now() - datetime}ms`,
+            //         context: data.request.headers?.context,
+            //         log: { message: `[${model.metadata.name}]:创建结果`, node }
+            //     })
             return node
         })
     }
 
     /**批量创建数据模型**/
-    public async fetchConnectInsert<T>(model: Repository<T>, data: { body: Array<Omix<DeepPartial<T>>> }) {
+    public async fetchConnectInsert<T>(model: Repository<T>, data: BaseConnectInsert<T>) {
         const datetime = Date.now()
-        return await this.fetchConnectBuilder(model, async qb => {
-            const node = await qb.insert().values(data.body).execute()
-            this.logger.info(`${DatabaseService.name}:fetchConnectInsert`, {
+        return await model.save(data.body).then(async node => {
+            this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectUpsert`, {
                 duration: `${Date.now() - datetime}ms`,
-                log: { message: `[${model.metadata.name}]:批量创建结果`, identifiers: node.identifiers, row: node.raw }
+                context: data.request.headers?.context,
+                log: { message: `[${model.metadata.name}]:事务等待批量更新结果`, node }
             })
             return node
         })
+        // return await this.fetchConnectBuilder(model, async qb => {
+        //     const node = await qb.insert().values(data.body).execute()
+        //     this.logger.info(`${DatabaseService.name}:fetchConnectInsert`, {
+        //         duration: `${Date.now() - datetime}ms`,
+        //         log: { message: `[${model.metadata.name}]:批量创建结果`, identifiers: node.identifiers, row: node.raw }
+        //     })
+        //     return node
+        // })
     }
 
-    /**批量创建OR更新数据模型**/
-    public async fetchConnectUpsert<T>(
-        model: Repository<T>,
-        data: { body: Parameters<typeof model.upsert>['0']; where: Parameters<typeof model.upsert>['1'] }
-    ) {
+    /**批量更新数据模型**/
+    public async fetchConnectUpsert<T>(model: Repository<T>, data: BaseConnectUpsert<T>) {
         const datetime = Date.now()
-        return await model.upsert(data.body, data.where).then(async node => {
-            this.logger.info(`${DatabaseService.name}:fetchConnectUpsert`, {
+        return await model.save(data.body).then(async node => {
+            this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectUpsert`, {
                 duration: `${Date.now() - datetime}ms`,
-                log: { message: `[${model.metadata.name}]:批量创建OR更新结果`, identifiers: node.identifiers, row: node.raw }
+                context: data.request.headers?.context,
+                log: { message: `[${model.metadata.name}]:事务等待批量更新结果`, node }
             })
             return node
         })
     }
 
     /**更新数据模型**/
-    public async fetchConnectUpdate<T>(
-        model: Repository<T>,
-        data: { where: Parameters<typeof model.update>['0']; body: Parameters<typeof model.update>['1'] }
-    ) {
+    public async fetchConnectUpdate<T>(model: Repository<T>, data: BaseConnectUpdate<T>) {
         const datetime = Date.now()
         return await model.update(data.where, data.body).then(async node => {
-            this.logger.info(`${DatabaseService.name}:fetchConnectUpdate`, {
+            this.logger.info(data.fnName || `${DatabaseService.name}:fetchConnectUpdate`, {
                 duration: `${Date.now() - datetime}ms`,
-                log: { message: `[${model.metadata.name}]:更新结果`, where: data.where, node }
+                context: data.request.headers?.context,
+                log: { message: `[${model.metadata.name}]:事务等待更新结果`, where: data.where, node }
             })
             return node
         })

@@ -5,19 +5,25 @@ import * as enums from '@/modules/database/database.enums'
 
 /**刷新redis字典缓存**/
 export class BaseUpdateRedisSystemChunk {
+    /**字典类型**/
     type: keyof typeof enums.SCHEMA_CHUNK_OPTIONS
+    /**字典类型值**/
     value: string
 }
 
 /**验证字典值缓存是否合规**/
-export class BaseCheckSystemChunk {
-    type: keyof typeof enums.SCHEMA_CHUNK_OPTIONS
-    value: string
-    message: string
+export class BaseCheckSystemChunk extends BaseUpdateRedisSystemChunk {
+    /**验证错误描述**/
+    message?: string
+    /**输出日志方法名**/
+    fnName?: string
 }
 
 /**查询字典类型列表**/
 export interface BaseChaxunSystemChunk<T, K extends keyof T> extends Partial<Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, boolean>> {
+    /**输出日志方法名**/
+    fnName?: string
+    /**表字段列表**/
     field?: Array<K>
 }
 
@@ -34,4 +40,4 @@ export class BaseColumnSystemChunk extends IntersectionType(
 export class BaseUpdateSystemChunk extends IntersectionType(PickType(SchemaChunk, ['keyId']), BaseCreateSystemChunk) {}
 
 /**编辑字典状态**/
-export class BaseSwitchSystemChunk extends PickType(SchemaChunk, ['keyId', 'status']) {}
+export class BaseUpdateStateSystemChunk extends PickType(SchemaChunk, ['keyId', 'status']) {}

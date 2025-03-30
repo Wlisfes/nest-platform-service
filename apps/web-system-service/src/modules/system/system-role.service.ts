@@ -19,16 +19,16 @@ export class SystemRoleService extends Logger {
     public async httpBaseCreateSystemRole(request: OmixRequest, body: field.BaseCreateSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNull(this.database.schemaRole, {
-                message: `name:${body.name} 已存在`,
-                dispatch: { where: { name: body.name } }
-            })
-            await this.database.fetchConnectCreate(this.database.schemaRole, {
-                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '新增成功' })
-            })
+            // await this.database.fetchConnectNull(this.database.schemaRole, {
+            //     message: `name:${body.name} 已存在`,
+            //     dispatch: { where: { name: body.name } }
+            // })
+            // await this.database.fetchConnectCreate(this.database.schemaRole, {
+            //     body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '新增成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseCreateSystemRole', err)
@@ -41,21 +41,21 @@ export class SystemRoleService extends Logger {
     public async httpBaseUpdateSystemRole(request: OmixRequest, body: field.BaseUpdateSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.fetchConnectNull(this.database.schemaRole, {
-                message: `name:${body.name} 已存在`,
-                dispatch: { where: { name: body.name, keyId: Not(body.keyId) } }
-            })
-            await this.database.fetchConnectUpdate(this.database.schemaRole, {
-                where: { keyId: body.keyId },
-                body: Object.assign(body, { uid: request.user.uid })
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectNull(this.database.schemaRole, {
+            //     message: `name:${body.name} 已存在`,
+            //     dispatch: { where: { name: body.name, keyId: Not(body.keyId) } }
+            // })
+            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
+            //     where: { keyId: body.keyId },
+            //     body: Object.assign(body, { uid: request.user.uid })
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '操作成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRole', err)
@@ -68,17 +68,17 @@ export class SystemRoleService extends Logger {
     public async httpBaseUpdateSwitchSystemRole(request: OmixRequest, body: field.BaseSwitchSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.fetchConnectUpdate(this.database.schemaRole, {
-                where: { keyId: body.keyId },
-                body: { status: body.status, uid: request.user.uid }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
+            //     where: { keyId: body.keyId },
+            //     body: { status: body.status, uid: request.user.uid }
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '操作成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseSwitchSystemRole', err)
@@ -91,17 +91,17 @@ export class SystemRoleService extends Logger {
     public async httpBaseUpdateSystemRoleRouter(request: OmixRequest, body: field.BaseUpdateSystemRoleRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.fetchConnectUpdate(this.database.schemaRole, {
-                where: { keyId: body.keyId },
-                body: { auxs: body.auxs ?? [], uid: request.user.uid }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
+            //     where: { keyId: body.keyId },
+            //     body: { auxs: body.auxs ?? [], uid: request.user.uid }
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '操作成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRoleRouter', err)
@@ -114,17 +114,17 @@ export class SystemRoleService extends Logger {
     public async httpBaseUpdateSystemRoleUser(request: OmixRequest, body: field.BaseUpdateSystemRoleUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.fetchConnectUpdate(this.database.schemaRole, {
-                where: { keyId: body.keyId },
-                body: { uids: body.uids ?? [], uid: request.user.uid }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectUpdate(this.database.schemaRole, {
+            //     where: { keyId: body.keyId },
+            //     body: { uids: body.uids ?? [], uid: request.user.uid }
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '操作成功' })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler('SystemRoleService:httpBaseUpdateSystemRoleUser', err)

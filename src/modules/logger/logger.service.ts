@@ -17,6 +17,6 @@ export class Logger {
     /**异常抛出**/
     public async fetchCatchCompiler(name: string, err: any) {
         this.logger.error(name, { log: err })
-        throw new HttpException(err.response, err.status ?? HttpStatus.INTERNAL_SERVER_ERROR, err.options)
+        throw new HttpException(err.message ?? err.response, err.status ?? HttpStatus.INTERNAL_SERVER_ERROR, err.options)
     }
 }

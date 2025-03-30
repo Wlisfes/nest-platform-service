@@ -51,13 +51,13 @@ export class SystemChunkController {
         return await this.systemChunkService.httpBaseUpdateSystemChunk(request, body)
     }
 
-    @Post('/update/switch')
+    @Post('/update/state')
     @ApiDecorator({
         operation: { summary: '编辑字典状态' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSwitchSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseSwitchSystemChunk) {
-        return await this.systemChunkService.httpBaseUpdateSwitchSystemChunk(request, body)
+    public async httpBaseUpdateStateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseUpdateStateSystemChunk) {
+        return await this.systemChunkService.httpBaseUpdateStateSystemChunk(request, body)
     }
 }
