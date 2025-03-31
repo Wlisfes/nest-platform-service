@@ -1,4 +1,7 @@
-import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
+import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
+import { IsString, IsArray } from 'class-validator'
+import { IsOptional } from '@/decorator/common.decorator'
 import { OmixColumn } from '@/interface/instance.resolver'
 import { SchemaChunk } from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -41,3 +44,13 @@ export class BaseUpdateSystemChunk extends IntersectionType(PickType(SchemaChunk
 
 /**编辑字典状态**/
 export class BaseUpdateStateSystemChunk extends PickType(SchemaChunk, ['keyId', 'status']) {}
+
+/**批量获取字典分类列表**/
+export class BaseSelectSystemChunk {
+    @ApiProperty({ description: '字典类型列表' })
+    @Type(() => String)
+    @IsOptional()
+    @IsArray({ message: 'type 必须为Array<string>格式' })
+    @IsString({ each: true, message: 'type 必须为Array<string>格式' })
+    type: string[] = []
+}

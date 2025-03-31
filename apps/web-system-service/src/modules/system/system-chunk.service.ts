@@ -61,7 +61,7 @@ export class SystemChunkService extends Logger {
             return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
                 await qb.where(`t.type IN(:keys)`, { keys })
                 await this.database.fetchSelection(qb, [
-                    ['t', [...new Set(['type', 'name', 'value', 'json', ...((body.field ?? []) as Array<string>)])]]
+                    ['t', [...new Set(['keyId', 'type', 'name', 'value', 'json', ...((body.field ?? []) as Array<string>)])]]
                 ])
                 return await qb.getMany().then(async list => {
                     list.forEach(item => chunk[item.type].push(item))
@@ -230,6 +230,28 @@ export class SystemChunkService extends Logger {
             return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
+        }
+    }
+
+    /**批量获取字典分类列表**/
+    @AutoMethodDescriptor
+    public async httpBaseSelectSystemChunk(request: OmixRequest, body: field.BaseSelectSystemChunk) {
+        try {
+            const cause = body.type.filter(key => !Object.keys(enums.SCHEMA_CHUNK_OPTIONS).includes(key))
+            if (body.type.length === 0) {
+                throw new HttpException('type不可为空', HttpStatus.BAD_REQUEST)
+            } else if (cause.length > 0) {
+                throw new HttpException('type参数错误', HttpStatus.BAD_REQUEST, { cause })
+            }
+            return await this.httpBaseChaxunSystemChunk(
+                request,
+                Object.assign(
+                    { deplayName: this.deplayName },
+                    body.type.reduce((ocs: Omix, key) => ({ ...ocs, [key]: true }), {})
+                )
+            )
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 }

@@ -60,4 +60,14 @@ export class SystemChunkController {
     public async httpBaseUpdateStateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseUpdateStateSystemChunk) {
         return await this.systemChunkService.httpBaseUpdateStateSystemChunk(request, body)
     }
+
+    @Post('/select')
+    @ApiDecorator({
+        operation: { summary: '批量获取字典分类列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSelectSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseSelectSystemChunk) {
+        return await this.systemChunkService.httpBaseSelectSystemChunk(request, body)
+    }
 }
