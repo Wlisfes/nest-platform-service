@@ -6,12 +6,40 @@ import { OmixColumn } from '@/interface/instance.resolver'
 import { SchemaChunk } from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
 
+export class BaseSystemChunkRequest {
+    /**验证错误描述**/
+    message: string
+    /**输出日志方法名**/
+    deplayName: string
+}
+
 /**刷新redis字典缓存**/
 export class BaseUpdateRedisSystemChunk {
     /**字典类型**/
     type: keyof typeof enums.SCHEMA_CHUNK_OPTIONS
     /**字典类型值**/
     value: string
+}
+
+/**根据keyId验证数据是否不存在**/
+export class BaseCheckKeyIdSystemChunk extends PickType(SchemaChunk, ['keyId']) {
+    /**验证错误描述**/
+    message: string
+    /**输出日志方法名**/
+    deplayName: string
+}
+
+/**验证字典类型、value是否重复**/
+export class BaseCheckRepeatSystemChunk {
+    keyId?: string
+    /**字典类型**/
+    type: string
+    /**字典类型值**/
+    value: string
+    /**验证错误描述**/
+    message: string
+    /**输出日志方法名**/
+    deplayName: string
 }
 
 /**验证字典值缓存是否合规**/
@@ -31,7 +59,9 @@ export interface BaseChaxunSystemChunk<T, K extends keyof T> extends Partial<Rec
 }
 
 /**新增字典**/
-export class BaseCreateSystemChunk extends PickType(SchemaChunk, ['type', 'name', 'value', 'pid', 'comment', 'json']) {}
+export class BaseCreateSystemChunk extends IntersectionType(
+    PickType(SchemaChunk, ['type', 'name', 'value', 'pid', 'rule', 'comment', 'json'])
+) {}
 
 /**字典列表**/
 export class BaseColumnSystemChunk extends IntersectionType(

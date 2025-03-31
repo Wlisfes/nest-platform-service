@@ -56,6 +56,11 @@ export class SchemaChunk extends DatabaseAdapter {
     @Column({ comment: '上级ID', length: 19, nullable: true })
     pid: string
 
+    @ApiProperty({ description: '按钮权限ID', required: false })
+    @IsOptional()
+    @Column({ comment: '按钮权限ID', length: 19, nullable: true })
+    rule: string
+
     @ApiProperty({ description: '字典备注', required: false })
     @IsOptional({}, { string: true, number: true })
     @Length(0, 255, { message: '字典备注不能超过255个字符' })
