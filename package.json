@@ -50,7 +50,7 @@
         "ioredis": "^5.3.2",
         "js-yaml": "^4.1.0",
         "lodash": "^4.17.21",
-        "mysql": "^2.18.1",
+        "mysql2": "^3.14.0",
         "nest-knife4j": "^1.0.1",
         "nest-winston": "^1.9.4",
         "nodemailer": "^6.9.13",
