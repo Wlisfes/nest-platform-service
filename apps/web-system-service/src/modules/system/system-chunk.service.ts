@@ -104,15 +104,6 @@ export class SystemChunkService extends Logger {
                     dispatch: { where: { keyId: body.pid } }
                 })
             })
-            /**验证rule是否不存在**/
-            await utils.fetchHandler(utils.isNotEmpty(body.rule), async () => {
-                return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                    request,
-                    deplayName: this.deplayName,
-                    message: `rule:${body.rule} 不存在`,
-                    dispatch: { where: { keyId: body.rule } }
-                })
-            })
             /**把创建操作插入事务**/
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaChunk), {
                 deplayName: this.deplayName,
@@ -223,15 +214,6 @@ export class SystemChunkService extends Logger {
                     keyId: body.pid,
                     deplayName: this.deplayName,
                     message: `pid:${body.pid} 不存在`
-                })
-            })
-            /**验证rule是否不存在**/
-            await utils.fetchHandler(utils.isNotEmpty(body.rule), async () => {
-                return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                    deplayName: this.deplayName,
-                    request,
-                    message: `rule:${body.rule} 不存在`,
-                    dispatch: { where: { keyId: body.rule } }
                 })
             })
             /**把编辑操作插入事务**/

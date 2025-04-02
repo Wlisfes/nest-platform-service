@@ -59,9 +59,7 @@ export interface BaseChaxunSystemChunk<T, K extends keyof T> extends Partial<Rec
 }
 
 /**新增字典**/
-export class BaseCreateSystemChunk extends IntersectionType(
-    PickType(SchemaChunk, ['type', 'name', 'value', 'pid', 'rule', 'comment', 'json'])
-) {}
+export class BaseCreateSystemChunk extends IntersectionType(PickType(SchemaChunk, ['type', 'name', 'value', 'pid', 'comment', 'json'])) {}
 
 /**字典列表**/
 export class BaseColumnSystemChunk extends IntersectionType(
