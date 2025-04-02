@@ -21,18 +21,47 @@ export class SystemRouterService extends Logger {
     public async httpBaseCreateSystemRouter(request: OmixRequest, body: field.BaseCreateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
+            /**验证菜单类型枚举值**/
+            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                deplayName: this.deplayName,
+                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_TYPE.value,
+                value: body.type,
+                message: `type:${body.type}格式错误`
+            })
+            /**验证状态枚举值**/
+            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                deplayName: this.deplayName,
+                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_STATUS.value,
+                value: body.status,
+                message: `status:${body.status}格式错误`
+            })
+            /**验证是否可见枚举值**/
+            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                deplayName: this.deplayName,
+                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_CHECK.value,
+                value: body.check,
+                message: `check:${body.check}格式错误`
+            })
+            /**验证key重复**/
             await this.database.fetchConnectNull(this.database.schemaRouter, {
                 deplayName: this.deplayName,
                 request,
                 message: `key:${body.key} 已存在`,
                 dispatch: { where: { key: body.key } }
             })
-            await this.database.fetchConnectNull(this.database.schemaRouter, {
-                deplayName: this.deplayName,
-                request,
-                message: `router:${body.router} 已存在`,
-                dispatch: { where: { router: body.router } }
+            /**验证router重复**/
+            await utils.fetchHandler(body.type === 'router', async () => {
+                if (utils.isEmpty(body.router)) {
+                    throw new HttpException(`router:菜单地址必填`, HttpStatus.BAD_REQUEST)
+                }
+                await this.database.fetchConnectNull(this.database.schemaRouter, {
+                    deplayName: this.deplayName,
+                    request,
+                    message: `router:${body.router} 已存在`,
+                    dispatch: { where: { router: body.router } }
+                })
             })
+            /**验证pid不存在**/
             await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
                 return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
                     deplayName: this.deplayName,
@@ -62,23 +91,52 @@ export class SystemRouterService extends Logger {
     public async httpBaseUpdateSystemRouter(request: OmixRequest, body: field.BaseUpdateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
+            /**验证菜单类型枚举值**/
+            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                deplayName: this.deplayName,
+                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_TYPE.value,
+                value: body.type,
+                message: `type:${body.type}格式错误`
+            })
+            /**验证状态枚举值**/
+            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                deplayName: this.deplayName,
+                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_STATUS.value,
+                value: body.status,
+                message: `status:${body.status}格式错误`
+            })
+            /**验证是否可见枚举值**/
+            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
+                deplayName: this.deplayName,
+                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_CHECK.value,
+                value: body.check,
+                message: `check:${body.check}格式错误`
+            })
+            /**验证主键keyId不存在**/
             await this.database.fetchConnectNotNull(this.database.schemaRouter, {
                 deplayName: this.deplayName,
                 request,
                 message: `keyId:${body.keyId} 不存在`,
                 dispatch: { where: { keyId: body.keyId } }
             })
+            /**验证key重复**/
             await this.database.fetchConnectNull(this.database.schemaRouter, {
                 deplayName: this.deplayName,
                 request,
                 message: `key:${body.key} 已存在`,
                 dispatch: { where: { key: body.key, keyId: Not(body.keyId) } }
             })
-            await this.database.fetchConnectNull(this.database.schemaRouter, {
-                deplayName: this.deplayName,
-                request,
-                message: `router:${body.router} 已存在`,
-                dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
+            /**验证router重复**/
+            await utils.fetchHandler(body.type === 'router', async () => {
+                if (utils.isEmpty(body.router)) {
+                    throw new HttpException(`router:菜单地址必填`, HttpStatus.BAD_REQUEST)
+                }
+                await this.database.fetchConnectNull(this.database.schemaRouter, {
+                    deplayName: this.deplayName,
+                    request,
+                    message: `router:${body.router} 已存在`,
+                    dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
+                })
             })
             await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRouter), {
                 deplayName: this.deplayName,

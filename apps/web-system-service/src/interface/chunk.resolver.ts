@@ -16,7 +16,7 @@ export class BaseSystemChunkRequest {
 /**刷新redis字典缓存**/
 export class BaseUpdateRedisSystemChunk {
     /**字典类型**/
-    type: keyof typeof enums.SCHEMA_CHUNK_OPTIONS
+    type: string | keyof typeof enums.SCHEMA_CHUNK_OPTIONS
     /**字典类型值**/
     value: string
 }
