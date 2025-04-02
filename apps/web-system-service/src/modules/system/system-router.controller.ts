@@ -50,6 +50,16 @@ export class SystemRouterController {
         return this.systemRouterService.httpBaseColumnSystemRouter(request, body)
     }
 
+    @Get('/column/tree')
+    @ApiDecorator({
+        operation: { summary: '菜单列表树' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseColumnTreeSystemRouter(@Request() request: OmixRequest) {
+        return this.systemRouterService.httpBaseColumnTreeSystemRouter(request)
+    }
+
     @Get('/user')
     @ApiDecorator({
         operation: { summary: '获取当前用户菜单' },

@@ -26,6 +26,10 @@ export const SCHEMA_CHUNK_OPTIONS = {
         value: 'COMMON_SYSTEM_ROUTER_STATUS',
         name: '菜单状态'
     },
+    COMMON_SYSTEM_ROUTER_CHECK: {
+        value: 'COMMON_SYSTEM_ROUTER_CHECK',
+        name: '菜单显示状态'
+    },
     COMMON_SYSTEM_ROLE_STATUS: {
         value: 'COMMON_SYSTEM_ROLE_STATUS',
         name: '角色状态'

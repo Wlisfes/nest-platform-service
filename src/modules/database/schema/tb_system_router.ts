@@ -44,8 +44,9 @@ export class SchemaRouter extends DatabaseAdapter {
 
     @ApiProperty({ description: '是否可见', example: true })
     @IsNotEmpty({ message: '是否可见必填' })
-    @Column({ comment: '是否可见', default: true, nullable: false })
-    check: boolean
+    @Length(0, 32, { message: '是否可见不能超过32个字符' })
+    @Column({ comment: '是否可见: 显示-show、隐藏-hide', length: 32, nullable: false })
+    check: string
 
     @ApiProperty({ description: '类型: 菜单-router、按钮-button' })
     @IsNotEmpty({ message: '类型必填' })

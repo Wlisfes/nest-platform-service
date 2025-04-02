@@ -40,23 +40,6 @@ export class SystemChunkService extends Logger {
         })
     }
 
-    /**验证字典类型、value是否重复: 重复了会抛出异常**/
-    @AutoMethodDescriptor
-    public async fetchBaseCheckRepeatSystemChunk(request: OmixRequest, body: field.BaseCheckRepeatSystemChunk) {
-        return await this.database.fetchConnectNotNull(this.database.schemaChunk, {
-            request,
-            deplayName: body.deplayName || this.deplayName,
-            message: body.message || `value:${body.value} 已存在`,
-            dispatch: {
-                where: {
-                    value: body.value,
-                    type: body.type,
-                    ...(utils.isEmpty(body.keyId) ? {} : { keyId: Not(body.keyId) })
-                }
-            }
-        })
-    }
-
     /**验证字典值缓存是否合规: 不合规会抛出异常**/
     @AutoMethodDescriptor
     public async fetchBaseCheckSystemChunk(request: OmixRequest, body: field.BaseCheckSystemChunk) {
@@ -106,25 +89,26 @@ export class SystemChunkService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**验证类型+value是否重复**/
-            await this.fetchBaseCheckRepeatSystemChunk(request, {
+            await this.database.fetchConnectNull(this.database.schemaChunk, {
+                request,
                 deplayName: this.deplayName,
                 message: `value:${body.value} 已存在`,
-                type: body.type,
-                value: body.value
+                dispatch: { where: { value: body.value, type: body.type } }
             })
             /**验证pid父级是否不存在**/
             await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
-                return await this.fetchBaseCheckKeyIdSystemChunk(request, {
-                    keyId: body.pid,
+                return await this.database.fetchConnectNotNull(this.database.schemaChunk, {
+                    request,
                     deplayName: this.deplayName,
-                    message: `pid:${body.pid} 不存在`
+                    message: `pid:${body.pid} 不存在`,
+                    dispatch: { where: { keyId: body.pid } }
                 })
             })
             /**验证rule是否不存在**/
             await utils.fetchHandler(utils.isNotEmpty(body.rule), async () => {
                 return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                    deplayName: this.deplayName,
                     request,
+                    deplayName: this.deplayName,
                     message: `rule:${body.rule} 不存在`,
                     dispatch: { where: { keyId: body.rule } }
                 })
@@ -227,12 +211,11 @@ export class SystemChunkService extends Logger {
                 message: `keyId:${body.keyId} 不存在`
             })
             /**验证类型+value是否重复**/
-            await this.fetchBaseCheckRepeatSystemChunk(request, {
+            await this.database.fetchConnectNull(this.database.schemaChunk, {
+                request,
                 deplayName: this.deplayName,
                 message: `value:${body.value} 已存在`,
-                type: body.type,
-                value: body.value,
-                keyId: body.keyId
+                dispatch: { where: { value: body.value, type: body.type, keyId: Not(body.keyId) } }
             })
             /**验证pid父级是否不存在**/
             await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
