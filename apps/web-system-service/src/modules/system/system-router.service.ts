@@ -217,9 +217,8 @@ export class SystemRouterService extends Logger {
                 await qb.orderBy({ 't.sort': 'ASC' })
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return await this.fetchResolver({
-                        message: '操作成功',
                         total,
-                        list: utils.tree.fromList(list, { id: 'keyId', pid: 'pid' })
+                        list: utils.fetchRemoveTreeNode(utils.tree.fromList(list, { id: 'keyId', pid: 'pid' }))
                     })
                 })
             })
@@ -238,11 +237,7 @@ export class SystemRouterService extends Logger {
                     ['t', ['iconName', 'type', 'status', 'version']]
                 ])
                 return await qb.getMany().then(async data => {
-                    const list = utils.tree.fromList(data, { id: 'keyId', pid: 'pid' })
-                    console.log(utils.tree.removeNode(list, (node: Omix) => node.keyId === '2280242606426357760'))
-                    return {
-                        list: utils.tree.fromList(list, { id: 'keyId', pid: 'pid' })
-                    }
+                    return await this.fetchResolver({ list: utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }) })
                 })
             })
         } catch (err) {
