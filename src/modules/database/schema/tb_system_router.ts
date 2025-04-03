@@ -1,9 +1,10 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber, Length } from 'class-validator'
+import { IsNotEmpty, IsNumber, Length, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
+import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_router', comment: '菜单资源配置表' })
 export class SchemaRouter extends DatabaseAdapter {
@@ -43,20 +44,22 @@ export class SchemaRouter extends DatabaseAdapter {
     pid: string
 
     @ApiProperty({ description: '是否可见', example: true })
+    @Type(() => Boolean)
     @IsNotEmpty({ message: '是否可见必填' })
-    @Length(0, 32, { message: '是否可见不能超过32个字符' })
-    @Column({ comment: '是否可见: 显示-show、隐藏-hide', length: 32, nullable: false })
-    check: string
+    @Column({ comment: '是否可见', default: true, nullable: false })
+    check: boolean
 
-    @ApiProperty({ description: '类型: 菜单-router、按钮-button' })
+    @ApiProperty({ description: '类型: 菜单-router、按钮-button', enum: Object.keys(enums.COMMON_SYSTEM_ROUTER_TYPE) })
     @IsNotEmpty({ message: '类型必填' })
     @Length(0, 32, { message: '类型不能超过32个字符' })
+    @IsEnum(Object.keys(enums.COMMON_SYSTEM_ROUTER_TYPE), { message: '类型格式错误' })
     @Column({ comment: '类型: 菜单-router、按钮-button', length: 32, nullable: false })
     type: string
 
-    @ApiProperty({ description: '状态: 禁用-disable、启用-enable' })
+    @ApiProperty({ description: '状态: 禁用-disable、启用-enable', enum: Object.keys(enums.COMMON_SYSTEM_ROUTER_STATUS) })
     @IsNotEmpty({ message: '状态必填' })
     @Length(0, 32, { message: '状态不能超过32个字符' })
+    @IsEnum(Object.keys(enums.COMMON_SYSTEM_ROUTER_STATUS), { message: '状态格式错误' })
     @Column({ comment: '状态: 禁用-disable、启用-enable', nullable: false })
     status: string
 

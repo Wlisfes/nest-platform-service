@@ -21,42 +21,21 @@ export class SystemRouterService extends Logger {
     public async httpBaseCreateSystemRouter(request: OmixRequest, body: field.BaseCreateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            /**验证菜单类型枚举值**/
-            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
-                deplayName: this.deplayName,
-                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_TYPE.value,
-                value: body.type,
-                message: `type:${body.type}格式错误`
-            })
-            /**验证状态枚举值**/
-            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
-                deplayName: this.deplayName,
-                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_STATUS.value,
-                value: body.status,
-                message: `status:${body.status}格式错误`
-            })
-            /**验证是否可见枚举值**/
-            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
-                deplayName: this.deplayName,
-                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_CHECK.value,
-                value: body.check,
-                message: `check:${body.check}格式错误`
-            })
             /**验证key重复**/
             await this.database.fetchConnectNull(this.database.schemaRouter, {
-                deplayName: this.deplayName,
                 request,
+                deplayName: this.deplayName,
                 message: `key:${body.key} 已存在`,
                 dispatch: { where: { key: body.key } }
             })
             /**验证router重复**/
-            await utils.fetchHandler(body.type === 'router', async () => {
+            await utils.fetchHandler(body.type === enums.COMMON_SYSTEM_ROUTER_TYPE.router.value, async () => {
                 if (utils.isEmpty(body.router)) {
                     throw new HttpException(`router:菜单地址必填`, HttpStatus.BAD_REQUEST)
                 }
                 await this.database.fetchConnectNull(this.database.schemaRouter, {
-                    deplayName: this.deplayName,
                     request,
+                    deplayName: this.deplayName,
                     message: `router:${body.router} 已存在`,
                     dispatch: { where: { router: body.router } }
                 })
@@ -64,15 +43,15 @@ export class SystemRouterService extends Logger {
             /**验证pid不存在**/
             await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
                 return await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                    deplayName: this.deplayName,
                     request,
+                    deplayName: this.deplayName,
                     message: `pid:${body.pid} 不存在`,
                     dispatch: { where: { keyId: body.pid } }
                 })
             })
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaRouter), {
-                deplayName: this.deplayName,
                 request,
+                deplayName: this.deplayName,
                 body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -91,56 +70,35 @@ export class SystemRouterService extends Logger {
     public async httpBaseUpdateSystemRouter(request: OmixRequest, body: field.BaseUpdateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            /**验证菜单类型枚举值**/
-            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
-                deplayName: this.deplayName,
-                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_TYPE.value,
-                value: body.type,
-                message: `type:${body.type}格式错误`
-            })
-            /**验证状态枚举值**/
-            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
-                deplayName: this.deplayName,
-                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_STATUS.value,
-                value: body.status,
-                message: `status:${body.status}格式错误`
-            })
-            /**验证是否可见枚举值**/
-            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
-                deplayName: this.deplayName,
-                type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_ROUTER_CHECK.value,
-                value: body.check,
-                message: `check:${body.check}格式错误`
-            })
             /**验证主键keyId不存在**/
             await this.database.fetchConnectNotNull(this.database.schemaRouter, {
-                deplayName: this.deplayName,
                 request,
+                deplayName: this.deplayName,
                 message: `keyId:${body.keyId} 不存在`,
                 dispatch: { where: { keyId: body.keyId } }
             })
             /**验证key重复**/
             await this.database.fetchConnectNull(this.database.schemaRouter, {
-                deplayName: this.deplayName,
                 request,
+                deplayName: this.deplayName,
                 message: `key:${body.key} 已存在`,
                 dispatch: { where: { key: body.key, keyId: Not(body.keyId) } }
             })
             /**验证router重复**/
-            await utils.fetchHandler(body.type === 'router', async () => {
+            await utils.fetchHandler(body.type === enums.COMMON_SYSTEM_ROUTER_TYPE.router.value, async () => {
                 if (utils.isEmpty(body.router)) {
                     throw new HttpException(`router:菜单地址必填`, HttpStatus.BAD_REQUEST)
                 }
                 await this.database.fetchConnectNull(this.database.schemaRouter, {
-                    deplayName: this.deplayName,
                     request,
+                    deplayName: this.deplayName,
                     message: `router:${body.router} 已存在`,
                     dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
                 })
             })
             await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRouter), {
-                deplayName: this.deplayName,
                 request,
+                deplayName: this.deplayName,
                 where: { keyId: body.keyId },
                 body: Object.assign(body, { uid: request.user.uid })
             })
@@ -160,12 +118,6 @@ export class SystemRouterService extends Logger {
     public async httpBaseUpdateStateSystemRouter(request: OmixRequest, body: field.BaseStateSystemRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.systemChunkService.fetchBaseCheckSystemChunk(request, {
-                deplayName: this.deplayName,
-                type: 'COMMON_SYSTEM_ROUTER_STATUS',
-                value: body.status,
-                message: `status:${body.status} 格式错误`
-            })
             const items = await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await qb.where(`t.keyId IN(:keys)`, { keys: body.keys })
                 await this.database.fetchSelection(qb, [['t', ['id', 'keyId']]])
@@ -179,8 +131,8 @@ export class SystemRouterService extends Logger {
                 })
             })
             await this.database.fetchConnectUpsert(ctx.manager.getRepository(schema.SchemaRouter), {
-                deplayName: this.deplayName,
                 request,
+                deplayName: this.deplayName,
                 body: items
             })
             return await ctx.commitTransaction().then(async () => {
@@ -198,10 +150,6 @@ export class SystemRouterService extends Logger {
     @AutoMethodDescriptor
     public async httpBaseColumnSystemRouter(request: OmixRequest, body: field.BaseColumnSystemRouter) {
         try {
-            const chunk = await this.systemChunkService.httpBaseChaxunSystemChunk(request, {
-                COMMON_SYSTEM_ROUTER_TYPE: true,
-                COMMON_SYSTEM_ROUTER_STATUS: true
-            })
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
                 await this.database.fetchSelection(qb, [
@@ -231,21 +179,21 @@ export class SystemRouterService extends Logger {
                 })
                 await this.database.fetchBrackets(utils.isNotEmpty(body.startTime) && utils.isNotEmpty(body.endTime)).then(async where => {
                     if (where) {
-                        return qb.andWhere('t.createTime >= :startTime AND t.createTime <= :endTime', {
+                        return qb.andWhere('t.modifyTime >= :startTime AND t.modifyTime <= :endTime', {
                             startTime: body.startTime,
                             endTime: body.endTime
                         })
                     } else if (utils.isNotEmpty(body.startTime)) {
-                        qb.andWhere('t.createTime >= :startTime', { startTime: body.startTime })
+                        qb.andWhere('t.modifyTime >= :startTime', { startTime: body.startTime })
                     } else if (utils.isNotEmpty(body.endTime)) {
-                        qb.andWhere('t.createTime <= :endTime', { endTime: body.endTime })
+                        qb.andWhere('t.modifyTime <= :endTime', { endTime: body.endTime })
                     }
                 })
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     const node = list.map(item => ({
                         ...item,
-                        type: utils.fetchColumn(chunk.COMMON_SYSTEM_ROUTER_TYPE, item.type),
-                        status: utils.fetchColumn(chunk.COMMON_SYSTEM_ROUTER_STATUS, item.status)
+                        typeChunk: enums.COMMON_SYSTEM_ROUTER_TYPE[item.type],
+                        statusChunk: enums.COMMON_SYSTEM_ROUTER_STATUS[item.status]
                     }))
                     return await this.fetchResolver({
                         message: '操作成功',
