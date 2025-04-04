@@ -146,6 +146,42 @@ export class SystemRouterService extends Logger {
         }
     }
 
+    /**删除菜单**/
+    @AutoMethodDescriptor
+    public async httpBaseDeleteSystemRouter(request: OmixRequest, body: field.BaseSystemRouterResolver) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            /**验证keyId合法性**/
+            await this.database.fetchConnectNotNull(this.database.schemaRouter, {
+                request,
+                deplayName: this.deplayName,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            /**提交删除事务操作**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRouter), {
+                request,
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
+            })
+            /**移除keyId对应的pid数据**/
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRouter), {
+                request,
+                deplayName: this.deplayName,
+                where: { pid: body.keyId },
+                body: { pid: null, uid: request.user.uid }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        } finally {
+            await ctx.release()
+        }
+    }
+
     /**菜单列表**/
     @AutoMethodDescriptor
     public async httpBaseColumnSystemRouter(request: OmixRequest, body: field.BaseColumnSystemRouter) {

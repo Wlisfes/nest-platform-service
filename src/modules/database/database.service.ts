@@ -30,6 +30,12 @@ export interface BaseCommonConnectOption<T> extends BaseConnectOption {
     transform?: (data: T) => boolean | Promise<boolean>
 }
 
+/**删除数据模型**/
+export interface BaseConnectDelete<T> extends BaseConnectOption {
+    /**删除条件**/
+    where: Parameters<Repository<T>['delete']>['0']
+}
+
 /**更新数据模型**/
 export interface BaseConnectUpdate<T> extends BaseConnectOption {
     /**更新条件**/
@@ -199,6 +205,21 @@ export class DatabaseService extends Logger {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:事务等待更新结果`, where: data.where, node }
+                })
+            }
+            return node
+        })
+    }
+
+    /**删除数据模型**/
+    public async fetchConnectDelete<T>(model: Repository<T>, data: BaseConnectDelete<T>) {
+        const datetime = Date.now()
+        return await model.delete(data.where).then(async node => {
+            if (data.logger ?? true) {
+                this.logger.info(data.deplayName || `${DatabaseService.name}:fetchConnectDelete`, {
+                    duration: `${Date.now() - datetime}ms`,
+                    context: data.request.headers?.context,
+                    log: { message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node }
                 })
             }
             return node

@@ -40,6 +40,16 @@ export class SystemRouterController {
         return await this.systemRouterService.httpBaseUpdateStateSystemRouter(request, body)
     }
 
+    @Post('/delete')
+    @ApiDecorator({
+        operation: { summary: '删除菜单' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseDeleteSystemRouter(@Request() request: OmixRequest, @Body() body: field.BaseSystemRouterResolver) {
+        return await this.systemRouterService.httpBaseDeleteSystemRouter(request, body)
+    }
+
     @Post('/column')
     @ApiDecorator({
         operation: { summary: '菜单列表' },
