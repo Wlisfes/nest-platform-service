@@ -191,7 +191,7 @@ export class SystemRouterService extends Logger {
                 await this.database.fetchSelection(qb, [
                     ['t', ['uid', 'pid', 'key', 'name', 'router', 'active', 'check', 'iconName', 'sort', 'type', 'status', 'version']],
                     ['t', ['keyId', 'id', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'name', 'status', 'id']]
+                    ['user', ['uid', 'name', 'status', 'id', 'number']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.keyId LIKE :vague OR t.key LIKE :vague OR t.name LIKE :vague OR t.router LIKE :vague`, {
@@ -251,10 +251,9 @@ export class SystemRouterService extends Logger {
                 await this.database.fetchSelection(qb, [['t', ['keyId', 'id', 'pid', 'name', 'sort', 'type']]])
                 await qb.where('t.type = :type', { type: 'router' })
                 await qb.orderBy({ 't.sort': 'ASC' })
-                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                return await qb.getMany().then(async data => {
                     return await this.fetchResolver({
-                        total,
-                        list: utils.fetchRemoveTreeNode(utils.tree.fromList(list, { id: 'keyId', pid: 'pid' }))
+                        list: utils.fetchRemoveTreeNode(utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }))
                     })
                 })
             })
@@ -268,12 +267,15 @@ export class SystemRouterService extends Logger {
     public async httpBaseColumnUserSystemRouter(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
+                await qb.where('t.type = :type', { type: enums.COMMON_SYSTEM_ROUTER_TYPE.router.value })
                 await this.database.fetchSelection(qb, [
                     ['t', ['keyId', 'pid', 'key', 'name', 'router', 'active', 'check']],
                     ['t', ['iconName', 'type', 'status', 'version']]
                 ])
                 return await qb.getMany().then(async data => {
-                    return await this.fetchResolver({ list: utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }) })
+                    return await this.fetchResolver({
+                        list: utils.fetchRemoveTreeNode(utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }))
+                    })
                 })
             })
         } catch (err) {

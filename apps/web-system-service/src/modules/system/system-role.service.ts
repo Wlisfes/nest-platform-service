@@ -15,7 +15,7 @@ export class SystemRoleService extends Logger {
         super()
     }
 
-    /**新增角色权限**/
+    /**新增角色**/
     @AutoMethodDescriptor
     public async httpBaseCreateSystemRole(request: OmixRequest, body: field.BaseCreateSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
@@ -78,7 +78,7 @@ export class SystemRoleService extends Logger {
 
     /**编辑角色状态**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateSwitchSystemRole(request: OmixRequest, body: field.BaseSwitchSystemRole) {
+    public async httpBaseUpdateStateSystemRole(request: OmixRequest, body: field.BaseStateSystemRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaRole, {
@@ -104,9 +104,9 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**编辑角色权限**/
+    /**编辑角色**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateSystemRoleRouter(request: OmixRequest, body: field.BaseUpdateSystemRoleRouter) {
+    public async httpBaseUpdateSystemRoleAuthorize(request: OmixRequest, body: field.BaseUpdateSystemRoleAuthorize) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaRole, {
@@ -160,17 +160,23 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**角色权限列表**/
+    /**角色列表**/
     @AutoMethodDescriptor
     public async httpBaseColumnSystemRole(request: OmixRequest, body: field.BaseColumnSystemRole) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
-                await qb.leftJoinAndMapOne('t.status', schema.SchemaChunk, 'status', `status.value = t.status AND status.type = :type`, {
-                    type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value
-                })
+                await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
+                await qb.leftJoinAndMapOne(
+                    't.statusChunk',
+                    schema.SchemaChunk,
+                    'statusChunk',
+                    `statusChunk.value = t.status AND statusChunk.type = :type`,
+                    { type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
+                )
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'keyId', 'name', 'uid', 'uids', 'auxs', 'status', 'createTime', 'modifyTime']],
-                    ['status', ['name', 'value', 'json']]
+                    ['statusChunk', ['name', 'value', 'json']],
+                    ['user', ['uid', 'name', 'status', 'id', 'number']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.keyId LIKE :vague OR t.name LIKE :vague`, { vague: `%${body.vague}%` })

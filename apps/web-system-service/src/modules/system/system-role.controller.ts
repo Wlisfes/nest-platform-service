@@ -12,7 +12,7 @@ export class SystemRoleController {
 
     @Post('/create')
     @ApiDecorator({
-        operation: { summary: '新增角色权限' },
+        operation: { summary: '新增角色' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
@@ -30,24 +30,24 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseUpdateSystemRole(request, body)
     }
 
-    @Post('/update/switch')
+    @Post('/update/state')
     @ApiDecorator({
         operation: { summary: '编辑角色状态' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSwitchSystemRole(@Request() request: OmixRequest, @Body() body: field.BaseSwitchSystemRole) {
-        return await this.systemRoleService.httpBaseUpdateSwitchSystemRole(request, body)
+    public async httpBaseUpdateStateSystemRole(@Request() request: OmixRequest, @Body() body: field.BaseStateSystemRole) {
+        return await this.systemRoleService.httpBaseUpdateStateSystemRole(request, body)
     }
 
-    @Post('/update/router')
+    @Post('/update/authorize')
     @ApiDecorator({
         operation: { summary: '编辑角色权限' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSystemRoleRouter(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemRoleRouter) {
-        return await this.systemRoleService.httpBaseUpdateSystemRoleRouter(request, body)
+    public async httpBaseUpdateSystemRoleAuthorize(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemRoleAuthorize) {
+        return await this.systemRoleService.httpBaseUpdateSystemRoleAuthorize(request, body)
     }
 
     @Post('/update/user')
@@ -62,7 +62,7 @@ export class SystemRoleController {
 
     @Post('/column')
     @ApiDecorator({
-        operation: { summary: '角色权限列表' },
+        operation: { summary: '角色列表' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
