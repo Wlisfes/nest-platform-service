@@ -167,13 +167,6 @@ export class SystemRoleService extends Logger {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
-                // await qb.leftJoinAndMapOne(
-                //     't.statusChunk',
-                //     schema.SchemaChunk,
-                //     'statusChunk',
-                //     `statusChunk.value = t.status AND statusChunk.type = :type`,
-                //     { type: enums.STATIC_SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
-                // )
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'keyId', 'name', 'uid', 'uids', 'auxs', 'status', 'createTime', 'modifyTime']],
                     ['user', ['uid', 'name', 'status', 'id', 'number']]
@@ -194,7 +187,11 @@ export class SystemRoleService extends Logger {
                 await qb.offset((body.page - 1) * body.size)
                 await qb.limit(body.size)
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                    return await this.fetchResolver({ message: '操作成功', total, list })
+                    return await this.fetchResolver({
+                        message: '操作成功',
+                        total,
+                        list: list.map(item => ({ ...item, statusChunk: enums.COMMON_SYSTEM_ROLE_STATUS[item.status] }))
+                    })
                 })
             })
         } catch (err) {
