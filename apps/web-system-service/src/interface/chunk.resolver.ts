@@ -6,6 +6,9 @@ import { OmixColumn } from '@/interface/instance.resolver'
 import { SchemaChunk } from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
 
+/**字典类型聚合**/
+export type BaseTypes = keyof typeof enums.STATIC_SCHEMA_CHUNK_OPTIONS | keyof typeof enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS
+
 export class BaseSystemChunkRequest {
     /**验证错误描述**/
     message: string
@@ -16,7 +19,7 @@ export class BaseSystemChunkRequest {
 /**刷新redis字典缓存**/
 export class BaseUpdateRedisSystemChunk {
     /**字典类型**/
-    type: string | keyof typeof enums.SCHEMA_CHUNK_OPTIONS
+    type: string | keyof typeof enums.STATIC_SCHEMA_CHUNK_OPTIONS
     /**字典类型值**/
     value: string
 }
@@ -51,11 +54,11 @@ export class BaseCheckSystemChunk extends BaseUpdateRedisSystemChunk {
 }
 
 /**查询字典类型列表**/
-export interface BaseChaxunSystemChunk<T, K extends keyof T> extends Partial<Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, boolean>> {
+export interface BaseChaxunSystemChunk extends Partial<Record<BaseTypes, boolean>> {
     /**输出日志方法名**/
     deplayName?: string
     /**表字段列表**/
-    field?: Array<K>
+    field?: Array<keyof typeof SchemaChunk>
 }
 
 /**新增字典**/

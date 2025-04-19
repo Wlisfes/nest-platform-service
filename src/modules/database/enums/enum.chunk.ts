@@ -12,8 +12,11 @@ export const SCHEMA_CHUNK_STATUS_OPTIONS = {
     }
 }
 
-/**字典类型说明**/
-export const SCHEMA_CHUNK_OPTIONS = {
+/**动态字典类型说明**/
+export const DYNAMIC_SCHEMA_CHUNK_OPTIONS = {}
+
+/**静态字典类型说明**/
+export const STATIC_SCHEMA_CHUNK_OPTIONS = {
     COMMON_SYSTEM_USER_STATUS: {
         value: 'COMMON_SYSTEM_USER_STATUS',
         name: '账号状态'

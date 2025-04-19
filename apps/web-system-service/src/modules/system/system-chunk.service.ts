@@ -22,10 +22,28 @@ export class SystemChunkService extends Logger {
             return await this.redisService.setStore(request, {
                 deplayName: this.deplayName,
                 data: body.value,
-                key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':')
+                key: ['STATIC_SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':')
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
+    /**验证字典值缓存是否合规: 不合规会抛出异常**/
+    @AutoMethodDescriptor
+    public async fetchBaseCheckSystemChunk(request: OmixRequest, body: field.BaseCheckSystemChunk) {
+        try {
+            const value = await this.redisService.getStore<string>(request, {
+                logger: true,
+                key: ['STATIC_SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
+                deplayName: body.deplayName || this.deplayName
+            })
+            if (utils.isEmpty(value) || body.value != value) {
+                throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
+            }
+            return await this.fetchResolver({ data: value })
+        } catch (err) {
+            return await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)
         }
     }
 
@@ -40,42 +58,48 @@ export class SystemChunkService extends Logger {
         })
     }
 
-    /**验证字典值缓存是否合规: 不合规会抛出异常**/
+    /**遍历静态字典**/
     @AutoMethodDescriptor
-    public async fetchBaseCheckSystemChunk(request: OmixRequest, body: field.BaseCheckSystemChunk) {
-        try {
-            const value = await this.redisService.getStore<string>(request, {
-                logger: true,
-                key: ['SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
-                deplayName: body.deplayName || this.deplayName
+    public async httpBaseChaxunSystemStaticChunk<R extends Record<field.BaseTypes, schema.SchemaChunk>>(
+        request: OmixRequest,
+        body: field.BaseChaxunSystemChunk
+    ) {
+        /**遍历所有字典类型key**/
+        const keys = Object.keys(utils.omit(body, ['field', 'deplayName'])) as Array<field.BaseTypes>
+        /**分离动态字典类型**/
+        const dynamic = keys.filter(key => Object.keys(enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS).includes(key))
+        /**分离静态字典类型**/
+        const statics = keys.filter(key => Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS).includes(key))
+        /**聚合静态类型数据**/
+        const chunk = statics.reduce((ocs, key) => ({ ...ocs, [key]: Object.values(enums[key] ?? {}) }), {}) as Omix<R>
+        return { chunk, dynamic }
+    }
+
+    /**查询动态态字典**/
+    @AutoMethodDescriptor
+    public async httpBaseChaxunSystemDynamicChunk(request: OmixRequest, keys: Array<field.BaseTypes>, field: Array<string> = []) {
+        const chunk = keys.reduce((ocs, k) => ({ ...ocs, [k]: [] }), {}) as Omix<Record<field.BaseTypes, schema.SchemaChunk>>
+        return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
+            await qb.where(`t.type IN(:keys)`, { keys })
+            await this.database.fetchSelection(qb, [['t', [...new Set(['keyId', 'type', 'name', 'value', 'json', ...field])]]])
+            return await qb.getMany().then(async list => {
+                list.forEach(item => chunk[item.type].push(item))
+                return chunk
             })
-            if (utils.isEmpty(value) || body.value != value) {
-                throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
-            }
-            return await this.fetchResolver({ data: value })
-        } catch (err) {
-            return await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)
-        }
+        })
     }
 
     /**查询字典类型列表**/
     @AutoMethodDescriptor
-    public async httpBaseChaxunSystemChunk<
-        T extends schema.SchemaChunk,
-        K extends keyof T,
-        R extends Record<keyof typeof enums.SCHEMA_CHUNK_OPTIONS, Array<T>>
-    >(request: OmixRequest, body: field.BaseChaxunSystemChunk<T, K>): Promise<Omix<R>> {
+    public async httpBaseChaxunSystemChunk<R extends Record<field.BaseTypes, schema.SchemaChunk>>(
+        request: OmixRequest,
+        body: field.BaseChaxunSystemChunk
+    ): Promise<Omix<R>> {
         try {
-            const keys = Object.keys(utils.omit(body, ['field', 'deplayName'])) as Array<keyof R>
-            const chunk = Object.keys(enums.SCHEMA_CHUNK_OPTIONS).reduce((o, k) => ({ ...o, [k]: [] }), {}) as Omix<R>
-            return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
-                await qb.where(`t.type IN(:keys)`, { keys })
-                await this.database.fetchSelection(qb, [
-                    ['t', [...new Set(['keyId', 'type', 'name', 'value', 'json', ...((body.field ?? []) as Array<string>)])]]
-                ])
-                return await qb.getMany().then(async list => {
-                    list.forEach(item => chunk[item.type].push(item))
-                    return chunk
+            return await this.httpBaseChaxunSystemStaticChunk(request, body).then(async ({ chunk, dynamic }) => {
+                if (dynamic.length === 0) return chunk
+                return await this.httpBaseChaxunSystemDynamicChunk(request, dynamic, body.field).then(data => {
+                    return Object.assign(chunk, data)
                 })
             })
         } catch (err) {
@@ -114,7 +138,7 @@ export class SystemChunkService extends Logger {
             return await ctx.commitTransaction().then(async () => {
                 /**事务提交成功后写入redis缓存**/
                 await this.fetchBaseUpdateRedisSystemChunk(request, {
-                    type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
+                    type: body.type as keyof typeof enums.STATIC_SCHEMA_CHUNK_OPTIONS,
                     value: body.value
                 })
                 return await this.fetchResolver({ message: '新增成功' })
@@ -179,7 +203,7 @@ export class SystemChunkService extends Logger {
                         total,
                         list: list.map(item => ({
                             ...item,
-                            type: utils.fetchColumn(enums.SCHEMA_CHUNK_OPTIONS, item.type),
+                            type: utils.fetchColumn(enums.STATIC_SCHEMA_CHUNK_OPTIONS, item.type),
                             status: utils.fetchColumn(enums.SCHEMA_CHUNK_STATUS_OPTIONS, item.status)
                         }))
                     })
@@ -227,7 +251,7 @@ export class SystemChunkService extends Logger {
             return await ctx.commitTransaction().then(async () => {
                 /**事务提交成功后写入redis缓存**/
                 await this.fetchBaseUpdateRedisSystemChunk(request, {
-                    type: body.type as keyof typeof enums.SCHEMA_CHUNK_OPTIONS,
+                    type: body.type as keyof typeof enums.STATIC_SCHEMA_CHUNK_OPTIONS,
                     value: body.value
                 })
                 return await this.fetchResolver({ message: '操作成功' })
@@ -274,7 +298,7 @@ export class SystemChunkService extends Logger {
     @AutoMethodDescriptor
     public async httpBaseSelectSystemChunk(request: OmixRequest, body: field.BaseSelectSystemChunk) {
         try {
-            const cause = body.type.filter(key => !Object.keys(enums.SCHEMA_CHUNK_OPTIONS).includes(key))
+            const cause = body.type.filter(key => !Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS).includes(key))
             if (body.type.length === 0) {
                 throw new HttpException('type不可为空', HttpStatus.BAD_REQUEST)
             } else if (cause.length > 0) {
@@ -283,8 +307,8 @@ export class SystemChunkService extends Logger {
             return await this.httpBaseChaxunSystemChunk(
                 request,
                 Object.assign(
-                    { deplayName: this.deplayName },
-                    body.type.reduce((ocs: Omix, key) => ({ ...ocs, [key]: true }), {})
+                    body.type.reduce((ocs: Omix, key) => ({ ...ocs, [key]: true }), {}),
+                    { deplayName: this.deplayName }
                 )
             )
         } catch (err) {

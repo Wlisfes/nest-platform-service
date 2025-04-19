@@ -102,7 +102,7 @@ export class SystemUserService extends Logger {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
                 await qb.leftJoinAndMapOne('t.status', schema.SchemaChunk, 'status', `status.value = t.status AND status.type = :type`, {
-                    type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value
+                    type: enums.STATIC_SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value
                 })
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']],

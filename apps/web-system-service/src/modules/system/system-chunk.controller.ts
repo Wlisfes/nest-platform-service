@@ -18,7 +18,7 @@ export class SystemChunkController {
         authorize: { check: true, platform: 'manager' }
     })
     public async httpBaseColumnSystemChunkType(@Request() request: OmixRequest) {
-        return Object.values(enums.SCHEMA_CHUNK_OPTIONS)
+        return Object.values(enums.STATIC_SCHEMA_CHUNK_OPTIONS)
     }
 
     @Post('/create')

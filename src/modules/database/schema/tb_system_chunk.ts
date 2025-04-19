@@ -19,10 +19,10 @@ export class SchemaChunk extends DatabaseAdapter {
     @Column({ comment: '用户UID', length: 19, nullable: false })
     uid: string
 
-    @ApiProperty({ description: '字典类型', enum: Object.keys(enums.SCHEMA_CHUNK_OPTIONS) })
+    @ApiProperty({ description: '字典类型', enum: Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS) })
     @IsNotEmpty({ message: '字典类型必填' })
     @Length(0, 32, { message: '字典类型不能超过32个字符' })
-    @IsEnum(Object.keys(enums.SCHEMA_CHUNK_OPTIONS), { message: '字典类型格式错误' })
+    @IsEnum(Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS), { message: '字典类型格式错误' })
     @Column({ comment: '字典类型', length: 32, nullable: false })
     type: string
 

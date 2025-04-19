@@ -171,7 +171,7 @@ export class SystemRoleService extends Logger {
                     schema.SchemaChunk,
                     'statusChunk',
                     `statusChunk.value = t.status AND statusChunk.type = :type`,
-                    { type: enums.SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
+                    { type: enums.STATIC_SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
                 )
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'keyId', 'name', 'uid', 'uids', 'auxs', 'status', 'createTime', 'modifyTime']],
