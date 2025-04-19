@@ -3,12 +3,12 @@ export const SCHEMA_CHUNK_STATUS_OPTIONS = {
     enable: {
         value: 'enable',
         name: '已启用',
-        json: { type: 'success' }
+        json: { custom: false, type: 'success' }
     },
     disable: {
         value: 'disable',
         name: '已禁用',
-        json: { type: 'warning' }
+        json: { custom: false, type: 'warning' }
     }
 }
 

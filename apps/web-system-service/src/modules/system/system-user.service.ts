@@ -4,15 +4,12 @@ import { compareSync } from 'bcryptjs'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
-import { CodexService } from '@/modules/common/codex.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { DeployCodexService } from '@web-system-service/modules/deploy/deploy-codex.service'
 import { OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
-import * as keys from '@/modules/redis/redis.keys'
-import * as plugin from '@/utils/utils-plugin'
 import * as utils from '@/utils/utils-common'
 
 @Injectable()
@@ -33,11 +30,11 @@ export class SystemUserService extends Logger {
         return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
             qb.where(`t.uid = :uid`, { uid })
             return await qb.getOne().then(async node => {
-                await this.redisService.setStore(request, {
-                    deplayName: this.deplayName,
-                    data: node.status,
-                    key: await this.redisService.fetchCompose(keys.COMMON_SYSTEM_USER_STATUS, { uid })
-                })
+                // await this.redisService.setStore(request, {
+                //     deplayName: this.deplayName,
+                //     data: node.status,
+                //     key: await this.redisService.fetchCompose(keys.COMMON_SYSTEM_USER_STATUS, { uid })
+                // })
                 return node
             })
         })

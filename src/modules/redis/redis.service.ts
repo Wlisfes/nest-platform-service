@@ -4,7 +4,6 @@ import { isEmpty, isNotEmpty, isString, isObject } from 'class-validator'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import { Logger } from '@/modules/logger/logger.service'
 import { CLIENT_REDIS, ClientRedis } from '@/modules/redis/redis.provider'
-import * as keys from '@/modules/redis/redis.keys'
 export interface SetRedisOption extends Omix {
     /**存储键**/
     key: string
@@ -29,7 +28,6 @@ export interface DelRedisOption extends Pick<SetRedisOption, 'logger' | 'key' | 
 
 @Injectable()
 export class RedisService extends Logger {
-    public keys: typeof keys = keys
     constructor(@Inject(CLIENT_REDIS) public readonly client: ClientRedis) {
         super()
     }
