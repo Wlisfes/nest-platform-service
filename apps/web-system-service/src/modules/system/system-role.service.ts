@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
+import {} from '@web-system-service/modules/system/system-chunk.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
@@ -166,16 +167,15 @@ export class SystemRoleService extends Logger {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
-                await qb.leftJoinAndMapOne(
-                    't.statusChunk',
-                    schema.SchemaChunk,
-                    'statusChunk',
-                    `statusChunk.value = t.status AND statusChunk.type = :type`,
-                    { type: enums.STATIC_SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
-                )
+                // await qb.leftJoinAndMapOne(
+                //     't.statusChunk',
+                //     schema.SchemaChunk,
+                //     'statusChunk',
+                //     `statusChunk.value = t.status AND statusChunk.type = :type`,
+                //     { type: enums.STATIC_SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value }
+                // )
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'keyId', 'name', 'uid', 'uids', 'auxs', 'status', 'createTime', 'modifyTime']],
-                    ['statusChunk', ['name', 'value', 'json']],
                     ['user', ['uid', 'name', 'status', 'id', 'number']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {

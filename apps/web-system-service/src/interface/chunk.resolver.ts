@@ -6,9 +6,6 @@ import { OmixColumn } from '@/interface/instance.resolver'
 import { SchemaChunk } from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
 
-/**字典类型聚合**/
-export type BaseTypes = keyof typeof enums.STATIC_SCHEMA_CHUNK_OPTIONS | keyof typeof enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS
-
 export class BaseSystemChunkRequest {
     /**验证错误描述**/
     message: string
@@ -51,14 +48,6 @@ export class BaseCheckSystemChunk extends BaseUpdateRedisSystemChunk {
     message?: string
     /**输出日志方法名**/
     deplayName?: string
-}
-
-/**查询字典类型列表**/
-export interface BaseChaxunSystemChunk extends Partial<Record<BaseTypes, boolean>> {
-    /**输出日志方法名**/
-    deplayName?: string
-    /**表字段列表**/
-    field?: Array<keyof typeof SchemaChunk>
 }
 
 /**新增字典**/

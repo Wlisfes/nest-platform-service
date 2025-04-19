@@ -3,6 +3,7 @@ import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { DatabaseService } from '@/modules/database/database.service'
+import { DeployChunkService } from '@web-system-service/modules/deploy/deploy-chunk.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
@@ -11,7 +12,11 @@ import * as utils from '@/utils/utils-common'
 
 @Injectable()
 export class SystemChunkService extends Logger {
-    constructor(private readonly redisService: RedisService, private readonly database: DatabaseService) {
+    constructor(
+        private readonly redisService: RedisService,
+        private readonly database: DatabaseService,
+        private readonly deployChunkService: DeployChunkService
+    ) {
         super()
     }
 
@@ -56,55 +61,6 @@ export class SystemChunkService extends Logger {
             message: body.message || `keyId:${body.keyId} 不存在`,
             dispatch: { where: { keyId: body.keyId } }
         })
-    }
-
-    /**遍历静态字典**/
-    @AutoMethodDescriptor
-    public async httpBaseChaxunSystemStaticChunk<R extends Record<field.BaseTypes, schema.SchemaChunk>>(
-        request: OmixRequest,
-        body: field.BaseChaxunSystemChunk
-    ) {
-        /**遍历所有字典类型key**/
-        const keys = Object.keys(utils.omit(body, ['field', 'deplayName'])) as Array<field.BaseTypes>
-        /**分离动态字典类型**/
-        const dynamic = keys.filter(key => Object.keys(enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS).includes(key))
-        /**分离静态字典类型**/
-        const statics = keys.filter(key => Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS).includes(key))
-        /**聚合静态类型数据**/
-        const chunk = statics.reduce((ocs, key) => ({ ...ocs, [key]: Object.values(enums[key] ?? {}) }), {}) as Omix<R>
-        return { chunk, dynamic }
-    }
-
-    /**查询动态态字典**/
-    @AutoMethodDescriptor
-    public async httpBaseChaxunSystemDynamicChunk(request: OmixRequest, keys: Array<field.BaseTypes>, field: Array<string> = []) {
-        const chunk = keys.reduce((ocs, k) => ({ ...ocs, [k]: [] }), {}) as Omix<Record<field.BaseTypes, schema.SchemaChunk>>
-        return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
-            await qb.where(`t.type IN(:keys)`, { keys })
-            await this.database.fetchSelection(qb, [['t', [...new Set(['keyId', 'type', 'name', 'value', 'json', ...field])]]])
-            return await qb.getMany().then(async list => {
-                list.forEach(item => chunk[item.type].push(item))
-                return chunk
-            })
-        })
-    }
-
-    /**查询字典类型列表**/
-    @AutoMethodDescriptor
-    public async httpBaseChaxunSystemChunk<R extends Record<field.BaseTypes, schema.SchemaChunk>>(
-        request: OmixRequest,
-        body: field.BaseChaxunSystemChunk
-    ): Promise<Omix<R>> {
-        try {
-            return await this.httpBaseChaxunSystemStaticChunk(request, body).then(async ({ chunk, dynamic }) => {
-                if (dynamic.length === 0) return chunk
-                return await this.httpBaseChaxunSystemDynamicChunk(request, dynamic, body.field).then(data => {
-                    return Object.assign(chunk, data)
-                })
-            })
-        } catch (err) {
-            return (await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)) as never as Omix<R>
-        }
     }
 
     /**新增字典**/
@@ -304,7 +260,7 @@ export class SystemChunkService extends Logger {
             } else if (cause.length > 0) {
                 throw new HttpException('type参数错误', HttpStatus.BAD_REQUEST, { cause })
             }
-            return await this.httpBaseChaxunSystemChunk(
+            return await this.deployChunkService.httpBaseDeployChaxunChunk(
                 request,
                 Object.assign(
                     body.type.reduce((ocs: Omix, key) => ({ ...ocs, [key]: true }), {}),
