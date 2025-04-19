@@ -6,6 +6,7 @@ import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
 import { CodexService } from '@/modules/common/codex.service'
 import { DatabaseService } from '@/modules/database/database.service'
+import { DeployCodexService } from '@web-system-service/modules/deploy/deploy-codex.service'
 import { OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
@@ -20,8 +21,8 @@ export class SystemUserService extends Logger {
         private readonly httpService: HttpService,
         private readonly jwtService: JwtService,
         private readonly redisService: RedisService,
-        private readonly codexService: CodexService,
-        private readonly database: DatabaseService
+        private readonly database: DatabaseService,
+        private readonly deployCodexService: DeployCodexService
     ) {
         super()
     }
@@ -78,12 +79,7 @@ export class SystemUserService extends Logger {
     @AutoMethodDescriptor
     public async httpBaseCreateSystemUserAuthorize(request: OmixRequest, body: field.BaseCreateSystemUserAuthorize) {
         try {
-            await this.codexService.fetchCommonCodexReader(request, 'x-request-captcha-sid').then(async sid => {
-                return await this.codexService.httpCommonCodexCheck(request, {
-                    key: await this.redisService.fetchCompose(this.redisService.keys.COMMON_CODEX_USER_TOKEN, { sid }),
-                    code: body.code
-                })
-            })
+            await this.deployCodexService.httpDeployCodexTokenCheckReader(request, body)
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
                 qb.addSelect('t.password')
                 qb.where(`t.number = :number OR t.phone = :number OR t.email = :number`, { number: body.number })

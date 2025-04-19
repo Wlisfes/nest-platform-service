@@ -1,5 +1,5 @@
 import { IncomingHttpHeaders } from 'http'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { SchemaUser } from '@/modules/database/database.schema'
 
 /**对接聚合**/
@@ -10,6 +10,9 @@ export type PromiseType<T extends Promise<any>> = T extends Promise<infer R> ? R
 
 /**Request headers类型**/
 export interface OmixHeaders extends Omix<IncomingHttpHeaders> {}
+
+/**Response类型**/
+export interface OmixResponse extends Omix<Response> {}
 
 /**Request类型**/
 export interface OmixRequest extends Omix<Request> {

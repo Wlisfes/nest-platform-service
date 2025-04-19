@@ -12,7 +12,6 @@ import { CommonModule } from '@/modules/common/common.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
-import { CommonCodexController } from '@web-common-service/controllers/codex.controller'
 
 @Module({
     imports: [
@@ -29,7 +28,7 @@ import { CommonCodexController } from '@web-common-service/controllers/codex.con
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
         { provide: APP_FILTER, useClass: HttpExceptionFilter }
     ],
-    controllers: [CommonCodexController]
+    controllers: []
 })
 export class WebCommonModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

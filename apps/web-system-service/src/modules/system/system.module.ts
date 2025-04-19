@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { HttpModule } from '@nestjs/axios'
+import { DeployCodexService } from '@web-system-service/modules/deploy/deploy-codex.service'
 import { SystemChunkController } from '@web-system-service/modules/system/system-chunk.controller'
 import { SystemChunkService } from '@web-system-service/modules/system/system-chunk.service'
 import { SystemUserController } from '@web-system-service/modules/system/system-user.controller'
@@ -12,7 +13,7 @@ import { SystemRoleService } from '@web-system-service/modules/system/system-rol
 @Module({
     imports: [HttpModule],
     controllers: [SystemChunkController, SystemUserController, SystemRouterController, SystemRoleController],
-    providers: [SystemChunkService, SystemUserService, SystemRouterService, SystemRoleService],
+    providers: [DeployCodexService, SystemChunkService, SystemUserService, SystemRouterService, SystemRoleService],
     exports: [SystemChunkService, SystemUserService, SystemRouterService, SystemRoleService]
 })
 export class SystemModule {}

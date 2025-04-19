@@ -14,6 +14,7 @@ import { RedisModule } from '@/modules/redis/redis.module'
 import { OSSModule } from '@/modules/oss/oss.module'
 import { CommonModule } from '@/modules/common/common.module'
 import { SystemModule } from '@web-system-service/modules/system/system.module'
+import { DeployModule } from '@web-system-service/modules/deploy/deploy.module'
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { SystemModule } from '@web-system-service/modules/system/system.module'
         DatabaseModule,
         OSSModule,
         CommonModule,
+        DeployModule,
         SystemModule
     ],
     providers: [
