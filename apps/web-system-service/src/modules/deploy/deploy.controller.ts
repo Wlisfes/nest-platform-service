@@ -20,14 +20,14 @@ export class DeployController {
         return await this.deployCodexService.httpDeployCodexTokenWrite(request, response)
     }
 
-    @Post('/enums/column/source')
+    @Post('/enums/column/types')
     @ApiDecorator({
         operation: { summary: '获取枚举来源类型' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseDeployEnumsSource(@Request() request: OmixRequest) {
-        return await this.deployEnumsService.httpBaseDeployEnumsSource(request)
+    public async httpBaseDeployEnumsTypes(@Request() request: OmixRequest) {
+        return await this.deployEnumsService.httpBaseDeployEnumsTypes(request)
     }
 
     @Post('/enums/column/select')

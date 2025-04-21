@@ -1,11 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString, IsNotEmpty, IsEnum } from 'class-validator'
+import { IsString, IsNotEmpty } from 'class-validator'
 import { Omix } from '@/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
-
-/**枚举类型值聚合**/
-const EnumsKeys = [...Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS), ...Object.keys(enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS)]
 
 /**枚举类型值描述聚合**/
 const EnumsDocuments = [...Object.values(enums.STATIC_SCHEMA_CHUNK_OPTIONS), ...Object.values(enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS)].map(
@@ -53,7 +50,6 @@ export interface BaseDeployRedisEnumsCheck extends BaseUpdateRedisSystemEnums {
 /**批量获取枚举分类列表**/
 export class BaseDeployEnumsCompiler {
     @ApiProperty({ description: '字典类型列表', enum: EnumsDocuments })
-    @IsEnum(EnumsKeys, { message: 'type类型格式错误' })
     @IsNotEmpty({ message: 'type类型必填' })
     @IsString({ each: true, message: 'type 必须为Array<string>格式' })
     type: string[] = []

@@ -48,7 +48,7 @@ export class DeployEnumsService extends Logger {
 
     /**获取枚举来源类型**/
     @AutoMethodDescriptor
-    public async httpBaseDeployEnumsSource(request: OmixRequest) {
+    public async httpBaseDeployEnumsTypes(request: OmixRequest) {
         return Object.assign(Object.values(enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS), Object.values(enums.STATIC_SCHEMA_CHUNK_OPTIONS))
     }
 
