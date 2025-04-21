@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common'
-import { DeployChunkService } from '@web-system-service/modules/deploy/deploy-chunk.service'
+import { DeployEnumsService } from '@web-system-service/modules/deploy/deploy-enums.service'
 import { DeployKinesService } from '@web-system-service/modules/deploy/deploy-kines.service'
 import { DeployCodexService } from '@web-system-service/modules/deploy/deploy-codex.service'
 import { DeployCodexController } from '@web-system-service/modules/deploy/deploy-codex.controller'
 
 @Module({
     imports: [],
-    providers: [DeployChunkService, DeployKinesService, DeployCodexService],
+    providers: [DeployEnumsService, DeployKinesService, DeployCodexService],
     controllers: [DeployCodexController],
-    exports: [DeployChunkService, DeployKinesService, DeployCodexService]
+    exports: [DeployEnumsService, DeployKinesService, DeployCodexService]
 })
 export class DeployModule {}

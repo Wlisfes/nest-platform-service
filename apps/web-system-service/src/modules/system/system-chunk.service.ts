@@ -3,7 +3,7 @@ import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { DatabaseService } from '@/modules/database/database.service'
-import { DeployChunkService } from '@web-system-service/modules/deploy/deploy-chunk.service'
+import { DeployEnumsService } from '@web-system-service/modules/deploy/deploy-enums.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
@@ -15,7 +15,7 @@ export class SystemChunkService extends Logger {
     constructor(
         private readonly redisService: RedisService,
         private readonly database: DatabaseService,
-        private readonly deployChunkService: DeployChunkService
+        private readonly deployEnumsService: DeployEnumsService
     ) {
         super()
     }
@@ -260,7 +260,7 @@ export class SystemChunkService extends Logger {
             } else if (cause.length > 0) {
                 throw new HttpException('type参数错误', HttpStatus.BAD_REQUEST, { cause })
             }
-            return await this.deployChunkService.httpBaseDeployChaxunChunk(
+            return await this.deployEnumsService.httpBaseDeployChaxunEnums(
                 request,
                 Object.assign(
                     body.type.reduce((ocs: Omix, key) => ({ ...ocs, [key]: true }), {}),

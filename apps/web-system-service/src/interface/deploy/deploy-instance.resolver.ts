@@ -1,1 +1,1 @@
-export * from '@web-system-service/interface/deploy/deploy-chunk.resolver'
+export * from '@web-system-service/interface/deploy/deploy-enums.resolver'
