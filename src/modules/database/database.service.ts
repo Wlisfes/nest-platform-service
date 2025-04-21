@@ -66,6 +66,7 @@ export interface BaseConnectCreate<T> extends BaseConnectOption {
 export class DatabaseService extends Logger {
     constructor(
         private readonly dataSource: DataSource,
+        @InjectRepository(schema.SchemaKines) public readonly schemaKines: Repository<schema.SchemaKines>,
         @InjectRepository(schema.SchemaChunk) public readonly schemaChunk: Repository<schema.SchemaChunk>,
         @InjectRepository(schema.SchemaUser) public readonly schemaUser: Repository<schema.SchemaUser>,
         @InjectRepository(schema.SchemaRouter) public readonly schemaRouter: Repository<schema.SchemaRouter>,

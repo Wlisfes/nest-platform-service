@@ -5,7 +5,7 @@ import { CodexService } from '@/modules/common/codex.service'
 import { Omix, OmixRequest, OmixResponse } from '@/interface/instance.resolver'
 
 @Injectable()
-export class DeployFieldService extends Logger {
+export class DeployKinesService extends Logger {
     constructor(private readonly redisService: RedisService) {
         super()
     }
