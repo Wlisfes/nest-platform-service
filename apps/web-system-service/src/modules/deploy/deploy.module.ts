@@ -3,11 +3,12 @@ import { DeployEnumsService } from '@web-system-service/modules/deploy/deploy-en
 import { DeployKinesService } from '@web-system-service/modules/deploy/deploy-kines.service'
 import { DeployCodexService } from '@web-system-service/modules/deploy/deploy-codex.service'
 import { DeployCodexController } from '@web-system-service/modules/deploy/deploy-codex.controller'
+import { DeployController } from '@web-system-service/modules/deploy/deploy.controller'
 
 @Module({
     imports: [],
     providers: [DeployEnumsService, DeployKinesService, DeployCodexService],
-    controllers: [DeployCodexController],
+    controllers: [DeployCodexController, DeployController],
     exports: [DeployEnumsService, DeployKinesService, DeployCodexService]
 })
 export class DeployModule {}

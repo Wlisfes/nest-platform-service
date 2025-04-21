@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
+import { RedisService } from '@/modules/redis/redis.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
@@ -9,8 +10,14 @@ import * as utils from '@/utils/utils-common'
 
 @Injectable()
 export class DeployEnumsService extends Logger {
-    constructor(private readonly database: DatabaseService) {
+    constructor(private readonly redisService: RedisService, private readonly database: DatabaseService) {
         super()
+    }
+
+    /**获取枚举来源类型**/
+    @AutoMethodDescriptor
+    public async httpBaseDeployEnumsSource(request: OmixRequest) {
+        return Object.values(enums.STATIC_SCHEMA_CHUNK_OPTIONS)
     }
 
     /**遍历静态枚举**/
@@ -43,9 +50,9 @@ export class DeployEnumsService extends Logger {
 
     /**查询枚举类型列表**/
     @AutoMethodDescriptor
-    public async httpBaseDeployChaxunEnums<R extends Record<field.EnumsTypes, schema.SchemaChunk>>(
+    public async httpBaseDeployEnumsCompose<R extends Record<field.EnumsTypes, schema.SchemaChunk>>(
         request: OmixRequest,
-        body: field.BaseDeployChaxunEnums
+        body: field.BaseDeployEnumsCompose
     ): Promise<Omix<R>> {
         try {
             return await this.httpBaseDeployEnumsStatic(request, body).then(async ({ chunk, dynamic }) => {
@@ -56,6 +63,26 @@ export class DeployEnumsService extends Logger {
             })
         } catch (err) {
             return (await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)) as never as Omix<R>
+        }
+    }
+
+    /**查询枚举类型列表**/
+    @AutoMethodDescriptor
+    public async httpBaseDeployEnumsCompiler(request: OmixRequest, body: field.BaseDeployEnumsCompiler) {
+        try {
+            const keys = [...Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS)]
+            const cause = body.type.filter(key => !keys.includes(key))
+            if (body.type.length === 0) {
+                throw new HttpException('type不可为空', HttpStatus.BAD_REQUEST)
+            } else if (cause.length > 0) {
+                throw new HttpException('type参数错误', HttpStatus.BAD_REQUEST, { cause })
+            }
+            return await this.httpBaseDeployEnumsCompose(
+                request,
+                body.type.reduce((ocs: Omix, key) => ({ ...ocs, [key]: true }), {})
+            )
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 }

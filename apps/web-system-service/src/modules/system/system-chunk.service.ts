@@ -249,26 +249,4 @@ export class SystemChunkService extends Logger {
             await ctx.release()
         }
     }
-
-    /**批量获取字典分类列表**/
-    @AutoMethodDescriptor
-    public async httpBaseSelectSystemChunk(request: OmixRequest, body: field.BaseSelectSystemChunk) {
-        try {
-            const cause = body.type.filter(key => !Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS).includes(key))
-            if (body.type.length === 0) {
-                throw new HttpException('type不可为空', HttpStatus.BAD_REQUEST)
-            } else if (cause.length > 0) {
-                throw new HttpException('type参数错误', HttpStatus.BAD_REQUEST, { cause })
-            }
-            return await this.deployEnumsService.httpBaseDeployChaxunEnums(
-                request,
-                Object.assign(
-                    body.type.reduce((ocs: Omix, key) => ({ ...ocs, [key]: true }), {}),
-                    { deplayName: this.deplayName }
-                )
-            )
-        } catch (err) {
-            return await this.fetchCatchCompiler(this.deplayName, err)
-        }
-    }
 }

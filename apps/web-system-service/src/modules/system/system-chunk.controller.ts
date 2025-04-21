@@ -11,16 +11,6 @@ import * as enums from '@/modules/database/database.enums'
 export class SystemChunkController {
     constructor(private readonly systemChunkService: SystemChunkService) {}
 
-    @Get('/column/type')
-    @ApiDecorator({
-        operation: { summary: '字典类型' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true, platform: 'manager' }
-    })
-    public async httpBaseColumnSystemChunkType(@Request() request: OmixRequest) {
-        return Object.values(enums.STATIC_SCHEMA_CHUNK_OPTIONS)
-    }
-
     @Post('/create')
     @ApiDecorator({
         operation: { summary: '新增字典' },
@@ -59,15 +49,5 @@ export class SystemChunkController {
     })
     public async httpBaseUpdateStateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseUpdateStateSystemChunk) {
         return await this.systemChunkService.httpBaseUpdateStateSystemChunk(request, body)
-    }
-
-    @Post('/select')
-    @ApiDecorator({
-        operation: { summary: '批量获取字典分类列表' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true, platform: 'manager' }
-    })
-    public async httpBaseSelectSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseSelectSystemChunk) {
-        return await this.systemChunkService.httpBaseSelectSystemChunk(request, body)
     }
 }
