@@ -14,10 +14,42 @@ export class DeployEnumsService extends Logger {
         super()
     }
 
+    /**刷新redis枚举缓存**/
+    @AutoMethodDescriptor
+    public async fetchBaseDeployRedisEnumsUpdate(request: OmixRequest, body: field.BaseUpdateRedisSystemEnums) {
+        try {
+            return await this.redisService.setStore(request, {
+                deplayName: this.deplayName,
+                data: body.value,
+                key: ['deploy:enums', body.type, body.value].join(':')
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
+    /**验证枚举值缓存是否合规: 不合规会抛出异常**/
+    @AutoMethodDescriptor
+    public async fetchBaseDeployRedisEnumsCheck(request: OmixRequest, body: field.BaseDeployRedisEnumsCheck) {
+        try {
+            const value = await this.redisService.getStore<string>(request, {
+                logger: true,
+                key: ['deploy:enums', body.type, body.value].join(':'),
+                deplayName: body.deplayName || this.deplayName
+            })
+            if (utils.isEmpty(value) || body.value !== value) {
+                throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
+            }
+            return await this.fetchResolver({ value })
+        } catch (err) {
+            return await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)
+        }
+    }
+
     /**获取枚举来源类型**/
     @AutoMethodDescriptor
     public async httpBaseDeployEnumsSource(request: OmixRequest) {
-        return Object.values(enums.STATIC_SCHEMA_CHUNK_OPTIONS)
+        return Object.assign(Object.values(enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS), Object.values(enums.STATIC_SCHEMA_CHUNK_OPTIONS))
     }
 
     /**遍历静态枚举**/
@@ -70,7 +102,7 @@ export class DeployEnumsService extends Logger {
     @AutoMethodDescriptor
     public async httpBaseDeployEnumsCompiler(request: OmixRequest, body: field.BaseDeployEnumsCompiler) {
         try {
-            const keys = [...Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS)]
+            const keys = [...Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS), ...Object.keys(enums.DYNAMIC_SCHEMA_CHUNK_OPTIONS)]
             const cause = body.type.filter(key => !keys.includes(key))
             if (body.type.length === 0) {
                 throw new HttpException('type不可为空', HttpStatus.BAD_REQUEST)

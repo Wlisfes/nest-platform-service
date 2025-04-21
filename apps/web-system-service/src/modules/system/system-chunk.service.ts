@@ -1,10 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
-import { RedisService } from '@/modules/redis/redis.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { DeployEnumsService } from '@web-system-service/modules/deploy/deploy-enums.service'
-import { Omix, OmixRequest } from '@/interface/instance.resolver'
+import { OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -12,44 +11,8 @@ import * as utils from '@/utils/utils-common'
 
 @Injectable()
 export class SystemChunkService extends Logger {
-    constructor(
-        private readonly redisService: RedisService,
-        private readonly database: DatabaseService,
-        private readonly deployEnumsService: DeployEnumsService
-    ) {
+    constructor(private readonly database: DatabaseService, private readonly deployEnumsService: DeployEnumsService) {
         super()
-    }
-
-    /**刷新redis字典缓存**/
-    @AutoMethodDescriptor
-    public async fetchBaseUpdateRedisSystemChunk(request: OmixRequest, body: field.BaseUpdateRedisSystemChunk) {
-        try {
-            return await this.redisService.setStore(request, {
-                deplayName: this.deplayName,
-                data: body.value,
-                key: ['STATIC_SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':')
-            })
-        } catch (err) {
-            return await this.fetchCatchCompiler(this.deplayName, err)
-        }
-    }
-
-    /**验证字典值缓存是否合规: 不合规会抛出异常**/
-    @AutoMethodDescriptor
-    public async fetchBaseCheckSystemChunk(request: OmixRequest, body: field.BaseCheckSystemChunk) {
-        try {
-            const value = await this.redisService.getStore<string>(request, {
-                logger: true,
-                key: ['STATIC_SCHEMA_CHUNK_OPTIONS', body.type, body.value].join(':'),
-                deplayName: body.deplayName || this.deplayName
-            })
-            if (utils.isEmpty(value) || body.value != value) {
-                throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
-            }
-            return await this.fetchResolver({ data: value })
-        } catch (err) {
-            return await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)
-        }
     }
 
     /**根据keyId验证数据: 不存在会抛出异常**/
@@ -93,8 +56,8 @@ export class SystemChunkService extends Logger {
             /**提交事务**/
             return await ctx.commitTransaction().then(async () => {
                 /**事务提交成功后写入redis缓存**/
-                await this.fetchBaseUpdateRedisSystemChunk(request, {
-                    type: body.type as keyof typeof enums.STATIC_SCHEMA_CHUNK_OPTIONS,
+                await this.deployEnumsService.fetchBaseDeployRedisEnumsUpdate(request, {
+                    type: body.type,
                     value: body.value
                 })
                 return await this.fetchResolver({ message: '新增成功' })
@@ -206,8 +169,8 @@ export class SystemChunkService extends Logger {
             /**提交事务**/
             return await ctx.commitTransaction().then(async () => {
                 /**事务提交成功后写入redis缓存**/
-                await this.fetchBaseUpdateRedisSystemChunk(request, {
-                    type: body.type as keyof typeof enums.STATIC_SCHEMA_CHUNK_OPTIONS,
+                await this.deployEnumsService.fetchBaseDeployRedisEnumsUpdate(request, {
+                    type: body.type,
                     value: body.value
                 })
                 return await this.fetchResolver({ message: '操作成功' })
