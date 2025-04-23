@@ -36,6 +36,14 @@ export interface BaseConnectDelete<T> extends BaseConnectOption {
     where: Parameters<Repository<T>['delete']>['0']
 }
 
+/**新增AND更新数据模型**/
+export interface BaseConnecUpsert<T, K extends keyof T> extends BaseConnectOption {
+    /**条件**/
+    where: Array<K>
+    /**更新数据**/
+    body: Parameters<Repository<T>['upsert']>['0']
+}
+
 /**更新数据模型**/
 export interface BaseConnectUpdate<T> extends BaseConnectOption {
     /**更新条件**/
@@ -191,6 +199,21 @@ export class DatabaseService extends Logger {
                     duration: `${Date.now() - datetime}ms`,
                     context: data.request.headers?.context,
                     log: { message: `[${model.metadata.name}]:事务等待批量更新结果`, node }
+                })
+            }
+            return node
+        })
+    }
+
+    /**新增AND更新数据模型**/
+    public async fetchConnecUpsert<T, K extends keyof T>(model: Repository<T>, data: BaseConnecUpsert<T, K>) {
+        const datetime = Date.now()
+        return await model.upsert(data.body, data.where as Array<string>).then(async node => {
+            if (data.logger ?? true) {
+                this.logger.info(data.deplayName || `${DatabaseService.name}:fetchConnecUpsert`, {
+                    duration: `${Date.now() - datetime}ms`,
+                    context: data.request.headers?.context,
+                    log: { message: `[${model.metadata.name}]:事务等待新增AND更新结果`, where: data.where, node }
                 })
             }
             return node

@@ -20,10 +20,10 @@ export class DeployKinesService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**把编辑操作插入事务**/
-            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaKines), {
+            await this.database.fetchConnecUpsert(ctx.manager.getRepository(schema.SchemaKines), {
                 deplayName: this.deplayName,
                 request,
-                where: { type: body.type, uid: request.user.uid },
+                where: ['type', 'uid'],
                 body: Object.assign(body, { uid: request.user.uid })
             })
             /**提交事务**/
