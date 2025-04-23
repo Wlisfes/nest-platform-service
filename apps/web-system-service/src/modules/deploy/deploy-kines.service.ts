@@ -19,16 +19,25 @@ export class DeployKinesService extends Logger {
     public async httpBaseDeployKinesUpdate(request: OmixRequest, body: field.BaseDeployKinesUpdate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            /**把编辑操作插入事务**/
-            await this.database.fetchConnecUpsert(ctx.manager.getRepository(schema.SchemaKines), {
-                deplayName: this.deplayName,
-                request,
-                where: ['type', 'uid'],
-                body: Object.assign(body, { uid: request.user.uid })
-            })
-            /**提交事务**/
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
+            return await this.database.schemaKines.findOne({ where: { type: body.type, uid: request.user.uid } }).then(async node => {
+                if (utils.isEmpty(node)) {
+                    await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaKines), {
+                        deplayName: this.deplayName,
+                        request,
+                        body: Object.assign(body, { uid: request.user.uid })
+                    })
+                } else {
+                    await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaKines), {
+                        deplayName: this.deplayName,
+                        request,
+                        where: { type: body.type, uid: request.user.uid },
+                        body: Object.assign(body, { uid: request.user.uid })
+                    })
+                }
+                /**提交事务**/
+                return await ctx.commitTransaction().then(async () => {
+                    return await this.fetchResolver({ message: '操作成功' })
+                })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
