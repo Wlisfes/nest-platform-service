@@ -4,7 +4,7 @@ import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { SystemChunkService } from '@web-system-service/modules/system/system-chunk.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
-import * as field from '@web-system-service/interface/router.resolver'
+import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
 import * as plugin from '@/utils/utils-plugin'
@@ -18,7 +18,7 @@ export class SystemRouterService extends Logger {
 
     /**新增菜单**/
     @AutoMethodDescriptor
-    public async httpBaseCreateSystemRouter(request: OmixRequest, body: field.BaseCreateSystemRouter) {
+    public async httpBaseSystemRouterCreate(request: OmixRequest, body: field.BaseSystemRouterCreate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**验证key重复**/
@@ -67,7 +67,7 @@ export class SystemRouterService extends Logger {
 
     /**编辑菜单**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateSystemRouter(request: OmixRequest, body: field.BaseUpdateSystemRouter) {
+    public async httpBaseSystemRouterUpdate(request: OmixRequest, body: field.BaseSystemRouterUpdate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**验证主键keyId不存在**/
@@ -115,7 +115,7 @@ export class SystemRouterService extends Logger {
 
     /**编辑菜单状态**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateStateSystemRouter(request: OmixRequest, body: field.BaseStateSystemRouter) {
+    public async httpBaseSystemSwitchRouter(request: OmixRequest, body: field.BaseSystemSwitchRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             const items = await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
@@ -148,7 +148,7 @@ export class SystemRouterService extends Logger {
 
     /**删除菜单**/
     @AutoMethodDescriptor
-    public async httpBaseDeleteSystemRouter(request: OmixRequest, body: field.BaseSystemRouterResolver) {
+    public async httpBaseSystemRouterDelete(request: OmixRequest, body: field.BaseSystemRouterResolver) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**验证keyId合法性**/
@@ -184,7 +184,7 @@ export class SystemRouterService extends Logger {
 
     /**菜单列表**/
     @AutoMethodDescriptor
-    public async httpBaseColumnSystemRouter(request: OmixRequest, body: field.BaseColumnSystemRouter) {
+    public async httpBaseSystemColumnRouter(request: OmixRequest, body: field.BaseSystemColumnRouter) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
@@ -264,7 +264,7 @@ export class SystemRouterService extends Logger {
 
     /**获取当前用户菜单**/
     @AutoMethodDescriptor
-    public async httpBaseColumnUserSystemRouter(request: OmixRequest) {
+    public async httpBaseSystemCurrentRouter(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await qb.where('t.type = :type', { type: enums.COMMON_SYSTEM_ROUTER_TYPE.router.value })

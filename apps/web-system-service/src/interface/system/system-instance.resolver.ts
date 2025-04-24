@@ -1,1 +1,4 @@
 export * from '@web-system-service/interface/system/system-user.resolver'
+export * from '@web-system-service/interface/system/system-role.resolver'
+export * from '@web-system-service/interface/system/system-chunk.resolver'
+export * from '@web-system-service/interface/system/system-router.resolver'

@@ -1,10 +1,9 @@
-import { Controller, Post, Get, Body, Query, Request } from '@nestjs/common'
+import { Controller, Post, Body, Request } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
 import { SystemChunkService } from '@web-system-service/modules/system/system-chunk.service'
 import * as field from '@web-system-service/interface/instance.resolver'
-import * as enums from '@/modules/database/database.enums'
 
 @ApiTags('字典模块')
 @Controller('chunk')
@@ -17,8 +16,8 @@ export class SystemChunkController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseCreateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseCreateSystemChunk) {
-        return await this.systemChunkService.httpBaseCreateSystemChunk(request, body)
+    public async httpBaseSystemChunkCreate(@Request() request: OmixRequest, @Body() body: field.BaseSystemChunkCreate) {
+        return await this.systemChunkService.httpBaseSystemChunkCreate(request, body)
     }
 
     @Post('/column')
@@ -27,8 +26,8 @@ export class SystemChunkController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseColumnSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseColumnSystemChunk) {
-        return this.systemChunkService.httpBaseColumnSystemChunk(request, body)
+    public async httpBaseSystemColumnChunk(@Request() request: OmixRequest, @Body() body: field.BaseSystemColumnChunk) {
+        return this.systemChunkService.httpBaseSystemColumnChunk(request, body)
     }
 
     @Post('/update')
@@ -37,8 +36,8 @@ export class SystemChunkController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemChunk) {
-        return await this.systemChunkService.httpBaseUpdateSystemChunk(request, body)
+    public async httpBaseSystemUpdateChunk(@Request() request: OmixRequest, @Body() body: field.BaseSystemUpdateChunk) {
+        return await this.systemChunkService.httpBaseSystemUpdateChunk(request, body)
     }
 
     @Post('/update/state')
@@ -47,7 +46,7 @@ export class SystemChunkController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateStateSystemChunk(@Request() request: OmixRequest, @Body() body: field.BaseUpdateStateSystemChunk) {
-        return await this.systemChunkService.httpBaseUpdateStateSystemChunk(request, body)
+    public async httpBaseSystemSwitchChunk(@Request() request: OmixRequest, @Body() body: field.BaseSystemSwitchChunk) {
+        return await this.systemChunkService.httpBaseSystemSwitchChunk(request, body)
     }
 }

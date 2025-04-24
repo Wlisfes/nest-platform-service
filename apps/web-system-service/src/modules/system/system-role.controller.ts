@@ -16,8 +16,8 @@ export class SystemRoleController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseCreateSystemRole(@Request() request: OmixRequest, @Body() body: field.BaseCreateSystemRole) {
-        return await this.systemRoleService.httpBaseCreateSystemRole(request, body)
+    public async httpBaseSystemRoleCreate(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleCreate) {
+        return await this.systemRoleService.httpBaseSystemRoleCreate(request, body)
     }
 
     @Post('/update')
@@ -26,8 +26,8 @@ export class SystemRoleController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSystemRole(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemRole) {
-        return await this.systemRoleService.httpBaseUpdateSystemRole(request, body)
+    public async httpBaseSystemRoleUpdate(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleUpdate) {
+        return await this.systemRoleService.httpBaseSystemRoleUpdate(request, body)
     }
 
     @Post('/update/state')
@@ -36,18 +36,18 @@ export class SystemRoleController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateStateSystemRole(@Request() request: OmixRequest, @Body() body: field.BaseStateSystemRole) {
-        return await this.systemRoleService.httpBaseUpdateStateSystemRole(request, body)
+    public async httpBaseSystemSwitchRole(@Request() request: OmixRequest, @Body() body: field.BaseSystemSwitchRole) {
+        return await this.systemRoleService.httpBaseSystemSwitchRole(request, body)
     }
 
-    @Post('/update/authorize')
+    @Post('/update/rules')
     @ApiDecorator({
         operation: { summary: '编辑角色权限' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSystemRoleAuthorize(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemRoleAuthorize) {
-        return await this.systemRoleService.httpBaseUpdateSystemRoleAuthorize(request, body)
+    public async httpBaseSystemUpdateRoleRules(@Request() request: OmixRequest, @Body() body: field.BaseSystemUpdateRoleRules) {
+        return await this.systemRoleService.httpBaseSystemUpdateRoleRules(request, body)
     }
 
     @Post('/update/user')
@@ -56,8 +56,8 @@ export class SystemRoleController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSystemRoleUser(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemRoleUser) {
-        return await this.systemRoleService.httpBaseUpdateSystemRoleUser(request, body)
+    public async httpBaseSystemUpdateRoleUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemUpdateRoleUser) {
+        return await this.systemRoleService.httpBaseSystemUpdateRoleUser(request, body)
     }
 
     @Post('/column')
@@ -66,7 +66,7 @@ export class SystemRoleController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseColumnSystemRole(@Request() request: OmixRequest, @Body() body: field.BaseColumnSystemRole) {
-        return this.systemRoleService.httpBaseColumnSystemRole(request, body)
+    public async httpBaseSystemColumnRole(@Request() request: OmixRequest, @Body() body: field.BaseSystemColumnRole) {
+        return this.systemRoleService.httpBaseSystemColumnRole(request, body)
     }
 }

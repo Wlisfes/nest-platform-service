@@ -18,7 +18,7 @@ export class SystemRoleService extends Logger {
 
     /**新增角色**/
     @AutoMethodDescriptor
-    public async httpBaseCreateSystemRole(request: OmixRequest, body: field.BaseCreateSystemRole) {
+    public async httpBaseSystemRoleCreate(request: OmixRequest, body: field.BaseSystemRoleCreate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNull(this.database.schemaRole, {
@@ -45,7 +45,7 @@ export class SystemRoleService extends Logger {
 
     /**编辑角色**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateSystemRole(request: OmixRequest, body: field.BaseUpdateSystemRole) {
+    public async httpBaseSystemRoleUpdate(request: OmixRequest, body: field.BaseSystemRoleUpdate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaRole, {
@@ -79,7 +79,7 @@ export class SystemRoleService extends Logger {
 
     /**编辑角色状态**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateStateSystemRole(request: OmixRequest, body: field.BaseStateSystemRole) {
+    public async httpBaseSystemSwitchRole(request: OmixRequest, body: field.BaseSystemSwitchRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaRole, {
@@ -107,7 +107,7 @@ export class SystemRoleService extends Logger {
 
     /**编辑角色**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateSystemRoleAuthorize(request: OmixRequest, body: field.BaseUpdateSystemRoleAuthorize) {
+    public async httpBaseSystemUpdateRoleRules(request: OmixRequest, body: field.BaseSystemUpdateRoleRules) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaRole, {
@@ -135,7 +135,7 @@ export class SystemRoleService extends Logger {
 
     /**编辑角色用户**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateSystemRoleUser(request: OmixRequest, body: field.BaseUpdateSystemRoleUser) {
+    public async httpBaseSystemUpdateRoleUser(request: OmixRequest, body: field.BaseSystemUpdateRoleUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaRole, {
@@ -163,7 +163,7 @@ export class SystemRoleService extends Logger {
 
     /**角色列表**/
     @AutoMethodDescriptor
-    public async httpBaseColumnSystemRole(request: OmixRequest, body: field.BaseColumnSystemRole) {
+    public async httpBaseSystemColumnRole(request: OmixRequest, body: field.BaseSystemColumnRole) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')

@@ -28,7 +28,7 @@ export class SystemChunkService extends Logger {
 
     /**新增字典**/
     @AutoMethodDescriptor
-    public async httpBaseCreateSystemChunk(request: OmixRequest, body: field.BaseCreateSystemChunk) {
+    public async httpBaseSystemChunkCreate(request: OmixRequest, body: field.BaseSystemChunkCreate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**验证类型+value是否重复**/
@@ -72,7 +72,7 @@ export class SystemChunkService extends Logger {
 
     /**字典列表**/
     @AutoMethodDescriptor
-    public async httpBaseColumnSystemChunk(request: OmixRequest, body: field.BaseColumnSystemChunk) {
+    public async httpBaseSystemColumnChunk(request: OmixRequest, body: field.BaseSystemColumnChunk) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaChunk, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
@@ -135,7 +135,7 @@ export class SystemChunkService extends Logger {
 
     /**编辑字典**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateSystemChunk(request: OmixRequest, body: field.BaseUpdateSystemChunk) {
+    public async httpBaseSystemUpdateChunk(request: OmixRequest, body: field.BaseSystemUpdateChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**验证keyId是否不存在**/
@@ -185,7 +185,7 @@ export class SystemChunkService extends Logger {
 
     /**编辑字典状态**/
     @AutoMethodDescriptor
-    public async httpBaseUpdateStateSystemChunk(request: OmixRequest, body: field.BaseUpdateStateSystemChunk) {
+    public async httpBaseSystemSwitchChunk(request: OmixRequest, body: field.BaseSystemSwitchChunk) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             /**验证keyId是否不存在**/

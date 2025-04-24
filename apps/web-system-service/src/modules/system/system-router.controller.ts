@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { ApiDecorator } from '@/decorator/request.decorator'
 import { OmixRequest } from '@/interface/instance.resolver'
 import { SystemRouterService } from '@web-system-service/modules/system/system-router.service'
-import * as field from '@web-system-service/interface/router.resolver'
+import * as field from '@web-system-service/interface/instance.resolver'
 
 @ApiTags('菜单模块')
 @Controller('router')
@@ -16,8 +16,8 @@ export class SystemRouterController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseCreateSystemRouter(@Request() request: OmixRequest, @Body() body: field.BaseCreateSystemRouter) {
-        return await this.systemRouterService.httpBaseCreateSystemRouter(request, body)
+    public async httpBaseSystemRouterCreate(@Request() request: OmixRequest, @Body() body: field.BaseSystemRouterCreate) {
+        return await this.systemRouterService.httpBaseSystemRouterCreate(request, body)
     }
 
     @Post('/update')
@@ -26,8 +26,8 @@ export class SystemRouterController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSystemRouter(@Request() request: OmixRequest, @Body() body: field.BaseUpdateSystemRouter) {
-        return this.systemRouterService.httpBaseUpdateSystemRouter(request, body)
+    public async httpBaseSystemRouterUpdate(@Request() request: OmixRequest, @Body() body: field.BaseSystemRouterUpdate) {
+        return this.systemRouterService.httpBaseSystemRouterUpdate(request, body)
     }
 
     @Post('/update/state')
@@ -36,8 +36,8 @@ export class SystemRouterController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateStateSystemRouter(@Request() request: OmixRequest, @Body() body: field.BaseStateSystemRouter) {
-        return await this.systemRouterService.httpBaseUpdateStateSystemRouter(request, body)
+    public async httpBaseSystemSwitchRouter(@Request() request: OmixRequest, @Body() body: field.BaseSystemSwitchRouter) {
+        return await this.systemRouterService.httpBaseSystemSwitchRouter(request, body)
     }
 
     @Post('/delete')
@@ -46,8 +46,8 @@ export class SystemRouterController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseDeleteSystemRouter(@Request() request: OmixRequest, @Body() body: field.BaseSystemRouterResolver) {
-        return await this.systemRouterService.httpBaseDeleteSystemRouter(request, body)
+    public async httpBaseSystemRouterDelete(@Request() request: OmixRequest, @Body() body: field.BaseSystemRouterResolver) {
+        return await this.systemRouterService.httpBaseSystemRouterDelete(request, body)
     }
 
     @Post('/column')
@@ -56,8 +56,8 @@ export class SystemRouterController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseColumnSystemRouter(@Request() request: OmixRequest, @Body() body: field.BaseColumnSystemRouter) {
-        return this.systemRouterService.httpBaseColumnSystemRouter(request, body)
+    public async httpBaseSystemColumnRouter(@Request() request: OmixRequest, @Body() body: field.BaseSystemColumnRouter) {
+        return this.systemRouterService.httpBaseSystemColumnRouter(request, body)
     }
 
     @Get('/column/tree')
@@ -70,14 +70,14 @@ export class SystemRouterController {
         return this.systemRouterService.httpBaseColumnTreeSystemRouter(request)
     }
 
-    @Get('/user')
+    @Get('/column/current')
     @ApiDecorator({
         operation: { summary: '获取当前用户菜单' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseColumnUserSystemRouter(@Request() request: OmixRequest) {
-        return this.systemRouterService.httpBaseColumnUserSystemRouter(request)
+    public async httpBaseSystemCurrentRouter(@Request() request: OmixRequest) {
+        return this.systemRouterService.httpBaseSystemCurrentRouter(request)
     }
 
     @Get('/resolver')

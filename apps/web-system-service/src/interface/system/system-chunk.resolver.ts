@@ -11,16 +11,16 @@ export class BaseCheckKeyIdSystemChunk extends PickType(SchemaChunk, ['keyId']) 
 }
 
 /**新增字典**/
-export class BaseCreateSystemChunk extends IntersectionType(PickType(SchemaChunk, ['type', 'name', 'value', 'pid', 'comment', 'json'])) {}
+export class BaseSystemChunkCreate extends IntersectionType(PickType(SchemaChunk, ['type', 'name', 'value', 'pid', 'comment', 'json'])) {}
 
 /**字典列表**/
-export class BaseColumnSystemChunk extends IntersectionType(
+export class BaseSystemColumnChunk extends IntersectionType(
     PickType(OmixColumn, ['page', 'size', 'vague', 'startTime', 'endTime']),
     PickType(PartialType(SchemaChunk), ['type', 'name', 'value', 'status', 'uid'])
 ) {}
 
 /**编辑字典**/
-export class BaseUpdateSystemChunk extends IntersectionType(PickType(SchemaChunk, ['keyId']), BaseCreateSystemChunk) {}
+export class BaseSystemUpdateChunk extends IntersectionType(PickType(SchemaChunk, ['keyId']), BaseSystemChunkCreate) {}
 
 /**编辑字典状态**/
-export class BaseUpdateStateSystemChunk extends PickType(SchemaChunk, ['keyId', 'status']) {}
+export class BaseSystemSwitchChunk extends PickType(SchemaChunk, ['keyId', 'status']) {}
