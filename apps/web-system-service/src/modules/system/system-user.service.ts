@@ -42,7 +42,7 @@ export class SystemUserService extends Logger {
 
     /**新增用户账号**/
     @AutoMethodDescriptor
-    public async httpBaseCreateSystemUser(request: OmixRequest, body: field.BaseCreateSystemUser) {
+    public async httpBaseSystemUserCreate(request: OmixRequest, body: field.BaseSystemUserCreate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
@@ -74,7 +74,7 @@ export class SystemUserService extends Logger {
 
     /**授权登录**/
     @AutoMethodDescriptor
-    public async httpBaseCreateSystemUserAuthorize(request: OmixRequest, body: field.BaseCreateSystemUserAuthorize) {
+    public async httpBaseSystemUserTokenAuthorize(request: OmixRequest, body: field.BaseSystemUserTokenAuthorize) {
         try {
             await this.deployCodexService.httpDeployCodexTokenCheckReader(request, body)
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
@@ -98,7 +98,7 @@ export class SystemUserService extends Logger {
 
     /**用户账号列表**/
     @AutoMethodDescriptor
-    public async httpBaseColumnSystemUser(request: OmixRequest, body: field.BaseColumnSystemUser) {
+    public async httpBaseSystemColumnUser(request: OmixRequest, body: field.BaseSystemColumnUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
                 await qb.leftJoinAndMapOne('t.status', schema.SchemaChunk, 'status', `status.value = t.status AND status.type = :type`, {
@@ -153,7 +153,7 @@ export class SystemUserService extends Logger {
     }
 
     /**编辑账号状态**/
-    public async httpBaseUpdateSwitchSystemUser(request: OmixRequest, body: field.BaseSwitchSystemUser) {
+    public async httpBaseSystemSwitchUser(request: OmixRequest, body: field.BaseSystemSwitchUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.database.fetchConnectNotNull(this.database.schemaUser, {

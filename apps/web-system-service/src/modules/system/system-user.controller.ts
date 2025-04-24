@@ -16,8 +16,8 @@ export class SystemUserController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseCreateSystemUser(@Request() request: OmixRequest, @Body() body: field.BaseCreateSystemUser) {
-        return await this.systemUserService.httpBaseCreateSystemUser(request, body)
+    public async httpBaseSystemUserCreate(@Request() request: OmixRequest, @Body() body: field.BaseSystemUserCreate) {
+        return await this.systemUserService.httpBaseSystemUserCreate(request, body)
     }
 
     @Post('/token/authorize')
@@ -26,8 +26,8 @@ export class SystemUserController {
         response: { status: 200, description: 'OK' },
         authorize: { platform: 'manager' }
     })
-    public async httpBaseCreateSystemUserAuthorize(@Request() request: OmixRequest, @Body() body: field.BaseCreateSystemUserAuthorize) {
-        return await this.systemUserService.httpBaseCreateSystemUserAuthorize(request, body)
+    public async httpBaseSystemUserTokenAuthorize(@Request() request: OmixRequest, @Body() body: field.BaseSystemUserTokenAuthorize) {
+        return await this.systemUserService.httpBaseSystemUserTokenAuthorize(request, body)
     }
 
     @Post('/column')
@@ -36,18 +36,18 @@ export class SystemUserController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseColumnSystemUser(@Request() request: OmixRequest, @Body() body: field.BaseColumnSystemUser) {
-        return this.systemUserService.httpBaseColumnSystemUser(request, body)
+    public async httpBaseSystemColumnUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemColumnUser) {
+        return this.systemUserService.httpBaseSystemColumnUser(request, body)
     }
 
-    @Post('/update/switch')
+    @Post('/update/state')
     @ApiDecorator({
         operation: { summary: '编辑账号状态' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseUpdateSwitchSystemUser(@Request() request: OmixRequest, @Body() body: field.BaseSwitchSystemUser) {
-        return await this.systemUserService.httpBaseUpdateSwitchSystemUser(request, body)
+    public async httpBaseSystemSwitchUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemSwitchUser) {
+        return await this.systemUserService.httpBaseSystemSwitchUser(request, body)
     }
 
     @Get('/token/resolver')
