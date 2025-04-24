@@ -12,10 +12,10 @@ export class BaseUpdateSystemRole extends PickType(SchemaRole, ['keyId', 'name',
 export class BaseStateSystemRole extends PickType(SchemaRole, ['keyId', 'status']) {}
 
 /**编辑角色**/
-export class BaseUpdateSystemRoleAuthorize extends PickType(SchemaRole, ['keyId', 'auxs']) {}
+export class BaseUpdateSystemRoleAuthorize extends PickType(SchemaRole, ['keyId']) {}
 
 /**编辑角色用户**/
-export class BaseUpdateSystemRoleUser extends PickType(SchemaRole, ['keyId', 'uids']) {}
+export class BaseUpdateSystemRoleUser extends PickType(SchemaRole, ['keyId']) {}
 
 /**角色列表**/
 export class BaseColumnSystemRole extends IntersectionType(

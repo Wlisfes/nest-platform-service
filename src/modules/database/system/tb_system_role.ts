@@ -1,9 +1,8 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, Length, IsString, IsArray, IsOptional, IsEnum } from 'class-validator'
-import { Type } from 'class-transformer'
+import { IsNotEmpty, Length, IsEnum } from 'class-validator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
-import { ArrayStringTransform, comment } from '@/utils/utils-schema'
+import { comment } from '@/utils/utils-schema'
 import { fetchComment } from '@/utils/utils-common'
 import * as enums from '@/modules/database/database.enums'
 
@@ -23,22 +22,6 @@ export class SchemaRole extends DatabaseAdapter {
     @IsNotEmpty({ message: '角色名称必填' })
     @Column({ comment: '角色名称', length: 32, nullable: false })
     name: string
-
-    @ApiProperty({ description: '用户列表' })
-    @Type(() => String)
-    @IsOptional()
-    @IsArray()
-    @IsString({ each: true, message: 'uids 格式错误' })
-    @Column({ type: 'text', nullable: true, transformer: ArrayStringTransform })
-    uids: string[]
-
-    @ApiProperty({ description: '权限列表' })
-    @Type(() => String)
-    @IsOptional()
-    @IsArray()
-    @IsString({ each: true, message: 'auxs 格式错误' })
-    @Column({ type: 'text', nullable: true, transformer: ArrayStringTransform })
-    auxs: string[]
 
     @ApiProperty({ description: '角色状态', enum: fetchComment(enums.COMMON_SYSTEM_ROLE_STATUS) })
     @IsNotEmpty({ message: '角色状态必填' })

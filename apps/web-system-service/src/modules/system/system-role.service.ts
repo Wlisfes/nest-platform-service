@@ -168,7 +168,7 @@ export class SystemRoleService extends Logger {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
                 await this.database.fetchSelection(qb, [
-                    ['t', ['id', 'keyId', 'name', 'uid', 'uids', 'auxs', 'status', 'createTime', 'modifyTime']],
+                    ['t', ['id', 'keyId', 'name', 'uid', 'status', 'createTime', 'modifyTime']],
                     ['user', ['uid', 'name', 'status', 'id', 'number']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
