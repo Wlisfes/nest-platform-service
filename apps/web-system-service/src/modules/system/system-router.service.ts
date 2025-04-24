@@ -245,7 +245,7 @@ export class SystemRouterService extends Logger {
 
     /**菜单列表树**/
     @AutoMethodDescriptor
-    public async httpBaseColumnTreeSystemRouter(request: OmixRequest) {
+    public async httpBaseSystemColumnTreeRouter(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await this.database.fetchSelection(qb, [['t', ['keyId', 'id', 'pid', 'name', 'sort', 'type']]])

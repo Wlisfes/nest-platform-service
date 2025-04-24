@@ -66,8 +66,8 @@ export class SystemRouterController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseColumnTreeSystemRouter(@Request() request: OmixRequest) {
-        return this.systemRouterService.httpBaseColumnTreeSystemRouter(request)
+    public async httpBaseSystemColumnTreeRouter(@Request() request: OmixRequest) {
+        return this.systemRouterService.httpBaseSystemColumnTreeRouter(request)
     }
 
     @Get('/column/user')
