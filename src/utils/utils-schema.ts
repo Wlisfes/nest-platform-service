@@ -1,6 +1,14 @@
 import { Omix } from '@/interface/global.resolver'
 import * as utils from '@/utils/utils-common'
 
+/**枚举描述转换**/
+export function comment(name: string, data: Omix) {
+    const text = Object.values(data)
+        .map(item => `${item.name}-${item.value}`)
+        .join('、')
+    return `${name}：${text}`
+}
+
 /**日期时间转换**/
 export const DateTimeTransform = {
     from: s => utils.moment(s).format('YYYY-MM-DD HH:mm:ss'),

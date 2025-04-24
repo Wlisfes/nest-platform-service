@@ -4,7 +4,8 @@ import { Type } from 'class-transformer'
 import { IsNotEmpty, Length, IsEnum, IsObject } from 'class-validator'
 import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
-import { JsonStringTransform } from '@/utils/utils-schema'
+import { JsonStringTransform, comment } from '@/utils/utils-schema'
+import { fetchComment } from '@/utils/utils-common'
 import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_chunk', comment: '字典配置表' })
@@ -19,18 +20,18 @@ export class SchemaChunk extends DatabaseAdapter {
     @Column({ comment: '用户UID', length: 19, nullable: false })
     uid: string
 
-    @ApiProperty({ description: '字典类型', enum: Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS) })
+    @ApiProperty({ description: '字典类型', enum: fetchComment(enums.STATIC_SCHEMA_CHUNK_OPTIONS) })
     @IsNotEmpty({ message: '字典类型必填' })
     @Length(0, 32, { message: '字典类型不能超过32个字符' })
     @IsEnum(Object.keys(enums.STATIC_SCHEMA_CHUNK_OPTIONS), { message: '字典类型格式错误' })
-    @Column({ comment: '字典类型', length: 32, nullable: false })
+    @Column({ length: 32, nullable: false, comment: comment('字典类型', enums.STATIC_SCHEMA_CHUNK_OPTIONS) })
     type: string
 
-    @ApiProperty({ description: '字典状态', enum: Object.keys(enums.SCHEMA_CHUNK_STATUS_OPTIONS) })
+    @ApiProperty({ description: '字典状态', enum: fetchComment(enums.SCHEMA_CHUNK_STATUS_OPTIONS) })
     @IsNotEmpty({ message: '字典状态必填' })
     @Length(0, 32, { message: '字典状态不能超过32个字符' })
     @IsEnum(Object.keys(enums.SCHEMA_CHUNK_STATUS_OPTIONS), { message: '字典状态格式错误' })
-    @Column({ comment: '字典状态', length: 32, nullable: false, default: enums.SCHEMA_CHUNK_STATUS_OPTIONS.enable.value })
+    @Column({ length: 32, nullable: false, comment: comment('字典状态', enums.SCHEMA_CHUNK_STATUS_OPTIONS) })
     status: string
 
     @ApiProperty({ description: '字典名称', example: '账号状态' })

@@ -4,6 +4,8 @@ import { IsNotEmpty, IsNumber, Length, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsOptional } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
+import { comment } from '@/utils/utils-schema'
+import { fetchComment } from '@/utils/utils-common'
 import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_router', comment: '菜单资源配置表' })
@@ -49,18 +51,18 @@ export class SchemaRouter extends DatabaseAdapter {
     @Column({ comment: '是否可见', default: true, nullable: false })
     check: boolean
 
-    @ApiProperty({ description: '类型: 菜单-router、按钮-button', enum: Object.keys(enums.COMMON_SYSTEM_ROUTER_TYPE) })
+    @ApiProperty({ description: '类型', enum: fetchComment(enums.COMMON_SYSTEM_ROUTER_TYPE) })
     @IsNotEmpty({ message: '类型必填' })
     @Length(0, 32, { message: '类型不能超过32个字符' })
     @IsEnum(Object.keys(enums.COMMON_SYSTEM_ROUTER_TYPE), { message: '类型格式错误' })
-    @Column({ comment: '类型: 菜单-router、按钮-button', length: 32, nullable: false })
+    @Column({ length: 32, nullable: false, comment: comment('类型', enums.COMMON_SYSTEM_ROUTER_TYPE) })
     type: string
 
-    @ApiProperty({ description: '状态: 禁用-disable、启用-enable', enum: Object.keys(enums.COMMON_SYSTEM_ROUTER_STATUS) })
+    @ApiProperty({ description: '状态', enum: fetchComment(enums.COMMON_SYSTEM_ROUTER_STATUS) })
     @IsNotEmpty({ message: '状态必填' })
     @Length(0, 32, { message: '状态不能超过32个字符' })
     @IsEnum(Object.keys(enums.COMMON_SYSTEM_ROUTER_STATUS), { message: '状态格式错误' })
-    @Column({ comment: '状态: 禁用-disable、启用-enable', nullable: false })
+    @Column({ nullable: false, comment: comment('状态', enums.COMMON_SYSTEM_ROUTER_STATUS) })
     status: string
 
     @ApiProperty({ description: '版本号', example: 'v1.0.0' })

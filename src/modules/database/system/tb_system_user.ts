@@ -1,9 +1,12 @@
 import { Entity, Column } from 'typeorm'
 import { hashSync } from 'bcryptjs'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, Length, IsEmail } from 'class-validator'
+import { IsNotEmpty, Length, IsEmail, IsEnum } from 'class-validator'
 import { IsMobile } from '@/decorator/common.decorator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
+import { comment } from '@/utils/utils-schema'
+import { fetchComment } from '@/utils/utils-common'
+import * as enums from '@/modules/database/database.enums'
 
 @Entity({ name: 'tb_system_user', comment: '用户表' })
 export class SchemaUser extends DatabaseAdapter {
@@ -41,10 +44,11 @@ export class SchemaUser extends DatabaseAdapter {
     @Column({ comment: '头像', length: 255, nullable: true })
     avatar: string
 
-    @ApiProperty({ description: '账号状态: 禁用-disable、启用-enable、挂起-suspend' })
+    @ApiProperty({ description: '账号状态', enum: fetchComment(enums.COMMON_SYSTEM_USER_STATUS) })
     @IsNotEmpty({ message: '账号状态必填' })
     @Length(0, 32, { message: '账号状态不能超过32个字符' })
-    @Column({ comment: '账号状态: 禁用-disable、启用-enable、挂起-suspend', nullable: false })
+    @IsEnum(Object.keys(enums.COMMON_SYSTEM_USER_STATUS), { message: '账号状态格式错误' })
+    @Column({ nullable: false, comment: comment('账号状态', enums.COMMON_SYSTEM_USER_STATUS) })
     status: string
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })

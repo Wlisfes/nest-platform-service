@@ -80,3 +80,10 @@ export function fetchRemoveTreeNode<T extends Omix>(data: Array<T>): Array<T> {
     })
     return data
 }
+
+/**枚举文案转换**/
+export function fetchComment(data: Omix) {
+    return Object.values(data).map(item => {
+        return `</br> ${item.name}：${item.value}`
+    })
+}
