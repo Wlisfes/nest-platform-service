@@ -70,14 +70,14 @@ export class SystemRouterController {
         return this.systemRouterService.httpBaseColumnTreeSystemRouter(request)
     }
 
-    @Get('/column/current')
+    @Get('/column/user')
     @ApiDecorator({
         operation: { summary: '获取当前用户菜单' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseSystemCurrentRouter(@Request() request: OmixRequest) {
-        return this.systemRouterService.httpBaseSystemCurrentRouter(request)
+    public async httpBaseSystemUserRouter(@Request() request: OmixRequest) {
+        return this.systemRouterService.httpBaseSystemUserRouter(request)
     }
 
     @Get('/resolver')

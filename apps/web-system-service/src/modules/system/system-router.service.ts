@@ -264,7 +264,7 @@ export class SystemRouterService extends Logger {
 
     /**获取当前用户菜单**/
     @AutoMethodDescriptor
-    public async httpBaseSystemCurrentRouter(request: OmixRequest) {
+    public async httpBaseSystemUserRouter(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
                 await qb.where('t.type = :type', { type: enums.COMMON_SYSTEM_ROUTER_TYPE.router.value })
