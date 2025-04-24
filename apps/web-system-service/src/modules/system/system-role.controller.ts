@@ -42,7 +42,7 @@ export class SystemRoleController {
 
     @Post('/update/rules')
     @ApiDecorator({
-        operation: { summary: '编辑角色权限' },
+        operation: { summary: '编辑角色权限规则' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })

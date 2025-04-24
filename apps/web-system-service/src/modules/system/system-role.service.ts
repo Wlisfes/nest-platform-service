@@ -105,7 +105,7 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**编辑角色**/
+    /**编辑角色权限规则**/
     @AutoMethodDescriptor
     public async httpBaseSystemUpdateRoleRules(request: OmixRequest, body: field.BaseSystemUpdateRoleRules) {
         const ctx = await this.database.fetchConnectTransaction()

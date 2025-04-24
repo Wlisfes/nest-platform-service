@@ -1,5 +1,5 @@
 import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { OmixColumn } from '@/interface/instance.resolver'
+import { OmixColumn, OmixPayload } from '@/interface/instance.resolver'
 import { SchemaRole } from '@/modules/database/database.schema'
 
 /**新增角色**/
@@ -11,11 +11,11 @@ export class BaseSystemRoleUpdate extends PickType(SchemaRole, ['keyId', 'name',
 /**编辑角色状态**/
 export class BaseSystemSwitchRole extends PickType(SchemaRole, ['keyId', 'status']) {}
 
-/**编辑角色规则**/
-export class BaseSystemUpdateRoleRules extends PickType(SchemaRole, ['keyId']) {}
+/**编辑角色权限规则**/
+export class BaseSystemUpdateRoleRules extends IntersectionType(PickType(SchemaRole, ['keyId']), PickType(OmixPayload, ['keys'])) {}
 
 /**编辑角色用户**/
-export class BaseSystemUpdateRoleUser extends PickType(SchemaRole, ['keyId']) {}
+export class BaseSystemUpdateRoleUser extends IntersectionType(PickType(SchemaRole, ['keyId']), PickType(OmixPayload, ['keys'])) {}
 
 /**角色列表**/
 export class BaseSystemColumnRole extends IntersectionType(
