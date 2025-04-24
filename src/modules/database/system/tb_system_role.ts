@@ -1,6 +1,6 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, Length, IsEnum } from 'class-validator'
+import { IsNotEmpty, Length, IsEnum, IsOptional } from 'class-validator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import { comment } from '@/utils/utils-schema'
 import { fetchComment } from '@/utils/utils-common'
@@ -29,6 +29,12 @@ export class SchemaRole extends DatabaseAdapter {
     @IsEnum(Object.keys(enums.COMMON_SYSTEM_ROLE_STATUS), { message: '角色状态格式错误' })
     @Column({ nullable: false, comment: comment('角色状态', enums.COMMON_SYSTEM_ROLE_STATUS) })
     status: string
+
+    @ApiProperty({ description: '角色描述', required: false })
+    @IsOptional()
+    @Length(0, 128, { message: '角色描述不能超过128个字符' })
+    @Column({ name: 'comment', comment: '角色描述', length: 128, nullable: true })
+    comment: string
 }
 
 @Entity({ name: 'tb_system_role_join_user', comment: '角色关联用户配置表' })
