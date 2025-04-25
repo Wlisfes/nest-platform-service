@@ -54,6 +54,9 @@ export class Logger {
         return new PackageService(this.logger, request, opts)
     }
 
+    /**日志方法名称组合**/
+    public fetchDeplayName(name: string, alias: string) {}
+
     /**返回包装**/
     public async fetchResolver<T>(data: Partial<OmixResult<T>>) {
         return data

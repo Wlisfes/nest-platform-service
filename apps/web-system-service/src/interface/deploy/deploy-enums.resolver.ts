@@ -33,6 +33,8 @@ export interface BaseDeployEnumsCompose extends Partial<Record<EnumsTypes, boole
 
 /**刷新redis字典缓存**/
 export interface BaseUpdateRedisSystemEnums extends Omix {
+    /**输出日志方法名**/
+    deplayName?: string
     /**字典类型**/
     type: string
     /**字典类型值**/
@@ -49,6 +51,9 @@ export interface BaseDeployRedisEnumsCheck extends BaseUpdateRedisSystemEnums {
 
 /**批量获取枚举分类列表**/
 export class BaseDeployEnumsCompiler {
+    /**输出日志方法名**/
+    deplayName?: string
+
     @ApiProperty({ description: '字典类型列表', enum: EnumsDocuments })
     @IsNotEmpty({ message: 'type类型必填' })
     @IsString({ each: true, message: 'type 必须为Array<string>格式' })

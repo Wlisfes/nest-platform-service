@@ -19,20 +19,24 @@ export class CodexService extends Logger {
         response: Response,
         opts: Omix<{ key: string; cookie: string; deplayName?: string }>
     ) {
+        const logger = await this.fetchServiceLoggerTransaction(request, { deplayName: this.deplayName })
         return await plugin.fetchCommonCodexer({ width: 120, height: 40 }).then(async ({ sid, text, data }) => {
             const key = await this.redisService.fetchCompose(opts.key, { sid })
-            return await this.redisService.setStore(request, { key, data: text, seconds: 300 }).then(async ({ seconds }) => {
-                this.logger.info(opts.deplayName || this.deplayName, {
-                    log: { message: '图形验证码发送成功', seconds, key, data: text }
-                })
-                await response.cookie(opts.cookie, sid, { httpOnly: true, maxAge: 300 * 1000 })
-                await response.type('svg')
-                return await response.send(data)
+            const { seconds } = await this.redisService.setStore(request, {
+                key,
+                data: text,
+                seconds: 300,
+                deplayName: this.deplayName
             })
+            logger.info({ message: '图形验证码发送成功', seconds, key, data: text })
+            await response.cookie(opts.cookie, sid, { httpOnly: true, maxAge: 300 * 1000 })
+            await response.type('svg')
+            return await response.send(data)
         })
     }
 
     /**验证请求头图形验证码sid**/
+    @AutoMethodDescriptor
     public async fetchCommonCodexReader(request: OmixRequest, key: string): Promise<string> {
         if (isEmpty(request.cookies[key])) {
             throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
@@ -41,12 +45,13 @@ export class CodexService extends Logger {
     }
 
     /**校验redis验证码**/
+    @AutoMethodDescriptor
     public async httpCommonCodexCheck(request: OmixRequest, opts: Omix<{ key: string; code: string }>) {
         return await this.redisService.getStore<string>(request, { key: opts.key }).then(async code => {
             if (isEmpty(code) || opts.code.toUpperCase() !== code.toUpperCase()) {
                 throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
             }
-            return await this.redisService.delStore(request, { key: opts.key })
+            return await this.redisService.delStore(request, { key: opts.key, deplayName: this.deplayName })
         })
     }
 }

@@ -17,32 +17,34 @@ export class DeployEnumsService extends Logger {
     /**刷新redis枚举缓存**/
     @AutoMethodDescriptor
     public async fetchBaseDeployRedisEnumsUpdate(request: OmixRequest, body: field.BaseUpdateRedisSystemEnums) {
+        const deplayName = body.deplayName ? `${body.deplayName}:fetchBaseDeployRedisEnumsUpdate` : this.deplayName
         try {
             return await this.redisService.setStore(request, {
-                deplayName: this.deplayName,
+                deplayName,
                 data: body.value,
                 key: ['deploy:enums', body.type, body.value].join(':')
             })
         } catch (err) {
-            return await this.fetchCatchCompiler(this.deplayName, err)
+            return await this.fetchCatchCompiler(deplayName, err)
         }
     }
 
     /**验证枚举值缓存是否合规: 不合规会抛出异常**/
     @AutoMethodDescriptor
     public async fetchBaseDeployRedisEnumsCheck(request: OmixRequest, body: field.BaseDeployRedisEnumsCheck) {
+        const deplayName = body.deplayName ? `${body.deplayName}:fetchBaseDeployRedisEnumsCheck` : this.deplayName
         try {
             const value = await this.redisService.getStore<string>(request, {
+                deplayName,
                 logger: true,
-                key: ['deploy:enums', body.type, body.value].join(':'),
-                deplayName: body.deplayName || this.deplayName
+                key: ['deploy:enums', body.type, body.value].join(':')
             })
             if (utils.isEmpty(value) || body.value !== value) {
                 throw new HttpException(body.message || '参数格式错误', HttpStatus.BAD_REQUEST)
             }
             return await this.fetchResolver({ value })
         } catch (err) {
-            return await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)
+            return await this.fetchCatchCompiler(deplayName, err)
         }
     }
 
@@ -86,6 +88,7 @@ export class DeployEnumsService extends Logger {
         request: OmixRequest,
         body: field.BaseDeployEnumsCompose
     ): Promise<Omix<R>> {
+        const deplayName = body.deplayName ? `${body.deplayName}:httpBaseDeployEnumsCompose` : this.deplayName
         try {
             return await this.httpBaseDeployEnumsStatic(request, body).then(async ({ chunk, dynamic }) => {
                 if (dynamic.length === 0) return chunk
@@ -94,7 +97,7 @@ export class DeployEnumsService extends Logger {
                 })
             })
         } catch (err) {
-            return (await this.fetchCatchCompiler(body.deplayName || this.deplayName, err)) as never as Omix<R>
+            return (await this.fetchCatchCompiler(deplayName, err)) as never as Omix<R>
         }
     }
 
