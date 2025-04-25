@@ -5,6 +5,7 @@ import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
 import { DatabaseService } from '@/modules/database/database.service'
+import { DeployEnumsService } from '@web-system-service/modules/deploy/deploy-enums.service'
 import { DeployCodexService } from '@web-system-service/modules/deploy/deploy-codex.service'
 import { OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
@@ -19,6 +20,7 @@ export class SystemUserService extends Logger {
         private readonly jwtService: JwtService,
         private readonly redisService: RedisService,
         private readonly database: DatabaseService,
+        private readonly deployEnumsService: DeployEnumsService,
         private readonly deployCodexService: DeployCodexService
     ) {
         super()
@@ -101,12 +103,8 @@ export class SystemUserService extends Logger {
     public async httpBaseSystemColumnUser(request: OmixRequest, body: field.BaseSystemColumnUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
-                await qb.leftJoinAndMapOne('t.status', schema.SchemaChunk, 'status', `status.value = t.status AND status.type = :type`, {
-                    type: enums.STATIC_SCHEMA_CHUNK_OPTIONS.COMMON_SYSTEM_USER_STATUS.value
-                })
                 await this.database.fetchSelection(qb, [
-                    ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']],
-                    ['status', ['name', 'value', 'json']]
+                    ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.number LIKE :vague OR t.phone LIKE :vague OR t.email LIKE :vague OR t.name LIKE :vague`, {
@@ -144,7 +142,11 @@ export class SystemUserService extends Logger {
                 await qb.offset((body.page - 1) * body.size)
                 await qb.limit(body.size)
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                    return await this.fetchResolver({ message: '操作成功', total, list })
+                    return await this.fetchResolver({
+                        message: '操作成功',
+                        total,
+                        list: utils.fetchConcat(list, item => ({ statusChunk: enums.COMMON_SYSTEM_ROUTER_STATUS[item.status] }))
+                    })
                 })
             })
         } catch (err) {

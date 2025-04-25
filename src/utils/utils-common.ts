@@ -81,8 +81,13 @@ export function fetchRemoveTreeNode<T extends Omix>(data: Array<T>): Array<T> {
     return data
 }
 
+/**列表枚举字段合并**/
+export function fetchConcat<T>(data: Array<Omix<T>>, handler: (e: T) => Omix): Array<Omix<T>> {
+    return data.map(item => ({ ...item, ...handler(item) }))
+}
+
 /**枚举文案转换**/
-export function fetchComment(data: Omix) {
+export function fetchComment<T>(data: Omix<T>) {
     return Object.values(data).map(item => {
         return `</br> ${item.name}：${item.value}`
     })

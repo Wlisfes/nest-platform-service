@@ -226,15 +226,14 @@ export class SystemRouterService extends Logger {
                     }
                 })
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                    const node = list.map(item => ({
-                        ...item,
+                    const items = utils.fetchConcat(list, item => ({
                         typeChunk: enums.COMMON_SYSTEM_ROUTER_TYPE[item.type],
                         statusChunk: enums.COMMON_SYSTEM_ROUTER_STATUS[item.status]
                     }))
                     return await this.fetchResolver({
                         message: '操作成功',
                         total,
-                        list: utils.tree.fromList(node, { id: 'keyId', pid: 'pid' })
+                        list: utils.tree.fromList(items, { id: 'keyId', pid: 'pid' })
                     })
                 })
             })
