@@ -138,21 +138,37 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemUpdateRoleUser(request: OmixRequest, body: field.BaseSystemUpdateRoleUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                deplayName: this.deplayName,
-                request,
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
+            const logger = await this.fetchServicelogger(request, { deplayName: this.deplayName })
+            return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
+                qb.leftJoinAndMapMany('t.user', schema.SchemaRoleUser, 'user', 'user.uid = t.keyId')
+                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
+                const node = await qb.getOne().then(async data => {
+                    logger.info({
+                        message: `[${this.database.schemaRole.metadata.name}]:查询出参`,
+                        where: { keyId: body.keyId },
+                        node: { name: data.name }
+                    })
+                    return await plugin.fetchCatchWherer(utils.isEmpty(data), { message: `keyId:${body.keyId} 不存在` }).then(() => {
+                        return data
+                    })
+                })
+
+                return await ctx.commitTransaction().then(async () => {
+                    return await this.fetchResolver({ message: '操作成功' })
+                })
             })
-            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
-                deplayName: this.deplayName,
-                request,
-                where: { keyId: body.keyId },
-                body: Object.assign(body, { uid: request.user.uid })
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
+            //     deplayName: this.deplayName,
+            //     request,
+            //     message: `keyId:${body.keyId} 不存在`,
+            //     dispatch: { where: { keyId: body.keyId } }
+            // })
+            // await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+            //     deplayName: this.deplayName,
+            //     request,
+            //     where: { keyId: body.keyId },
+            //     body: Object.assign(body, { uid: request.user.uid })
+            // })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler(this.deplayName, err)

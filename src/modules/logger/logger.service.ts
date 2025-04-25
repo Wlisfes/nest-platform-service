@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger as WinstonLogger } from 'winston'
-import { Omix } from '@/interface/instance.resolver'
+import { Omix, OmixRequest, OmixResult } from '@/interface/instance.resolver'
 
 /**注入日志配置**/
 export function AutoMethodDescriptor(target: any, propertyName: string, descriptor: PropertyDescriptor) {
@@ -14,15 +14,48 @@ export function AutoMethodDescriptor(target: any, propertyName: string, descript
     }
 }
 
+/**封装日志输出包**/
+export class PackageService {
+    private logger: WinstonLogger
+    private request: OmixRequest
+    private options: Omix
+    private date: Date = new Date()
+    constructor(logger: WinstonLogger, request: OmixRequest, options: Omix) {
+        this.logger = logger
+        this.request = request
+        this.options = options
+    }
+    /**日志组合输出**/
+    private output(log: Omix) {
+        return { duration: `${Date.now() - this.date.getTime()}ms`, context: this.request.headers.context, log: log }
+    }
+    /**时间重置**/
+    public reset() {
+        this.date = new Date()
+        return this
+    }
+    public info(log: Omix) {
+        this.logger.info(this.options.deplayName, this.output(log))
+        return this
+    }
+    public error(log: Omix) {
+        this.logger.error(this.options.deplayName, this.output(log))
+        return this
+    }
+}
+
 @Injectable()
 export class Logger {
     public readonly deplayName: string
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly logger: WinstonLogger
 
+    /**创建日志实例方法**/
+    public async fetchServicelogger(request: OmixRequest, opts: Omix<{ deplayName: string }>) {
+        return new PackageService(this.logger, request, opts)
+    }
+
     /**返回包装**/
-    public async fetchResolver<T = Partial<Omix<{ message: string; list: Array<Omix>; total: number; page: number; size: number }>>>(
-        data: T
-    ) {
+    public async fetchResolver<T>(data: Partial<OmixResult<T>>) {
         return data
     }
 

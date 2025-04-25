@@ -36,5 +36,9 @@ export const STATIC_SCHEMA_CHUNK_OPTIONS = {
     COMMON_SYSTEM_ROLE_STATUS: {
         value: 'COMMON_SYSTEM_ROLE_STATUS',
         name: '角色状态'
+    },
+    COMMON_SYSTEM_ROLE_MODEL: {
+        value: 'COMMON_SYSTEM_ROLE_MODEL',
+        name: '角色数据权限'
     }
 }

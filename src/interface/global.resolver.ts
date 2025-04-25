@@ -21,3 +21,12 @@ export interface OmixRequest extends Omix<Request> {
     ipv4: string
     platform: 'client' | 'manager'
 }
+
+/**OmixResult输出类型**/
+export interface OmixResult<T> extends Omix {
+    message: string
+    list: Array<Omix<T>>
+    total: number
+    page: number
+    size: number
+}

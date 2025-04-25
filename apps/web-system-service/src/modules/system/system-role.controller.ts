@@ -5,7 +5,7 @@ import { OmixRequest } from '@/interface/instance.resolver'
 import { SystemRoleService } from '@web-system-service/modules/system/system-role.service'
 import * as field from '@web-system-service/interface/instance.resolver'
 
-@ApiTags('角色权限模块')
+@ApiTags('角色模块')
 @Controller('role')
 export class SystemRoleController {
     constructor(private readonly systemRoleService: SystemRoleService) {}

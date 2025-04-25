@@ -3,10 +3,10 @@ import { OmixColumn, OmixPayload } from '@/interface/instance.resolver'
 import { SchemaRole } from '@/modules/database/database.schema'
 
 /**新增角色**/
-export class BaseSystemRoleCreate extends PickType(SchemaRole, ['name']) {}
+export class BaseSystemRoleCreate extends PickType(SchemaRole, ['name', 'comment', 'status', 'model']) {}
 
 /**编辑角色**/
-export class BaseSystemRoleUpdate extends PickType(SchemaRole, ['keyId', 'name', 'status']) {}
+export class BaseSystemRoleUpdate extends PickType(SchemaRole, ['keyId', 'comment', 'name', 'status', 'model']) {}
 
 /**编辑角色状态**/
 export class BaseSystemSwitchRole extends PickType(SchemaRole, ['keyId', 'status']) {}

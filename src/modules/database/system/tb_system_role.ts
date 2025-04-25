@@ -23,6 +23,13 @@ export class SchemaRole extends DatabaseAdapter {
     @Column({ comment: '角色名称', length: 32, nullable: false })
     name: string
 
+    @ApiProperty({ description: '角色数据权限', enum: fetchComment(enums.COMMON_SYSTEM_ROLE_MODEL) })
+    @IsNotEmpty({ message: '角色数据权限必填' })
+    @Length(0, 32, { message: '角色数据权限不能超过32个字符' })
+    @IsEnum(Object.keys(enums.COMMON_SYSTEM_ROLE_MODEL), { message: '角色数据权限格式错误' })
+    @Column({ nullable: false, comment: comment('角色数据权限', enums.COMMON_SYSTEM_ROLE_MODEL) })
+    model: string
+
     @ApiProperty({ description: '角色状态', enum: fetchComment(enums.COMMON_SYSTEM_ROLE_STATUS) })
     @IsNotEmpty({ message: '角色状态必填' })
     @Length(0, 32, { message: '角色状态不能超过32个字符' })
