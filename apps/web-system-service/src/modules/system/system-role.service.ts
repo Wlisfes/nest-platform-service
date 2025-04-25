@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
-import {} from '@web-system-service/modules/system/system-chunk.service'
 import { Omix, OmixRequest } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
@@ -138,37 +137,43 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemUpdateRoleUser(request: OmixRequest, body: field.BaseSystemUpdateRoleUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            const logger = await this.fetchServicelogger(request, { deplayName: this.deplayName })
-            return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
-                qb.leftJoinAndMapMany('t.user', schema.SchemaRoleUser, 'user', 'user.uid = t.keyId')
-                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
-                const node = await qb.getOne().then(async data => {
-                    logger.info({
-                        message: `[${this.database.schemaRole.metadata.name}]:查询出参`,
-                        where: { keyId: body.keyId },
-                        node: { name: data.name }
-                    })
-                    return await plugin.fetchCatchWherer(utils.isEmpty(data), { message: `keyId:${body.keyId} 不存在` }).then(() => {
-                        return data
-                    })
-                })
-
-                return await ctx.commitTransaction().then(async () => {
-                    return await this.fetchResolver({ message: '操作成功' })
+            await this.database.fetchConnectNotNull(this.database.schemaRole, {
+                deplayName: this.deplayName,
+                request,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            /**验证用户uid合法性**/
+            await utils.fetchHandler(body.keys.length > 0, async () => {
+                return await this.database.fetchConnectBatchNotNull(this.database.schemaUser, {
+                    alias: 'uid',
+                    deplayName: this.deplayName,
+                    request,
+                    keys: body.keys
                 })
             })
-            // await this.database.fetchConnectNotNull(this.database.schemaRole, {
-            //     deplayName: this.deplayName,
-            //     request,
-            //     message: `keyId:${body.keyId} 不存在`,
-            //     dispatch: { where: { keyId: body.keyId } }
-            // })
-            // await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
-            //     deplayName: this.deplayName,
-            //     request,
-            //     where: { keyId: body.keyId },
-            //     body: Object.assign(body, { uid: request.user.uid })
-            // })
+            /**删除旧数据**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId }
+            })
+            /**存储新数据**/
+            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.SchemaRoleUser), {
+                deplayName: this.deplayName,
+                request,
+                body: body.keys.map(uid => ({ uid, keyId: body.keyId }))
+            })
+            /**修改最后更新人**/
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: { uid: request.user.uid }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             return await this.fetchCatchCompiler(this.deplayName, err)

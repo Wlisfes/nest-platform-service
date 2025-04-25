@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Repository, DataSource, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Logger } from '@/modules/logger/logger.service'
+import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { Omix, OmixRequest } from '@/interface/global.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as plugin from '@/utils/utils-plugin'
@@ -28,6 +28,16 @@ export interface BaseCommonConnectOption<T> extends BaseConnectOption {
     cause?: Omix
     /**自定义转换验证**/
     transform?: (data: T) => boolean | Promise<boolean>
+}
+
+/**使用keyId列表批量验证数据**/
+export interface BaseConnectBatchNotNull extends BaseConnectOption {
+    /**keyId字段别名**/
+    alias?: string
+    /**keyId列表**/
+    keys: Array<string>
+    /**异常状态码**/
+    code?: number
 }
 
 /**删除数据模型**/
@@ -158,6 +168,29 @@ export class DatabaseService extends Logger {
                     return await this.fetchResolver(node)
                 })
             }
+        })
+    }
+
+    /**使用keyId列表批量验证数据是否不存在：不存在会抛出异常**/
+    @AutoMethodDescriptor
+    public async fetchConnectBatchNotNull<T>(model: Repository<T>, data: BaseConnectBatchNotNull) {
+        const logger = await this.fetchServiceLoggerTransaction(data.request, {
+            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectBatchNotNull` : this.deplayName
+        })
+        return await this.fetchConnectBuilder(model, async qb => {
+            const alias = data.alias || 'keyId'
+            await qb.where(`t.${alias} IN(:keys)`, { keys: data.keys })
+            return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                if (data.logger ?? true) {
+                    logger.info({ message: `[${model.metadata.name}]:查询出参`, where: { keys: data.keys }, total, list })
+                }
+                if (data.keys.length !== total) {
+                    throw new HttpException(`${alias}不存在`, HttpStatus.BAD_REQUEST, {
+                        cause: data.keys.filter(key => !list.some((k: Omix) => k[alias] == key))
+                    })
+                }
+                return { total, list }
+            })
         })
     }
 

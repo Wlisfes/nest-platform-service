@@ -50,7 +50,7 @@ export class Logger {
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly logger: WinstonLogger
 
     /**创建日志实例方法**/
-    public async fetchServicelogger(request: OmixRequest, opts: Omix<{ deplayName: string }>) {
+    public async fetchServiceLoggerTransaction(request: OmixRequest, opts: Omix<{ deplayName: string }>) {
         return new PackageService(this.logger, request, opts)
     }
 
