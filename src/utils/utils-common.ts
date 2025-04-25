@@ -82,7 +82,7 @@ export function fetchRemoveTreeNode<T extends Omix>(data: Array<T>): Array<T> {
 }
 
 /**列表枚举字段合并**/
-export function fetchConcat<T>(data: Array<Omix<T>>, handler: (e: T) => Omix): Array<Omix<T>> {
+export function fetchConcat<T>(data: Array<Omix<T>>, handler: (e: Omix<T>) => Omix): Array<Omix<T>> {
     return data.map(item => ({ ...item, ...handler(item) }))
 }
 

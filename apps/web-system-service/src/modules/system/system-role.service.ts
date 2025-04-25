@@ -115,11 +115,30 @@ export class SystemRoleService extends Logger {
                 message: `keyId:${body.keyId} 不存在`,
                 dispatch: { where: { keyId: body.keyId } }
             })
+            /**验证权限keyId合法性**/
+            await this.database.fetchConnectBatchNotNull(this.database.schemaRouter, {
+                deplayName: this.deplayName,
+                request,
+                keys: body.keys
+            })
+            /**删除旧数据**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleRouter), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId }
+            })
+            /**存储新数据**/
+            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.SchemaRoleRouter), {
+                deplayName: this.deplayName,
+                request,
+                body: body.keys.map(sid => ({ sid, keyId: body.keyId }))
+            })
+            /**修改最后更新人**/
             await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
                 deplayName: this.deplayName,
                 request,
                 where: { keyId: body.keyId },
-                body: Object.assign(body, { uid: request.user.uid })
+                body: { uid: request.user.uid }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -144,13 +163,11 @@ export class SystemRoleService extends Logger {
                 dispatch: { where: { keyId: body.keyId } }
             })
             /**验证用户uid合法性**/
-            await utils.fetchHandler(body.keys.length > 0, async () => {
-                return await this.database.fetchConnectBatchNotNull(this.database.schemaUser, {
-                    alias: 'uid',
-                    deplayName: this.deplayName,
-                    request,
-                    keys: body.keys
-                })
+            await this.database.fetchConnectBatchNotNull(this.database.schemaUser, {
+                alias: 'uid',
+                deplayName: this.deplayName,
+                request,
+                keys: body.keys
             })
             /**删除旧数据**/
             await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
@@ -188,9 +205,11 @@ export class SystemRoleService extends Logger {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
+                await qb.leftJoinAndMapMany('t.mumber', schema.SchemaRoleUser, 'mumber', 'mumber.keyId = t.keyId')
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'keyId', 'name', 'uid', 'status', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'name', 'status', 'id', 'number']]
+                    ['user', ['uid', 'name', 'status', 'id', 'number']],
+                    ['mumber', ['keyId', 'uid']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.keyId LIKE :vague OR t.name LIKE :vague`, { vague: `%${body.vague}%` })
@@ -211,7 +230,10 @@ export class SystemRoleService extends Logger {
                     return await this.fetchResolver({
                         message: '操作成功',
                         total,
-                        list: list.map(item => ({ ...item, statusChunk: enums.COMMON_SYSTEM_ROLE_STATUS[item.status] }))
+                        list: utils.fetchConcat(list, item => ({
+                            mumber: item.mumber.length,
+                            statusChunk: enums.COMMON_SYSTEM_ROLE_STATUS[item.status]
+                        }))
                     })
                 })
             })

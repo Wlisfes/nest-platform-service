@@ -168,22 +168,26 @@ export class DatabaseService extends Logger {
     /**使用keyId列表批量验证数据是否不存在：不存在会抛出异常**/
     @AutoMethodDescriptor
     public async fetchConnectBatchNotNull<T>(model: Repository<T>, data: BaseConnectBatchNotNull) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
-        return await this.fetchConnectBuilder(model, async qb => {
-            const alias = data.alias || 'keyId'
-            await qb.where(`t.${alias} IN(:keys)`, { keys: data.keys })
-            return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                if (data.logger ?? true) {
-                    logger.info({ message: `[${model.metadata.name}]:查询出参`, where: { keys: data.keys }, total, list })
-                }
-                if (data.keys.length !== total) {
-                    throw new HttpException(`${alias}不存在`, HttpStatus.BAD_REQUEST, {
-                        cause: data.keys.filter(key => !list.some((k: Omix) => k[alias] == key))
-                    })
-                }
-                return { total, list }
+        if (data.keys.length === 0) {
+            return { list: [], total: 0 }
+        } else {
+            const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
+            return await this.fetchConnectBuilder(model, async qb => {
+                const alias = data.alias || 'keyId'
+                await qb.where(`t.${alias} IN(:keys)`, { keys: data.keys })
+                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                    if (data.logger ?? true) {
+                        logger.info({ message: `[${model.metadata.name}]:查询出参`, where: { keys: data.keys }, total, list })
+                    }
+                    if (data.keys.length !== total) {
+                        throw new HttpException(`${alias}不存在`, HttpStatus.BAD_REQUEST, {
+                            cause: data.keys.filter(key => !list.some((k: Omix) => k[alias] == key))
+                        })
+                    }
+                    return { total, list }
+                })
             })
-        })
+        }
     }
 
     /**创建数据模型**/
