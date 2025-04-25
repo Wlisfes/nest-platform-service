@@ -11,7 +11,7 @@ export class BaseSystemColumnUser extends IntersectionType(
     PickType(PartialType(SchemaUser), ['number', 'phone', 'email', 'name', 'status'])
 ) {}
 
-/**授权登录**/
+/**用户账号登录**/
 export class BaseSystemUserTokenAuthorize extends IntersectionType(
     PickType(SchemaUser, ['number', 'password']),
     PickType(OmixPayload, ['code'])

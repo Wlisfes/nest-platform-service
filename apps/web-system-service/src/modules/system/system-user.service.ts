@@ -72,7 +72,7 @@ export class SystemUserService extends Logger {
         }
     }
 
-    /**授权登录**/
+    /**用户账号登录**/
     @AutoMethodDescriptor
     public async httpBaseSystemUserTokenAuthorize(request: OmixRequest, body: field.BaseSystemUserTokenAuthorize) {
         try {
