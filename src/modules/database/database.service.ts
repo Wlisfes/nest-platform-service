@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus, Body } from '@nestjs/common'
 import { Repository, DataSource, SelectQueryBuilder } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
@@ -128,9 +128,7 @@ export class DatabaseService extends Logger {
     /**查询数据是否存在：存在会抛出异常**/
     @AutoMethodDescriptor
     public async fetchConnectNull<T>(model: Repository<T>, data: BaseCommonConnectOption<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectNull` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
@@ -150,9 +148,7 @@ export class DatabaseService extends Logger {
     /**查询数据是否不存在：不存在会抛出异常**/
     @AutoMethodDescriptor
     public async fetchConnectNotNull<T>(model: Repository<T>, data: BaseCommonConnectOption<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectNotNull` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
@@ -172,9 +168,7 @@ export class DatabaseService extends Logger {
     /**使用keyId列表批量验证数据是否不存在：不存在会抛出异常**/
     @AutoMethodDescriptor
     public async fetchConnectBatchNotNull<T>(model: Repository<T>, data: BaseConnectBatchNotNull) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectBatchNotNull` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await this.fetchConnectBuilder(model, async qb => {
             const alias = data.alias || 'keyId'
             await qb.where(`t.${alias} IN(:keys)`, { keys: data.keys })
@@ -195,9 +189,7 @@ export class DatabaseService extends Logger {
     /**创建数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectCreate<T>(model: Repository<T>, data: BaseConnectCreate<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectCreate` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         const state = await model.create(data.body)
         return await model.save(state).then(async node => {
             if (data.logger ?? true) {
@@ -210,9 +202,7 @@ export class DatabaseService extends Logger {
     /**批量创建数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectInsert<T>(model: Repository<T>, data: BaseConnectInsert<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectInsert` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ message: `[${model.metadata.name}]:事务等待批量创建结果`, node })
@@ -224,9 +214,7 @@ export class DatabaseService extends Logger {
     /**批量更新数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectUpsert<T>(model: Repository<T>, data: BaseConnectUpsert<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectUpsert` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ message: `[${model.metadata.name}]:事务等待批量更新结果`, node })
@@ -238,9 +226,7 @@ export class DatabaseService extends Logger {
     /**新增AND更新数据模型**/
     @AutoMethodDescriptor
     public async fetchConnecUpsert<T, K extends keyof T>(model: Repository<T>, data: BaseConnecUpsert<T, K>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnecUpsert` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.upsert(data.body, data.where as Array<string>).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ message: `[${model.metadata.name}]:事务等待新增AND更新结果`, where: data.where, node })
@@ -252,9 +238,7 @@ export class DatabaseService extends Logger {
     /**更新数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectUpdate<T>(model: Repository<T>, data: BaseConnectUpdate<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectUpdate` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.update(data.where, data.body).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ message: `[${model.metadata.name}]:事务等待更新结果`, where: data.where, node })
@@ -266,9 +250,7 @@ export class DatabaseService extends Logger {
     /**删除数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectDelete<T>(model: Repository<T>, data: BaseConnectDelete<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, {
-            deplayName: data.deplayName ? `${data.deplayName}:fetchConnectDelete` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.delete(data.where).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })

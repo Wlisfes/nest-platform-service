@@ -55,7 +55,10 @@ export class Logger {
     }
 
     /**日志方法名称组合**/
-    public fetchDeplayName(name: string, alias: string) {}
+    public fetchDeplayName(alias?: string) {
+        const suffix = this.deplayName.split(':').pop()
+        return alias ? `${alias}:${suffix}` : this.deplayName
+    }
 
     /**返回包装**/
     public async fetchResolver<T>(data: Partial<OmixResult<T>>) {

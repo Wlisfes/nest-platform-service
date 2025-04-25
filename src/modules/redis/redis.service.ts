@@ -53,9 +53,7 @@ export class RedisService extends Logger {
     /**redis存储**/
     @AutoMethodDescriptor
     public async setStore(request: OmixRequest, body: SetRedisOption) {
-        const logger = await this.fetchServiceLoggerTransaction(request, {
-            deplayName: body.deplayName ? `${body.deplayName}:setStore` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(request, { deplayName: this.fetchDeplayName(body.deplayName) })
         if (body.seconds > 0) {
             return await this.client.set(body.key, JSON.stringify(body.data), 'EX', body.seconds).then(async value => {
                 if (body.logger ?? false) {
@@ -76,9 +74,7 @@ export class RedisService extends Logger {
     /**redis读取**/
     @AutoMethodDescriptor
     public async getStore<T>(request: OmixRequest, body: GetRedisOption<T>): Promise<T> {
-        const logger = await this.fetchServiceLoggerTransaction(request, {
-            deplayName: body.deplayName ? `${body.deplayName}:getStore` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(request, { deplayName: this.fetchDeplayName(body.deplayName) })
         return await this.client.get(body.key).then(async data => {
             const value = data ? JSON.parse(data) : body.defaultValue
             if (body.logger ?? true) {
@@ -91,9 +87,7 @@ export class RedisService extends Logger {
     /**redis批量读取**/
     @AutoMethodDescriptor
     public async mgetStore(request: OmixRequest, body: MgetRedisOption) {
-        const logger = await this.fetchServiceLoggerTransaction(request, {
-            deplayName: body.deplayName ? `${body.deplayName}:mgetStore` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(request, { deplayName: this.fetchDeplayName(body.deplayName) })
         return await this.client.mget(body.keys).then(async data => {
             const values = body.keys.map((key, index) => ({ key, value: data[index] ?? false }))
             if (body.logger ?? false) {
@@ -106,9 +100,7 @@ export class RedisService extends Logger {
     /**redis删除**/
     @AutoMethodDescriptor
     public async delStore(request: OmixRequest, body: DelRedisOption) {
-        const logger = await this.fetchServiceLoggerTransaction(request, {
-            deplayName: body.deplayName ? `${body.deplayName}:delStore` : this.deplayName
-        })
+        const logger = await this.fetchServiceLoggerTransaction(request, { deplayName: this.fetchDeplayName(body.deplayName) })
         return await this.client.del(body.key).then(async value => {
             if (body.logger ?? false) {
                 logger.info({ message: 'Redis删除', ...body })
