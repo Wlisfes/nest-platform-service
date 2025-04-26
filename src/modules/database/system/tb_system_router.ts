@@ -20,7 +20,8 @@ export class SchemaRouter extends DatabaseAdapter {
     @Column({ comment: '用户UID', length: 19, nullable: false })
     uid: string
 
-    @ApiProperty({ description: '权限标识', example: 'base:manager' })
+    @ApiProperty({ description: '权限标识', required: false, example: 'base:manager' })
+    @IsOptional()
     @IsNotEmpty({ message: '权限标识必填' })
     @Column({ comment: '权限标识', length: 128, nullable: true })
     key: string
@@ -65,7 +66,8 @@ export class SchemaRouter extends DatabaseAdapter {
     @Column({ nullable: false, comment: comment('状态', enums.COMMON_SYSTEM_ROUTER_STATUS) })
     status: string
 
-    @ApiProperty({ description: '接口类型', enum: fetchComment(enums.COMMON_SYSTEM_ROUTER_METHOD) })
+    @ApiProperty({ description: '接口类型', required: false, enum: fetchComment(enums.COMMON_SYSTEM_ROUTER_METHOD) })
+    @IsOptional()
     @IsNotEmpty({ message: '接口类型必填' })
     @Length(0, 32, { message: '接口类型不能超过32个字符' })
     @IsEnum(Object.keys(enums.COMMON_SYSTEM_ROUTER_STATUS), { message: '接口类型格式错误' })

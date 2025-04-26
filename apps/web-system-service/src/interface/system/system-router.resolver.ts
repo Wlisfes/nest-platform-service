@@ -5,7 +5,7 @@ import { SchemaRouter } from '@/modules/database/database.schema'
 /**新增菜单**/
 export class BaseSystemRouterCreate extends IntersectionType(
     PickType(SchemaRouter, ['key', 'name', 'iconName', 'check', 'type', 'router', 'pid']),
-    PickType(SchemaRouter, ['status', 'version', 'active', 'sort'])
+    PickType(SchemaRouter, ['status', 'method', 'version', 'active', 'sort'])
 ) {}
 
 /**编辑菜单**/
