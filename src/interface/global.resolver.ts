@@ -30,3 +30,11 @@ export interface OmixResult<T> extends Omix {
     page: number
     size: number
 }
+
+/**通用方法入参类型**/
+export interface OmixBaseOptions extends Omix {
+    /**验证错误描述**/
+    message?: string
+    /**输出日志方法名**/
+    deplayName?: string
+}

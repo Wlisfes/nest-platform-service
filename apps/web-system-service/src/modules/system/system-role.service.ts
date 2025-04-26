@@ -15,6 +15,17 @@ export class SystemRoleService extends Logger {
         super()
     }
 
+    /**验证keyId是否存在：不存在抛出异常**/
+    @AutoMethodDescriptor
+    private async fetchBaseSystemCheckKeyIdRole(request: OmixRequest, body: field.BaseSystemCheckKeyIdRole) {
+        return await this.database.fetchConnectNotNull(this.database.schemaRole, {
+            request,
+            deplayName: this.fetchDeplayName(body.deplayName),
+            message: body.message || `keyId:${body.keyId} 不存在`,
+            dispatch: { where: { keyId: body.keyId } }
+        })
+    }
+
     /**新增角色**/
     @AutoMethodDescriptor
     public async httpBaseSystemRoleCreate(request: OmixRequest, body: field.BaseSystemRoleCreate) {
@@ -47,11 +58,9 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemRoleUpdate(request: OmixRequest, body: field.BaseSystemRoleUpdate) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                deplayName: this.deplayName,
-                request,
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
+            await this.fetchBaseSystemCheckKeyIdRole(request, {
+                keyId: body.keyId,
+                deplayName: this.deplayName
             })
             await this.database.fetchConnectNull(this.database.schemaRole, {
                 deplayName: this.deplayName,
@@ -81,11 +90,9 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemSwitchRole(request: OmixRequest, body: field.BaseSystemSwitchRole) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                deplayName: this.deplayName,
-                request,
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
+            await this.fetchBaseSystemCheckKeyIdRole(request, {
+                keyId: body.keyId,
+                deplayName: this.deplayName
             })
             await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
                 deplayName: this.deplayName,
@@ -109,11 +116,9 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemUpdateRoleRules(request: OmixRequest, body: field.BaseSystemUpdateRoleRules) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                deplayName: this.deplayName,
-                request,
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
+            await this.fetchBaseSystemCheckKeyIdRole(request, {
+                keyId: body.keyId,
+                deplayName: this.deplayName
             })
             /**验证权限keyId合法性**/
             await this.database.fetchConnectBatchNotNull(this.database.schemaRouter, {
@@ -156,11 +161,9 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemUpdateRoleUser(request: OmixRequest, body: field.BaseSystemUpdateRoleUser) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
-            await this.database.fetchConnectNotNull(this.database.schemaRole, {
-                deplayName: this.deplayName,
-                request,
-                message: `keyId:${body.keyId} 不存在`,
-                dispatch: { where: { keyId: body.keyId } }
+            await this.fetchBaseSystemCheckKeyIdRole(request, {
+                keyId: body.keyId,
+                deplayName: this.deplayName
             })
             /**验证用户uid合法性**/
             await this.database.fetchConnectBatchNotNull(this.database.schemaUser, {
@@ -236,6 +239,57 @@ export class SystemRoleService extends Logger {
                         }))
                     })
                 })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
+    /**删除角色**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemRoleDelete(request: OmixRequest, body: field.BaseSystemRoleResolver) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.fetchBaseSystemCheckKeyIdRole(request, {
+                keyId: body.keyId,
+                deplayName: this.deplayName
+            })
+            /**删除角色关联用户**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId }
+            })
+            /**删除角色关联权限**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleRouter), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId }
+            })
+            /**删除角色**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**角色详情信息**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemRoleResolver(request: OmixRequest, body: field.BaseSystemRoleResolver) {
+        try {
+            return await this.fetchBaseSystemCheckKeyIdRole(request, {
+                keyId: body.keyId,
+                deplayName: this.deplayName
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)
