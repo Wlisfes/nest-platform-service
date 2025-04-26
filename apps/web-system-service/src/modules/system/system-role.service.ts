@@ -207,8 +207,8 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemColumnRole(request: OmixRequest, body: field.BaseSystemColumnRole) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
-                await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
-                await qb.leftJoinAndMapMany('t.mumber', schema.SchemaRoleUser, 'mumber', 'mumber.keyId = t.keyId')
+                qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
+                qb.leftJoinAndMapMany('t.mumber', schema.SchemaRoleUser, 'mumber', 'mumber.keyId = t.keyId')
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'keyId', 'name', 'uid', 'status', 'model', 'comment', 'createTime', 'modifyTime']],
                     ['user', ['uid', 'name', 'status', 'id', 'number']],
@@ -287,9 +287,20 @@ export class SystemRoleService extends Logger {
     @AutoMethodDescriptor
     public async httpBaseSystemRoleResolver(request: OmixRequest, body: field.BaseSystemRoleResolver) {
         try {
-            return await this.fetchBaseSystemCheckKeyIdRole(request, {
+            await this.fetchBaseSystemCheckKeyIdRole(request, {
                 keyId: body.keyId,
                 deplayName: this.deplayName
+            })
+            return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
+                qb.leftJoinAndMapMany('t.mumber', schema.SchemaRoleUser, 'mumber', 'mumber.keyId = t.keyId')
+                qb.leftJoinAndMapOne('mumber.user', schema.SchemaUser, 'user', 'user.uid = mumber.uid')
+                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
+                await this.database.fetchSelection(qb, [
+                    ['t', ['keyId', 'name', 'uid']],
+                    ['mumber', ['keyId', 'uid']],
+                    ['user', ['uid', 'name', 'number', 'avatar']]
+                ])
+                return await qb.getOne()
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)

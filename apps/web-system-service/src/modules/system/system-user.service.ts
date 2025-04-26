@@ -154,6 +154,17 @@ export class SystemUserService extends Logger {
         }
     }
 
+    /**通用用户账号列表**/
+    public async httpBaseSystemColumnChunkUser(request: OmixRequest) {
+        try {
+            return await this.database.schemaUser.find({
+                select: ['uid', 'name', 'number', 'avatar', 'status']
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
     /**编辑账号状态**/
     public async httpBaseSystemSwitchUser(request: OmixRequest, body: field.BaseSystemSwitchUser) {
         const ctx = await this.database.fetchConnectTransaction()

@@ -40,6 +40,16 @@ export class SystemUserController {
         return this.systemUserService.httpBaseSystemColumnUser(request, body)
     }
 
+    @Post('/column/chunk')
+    @ApiDecorator({
+        operation: { summary: '通用用户账号列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemColumnChunkUser(@Request() request: OmixRequest) {
+        return this.systemUserService.httpBaseSystemColumnChunkUser(request)
+    }
+
     @Post('/update/state')
     @ApiDecorator({
         operation: { summary: '编辑账号状态' },
