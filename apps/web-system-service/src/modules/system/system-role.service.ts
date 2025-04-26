@@ -207,7 +207,7 @@ export class SystemRoleService extends Logger {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
                 await qb.leftJoinAndMapMany('t.mumber', schema.SchemaRoleUser, 'mumber', 'mumber.keyId = t.keyId')
                 await this.database.fetchSelection(qb, [
-                    ['t', ['id', 'keyId', 'name', 'uid', 'status', 'createTime', 'modifyTime']],
+                    ['t', ['id', 'keyId', 'name', 'uid', 'status', 'model', 'comment', 'createTime', 'modifyTime']],
                     ['user', ['uid', 'name', 'status', 'id', 'number']],
                     ['mumber', ['keyId', 'uid']]
                 ])

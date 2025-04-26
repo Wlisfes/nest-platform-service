@@ -16,12 +16,12 @@ export const COMMON_SYSTEM_ROUTER_TYPE = {
 export const COMMON_SYSTEM_ROUTER_STATUS = {
     enable: {
         value: 'enable',
-        name: '已启用',
+        name: '启用',
         json: { custom: false, type: 'success' }
     },
     disable: {
         value: 'disable',
-        name: '已禁用',
+        name: '禁用',
         json: { custom: false, type: 'error' }
     }
 }
