@@ -9,6 +9,25 @@ export const COMMON_SYSTEM_ROUTER_TYPE = {
         value: 'button',
         name: '按钮',
         json: { custom: false, type: 'warning' }
+    },
+    http: {
+        value: 'http',
+        name: '接口',
+        json: { custom: false, type: 'primary' }
+    }
+}
+
+/**接口类型**/
+export const COMMON_SYSTEM_ROUTER_METHOD = {
+    get: {
+        value: 'get',
+        name: 'GET',
+        json: { custom: false, type: 'info' }
+    },
+    post: {
+        value: 'post',
+        name: 'POST',
+        json: { custom: false, type: 'success' }
     }
 }
 

@@ -29,6 +29,10 @@ export const STATIC_SCHEMA_CHUNK_OPTIONS = {
         value: 'COMMON_SYSTEM_ROUTER_STATUS',
         name: '菜单状态'
     },
+    COMMON_SYSTEM_ROUTER_METHOD: {
+        value: 'COMMON_SYSTEM_ROUTER_METHOD',
+        name: '接口类型'
+    },
     COMMON_SYSTEM_ROUTER_CHECK: {
         value: 'COMMON_SYSTEM_ROUTER_CHECK',
         name: '菜单显示状态'
