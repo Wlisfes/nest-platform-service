@@ -287,20 +287,27 @@ export class SystemRoleService extends Logger {
     @AutoMethodDescriptor
     public async httpBaseSystemRoleResolver(request: OmixRequest, body: field.BaseSystemRoleResolver) {
         try {
-            await this.fetchBaseSystemCheckKeyIdRole(request, {
+            return await this.fetchBaseSystemCheckKeyIdRole(request, {
                 keyId: body.keyId,
                 deplayName: this.deplayName
             })
-            return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
-                qb.leftJoinAndMapMany('t.mumber', schema.SchemaRoleUser, 'mumber', 'mumber.keyId = t.keyId')
-                qb.leftJoinAndMapOne('mumber.user', schema.SchemaUser, 'user', 'user.uid = mumber.uid')
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
+    /**角色关联用户列表**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemRoleMumber(request: OmixRequest, body: field.BaseSystemRoleResolver) {
+        try {
+            return await this.database.fetchConnectBuilder(this.database.schemaRoleUser, async qb => {
+                qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 't.uid = user.uid')
                 qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
                 await this.database.fetchSelection(qb, [
-                    ['t', ['keyId', 'name', 'uid']],
-                    ['mumber', ['keyId', 'uid']],
+                    ['t', ['id', 'keyId', 'uid', 'createTime', 'modifyTime']],
                     ['user', ['uid', 'name', 'number', 'avatar']]
                 ])
-                return await qb.getOne()
+                return await qb.getMany()
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)

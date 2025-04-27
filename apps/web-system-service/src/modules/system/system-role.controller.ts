@@ -89,4 +89,14 @@ export class SystemRoleController {
     public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Query() query: field.BaseSystemRoleResolver) {
         return await this.systemRoleService.httpBaseSystemRoleResolver(request, query)
     }
+
+    @Get('/mumber')
+    @ApiDecorator({
+        operation: { summary: '角色关联用户列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemRoleMumber(@Request() request: OmixRequest, @Query() query: field.BaseSystemRoleResolver) {
+        return await this.systemRoleService.httpBaseSystemRoleMumber(request, query)
+    }
 }
