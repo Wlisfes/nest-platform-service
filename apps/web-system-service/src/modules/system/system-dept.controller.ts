@@ -9,4 +9,14 @@ import * as field from '@web-system-service/interface/instance.resolver'
 @Controller('role')
 export class SystemDeptController {
     constructor(private readonly systemDeptService: SystemDeptService) {}
+
+    @Post('/create')
+    @ApiDecorator({
+        operation: { summary: '新增部门' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemDeptCreate(@Request() request: OmixRequest, @Body() body: field.BaseSystemDeptCreate) {
+        return await this.systemDeptService.httpBaseSystemDeptCreate(request, body)
+    }
 }

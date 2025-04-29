@@ -10,6 +10,11 @@ export class SchemaDept extends DatabaseAdapter {
     @Column({ name: 'key_id', comment: '唯一ID', length: 19, nullable: false })
     keyId: string
 
+    @ApiProperty({ description: '用户UID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: '用户UID必填' })
+    @Column({ comment: '用户UID', length: 19, nullable: false })
+    uid: string
+
     @ApiProperty({ description: '部门名称', example: '工作台' })
     @IsNotEmpty({ message: '部门名称必填' })
     @Column({ comment: '部门名称', length: 32, nullable: false })

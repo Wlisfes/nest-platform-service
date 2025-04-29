@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
-import { Omix, OmixRequest } from '@/interface/instance.resolver'
+import { Omix, OmixRequest, OmixBaseOptions } from '@/interface/instance.resolver'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -17,12 +17,12 @@ export class SystemRoleService extends Logger {
 
     /**验证keyId是否存在：不存在抛出异常**/
     @AutoMethodDescriptor
-    private async fetchBaseSystemCheckKeyIdRole(request: OmixRequest, body: field.BaseSystemCheckKeyIdRole) {
+    private async fetchBaseSystemCheckKeyIdRole(request: OmixRequest, body: OmixBaseOptions<{ keyId: string }>) {
         return await this.database.fetchConnectNotNull(this.database.schemaRole, {
             request,
             deplayName: this.fetchDeplayName(body.deplayName),
-            message: body.message || `keyId:${body.keyId} 不存在`,
-            dispatch: { where: { keyId: body.keyId } }
+            message: body.message || `keyId:${body.where.keyId} 不存在`,
+            dispatch: { where: body.where }
         })
     }
 
@@ -59,8 +59,8 @@ export class SystemRoleService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.fetchBaseSystemCheckKeyIdRole(request, {
-                keyId: body.keyId,
-                deplayName: this.deplayName
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
             })
             await this.database.fetchConnectNull(this.database.schemaRole, {
                 deplayName: this.deplayName,
@@ -91,8 +91,8 @@ export class SystemRoleService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.fetchBaseSystemCheckKeyIdRole(request, {
-                keyId: body.keyId,
-                deplayName: this.deplayName
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
             })
             await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
                 deplayName: this.deplayName,
@@ -117,8 +117,8 @@ export class SystemRoleService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.fetchBaseSystemCheckKeyIdRole(request, {
-                keyId: body.keyId,
-                deplayName: this.deplayName
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
             })
             /**验证权限keyId合法性**/
             await this.database.fetchConnectBatchNotNull(this.database.schemaRouter, {
@@ -162,8 +162,8 @@ export class SystemRoleService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.fetchBaseSystemCheckKeyIdRole(request, {
-                keyId: body.keyId,
-                deplayName: this.deplayName
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
             })
             /**验证用户uid合法性**/
             await this.database.fetchConnectBatchNotNull(this.database.schemaUser, {
@@ -251,8 +251,8 @@ export class SystemRoleService extends Logger {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.fetchBaseSystemCheckKeyIdRole(request, {
-                keyId: body.keyId,
-                deplayName: this.deplayName
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
             })
             /**删除角色关联用户**/
             await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
@@ -288,8 +288,8 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemRoleResolver(request: OmixRequest, body: field.BaseSystemRoleResolver) {
         try {
             return await this.fetchBaseSystemCheckKeyIdRole(request, {
-                keyId: body.keyId,
-                deplayName: this.deplayName
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)

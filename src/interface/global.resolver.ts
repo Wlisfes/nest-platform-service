@@ -32,7 +32,9 @@ export interface OmixResult<T> extends Omix {
 }
 
 /**通用方法入参类型**/
-export interface OmixBaseOptions extends Omix {
+export interface OmixBaseOptions<T extends Omix> extends Omix {
+    /**查询条件**/
+    where: T
     /**验证错误描述**/
     message?: string
     /**输出日志方法名**/
