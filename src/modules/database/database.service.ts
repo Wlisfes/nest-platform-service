@@ -88,6 +88,7 @@ export class DatabaseService extends Logger {
         @InjectRepository(schema.SchemaChunk) public readonly schemaChunk: Repository<schema.SchemaChunk>,
         @InjectRepository(schema.SchemaUser) public readonly schemaUser: Repository<schema.SchemaUser>,
         @InjectRepository(schema.SchemaRouter) public readonly schemaRouter: Repository<schema.SchemaRouter>,
+        @InjectRepository(schema.SchemaDept) public readonly schemaDept: Repository<schema.SchemaDept>,
         @InjectRepository(schema.SchemaRole) public readonly schemaRole: Repository<schema.SchemaRole>,
         @InjectRepository(schema.SchemaRoleUser) public readonly schemaRoleUser: Repository<schema.SchemaRoleUser>,
         @InjectRepository(schema.SchemaRoleRouter) public readonly schemaRoleRouter: Repository<schema.SchemaRoleRouter>
