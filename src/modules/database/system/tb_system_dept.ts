@@ -1,6 +1,6 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsOptional } from 'class-validator'
+import { IsNotEmpty, Length, IsOptional } from 'class-validator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 
 @Entity({ name: 'tb_system_dept', comment: '部门配置表' })
@@ -14,6 +14,12 @@ export class SchemaDept extends DatabaseAdapter {
     @IsNotEmpty({ message: '部门名称必填' })
     @Column({ comment: '部门名称', length: 32, nullable: false })
     name: string
+
+    @ApiProperty({ description: '部门简称', required: false, example: '工作台' })
+    @IsOptional()
+    @Length(0, 4, { message: '部门简称不能超过4个字符' })
+    @Column({ comment: '部门名称', length: 32, nullable: true })
+    call: string
 
     @ApiProperty({ description: '上级部门ID', required: false, example: '2149446185344106496' })
     @IsOptional()

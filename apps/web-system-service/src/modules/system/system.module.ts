@@ -10,11 +10,21 @@ import { SystemRouterController } from '@web-system-service/modules/system/syste
 import { SystemRouterService } from '@web-system-service/modules/system/system-router.service'
 import { SystemRoleController } from '@web-system-service/modules/system/system-role.controller'
 import { SystemRoleService } from '@web-system-service/modules/system/system-role.service'
+import { SystemDeptController } from '@web-system-service/modules/system/system-dept.controller'
+import { SystemDeptService } from '@web-system-service/modules/system/system-dept.service'
 
 @Module({
     imports: [HttpModule],
-    controllers: [SystemChunkController, SystemUserController, SystemRouterController, SystemRoleController],
-    providers: [DeployEnumsService, DeployCodexService, SystemChunkService, SystemUserService, SystemRouterService, SystemRoleService],
-    exports: [SystemChunkService, SystemUserService, SystemRouterService, SystemRoleService]
+    controllers: [SystemChunkController, SystemUserController, SystemRouterController, SystemRoleController, SystemDeptController],
+    providers: [
+        DeployEnumsService,
+        DeployCodexService,
+        SystemChunkService,
+        SystemUserService,
+        SystemRouterService,
+        SystemRoleService,
+        SystemDeptService
+    ],
+    exports: [SystemChunkService, SystemUserService, SystemRouterService, SystemRoleService, SystemDeptService]
 })
 export class SystemModule {}
