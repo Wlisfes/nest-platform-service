@@ -252,7 +252,7 @@ export class SystemRouterService extends Logger {
                 await qb.orderBy({ 't.sort': 'ASC' })
                 return await qb.getMany().then(async data => {
                     return await this.fetchResolver({
-                        list: utils.fetchRemoveTreeNode(utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }))
+                        list: utils.fetchTreeNodeDelete(utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }))
                     })
                 })
             })
@@ -273,7 +273,7 @@ export class SystemRouterService extends Logger {
                 ])
                 return await qb.getMany().then(async data => {
                     return await this.fetchResolver({
-                        list: utils.fetchRemoveTreeNode(utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }))
+                        list: utils.fetchTreeNodeDelete(utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }))
                     })
                 })
             })

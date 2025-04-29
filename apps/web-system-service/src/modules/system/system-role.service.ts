@@ -226,7 +226,9 @@ export class SystemRoleService extends Logger {
                     ['t', ['id', 'keyId', 'name', 'pid']],
                     ['post', ['id', 'keyId', 'deptId', 'name', 'model', 'status']]
                 ])
-                return await qb.getMany().then(list => utils.tree.fromList(list, { id: 'keyId', pid: 'pid' }))
+                return await qb.getMany().then(list => {
+                    return utils.fetchTreeNodeDelete(utils.tree.fromList(list, { id: 'keyId', pid: 'pid' }))
+                })
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)

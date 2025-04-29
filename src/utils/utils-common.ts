@@ -70,10 +70,10 @@ export async function fetchBytefor(byte: number, dec: number = 2) {
 }
 
 /**移除空数据children字段**/
-export function fetchRemoveTreeNode<T extends Omix>(data: Array<T>): Array<T> {
+export function fetchTreeNodeDelete<T extends Omix>(data: Array<T>): Array<T> {
     data.forEach((node: Omix) => {
         if (node.children && node.children.length > 0) {
-            return fetchRemoveTreeNode(node.children)
+            return fetchTreeNodeDelete(node.children)
         } else if (node.children && node.children.length === 0) {
             return delete node.children
         }
