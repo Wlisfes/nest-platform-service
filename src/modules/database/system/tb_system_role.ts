@@ -1,6 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, Length, IsEnum, IsOptional } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsNotEmpty, Length, IsEnum, IsOptional, IsNumber } from 'class-validator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'
 import { comment } from '@/utils/utils-schema'
 import { fetchComment } from '@/utils/utils-common'
@@ -47,6 +48,12 @@ export class SchemaRole extends DatabaseAdapter {
     @Length(0, 128, { message: '角色描述不能超过128个字符' })
     @Column({ name: 'comment', comment: '角色描述', length: 128, nullable: true })
     comment: string
+
+    @ApiProperty({ description: '排序号', example: 0 })
+    @IsNumber({}, { message: '排序号必须为number' })
+    @Type(() => Number)
+    @Column({ comment: '排序号', default: 0, nullable: false })
+    sort: number
 }
 
 @Entity({ name: 'tb_system_role_join_user', comment: '角色关联用户配置表' })

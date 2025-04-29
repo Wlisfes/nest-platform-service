@@ -202,43 +202,31 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**角色列表**/
+    /**岗位角色**/
     @AutoMethodDescriptor
-    public async httpBaseSystemColumnRole(request: OmixRequest, body: field.BaseSystemColumnRole) {
+    public async httpBaseSystemColumnPostRoles(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
-                qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
-                qb.leftJoinAndMapMany('t.mumber', schema.SchemaRoleUser, 'mumber', 'mumber.keyId = t.keyId')
+                await this.database.fetchSelection(qb, [['t', ['id', 'keyId', 'deptId', 'name', 'model', 'status']]])
+                return await qb.where('t.deptId IS NOT NULL').getMany()
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
+    /**部门角色**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemColumnDeptRoles(request: OmixRequest) {
+        try {
+            return await this.database.fetchConnectBuilder(this.database.schemaDept, async qb => {
+                qb.leftJoinAndMapOne('t.post', schema.SchemaRole, 'post', 'post.deptId = t.keyId')
+                qb.where('t.pid IS NOT NULL')
                 await this.database.fetchSelection(qb, [
-                    ['t', ['id', 'keyId', 'name', 'uid', 'status', 'model', 'comment', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'name', 'status', 'id', 'number']],
-                    ['mumber', ['keyId', 'uid']]
+                    ['t', ['id', 'keyId', 'name', 'pid']],
+                    ['post', ['id', 'keyId', 'deptId', 'name', 'model', 'status']]
                 ])
-                await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
-                    return qb.where(`t.keyId LIKE :vague OR t.name LIKE :vague`, { vague: `%${body.vague}%` })
-                })
-                await this.database.fetchBrackets(utils.isNotEmpty(body.name), () => {
-                    return qb.andWhere('t.name = :name', { name: body.name })
-                })
-                await this.database.fetchBrackets(utils.isNotEmpty(body.status), () => {
-                    return qb.andWhere('t.status = :status', { status: body.status })
-                })
-                await this.database.fetchBrackets(utils.isNotEmpty(body.uid), () => {
-                    return qb.andWhere('t.uid = :uid', { uid: body.uid })
-                })
-                await qb.orderBy({ 't.id': 'DESC' })
-                await qb.offset((body.page - 1) * body.size)
-                await qb.limit(body.size)
-                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
-                    return await this.fetchResolver({
-                        message: '操作成功',
-                        total,
-                        list: utils.fetchConcat(list, item => ({
-                            mumber: item.mumber.length,
-                            statusChunk: enums.COMMON_SYSTEM_ROLE_STATUS[item.status]
-                        }))
-                    })
-                })
+                return await qb.getMany().then(list => utils.tree.fromList(list, { id: 'keyId', pid: 'pid' }))
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)

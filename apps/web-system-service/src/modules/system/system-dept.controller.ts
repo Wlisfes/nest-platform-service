@@ -6,7 +6,7 @@ import { SystemDeptService } from '@web-system-service/modules/system/system-dep
 import * as field from '@web-system-service/interface/instance.resolver'
 
 @ApiTags('部门模块')
-@Controller('role')
+@Controller('dept')
 export class SystemDeptController {
     constructor(private readonly systemDeptService: SystemDeptService) {}
 

@@ -17,11 +17,5 @@ export class BaseSystemUpdateRoleRules extends IntersectionType(PickType(SchemaR
 /**编辑角色用户**/
 export class BaseSystemUpdateRoleUser extends IntersectionType(PickType(SchemaRole, ['keyId']), PickType(OmixPayload, ['keys'])) {}
 
-/**角色列表**/
-export class BaseSystemColumnRole extends IntersectionType(
-    PickType(OmixColumn, ['page', 'size', 'vague', 'startTime', 'endTime']),
-    PickType(PartialType(SchemaRole), ['name', 'status', 'uid'])
-) {}
-
 /**角色详情信息**/
 export class BaseSystemRoleResolver extends PickType(SchemaRole, ['keyId']) {}
