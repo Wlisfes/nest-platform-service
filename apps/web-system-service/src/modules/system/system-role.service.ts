@@ -208,7 +208,7 @@ export class SystemRoleService extends Logger {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
                 await this.database.fetchSelection(qb, [['t', ['id', 'keyId', 'deptId', 'name', 'model', 'status']]])
-                return await qb.where('t.deptId IS NOT NULL').getMany()
+                return await qb.where('t.deptId IS NULL').getMany()
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)
