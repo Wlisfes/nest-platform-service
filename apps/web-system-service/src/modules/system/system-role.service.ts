@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { Not } from 'typeorm'
+import { Not, IsNull } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest, OmixBaseOptions } from '@/interface/instance.resolver'
@@ -202,22 +202,9 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**岗位角色**/
+    /**所有角色配置**/
     @AutoMethodDescriptor
-    public async httpBaseSystemColumnPostRoles(request: OmixRequest) {
-        try {
-            return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
-                await this.database.fetchSelection(qb, [['t', ['id', 'keyId', 'deptId', 'name', 'model', 'status']]])
-                return await qb.where('t.deptId IS NULL').getMany()
-            })
-        } catch (err) {
-            return await this.fetchCatchCompiler(this.deplayName, err)
-        }
-    }
-
-    /**部门角色**/
-    @AutoMethodDescriptor
-    public async httpBaseSystemColumnDeptRoles(request: OmixRequest) {
+    public async httpBaseSystemColumnRoleWhole(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaDept, async qb => {
                 qb.leftJoinAndMapOne('t.post', schema.SchemaRole, 'post', 'post.deptId = t.keyId')
@@ -226,8 +213,14 @@ export class SystemRoleService extends Logger {
                     ['t', ['id', 'keyId', 'name', 'pid']],
                     ['post', ['id', 'keyId', 'deptId', 'name', 'model', 'status']]
                 ])
-                return await qb.getMany().then(list => {
-                    return utils.fetchTreeNodeDelete(utils.tree.fromList(list, { id: 'keyId', pid: 'pid' }))
+                return await qb.getMany().then(async items => {
+                    return {
+                        items: utils.fetchTreeNodeDelete(utils.tree.fromList(items, { id: 'keyId', pid: 'pid' })),
+                        list: await this.database.schemaRole.find({
+                            where: { deptId: IsNull() },
+                            select: ['id', 'keyId', 'deptId', 'name', 'model', 'status']
+                        })
+                    }
                 })
             })
         } catch (err) {

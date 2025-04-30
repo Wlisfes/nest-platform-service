@@ -60,24 +60,14 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseSystemUpdateRoleUser(request, body)
     }
 
-    @Post('/column/post')
+    @Post('/column/whole')
     @ApiDecorator({
-        operation: { summary: '岗位角色' },
+        operation: { summary: '所有角色配置' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseSystemColumnPostRoles(@Request() request: OmixRequest) {
-        return this.systemRoleService.httpBaseSystemColumnPostRoles(request)
-    }
-
-    @Post('/column/dept')
-    @ApiDecorator({
-        operation: { summary: '部门角色' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true, platform: 'manager' }
-    })
-    public async httpBaseSystemColumnDeptRoles(@Request() request: OmixRequest) {
-        return this.systemRoleService.httpBaseSystemColumnDeptRoles(request)
+    public async httpBaseSystemColumnRoleWhole(@Request() request: OmixRequest) {
+        return this.systemRoleService.httpBaseSystemColumnRoleWhole(request)
     }
 
     @Post('/delete')
