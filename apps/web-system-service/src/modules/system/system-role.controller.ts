@@ -70,6 +70,16 @@ export class SystemRoleController {
         return this.systemRoleService.httpBaseSystemColumnRoleWhole(request)
     }
 
+    @Post('/column/user')
+    @ApiDecorator({
+        operation: { summary: '角色关联用户列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemColumnRoleUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemColumnRoleUser) {
+        return await this.systemRoleService.httpBaseSystemColumnRoleUser(request, body)
+    }
+
     @Post('/delete')
     @ApiDecorator({
         operation: { summary: '删除角色' },
@@ -80,7 +90,7 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseSystemRoleDelete(request, body)
     }
 
-    @Get('/resolver')
+    @Post('/resolver')
     @ApiDecorator({
         operation: { summary: '角色详情信息' },
         response: { status: 200, description: 'OK' },
@@ -88,15 +98,5 @@ export class SystemRoleController {
     })
     public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Query() query: field.BaseSystemRoleResolver) {
         return await this.systemRoleService.httpBaseSystemRoleResolver(request, query)
-    }
-
-    @Get('/mumber')
-    @ApiDecorator({
-        operation: { summary: '角色关联用户列表' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true, platform: 'manager' }
-    })
-    public async httpBaseSystemRoleMumber(@Request() request: OmixRequest, @Query() query: field.BaseSystemRoleResolver) {
-        return await this.systemRoleService.httpBaseSystemRoleMumber(request, query)
     }
 }

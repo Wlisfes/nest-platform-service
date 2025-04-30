@@ -228,6 +228,27 @@ export class SystemRoleService extends Logger {
         }
     }
 
+    /**角色关联用户列表**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemColumnRoleUser(request: OmixRequest, body: field.BaseSystemColumnRoleUser) {
+        try {
+            return await this.database.fetchConnectBuilder(this.database.schemaRoleUser, async qb => {
+                qb.leftJoinAndMapOne('t.item', schema.SchemaRole, 'item', 'item.keyId = item.keyId')
+                qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 't.uid = user.uid')
+                qb.leftJoinAndMapMany('user.role', schema.SchemaRoleUser, 'role', 'role.uid = user.uid')
+                qb.leftJoinAndMapOne('role.node', schema.SchemaRole, 'node', 'node.keyId = role.keyId')
+                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
+                // await this.database.fetchSelection(qb, [
+                //     ['t', ['id', 'keyId', 'uid', 'createTime', 'modifyTime']],
+                //     ['user', ['uid', 'name', 'number', 'avatar', 'status']]
+                // ])
+                return await qb.getMany()
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
     /**删除角色**/
     @AutoMethodDescriptor
     public async httpBaseSystemRoleDelete(request: OmixRequest, body: field.BaseSystemRoleResolver) {
@@ -273,24 +294,6 @@ export class SystemRoleService extends Logger {
             return await this.fetchBaseSystemCheckKeyIdRole(request, {
                 deplayName: this.deplayName,
                 where: { keyId: body.keyId }
-            })
-        } catch (err) {
-            return await this.fetchCatchCompiler(this.deplayName, err)
-        }
-    }
-
-    /**角色关联用户列表**/
-    @AutoMethodDescriptor
-    public async httpBaseSystemRoleMumber(request: OmixRequest, body: field.BaseSystemRoleResolver) {
-        try {
-            return await this.database.fetchConnectBuilder(this.database.schemaRoleUser, async qb => {
-                qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 't.uid = user.uid')
-                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
-                await this.database.fetchSelection(qb, [
-                    ['t', ['id', 'keyId', 'uid', 'createTime', 'modifyTime']],
-                    ['user', ['uid', 'name', 'number', 'avatar']]
-                ])
-                return await qb.getMany()
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)
