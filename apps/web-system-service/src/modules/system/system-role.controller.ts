@@ -60,6 +60,26 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseSystemColumnRoleUser(request, body)
     }
 
+    @Post('/join/user')
+    @ApiDecorator({
+        operation: { summary: '角色关联用户' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemJoinRoleUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemJoinRoleUser) {
+        return await this.systemRoleService.httpBaseSystemJoinRoleUser(request, body)
+    }
+
+    @Post('/join/user/delete')
+    @ApiDecorator({
+        operation: { summary: '移除角色关联用户' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemJoinRoleUserDelete(@Request() request: OmixRequest, @Body() body: field.BaseSystemJoinRoleUser) {
+        return await this.systemRoleService.httpBaseSystemJoinRoleUserDelete(request, body)
+    }
+
     @Post('/delete')
     @ApiDecorator({
         operation: { summary: '删除角色' },

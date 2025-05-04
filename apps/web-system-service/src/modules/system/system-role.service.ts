@@ -183,6 +183,60 @@ export class SystemRoleService extends Logger {
         }
     }
 
+    /**角色关联用户**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemJoinRoleUser(request: OmixRequest, body: field.BaseSystemJoinRoleUser) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.database.fetchConnectNull(this.database.schemaRoleUser, {
+                request,
+                deplayName: this.deplayName,
+                message: '员工已关联角色',
+                dispatch: { where: { keyId: body.keyId, uid: body.uid } }
+            })
+            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaRoleUser), {
+                deplayName: this.deplayName,
+                request,
+                body: body
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**移除角色关联用户**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemJoinRoleUserDelete(request: OmixRequest, body: field.BaseSystemJoinRoleUser) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.database.fetchConnectNotNull(this.database.schemaRoleUser, {
+                request,
+                deplayName: this.deplayName,
+                message: '员工未存在关联角色',
+                dispatch: { where: body }
+            })
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
+                deplayName: this.deplayName,
+                request,
+                where: body
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        } finally {
+            await ctx.release()
+        }
+    }
+
     /**删除角色**/
     @AutoMethodDescriptor
     public async httpBaseSystemRoleDelete(request: OmixRequest, body: field.BaseSystemRoleResolver) {
