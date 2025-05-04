@@ -40,7 +40,11 @@ export class SystemRoleService extends Logger {
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaRole), {
                 deplayName: this.deplayName,
                 request,
-                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
+                body: Object.assign(body, {
+                    keyId: await utils.fetchIntNumber(),
+                    uid: request.user.uid,
+                    model: enums.COMMON_SYSTEM_ROLE_MODEL.self_member.value
+                })
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '新增成功' })
@@ -67,32 +71,6 @@ export class SystemRoleService extends Logger {
                 request,
                 message: `name:${body.name} 已存在`,
                 dispatch: { where: { name: body.name, keyId: Not(body.keyId) } }
-            })
-            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
-                deplayName: this.deplayName,
-                request,
-                where: { keyId: body.keyId },
-                body: Object.assign(body, { uid: request.user.uid })
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
-        } catch (err) {
-            await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler(this.deplayName, err)
-        } finally {
-            await ctx.release()
-        }
-    }
-
-    /**编辑角色状态**/
-    @AutoMethodDescriptor
-    public async httpBaseSystemSwitchRole(request: OmixRequest, body: field.BaseSystemSwitchRole) {
-        const ctx = await this.database.fetchConnectTransaction()
-        try {
-            await this.fetchBaseSystemCheckKeyIdRole(request, {
-                deplayName: this.deplayName,
-                where: { keyId: body.keyId }
             })
             await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
                 deplayName: this.deplayName,
@@ -156,52 +134,6 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**编辑角色用户**/
-    @AutoMethodDescriptor
-    public async httpBaseSystemUpdateRoleUser(request: OmixRequest, body: field.BaseSystemUpdateRoleUser) {
-        const ctx = await this.database.fetchConnectTransaction()
-        try {
-            await this.fetchBaseSystemCheckKeyIdRole(request, {
-                deplayName: this.deplayName,
-                where: { keyId: body.keyId }
-            })
-            /**验证用户uid合法性**/
-            await this.database.fetchConnectBatchNotNull(this.database.schemaUser, {
-                alias: 'uid',
-                deplayName: this.deplayName,
-                request,
-                keys: body.keys
-            })
-            /**删除旧数据**/
-            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
-                deplayName: this.deplayName,
-                request,
-                where: { keyId: body.keyId }
-            })
-            /**存储新数据**/
-            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.SchemaRoleUser), {
-                deplayName: this.deplayName,
-                request,
-                body: body.keys.map(uid => ({ uid, keyId: body.keyId }))
-            })
-            /**修改最后更新人**/
-            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
-                deplayName: this.deplayName,
-                request,
-                where: { keyId: body.keyId },
-                body: { uid: request.user.uid }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
-        } catch (err) {
-            await ctx.rollbackTransaction()
-            return await this.fetchCatchCompiler(this.deplayName, err)
-        } finally {
-            await ctx.release()
-        }
-    }
-
     /**所有角色配置**/
     @AutoMethodDescriptor
     public async httpBaseSystemColumnRoleWhole(request: OmixRequest) {
@@ -233,16 +165,18 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemColumnRoleUser(request: OmixRequest, body: field.BaseSystemColumnRoleUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRoleUser, async qb => {
-                qb.leftJoinAndMapOne('t.item', schema.SchemaRole, 'item', 'item.keyId = item.keyId')
-                qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 't.uid = user.uid')
-                qb.leftJoinAndMapMany('user.role', schema.SchemaRoleUser, 'role', 'role.uid = user.uid')
-                qb.leftJoinAndMapOne('role.node', schema.SchemaRole, 'node', 'node.keyId = role.keyId')
-                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
-                // await this.database.fetchSelection(qb, [
-                //     ['t', ['id', 'keyId', 'uid', 'createTime', 'modifyTime']],
-                //     ['user', ['uid', 'name', 'number', 'avatar', 'status']]
-                // ])
-                return await qb.getMany()
+                await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 't.uid = user.uid')
+                await qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
+                await this.database.fetchSelection(qb, [
+                    ['t', ['id', 'keyId', 'uid', 'createTime', 'modifyTime']],
+                    ['user', ['uid', 'name', 'number', 'avatar', 'status']]
+                ])
+                await qb.orderBy({ 't.id': 'DESC' })
+                await qb.offset((body.page - 1) * body.size)
+                await qb.limit(body.size)
+                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                    return await this.fetchResolver({ message: '操作成功', total, list })
+                })
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)
