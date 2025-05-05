@@ -8,6 +8,9 @@ export class BaseSystemRoleCreate extends PickType(SchemaRole, ['name', 'comment
 /**编辑角色**/
 export class BaseSystemRoleUpdate extends PickType(SchemaRole, ['keyId', 'comment', 'name', 'status']) {}
 
+/**编辑角色数据权限**/
+export class BaseSystemRoleModelUpdate extends PickType(SchemaRole, ['keyId', 'model']) {}
+
 /**编辑角色权限规则**/
 export class BaseSystemUpdateRoleRules extends IntersectionType(PickType(SchemaRole, ['keyId']), PickType(OmixPayload, ['keys'])) {}
 

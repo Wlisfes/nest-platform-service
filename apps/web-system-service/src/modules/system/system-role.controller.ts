@@ -30,6 +30,16 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseSystemRoleUpdate(request, body)
     }
 
+    @Post('/model/update')
+    @ApiDecorator({
+        operation: { summary: '编辑角色数据权限' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemRoleUpdateModel(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleModelUpdate) {
+        return await this.systemRoleService.httpBaseSystemRoleModelUpdate(request, body)
+    }
+
     @Post('/update/rules')
     @ApiDecorator({
         operation: { summary: '编辑角色权限规则' },
@@ -96,7 +106,7 @@ export class SystemRoleController {
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Query() query: field.BaseSystemRoleResolver) {
-        return await this.systemRoleService.httpBaseSystemRoleResolver(request, query)
+    public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleResolver) {
+        return await this.systemRoleService.httpBaseSystemRoleResolver(request, body)
     }
 }

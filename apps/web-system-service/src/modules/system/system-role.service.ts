@@ -89,6 +89,32 @@ export class SystemRoleService extends Logger {
         }
     }
 
+    /**编辑角色数据权限**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemRoleModelUpdate(request: OmixRequest, body: field.BaseSystemRoleModelUpdate) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.fetchBaseSystemCheckKeyIdRole(request, {
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+                deplayName: this.deplayName,
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { uid: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        } finally {
+            await ctx.release()
+        }
+    }
+
     /**编辑角色权限规则**/
     @AutoMethodDescriptor
     public async httpBaseSystemUpdateRoleRules(request: OmixRequest, body: field.BaseSystemUpdateRoleRules) {
