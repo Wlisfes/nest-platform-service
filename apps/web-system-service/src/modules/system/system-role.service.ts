@@ -115,39 +115,32 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**编辑角色权限规则**/
+    /**删除角色**/
     @AutoMethodDescriptor
-    public async httpBaseSystemUpdateRoleRules(request: OmixRequest, body: field.BaseSystemUpdateRoleRules) {
+    public async httpBaseSystemRoleDelete(request: OmixRequest, body: field.BaseSystemRoleResolver) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.fetchBaseSystemCheckKeyIdRole(request, {
                 deplayName: this.deplayName,
                 where: { keyId: body.keyId }
             })
-            /**验证权限keyId合法性**/
-            await this.database.fetchConnectBatchNotNull(this.database.schemaRouter, {
+            /**删除角色关联用户**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
                 deplayName: this.deplayName,
                 request,
-                keys: body.keys
+                where: { keyId: body.keyId }
             })
-            /**删除旧数据**/
+            /**删除角色关联权限**/
             await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleRouter), {
                 deplayName: this.deplayName,
                 request,
                 where: { keyId: body.keyId }
             })
-            /**存储新数据**/
-            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.SchemaRoleRouter), {
+            /**删除角色**/
+            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRole), {
                 deplayName: this.deplayName,
                 request,
-                body: body.keys.map(sid => ({ sid, keyId: body.keyId }))
-            })
-            /**修改最后更新人**/
-            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
-                deplayName: this.deplayName,
-                request,
-                where: { keyId: body.keyId },
-                body: { uid: request.user.uid }
+                where: { keyId: body.keyId }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -157,6 +150,19 @@ export class SystemRoleService extends Logger {
             return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
+        }
+    }
+
+    /**角色详情信息**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemRoleResolver(request: OmixRequest, body: field.BaseSystemRoleResolver) {
+        try {
+            return await this.fetchBaseSystemCheckKeyIdRole(request, {
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId }
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 
@@ -263,32 +269,39 @@ export class SystemRoleService extends Logger {
         }
     }
 
-    /**删除角色**/
+    /**角色关联菜单**/
     @AutoMethodDescriptor
-    public async httpBaseSystemRoleDelete(request: OmixRequest, body: field.BaseSystemRoleResolver) {
+    public async httpBaseSystemJoinRoleRouter(request: OmixRequest, body: field.BaseSystemJoinRoleRouter) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
             await this.fetchBaseSystemCheckKeyIdRole(request, {
                 deplayName: this.deplayName,
                 where: { keyId: body.keyId }
             })
-            /**删除角色关联用户**/
-            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleUser), {
-                deplayName: this.deplayName,
+            /**验证权限keyId合法性**/
+            await this.database.fetchConnectBatchNotNull(this.database.schemaRouter, {
                 request,
-                where: { keyId: body.keyId }
+                deplayName: this.deplayName,
+                keys: body.keys
             })
-            /**删除角色关联权限**/
+            /**删除旧数据**/
             await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRoleRouter), {
-                deplayName: this.deplayName,
                 request,
+                deplayName: this.deplayName,
                 where: { keyId: body.keyId }
             })
-            /**删除角色**/
-            await this.database.fetchConnectDelete(ctx.manager.getRepository(schema.SchemaRole), {
-                deplayName: this.deplayName,
+            /**存储新数据**/
+            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.SchemaRoleRouter), {
                 request,
-                where: { keyId: body.keyId }
+                deplayName: this.deplayName,
+                body: body.keys.map(sid => ({ sid, keyId: body.keyId }))
+            })
+            /**修改最后更新人**/
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.SchemaRole), {
+                request,
+                deplayName: this.deplayName,
+                where: { keyId: body.keyId },
+                body: { uid: request.user.uid }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -298,19 +311,6 @@ export class SystemRoleService extends Logger {
             return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
-        }
-    }
-
-    /**角色详情信息**/
-    @AutoMethodDescriptor
-    public async httpBaseSystemRoleResolver(request: OmixRequest, body: field.BaseSystemRoleResolver) {
-        try {
-            return await this.fetchBaseSystemCheckKeyIdRole(request, {
-                deplayName: this.deplayName,
-                where: { keyId: body.keyId }
-            })
-        } catch (err) {
-            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 }

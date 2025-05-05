@@ -40,14 +40,24 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseSystemRoleModelUpdate(request, body)
     }
 
-    @Post('/update/rules')
+    @Post('/delete')
     @ApiDecorator({
-        operation: { summary: '编辑角色权限规则' },
+        operation: { summary: '删除角色' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseSystemUpdateRoleRules(@Request() request: OmixRequest, @Body() body: field.BaseSystemUpdateRoleRules) {
-        return await this.systemRoleService.httpBaseSystemUpdateRoleRules(request, body)
+    public async httpBaseSystemRoleDelete(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleResolver) {
+        return await this.systemRoleService.httpBaseSystemRoleDelete(request, body)
+    }
+
+    @Post('/resolver')
+    @ApiDecorator({
+        operation: { summary: '角色详情信息' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleResolver) {
+        return await this.systemRoleService.httpBaseSystemRoleResolver(request, body)
     }
 
     @Post('/column/whole')
@@ -90,23 +100,13 @@ export class SystemRoleController {
         return await this.systemRoleService.httpBaseSystemJoinRoleUserDelete(request, body)
     }
 
-    @Post('/delete')
+    @Post('/join/router')
     @ApiDecorator({
-        operation: { summary: '删除角色' },
+        operation: { summary: '角色关联菜单' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseSystemRoleDelete(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleResolver) {
-        return await this.systemRoleService.httpBaseSystemRoleDelete(request, body)
-    }
-
-    @Post('/resolver')
-    @ApiDecorator({
-        operation: { summary: '角色详情信息' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true, platform: 'manager' }
-    })
-    public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleResolver) {
-        return await this.systemRoleService.httpBaseSystemRoleResolver(request, body)
+    public async httpBaseSystemJoinRoleRouter(@Request() request: OmixRequest, @Body() body: field.BaseSystemJoinRoleRouter) {
+        return await this.systemRoleService.httpBaseSystemJoinRoleRouter(request, body)
     }
 }

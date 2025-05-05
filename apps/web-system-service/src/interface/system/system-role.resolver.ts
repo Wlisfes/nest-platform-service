@@ -11,9 +11,6 @@ export class BaseSystemRoleUpdate extends PickType(SchemaRole, ['keyId', 'commen
 /**编辑角色数据权限**/
 export class BaseSystemRoleModelUpdate extends PickType(SchemaRole, ['keyId', 'model']) {}
 
-/**编辑角色权限规则**/
-export class BaseSystemUpdateRoleRules extends IntersectionType(PickType(SchemaRole, ['keyId']), PickType(OmixPayload, ['keys'])) {}
-
 /**角色详情信息**/
 export class BaseSystemRoleResolver extends PickType(SchemaRole, ['keyId']) {}
 
@@ -23,5 +20,8 @@ export class BaseSystemColumnRoleUser extends IntersectionType(
     PickType(OmixColumn, ['page', 'size', 'vague'])
 ) {}
 
-/**角色关联用户**/
+/**角色关联用户、移除角色关联用户**/
 export class BaseSystemJoinRoleUser extends PickType(SchemaRole, ['keyId', 'uid']) {}
+
+/**角色关联菜单**/
+export class BaseSystemJoinRoleRouter extends IntersectionType(PickType(SchemaRole, ['keyId']), PickType(OmixPayload, ['keys'])) {}
