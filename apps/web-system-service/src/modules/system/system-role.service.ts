@@ -199,11 +199,14 @@ export class SystemRoleService extends Logger {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRoleUser, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 't.uid = user.uid')
-                await qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'keyId', 'uid', 'createTime', 'modifyTime']],
                     ['user', ['uid', 'name', 'number', 'avatar', 'status']]
                 ])
+                await qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
+                await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
+                    return qb.andWhere(`user.name LIKE :vague OR user.number LIKE :vague`, { vague: `%${body.vague}%` })
+                })
                 await qb.orderBy({ 't.id': 'DESC' })
                 await qb.offset((body.page - 1) * body.size)
                 await qb.limit(body.size)
