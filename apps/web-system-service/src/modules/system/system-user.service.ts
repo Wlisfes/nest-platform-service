@@ -103,8 +103,16 @@ export class SystemUserService extends Logger {
     public async httpBaseSystemColumnUser(request: OmixRequest, body: field.BaseSystemColumnUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                await qb.leftJoinAndMapMany('t.depts', schema.SchemaDeptUser, 'depts', 'depts.uid = t.uid')
+                await qb.leftJoinAndMapOne('depts.deptNode', schema.SchemaDept, 'deptNode', 'deptNode.keyId = depts.keyId')
+                await qb.leftJoinAndMapMany('t.roles', schema.SchemaRoleUser, 'roles', 'roles.uid = t.uid')
+                await qb.leftJoinAndMapOne('roles.roleNode', schema.SchemaRole, 'roleNode', 'roleNode.keyId = roles.keyId')
                 await this.database.fetchSelection(qb, [
-                    ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']]
+                    ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']],
+                    ['depts', ['keyId', 'uid']],
+                    ['deptNode', ['keyId', 'uid', 'name', 'call']],
+                    ['roles', ['keyId', 'uid']],
+                    ['roleNode', ['keyId', 'name']]
                 ])
                 await this.database.fetchBrackets(utils.isNotEmpty(body.vague), function () {
                     return qb.where(`t.number LIKE :vague OR t.phone LIKE :vague OR t.email LIKE :vague OR t.name LIKE :vague`, {

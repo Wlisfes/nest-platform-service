@@ -31,3 +31,16 @@ export class SchemaDept extends DatabaseAdapter {
     @Column({ comment: '上级部门ID', length: 19, nullable: true })
     pid: string
 }
+
+@Entity({ name: 'tb_system_dept_join_user', comment: '部门关联用户配置表' })
+export class SchemaDeptUser extends DatabaseAdapter {
+    @ApiProperty({ description: '部门ID', example: '2280241553538613248' })
+    @IsNotEmpty({ message: '部门ID必填' })
+    @Column({ name: 'key_id', comment: '部门ID', length: 19, nullable: false })
+    keyId: string
+
+    @ApiProperty({ description: '用户UID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: '用户UID必填' })
+    @Column({ comment: '用户UID', length: 19, nullable: false })
+    uid: string
+}
