@@ -261,6 +261,24 @@ export class SystemRouterService extends Logger {
         }
     }
 
+    /**完整路由菜单树**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemTreeRouter(request: OmixRequest) {
+        try {
+            return await this.database.fetchConnectBuilder(this.database.schemaRouter, async qb => {
+                await this.database.fetchSelection(qb, [['t', ['keyId', 'id', 'pid', 'name', 'sort', 'type', 'status']]])
+                await qb.orderBy({ 't.sort': 'ASC' })
+                return await qb.getMany().then(async data => {
+                    return await this.fetchResolver({
+                        list: utils.fetchTreeNodeDelete(utils.tree.fromList(data, { id: 'keyId', pid: 'pid' }))
+                    })
+                })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
     /**获取当前用户菜单**/
     @AutoMethodDescriptor
     public async httpBaseSystemUserRouter(request: OmixRequest) {

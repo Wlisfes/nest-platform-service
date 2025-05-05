@@ -3,6 +3,7 @@ import { Not, IsNull } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest, OmixBaseOptions } from '@/interface/instance.resolver'
+import { SystemRouterService } from '@web-system-service/modules/system/system-router.service'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -11,7 +12,7 @@ import * as utils from '@/utils/utils-common'
 
 @Injectable()
 export class SystemRoleService extends Logger {
-    constructor(private readonly database: DatabaseService) {
+    constructor(private readonly database: DatabaseService, private readonly systemRouterService: SystemRouterService) {
         super()
     }
 
@@ -194,7 +195,7 @@ export class SystemRoleService extends Logger {
 
     /**角色关联用户列表**/
     @AutoMethodDescriptor
-    public async httpBaseSystemColumnRoleUser(request: OmixRequest, body: field.BaseSystemColumnRoleUser) {
+    public async httpBaseSystemJoinColumnRoleUser(request: OmixRequest, body: field.BaseSystemJoinColumnRoleUser) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaRoleUser, async qb => {
                 await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 't.uid = user.uid')
@@ -266,6 +267,30 @@ export class SystemRoleService extends Logger {
             return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
+        }
+    }
+
+    /**角色关联菜单列表**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemJoinColumnRoleRouter(request: OmixRequest, body: field.BaseSystemRoleResolver) {
+        try {
+            return await this.systemRouterService.httpBaseSystemTreeRouter(request).then(async (data: Omix) => {
+                return await this.database.fetchConnectBuilder(this.database.schemaRoleRouter, async qb => {
+                    await qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
+                    await this.database.fetchSelection(qb, [['t', ['id', 'keyId', 'sid']]])
+                    return await qb.getMany().then(async list => {
+                        const items = utils.tree.findNodeAll(data.list, item => utils.isEmpty(item.children)).map(item => item.keyId)
+                        const keys = list.filter(item => items.includes(item.sid)).map(item => item.sid)
+                        return await this.fetchResolver({
+                            message: '操作成功',
+                            keys,
+                            next: list.map(item => item.sid) as never
+                        })
+                    })
+                })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 

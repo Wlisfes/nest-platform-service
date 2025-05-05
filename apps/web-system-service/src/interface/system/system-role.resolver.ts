@@ -15,7 +15,7 @@ export class BaseSystemRoleModelUpdate extends PickType(SchemaRole, ['keyId', 'm
 export class BaseSystemRoleResolver extends PickType(SchemaRole, ['keyId']) {}
 
 /**角色关联用户列表**/
-export class BaseSystemColumnRoleUser extends IntersectionType(
+export class BaseSystemJoinColumnRoleUser extends IntersectionType(
     PickType(SchemaRole, ['keyId']),
     PickType(OmixColumn, ['page', 'size', 'vague'])
 ) {}

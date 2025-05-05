@@ -60,6 +60,16 @@ export class SystemRouterController {
         return this.systemRouterService.httpBaseSystemColumnRouter(request, body)
     }
 
+    @Get('/resolver')
+    @ApiDecorator({
+        operation: { summary: '菜单资源' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemRouterResolver(@Request() request: OmixRequest, @Query() query: field.BaseSystemRouterResolver) {
+        return this.systemRouterService.httpBaseSystemRouterResolver(request, query)
+    }
+
     @Get('/column/tree')
     @ApiDecorator({
         operation: { summary: '菜单列表树' },
@@ -70,6 +80,16 @@ export class SystemRouterController {
         return this.systemRouterService.httpBaseSystemColumnTreeRouter(request)
     }
 
+    @Get('/tree')
+    @ApiDecorator({
+        operation: { summary: '完整路由菜单树' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemTreeRouter(@Request() request: OmixRequest) {
+        return this.systemRouterService.httpBaseSystemTreeRouter(request)
+    }
+
     @Get('/column/user')
     @ApiDecorator({
         operation: { summary: '获取当前用户菜单' },
@@ -78,15 +98,5 @@ export class SystemRouterController {
     })
     public async httpBaseSystemUserRouter(@Request() request: OmixRequest) {
         return this.systemRouterService.httpBaseSystemUserRouter(request)
-    }
-
-    @Get('/resolver')
-    @ApiDecorator({
-        operation: { summary: '菜单资源' },
-        response: { status: 200, description: 'OK' },
-        authorize: { check: true, platform: 'manager' }
-    })
-    public async httpBaseSystemRouterResolver(@Request() request: OmixRequest, @Query() query: field.BaseSystemRouterResolver) {
-        return this.systemRouterService.httpBaseSystemRouterResolver(request, query)
     }
 }

@@ -70,14 +70,14 @@ export class SystemRoleController {
         return this.systemRoleService.httpBaseSystemColumnRoleWhole(request)
     }
 
-    @Post('/column/user')
+    @Post('/join/column/user')
     @ApiDecorator({
         operation: { summary: '角色关联用户列表' },
         response: { status: 200, description: 'OK' },
         authorize: { check: true, platform: 'manager' }
     })
-    public async httpBaseSystemColumnRoleUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemColumnRoleUser) {
-        return await this.systemRoleService.httpBaseSystemColumnRoleUser(request, body)
+    public async httpBaseSystemJoinColumnRoleUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemJoinColumnRoleUser) {
+        return await this.systemRoleService.httpBaseSystemJoinColumnRoleUser(request, body)
     }
 
     @Post('/join/user')
@@ -98,6 +98,16 @@ export class SystemRoleController {
     })
     public async httpBaseSystemJoinRoleUserDelete(@Request() request: OmixRequest, @Body() body: field.BaseSystemJoinRoleUser) {
         return await this.systemRoleService.httpBaseSystemJoinRoleUserDelete(request, body)
+    }
+
+    @Post('/join/column/router')
+    @ApiDecorator({
+        operation: { summary: '角色关联菜单列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemJoinColumnRoleRouter(@Request() request: OmixRequest, @Body() body: field.BaseSystemRoleResolver) {
+        return await this.systemRoleService.httpBaseSystemJoinColumnRoleRouter(request, body)
     }
 
     @Post('/join/router')
