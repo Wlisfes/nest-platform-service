@@ -3,4 +3,4 @@ import { OmixColumn, OmixPayload, OmixBaseOptions } from '@/interface/instance.r
 import { SchemaDept } from '@/modules/database/database.schema'
 
 /**新增部门**/
-export class BaseSystemDeptCreate extends PickType(SchemaDept, ['name', 'call', 'pid']) {}
+export class BaseSystemDeptCreate extends PickType(SchemaDept, ['name', 'bit', 'pid']) {}

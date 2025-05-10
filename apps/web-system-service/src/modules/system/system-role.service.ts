@@ -172,18 +172,14 @@ export class SystemRoleService extends Logger {
     public async httpBaseSystemColumnRoleWhole(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.database.schemaDept, async qb => {
-                qb.leftJoinAndMapOne('t.post', schema.SchemaRole, 'post', 'post.deptId = t.keyId')
-                qb.where('t.pid IS NOT NULL')
-                await this.database.fetchSelection(qb, [
-                    ['t', ['id', 'keyId', 'name', 'pid']],
-                    ['post', ['id', 'keyId', 'deptId', 'name', 'model', 'status']]
-                ])
+                await this.database.fetchSelection(qb, [['t', ['id', 'keyId', 'name', 'pid']]])
+                await qb.where('t.pid IS NOT NULL')
                 return await qb.getMany().then(async items => {
                     return {
                         items: utils.fetchTreeNodeDelete(utils.tree.fromList(items, { id: 'keyId', pid: 'pid' })),
                         list: await this.database.schemaRole.find({
-                            where: { deptId: IsNull() },
-                            select: ['id', 'keyId', 'deptId', 'name', 'model', 'status']
+                            where: { dept: true },
+                            select: ['id', 'keyId', 'name', 'model', 'status']
                         })
                     }
                 })

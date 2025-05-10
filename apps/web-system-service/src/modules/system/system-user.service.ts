@@ -110,7 +110,7 @@ export class SystemUserService extends Logger {
                 await this.database.fetchSelection(qb, [
                     ['t', ['id', 'uid', 'name', 'number', 'phone', 'email', 'avatar', 'status', 'createTime', 'modifyTime']],
                     ['depts', ['keyId', 'uid']],
-                    ['deptNode', ['keyId', 'uid', 'name', 'call']],
+                    ['deptNode', ['keyId', 'uid', 'name', 'bit']],
                     ['roles', ['keyId', 'uid']],
                     ['roleNode', ['keyId', 'name']]
                 ])

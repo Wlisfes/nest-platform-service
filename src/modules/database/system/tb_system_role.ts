@@ -14,10 +14,11 @@ export class SchemaRole extends DatabaseAdapter {
     @Column({ name: 'key_id', comment: '唯一ID', length: 19, nullable: false })
     keyId: string
 
-    @ApiProperty({ description: '部门ID', required: false, example: '2280241553538613248' })
-    @IsOptional()
-    @Column({ name: 'dept_id', comment: '部门ID', length: 19, nullable: true })
-    deptId: string
+    @ApiProperty({ description: '部门角色' })
+    @Type(() => Boolean)
+    @IsNotEmpty({ message: '部门角色必填' })
+    @Column({ comment: '部门角色', default: true, nullable: false })
+    dept: boolean
 
     @ApiProperty({ description: '用户UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '用户UID必填' })

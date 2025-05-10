@@ -3,11 +3,11 @@ import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest, OmixBaseOptions } from '@/interface/instance.resolver'
+import { fetchHandler, fetchIntNumber, isNotEmpty, fetchTreeNodeDelete, tree } from '@/utils/utils-common'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
 import * as plugin from '@/utils/utils-plugin'
-import * as utils from '@/utils/utils-common'
 
 @Injectable()
 export class SystemDeptService extends Logger {
@@ -37,14 +37,14 @@ export class SystemDeptService extends Logger {
                 message: `name:${body.name} 已存在`,
                 dispatch: { where: { name: body.name } }
             })
-            await utils.fetchHandler(utils.isNotEmpty(body.call), async () => {
+            await fetchHandler(isNotEmpty(body.bit), async () => {
                 return await this.fetchBaseSystemCheckKeyIdDept(request, {
-                    message: `call:${body.call} 不存在`,
+                    message: `bit:${body.bit} 不存在`,
                     deplayName: this.fetchDeplayName(this.deplayName),
-                    where: { call: body.call }
+                    where: { bit: body.bit }
                 })
             })
-            await utils.fetchHandler(utils.isNotEmpty(body.pid), async () => {
+            await fetchHandler(isNotEmpty(body.pid), async () => {
                 return await this.fetchBaseSystemCheckKeyIdDept(request, {
                     message: `pid:${body.pid} 不存在`,
                     deplayName: this.fetchDeplayName(this.deplayName),
@@ -54,7 +54,7 @@ export class SystemDeptService extends Logger {
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaDept), {
                 deplayName: this.deplayName,
                 request,
-                body: Object.assign(body, { keyId: await utils.fetchIntNumber(), uid: request.user.uid })
+                body: Object.assign(body, { keyId: await fetchIntNumber(), uid: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '新增成功' })
@@ -64,6 +64,33 @@ export class SystemDeptService extends Logger {
             return await this.fetchCatchCompiler(this.deplayName, err)
         } finally {
             await ctx.release()
+        }
+    }
+
+    /**部门列表**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemDeptColumn(request: OmixRequest) {
+        try {
+            return await this.database.fetchConnectBuilder(this.database.schemaDept, async qb => {
+                await qb.leftJoinAndMapOne('t.user', schema.SchemaUser, 'user', 'user.uid = t.uid')
+                await qb.leftJoinAndMapMany('t.items', schema.SchemaDeptUser, 'items', 'items.keyId = t.keyId')
+                await this.database.fetchSelection(qb, [
+                    ['t', ['keyId', 'uid', 'pid', 'bit', 'name', 'createTime', 'modifyTime']],
+                    ['user', ['uid', 'name', 'status', 'id', 'number']],
+                    ['items', ['keyId', 'uid']]
+                ])
+
+                await qb.where(`t.pid IS NOT NULL`)
+
+                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                    return await this.fetchResolver({
+                        total,
+                        list: fetchTreeNodeDelete(tree.fromList(list, { id: 'keyId', pid: 'pid' }))
+                    })
+                })
+            })
+        } catch (err) {
+            return await this.fetchCatchCompiler(this.deplayName, err)
         }
     }
 }

@@ -19,4 +19,14 @@ export class SystemDeptController {
     public async httpBaseSystemDeptCreate(@Request() request: OmixRequest, @Body() body: field.BaseSystemDeptCreate) {
         return await this.systemDeptService.httpBaseSystemDeptCreate(request, body)
     }
+
+    @Post('/column')
+    @ApiDecorator({
+        operation: { summary: '部门列表' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemDeptColumn(@Request() request: OmixRequest) {
+        return this.systemDeptService.httpBaseSystemDeptColumn(request)
+    }
 }
