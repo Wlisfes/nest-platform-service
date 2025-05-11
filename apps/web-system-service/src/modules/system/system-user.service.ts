@@ -165,8 +165,15 @@ export class SystemUserService extends Logger {
     /**通用用户账号列表**/
     public async httpBaseSystemColumnChunkUser(request: OmixRequest) {
         try {
-            return await this.database.schemaUser.find({ select: ['uid', 'name', 'number', 'avatar', 'status'] }).then(list => {
-                return utils.fetchConcat(list, item => ({ nickname: `${item.name} ${item.number}` }))
+            return await this.database.fetchConnectBuilder(this.database.schemaUser, async qb => {
+                await this.database.fetchSelection(qb, [['t', ['uid', 'name', 'number', 'avatar', 'status']]])
+                await qb.orderBy({ 't.id': 'DESC' })
+                return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
+                    return await this.fetchResolver({
+                        total,
+                        list: utils.fetchConcat(list, item => ({ nickname: `${item.name} ${item.number}` }))
+                    })
+                })
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)
