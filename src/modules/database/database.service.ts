@@ -50,8 +50,8 @@ export interface BaseConnectDelete<T> extends BaseConnectOption {
     where: Parameters<Repository<T>['delete']>['0']
 }
 
-/**新增AND更新数据模型**/
-export interface BaseConnecUpsert<T, K extends keyof T> extends BaseConnectOption {
+/**新增OR更新数据模型**/
+export interface BaseConnectUpsert<T, K extends keyof T> extends BaseConnectOption {
     /**条件**/
     where: Array<K>
     /**更新数据**/
@@ -64,12 +64,6 @@ export interface BaseConnectUpdate<T> extends BaseConnectOption {
     where: Parameters<Repository<T>['update']>['0']
     /**更新数据**/
     body: Parameters<Repository<T>['update']>['1']
-}
-
-/**批量更新数据模型：需要主键ID**/
-export interface BaseConnectUpsert<T> extends BaseConnectOption {
-    /**更新数据**/
-    body: Array<Parameters<Repository<T>['save']>['0']>
 }
 
 /**批量创建数据模型**/
@@ -212,7 +206,11 @@ export class DatabaseService extends Logger {
 
     /**创建数据模型**/
     @AutoMethodDescriptor
-    public async fetchConnectCreate<T>(model: Repository<T>, data: BaseConnectCreate<T>) {
+    public async fetchConnectCreate<T>(model: Repository<T>, data: BaseConnectCreate<T>): Promise<Awaited<T> & T> {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data as never as Promise<Awaited<T> & T>
+        }
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         const state = await model.create(data.body)
         return await model.save(state).then(async node => {
@@ -226,6 +224,10 @@ export class DatabaseService extends Logger {
     /**批量创建数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectInsert<T>(model: Repository<T>, data: BaseConnectInsert<T>) {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
@@ -235,27 +237,15 @@ export class DatabaseService extends Logger {
         })
     }
 
-    /**批量更新数据模型**/
+    /**新增OR更新数据模型**/
     @AutoMethodDescriptor
-    public async fetchConnectUpsert<T>(model: Repository<T>, data: BaseConnectUpsert<T>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
-        return await model.save(data.body).then(async node => {
-            if (data.logger ?? true) {
-                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待批量更新结果`, body: data.body, node })
-            }
-            return node
-        })
-    }
-
-    /**新增AND更新数据模型**/
-    @AutoMethodDescriptor
-    public async fetchConnecUpsert<T, K extends keyof T>(model: Repository<T>, data: BaseConnecUpsert<T, K>) {
+    public async fetchConnectUpsert<T, K extends keyof T>(model: Repository<T>, data: BaseConnectUpsert<T, K>) {
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.upsert(data.body, data.where as Array<string>).then(async node => {
             if (data.logger ?? true) {
                 logger.info({
                     comment: data.comment,
-                    message: `[${model.metadata.name}]:事务等待新增AND更新结果`,
+                    message: `[${model.metadata.name}]:事务等待新增OR更新结果`,
                     where: data.where,
                     body: data.body,
                     node
@@ -268,6 +258,10 @@ export class DatabaseService extends Logger {
     /**更新数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectUpdate<T>(model: Repository<T>, data: BaseConnectUpdate<T>) {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.update(data.where, data.body).then(async node => {
             if (data.logger ?? true) {
@@ -286,6 +280,10 @@ export class DatabaseService extends Logger {
     /**删除数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectDelete<T>(model: Repository<T>, data: BaseConnectDelete<T>) {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.delete(data.where).then(async node => {
             if (data.logger ?? true) {

@@ -3,7 +3,7 @@ import { Not } from 'typeorm'
 import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest, OmixBaseOptions } from '@/interface/instance.resolver'
-import { fetchHandler, fetchIntNumber, isNotEmpty, fetchTreeNodeDelete, tree } from '@/utils/utils-common'
+import { fetchHandler, fetchIntNumber, isEmpty, isNotEmpty, fetchTreeNodeDelete, tree } from '@/utils/utils-common'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -216,9 +216,8 @@ export class SystemDeptService extends Logger {
                     ['user', ['uid', 'name', 'status', 'id', 'number']],
                     ['items', ['keyId', 'uid']]
                 ])
-
                 await qb.where(`t.pid IS NOT NULL`)
-
+                await qb.orderBy({ 't.id': 'ASC' })
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     return await this.fetchResolver({
                         total,
@@ -228,6 +227,48 @@ export class SystemDeptService extends Logger {
             })
         } catch (err) {
             return await this.fetchCatchCompiler(this.deplayName, err)
+        }
+    }
+
+    /**关联用户**/
+    @AutoMethodDescriptor
+    public async httpBaseSystemJoinDeptUser(request: OmixRequest, body: field.BaseSystemJoinDeptUser) {
+        const ctx = await this.database.fetchConnectTransaction()
+        try {
+            await this.database.fetchConnectNotNull(this.database.schemaDept, {
+                request,
+                comment: `验证部门ID是否错误:[${body.keyId}]`,
+                deplayName: this.deplayName,
+                message: `keyId:${body.keyId} 不存在`,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectNotNull(this.database.schemaUser, {
+                request,
+                comment: `验证用户ID是否错误:[${body.uid}]`,
+                deplayName: this.deplayName,
+                message: `uid:${body.uid} 不存在`,
+                dispatch: { where: { uid: body.uid } }
+            })
+            return await this.database.fetchConnectBuilder(this.database.schemaDeptUser, async qb => {
+                await qb.where(`t.keyId = :keyId AND t.uid = :uid`, body)
+                return await qb.getOne().then(async data => {
+                    await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaDeptUser), {
+                        request,
+                        comment: `部门关联用户:[${body.uid}]`,
+                        next: isEmpty(data),
+                        deplayName: this.deplayName,
+                        body: body
+                    })
+                    return await ctx.commitTransaction().then(async () => {
+                        return await this.fetchResolver({ message: '操作成功' })
+                    })
+                })
+            })
+        } catch (err) {
+            await ctx.rollbackTransaction()
+            return await this.fetchCatchCompiler(this.deplayName, err)
+        } finally {
+            await ctx.release()
         }
     }
 }

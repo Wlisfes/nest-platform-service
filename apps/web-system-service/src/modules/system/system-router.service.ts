@@ -130,7 +130,7 @@ export class SystemRouterService extends Logger {
                     return list.map(item => ({ id: item.id, status: body.status }))
                 })
             })
-            await this.database.fetchConnectUpsert(ctx.manager.getRepository(schema.SchemaRouter), {
+            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.SchemaRouter), {
                 request,
                 deplayName: this.deplayName,
                 body: items

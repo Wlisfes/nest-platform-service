@@ -10,3 +10,6 @@ export class BaseSystemDeptUpdate extends PickType(SchemaDept, ['keyId', 'name',
 
 /**部门详情信息**/
 export class BaseSystemDeptResolver extends PickType(SchemaDept, ['keyId']) {}
+
+/**关联用户**/
+export class BaseSystemJoinDeptUser extends PickType(SchemaDept, ['keyId', 'uid']) {}

@@ -1,4 +1,4 @@
-import { Entity, Column } from 'typeorm'
+import { Entity, Column, Unique } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, Length, IsOptional } from 'class-validator'
 import { DatabaseAdapter } from '@/modules/database/database.adapter'

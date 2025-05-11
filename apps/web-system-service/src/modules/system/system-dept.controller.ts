@@ -59,4 +59,14 @@ export class SystemDeptController {
     public async httpBaseSystemDeptColumn(@Request() request: OmixRequest) {
         return this.systemDeptService.httpBaseSystemDeptColumn(request)
     }
+
+    @Post('/join/user')
+    @ApiDecorator({
+        operation: { summary: '关联用户' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemJoinDeptUser(@Request() request: OmixRequest, @Body() body: field.BaseSystemJoinDeptUser) {
+        return await this.systemDeptService.httpBaseSystemJoinDeptUser(request, body)
+    }
 }
