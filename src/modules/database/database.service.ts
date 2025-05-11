@@ -240,19 +240,33 @@ export class DatabaseService extends Logger {
     /**新增OR更新数据模型**/
     @AutoMethodDescriptor
     public async fetchConnectUpsert<T, K extends keyof T>(model: Repository<T>, data: BaseConnectUpsert<T, K>) {
-        const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
-        return await model.upsert(data.body, data.where as Array<string>).then(async node => {
-            if (data.logger ?? true) {
-                logger.info({
-                    comment: data.comment,
-                    message: `[${model.metadata.name}]:事务等待新增OR更新结果`,
-                    where: data.where,
-                    body: data.body,
-                    node
+        const deplayName = this.fetchDeplayName(data.deplayName)
+        const request = data.request
+        const comment = data.comment
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
+        if (Array.isArray(data.body) && data.body.length > 0) {
+            return await Promise.all(
+                data.body.map(async body => {
+                    const where = Object.assign(utils.pick(body, data.where))
+                    const node = await model.findOne({ where: where })
+                    if (utils.isEmpty(node)) {
+                        await this.fetchConnectCreate(model, { request, comment, deplayName, body: Object.assign(body) })
+                    }
+                    return await this.fetchConnectUpdate(model, { request, comment, deplayName, body, where })
                 })
+            )
+        } else {
+            const body = Object.assign(data.body)
+            const where = Object.assign(utils.pick(data.body, data.where))
+            const node = await model.findOne({ where: where })
+            if (utils.isEmpty(node)) {
+                return await this.fetchConnectCreate(model, { request, comment, deplayName, body })
             }
-            return node
-        })
+            return await this.fetchConnectUpdate(model, { request, comment, deplayName, body, where })
+        }
     }
 
     /**更新数据模型**/

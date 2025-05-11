@@ -249,20 +249,22 @@ export class SystemDeptService extends Logger {
                 message: `uid:${body.uid} 不存在`,
                 dispatch: { where: { uid: body.uid } }
             })
-            return await this.database.fetchConnectBuilder(this.database.schemaDeptUser, async qb => {
-                await qb.where(`t.keyId = :keyId AND t.uid = :uid`, body)
-                return await qb.getOne().then(async data => {
-                    await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.SchemaDeptUser), {
-                        request,
-                        comment: `部门关联用户:[${body.uid}]`,
-                        next: isEmpty(data),
-                        deplayName: this.deplayName,
-                        body: body
-                    })
-                    return await ctx.commitTransaction().then(async () => {
-                        return await this.fetchResolver({ message: '操作成功' })
-                    })
-                })
+            await this.database.fetchConnectUpsert(ctx.manager.getRepository(schema.SchemaDeptUser), {
+                request,
+                comment: `部门关联用户:[${body.uid}]`,
+                deplayName: this.deplayName,
+                body: body,
+                where: ['keyId', 'uid']
+            })
+            await this.database.fetchConnectUpsert(ctx.manager.getRepository(schema.SchemaRoleUser), {
+                request,
+                comment: `部门角色关联用户:[${body.uid}]`,
+                deplayName: this.deplayName,
+                body: body,
+                where: ['keyId', 'uid']
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
