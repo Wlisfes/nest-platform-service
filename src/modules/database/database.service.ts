@@ -8,6 +8,10 @@ import * as plugin from '@/utils/utils-plugin'
 import * as utils from '@/utils/utils-common'
 
 export interface BaseConnectOption {
+    /**是否停止执行**/
+    next?: boolean
+    /**描述**/
+    comment?: string
     /**请求实例**/
     request: OmixRequest
     /**开启日志**/
@@ -130,10 +134,14 @@ export class DatabaseService extends Logger {
     /**查询数据是否存在：存在会抛出异常**/
     @AutoMethodDescriptor
     public async fetchConnectNull<T>(model: Repository<T>, data: BaseCommonConnectOption<T>) {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
             }
             if (data.transform) {
                 return await plugin.fetchCatchWherer(await data.transform(node), data).then(async () => {
@@ -150,10 +158,14 @@ export class DatabaseService extends Logger {
     /**查询数据是否不存在：不存在会抛出异常**/
     @AutoMethodDescriptor
     public async fetchConnectNotNull<T>(model: Repository<T>, data: BaseCommonConnectOption<T>) {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
             }
             if (data.transform) {
                 return await plugin.fetchCatchWherer(await data.transform(node), data).then(async () => {
@@ -179,7 +191,13 @@ export class DatabaseService extends Logger {
                 await qb.where(`t.${alias} IN(:keys)`, { keys: data.keys })
                 return await qb.getManyAndCount().then(async ([list = [], total = 0]) => {
                     if (data.logger ?? true) {
-                        logger.info({ message: `[${model.metadata.name}]:查询出参`, where: { keys: data.keys }, total, list })
+                        logger.info({
+                            comment: data.comment,
+                            message: `[${model.metadata.name}]:查询出参`,
+                            where: { keys: data.keys },
+                            total,
+                            list
+                        })
                     }
                     if (data.keys.length !== total) {
                         throw new HttpException(`${alias}不存在`, HttpStatus.BAD_REQUEST, {
@@ -199,7 +217,7 @@ export class DatabaseService extends Logger {
         const state = await model.create(data.body)
         return await model.save(state).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:事务等待创建结果`, node })
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待创建结果`, body: data.body, node })
             }
             return node
         })
@@ -211,7 +229,7 @@ export class DatabaseService extends Logger {
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:事务等待批量创建结果`, node })
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待批量创建结果`, body: data.body, node })
             }
             return node
         })
@@ -223,7 +241,7 @@ export class DatabaseService extends Logger {
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:事务等待批量更新结果`, node })
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待批量更新结果`, body: data.body, node })
             }
             return node
         })
@@ -235,7 +253,13 @@ export class DatabaseService extends Logger {
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.upsert(data.body, data.where as Array<string>).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:事务等待新增AND更新结果`, where: data.where, node })
+                logger.info({
+                    comment: data.comment,
+                    message: `[${model.metadata.name}]:事务等待新增AND更新结果`,
+                    where: data.where,
+                    body: data.body,
+                    node
+                })
             }
             return node
         })
@@ -247,7 +271,13 @@ export class DatabaseService extends Logger {
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.update(data.where, data.body).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:事务等待更新结果`, where: data.where, node })
+                logger.info({
+                    comment: data.comment,
+                    message: `[${model.metadata.name}]:事务等待更新结果`,
+                    where: data.where,
+                    body: data.body,
+                    node
+                })
             }
             return node
         })
@@ -259,7 +289,7 @@ export class DatabaseService extends Logger {
         const logger = await this.fetchServiceLoggerTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
         return await model.delete(data.where).then(async node => {
             if (data.logger ?? true) {
-                logger.info({ message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })
             }
             return node
         })

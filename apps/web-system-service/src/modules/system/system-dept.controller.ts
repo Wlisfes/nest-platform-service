@@ -20,6 +20,36 @@ export class SystemDeptController {
         return await this.systemDeptService.httpBaseSystemDeptCreate(request, body)
     }
 
+    @Post('/update')
+    @ApiDecorator({
+        operation: { summary: '编辑部门' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemDeptUpdate(@Request() request: OmixRequest, @Body() body: field.BaseSystemDeptUpdate) {
+        return await this.systemDeptService.httpBaseSystemDeptUpdate(request, body)
+    }
+
+    @Post('/delete')
+    @ApiDecorator({
+        operation: { summary: '删除部门' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemDeptDelete(@Request() request: OmixRequest, @Body() body: field.BaseSystemDeptResolver) {
+        return await this.systemDeptService.httpBaseSystemDeptDelete(request, body)
+    }
+
+    @Post('/cascader')
+    @ApiDecorator({
+        operation: { summary: '完整部门树' },
+        response: { status: 200, description: 'OK' },
+        authorize: { check: true, platform: 'manager' }
+    })
+    public async httpBaseSystemDeptCascader(@Request() request: OmixRequest) {
+        return this.systemDeptService.httpBaseSystemDeptCascader(request)
+    }
+
     @Post('/column')
     @ApiDecorator({
         operation: { summary: '部门列表' },

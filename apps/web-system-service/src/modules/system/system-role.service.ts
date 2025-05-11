@@ -4,6 +4,7 @@ import { Logger, AutoMethodDescriptor } from '@/modules/logger/logger.service'
 import { DatabaseService } from '@/modules/database/database.service'
 import { Omix, OmixRequest, OmixBaseOptions } from '@/interface/instance.resolver'
 import { SystemRouterService } from '@web-system-service/modules/system/system-router.service'
+import { tree, omit, fetchTreeNodeDelete } from '@/utils/utils-common'
 import * as field from '@web-system-service/interface/instance.resolver'
 import * as schema from '@/modules/database/database.schema'
 import * as enums from '@/modules/database/database.enums'
@@ -42,6 +43,7 @@ export class SystemRoleService extends Logger {
                 deplayName: this.deplayName,
                 request,
                 body: Object.assign(body, {
+                    dept: false,
                     keyId: await utils.fetchIntNumber(),
                     uid: request.user.uid,
                     model: enums.COMMON_SYSTEM_ROLE_MODEL.self_member.value
@@ -171,17 +173,18 @@ export class SystemRoleService extends Logger {
     @AutoMethodDescriptor
     public async httpBaseSystemColumnRoleWhole(request: OmixRequest) {
         try {
-            return await this.database.fetchConnectBuilder(this.database.schemaDept, async qb => {
-                await this.database.fetchSelection(qb, [['t', ['id', 'keyId', 'name', 'pid']]])
-                await qb.where('t.pid IS NOT NULL')
-                return await qb.getMany().then(async items => {
-                    return {
-                        items: utils.fetchTreeNodeDelete(utils.tree.fromList(items, { id: 'keyId', pid: 'pid' })),
-                        list: await this.database.schemaRole.find({
-                            where: { dept: true },
-                            select: ['id', 'keyId', 'name', 'model', 'status']
-                        })
-                    }
+            return await this.database.fetchConnectBuilder(this.database.schemaRole, async qb => {
+                await qb.leftJoinAndMapOne('t.node', schema.SchemaDept, 'node', 'node.keyId = t.keyId')
+                await this.database.fetchSelection(qb, [
+                    ['t', ['id', 'keyId', 'name', 'model', 'status', 'dept']],
+                    ['node', ['keyId', 'pid']]
+                ])
+                return await qb.getMany().then(async list => {
+                    const items = list.filter(item => item.dept).map((item: Omix) => ({ pid: item.node.pid, ...omit(item, ['node']) }))
+                    return await this.fetchResolver({
+                        list: list.filter(item => !item.dept),
+                        items: fetchTreeNodeDelete(tree.fromList(items, { id: 'keyId', pid: 'pid' }))
+                    })
                 })
             })
         } catch (err) {
