@@ -2,7 +2,7 @@ import { Injectable, ExecutionContext, HttpException, HttpStatus } from '@nestjs
 import { ThrottlerGuard } from '@nestjs/throttler'
 
 @Injectable()
-export class AuthThrottlerGuard extends ThrottlerGuard {
+export class AuthGuardThrottler extends ThrottlerGuard {
     protected async throwThrottlingException(
         context: ExecutionContext,
         detail: Parameters<ThrottlerGuard['throwThrottlingException']>['1']

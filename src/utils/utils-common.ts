@@ -1,22 +1,17 @@
-import { HttpException, HttpStatus } from '@nestjs/common'
-import { Request } from 'express'
 import { snowflakeId } from 'snowflake-id-maker'
 import { zh_CN, Faker } from '@faker-js/faker'
-import { isNotEmpty } from 'class-validator'
-import { Omix, OmixHeaders, OmixError } from '@/interface/instance.resolver'
+import { cloneDeep, concat, pick, omit } from 'lodash'
+import { isNotEmpty, isEmpty, isString, isNumber, isObject } from 'class-validator'
+import { Omix } from '@/interface/instance.resolver'
+import * as tree from 'tree-tool'
 import * as dayjs from 'dayjs'
 import * as utc from 'dayjs/plugin/utc'
 import * as timezone from 'dayjs/plugin/timezone'
-import * as axios from 'axios'
-import * as web from '@/config/web-instance'
+export { tree, cloneDeep, concat, pick, omit, isNotEmpty, isEmpty, isString, isNumber, isObject }
 dayjs.extend(timezone)
 dayjs.extend(utc)
-
 /**dayjs实例**/
 export const moment = dayjs
-
-/**Axios请求实例**/
-export const request = axios.default
 
 /**虚拟数据实例**/
 export const faker = new Faker({
@@ -24,7 +19,7 @@ export const faker = new Faker({
 })
 
 /**生成纯数字的雪花ID、随机字符串**/
-export async function divineIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
+export async function fetchIntNumber(scope: Partial<Omix<{ worker: number; epoch: number; random: boolean; bit: number }>> = {}) {
     if (scope.random) {
         return Array.from({ length: scope.bit ?? 6 }, x => Math.floor(Math.random() * 9) + 1).join('')
     }
@@ -34,108 +29,38 @@ export async function divineIntNumber(scope: Partial<Omix<{ worker: number; epoc
     })
 }
 
-/**返回包装**/
-export async function divineResolver<T = Partial<Omix<{ message: string; list: Array<Omix>; total: number; page: number; size: number }>>>(
-    data: T,
-    handler?: Function
-) {
-    await divineHandler(Boolean(handler), { handler })
-    return data
+/**对象、列表转换回显**/
+export function fetchColumn(data: Array<Omix> | Omix, value: any) {
+    if (Array.isArray(data)) {
+        return data.find(item => item.value == value) ?? null
+    }
+    return data[value] ?? null
+}
+
+/**参数组合**/
+export async function fetchParameter<T>(params: Omix<T>): Promise<Omix<T>> {
+    return params
 }
 
 /**条件链式执行函数**/
-export async function divineHandler<T>(where: boolean | Function, scope: Omix<{ handler: Function; failure?: Function }>): Promise<T> {
-    if (typeof where === 'function') {
-        where = await where()
+export async function fetchHandler<T>(where: boolean | Function, handler?: Function): Promise<T> {
+    const value = typeof where === 'function' ? await where() : where
+    if (value && typeof handler === 'function') {
+        return (await handler()) as T
     }
-    if (where) {
-        return await scope.handler()
-    } else {
-        return (await scope.failure?.()) ?? undefined
-    }
-}
-
-/**批量执行异步方法**/
-export async function divineBatchHandler(handlers: Array<any>, scope: Omix<{ handler?: Function; failure?: Function }> = {}) {
-    try {
-        return await Promise.all(handlers).then(async response => {
-            return await divineHandler(Boolean(scope.handler), {
-                handler: () => scope.handler(response)
-            })
-        })
-    } catch (e) {
-        return await divineHandler(Boolean(scope.failure), {
-            handler: () => scope.failure!(e)
-        })
-    }
-}
-
-/**延时方法**/
-export function divineDelay(delay = 100, handler?: Function) {
-    return new Promise(resolve => {
-        const timeout = setTimeout(() => {
-            handler?.()
-            resolve(undefined)
-            clearTimeout(timeout)
-        }, delay)
-    })
+    return value as T
 }
 
 /**条件值返回**/
-export function divineCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallback?: T; defaultValue?: T }>): T {
+export function fetchCaseWherer<T>(where: boolean, scope: Omix<{ value: T; fallback?: T; defaultValue?: T }>): T {
     if (where) {
         return scope.value ?? scope.defaultValue
     }
     return scope.fallback ?? scope.defaultValue
 }
 
-/**参数组合**/
-export async function divineParameter<T>(params: Omix<T>): Promise<Omix<T>> {
-    return params
-}
-
-/**日志聚合**/
-export function divineLogger(headers: OmixHeaders = {}, log: Omix | string = {}) {
-    const duration = headers[web.WEB_COMMON_HEADER_STARTTIME]
-    return {
-        log,
-        duration: divineCaseWherer(isNotEmpty(duration), { value: `${Date.now() - Number(duration)}ms`, defaultValue: null }),
-        [web.WEB_COMMON_HEADER_CONTEXTID]: headers[web.WEB_COMMON_HEADER_CONTEXTID]
-    }
-}
-
-/**提取日志参数**/
-export function divineBstract(headers: OmixHeaders = {}) {
-    return {
-        logId: headers[web.WEB_COMMON_HEADER_CONTEXTID],
-        ua: headers['user-agent'] ?? null,
-        ip: headers.ip ?? null,
-        browser: headers.browser ?? null,
-        platform: headers.platform ?? null
-    }
-}
-
-/**自定义Error信息**/
-export function divineOmixError<T = { message: string; status: number }>(scope: Omix<T>): OmixError<T> {
-    const err = new Error(scope.message) as OmixError<T>
-    err.data = scope
-    return err
-}
-
-/**条件捕获、异常抛出**/
-export async function divineCatchWherer(where: boolean, scope: Omix<{ message: string; status?: number; cause?: Omix }>) {
-    return await divineHandler(where, {
-        handler: () => {
-            throw new HttpException(
-                scope.cause ? { message: scope.message, cause: scope.cause } : scope.message,
-                scope.status ?? HttpStatus.BAD_REQUEST
-            )
-        }
-    })
-}
-
 /**字节转换文字输出**/
-export async function divineBytefor(byte: number, dec: number = 2) {
+export async function fetchBytefor(byte: number, dec: number = 2) {
     if (byte === 0) return 'Byte'
     const k = 1024
     const dm = dec < 0 ? 0 : dec
@@ -144,28 +69,26 @@ export async function divineBytefor(byte: number, dec: number = 2) {
     return parseFloat((byte / Math.pow(k, i)).toFixed(dm)) + sizes[i]
 }
 
-/**邮箱号混淆**/
-export async function divineMaskCharacter(type: 'email', str: string) {
-    if (type === 'email') {
-        const prefix = str.substring(0, str.indexOf('@'))
-        const suffix = str.substring(str.indexOf('@'), str.length)
-        const fill = prefix.length >= 2 ? prefix.substring(0, 2) : prefix
-        return fill.padEnd(8, '*') + suffix
-    }
-    return str
+/**移除空数据children字段**/
+export function fetchTreeNodeDelete<T extends Omix>(data: Array<T>): Array<T> {
+    data.forEach((node: Omix) => {
+        if (node.children && node.children.length > 0) {
+            return fetchTreeNodeDelete(node.children)
+        } else if (node.children && node.children.length === 0) {
+            return delete node.children
+        }
+    })
+    return data
 }
 
-/**文件名称、类型挂载**/
-export function divineFileRequest(request: Request, file: Omix, cb: Function) {
-    file.body = request.body
-    file.name = Buffer.from(file.originalname, 'binary').toString('utf-8')
-    return cb(null, true)
+/**列表枚举字段合并**/
+export function fetchConcat<T>(data: Array<Omix<T>>, handler: (e: Omix<T>) => Omix): Array<Omix<T>> {
+    return data.map(item => ({ ...item, ...handler(item) }))
 }
 
-/**替换文件后辍名**/
-export async function divineFileNameReplace(fileName: string, suffix: string) {
-    if (fileName.includes('.')) {
-        return fileName.replace(/\.[^.]+$/, `.${suffix}`)
-    }
-    return [fileName, suffix].join('.')
+/**枚举文案转换**/
+export function fetchComment<T>(data: Omix<T>) {
+    return Object.values(data).map(item => {
+        return `</br> ${item.name}：${item.value}`
+    })
 }

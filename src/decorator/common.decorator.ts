@@ -68,20 +68,9 @@ export function IsDateCustomize(validationOptions?: ValidationOptions) {
                     return typeof value === 'string' && regex.test(value)
                 },
                 defaultMessage(args: ValidationArguments) {
-                    return `${args.property}必须是有效的日期时间格式：yyyy-MM-DD HH:mm:ss`
+                    return `${args.property}必须是有效的日期时间格式: YYYY-MM-DD HH:mm:ss`
                 }
             }
         })
-    }
-}
-
-/**数字转化**/
-export function TransferNumber({ value }) {
-    if (value && Array.isArray(value)) {
-        return value
-    } else if (value && typeof value === 'string') {
-        return value.split(',').map(k => Number(k)) || []
-    } else {
-        return []
     }
 }

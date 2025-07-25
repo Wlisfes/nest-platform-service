@@ -12,7 +12,9 @@
         "baseUrl": "./",
         "paths": {
             "@/*": ["src/*"],
-            "@web-account-service/*": ["apps/web-account-service/src/*"]
+            "@web-document-service/*": ["apps/web-document-service/src/*"],
+            "@web-system-service/*": ["apps/web-system-service/src/*"],
+            "@web-common-service/*": ["apps/web-common-service/src/*"]
         },
         "types": ["node"],
         "incremental": true,
