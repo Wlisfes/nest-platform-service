@@ -9,13 +9,6 @@
         "target": "ES2021",
         "sourceMap": true,
         "outDir": "./dist",
-        "baseUrl": "./",
-        "paths": {
-            "@/*": ["src/*"],
-            "@web-document-service/*": ["apps/web-document-service/src/*"],
-            "@web-system-service/*": ["apps/web-system-service/src/*"],
-            "@web-common-service/*": ["apps/web-common-service/src/*"]
-        },
         "types": ["node"],
         "incremental": true,
         "skipLibCheck": true,
@@ -23,6 +16,14 @@
         "noImplicitAny": false,
         "strictBindCallApply": false,
         "forceConsistentCasingInFileNames": false,
-        "noFallthroughCasesInSwitch": false
-    }
+        "noFallthroughCasesInSwitch": false,
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["src/*"],
+            "@web-document-service/*": ["apps/web-document-service/src/*"],
+            "@web-system-service/*": ["apps/web-system-service/src/*"],
+            "@web-common-service/*": ["apps/web-common-service/src/*"]
+        }
+    },
+    "exclude": ["dist", "node_modules"]
 }
