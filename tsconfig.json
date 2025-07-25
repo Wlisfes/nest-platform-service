@@ -25,5 +25,6 @@
             "@web-common-service/*": ["apps/web-common-service/src/*"]
         }
     },
+    "include": ["src/**/*", "./env.d.ts"],
     "exclude": ["dist", "node_modules"]
 }
