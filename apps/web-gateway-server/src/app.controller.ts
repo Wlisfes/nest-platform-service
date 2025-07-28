@@ -1,8 +1,9 @@
-import { Controller, Get, Redirect } from '@nestjs/common'
+import { Controller, Get, Response } from '@nestjs/common'
 
 @Controller()
 export class AppController {
     @Get('/')
-    @Redirect('http://localhost:3000/doc.html', 302)
-    public async httpBaseRedirect() {}
+    public async httpBaseRedirect(@Response() response) {
+        return response.redirect(301, `http://localhost:${process.env.NODE_WEB_GATEWAY_PORT}/doc.html`)
+    }
 }

@@ -29,7 +29,7 @@ declare namespace NodeJS {
         /**环境标识**/
         NODE_ENV: 'development' | 'production'
         /**网关服务端口号**/
-        NODE_WEB_MAIN_SSR_PORT: number
+        NODE_WEB_GATEWAY_PORT: number
         /**管理端API服务端口号**/
         NODE_WEB_WINDOWS_API_PORT: number
         /**客户端API服务端口号**/

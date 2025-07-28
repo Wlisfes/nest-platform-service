@@ -7,10 +7,10 @@
     "license": "UNLICENSED",
     "scripts": {
         "install": "yarn install --ignore-scripts",
-        "dev": "nest start --watch",
-        "dev:web-gateway-server": "nest start --watch web-gateway-server",
-        "build:web-gateway-server": "nest build web-gateway-server",
-        "start:web-gateway-server": "node dist/apps/web-gateway-server/main"
+        "dev": "npm run dev:web-gateway-server",
+        "dev:web-gateway-server": "cross-env NODE_ENV=development nest start --watch web-gateway-server",
+        "build:web-gateway-server": "cross-env NODE_ENV=production nest build web-gateway-server",
+        "start:web-gateway-server": "cross-env NODE_ENV=production node dist/apps/web-gateway-server/main"
     },
     "dependencies": {
         "@faker-js/faker": "^8.4.1",
@@ -36,6 +36,7 @@
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.1",
         "cookie-parser": "^1.4.6",
+        "cross-env": "^6.0.3",
         "dayjs": "^1.11.10",
         "express-useragent": "^1.0.15",
         "handlebars": "^4.7.8",
