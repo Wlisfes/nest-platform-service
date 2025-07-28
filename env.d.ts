@@ -1,7 +1,5 @@
-declare type Key = string | number | symbol
-declare type Schema<K extends Key, T = any> = Record<K, T>
 /**通用对象**/
-declare type Omix<T = Schema> = T & Schema
+declare type Omix<T = Record<string, any>> = T & Record<string, any>
 
 /**OmixResult输出类型**/
 declare interface OmixResult<T> extends Omix {

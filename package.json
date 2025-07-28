@@ -8,15 +8,9 @@
     "scripts": {
         "install": "yarn install --ignore-scripts",
         "dev": "nest start --watch",
-        "dev:web-document-service": "nest start --watch web-document-service",
-        "build:web-document-service": "nest build web-document-service",
-        "start:web-document-service": "node dist/apps/web-document-service/main",
-        "dev:web-common-service": "nest start --watch web-common-service",
-        "build:web-common-service": "nest build web-common-service",
-        "start:web-common-service": "node dist/apps/web-common-service/main",
-        "dev:web-system-service": "nest start --watch web-system-service",
-        "build:web-system-service": "nest build web-system-service",
-        "start:web-system-service": "node dist/apps/web-system-service/main"
+        "dev:web-gateway-server": "nest start --watch web-gateway-server",
+        "build:web-gateway-server": "nest build web-gateway-server",
+        "start:web-gateway-server": "node dist/apps/web-gateway-server/main"
     },
     "dependencies": {
         "@faker-js/faker": "^8.4.1",
