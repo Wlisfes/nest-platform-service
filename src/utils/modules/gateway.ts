@@ -1,11 +1,11 @@
 import { knife4jSetup } from 'nest-knife4j'
 import { createProxyMiddleware } from 'http-proxy-middleware'
+import { cloneDeep } from 'lodash'
 
 /**
  * 获取网关文档服务列表
  */
-export function fetchGatewayOptions() {
-    const options = { swaggerVersion: '1.0.0', url: `/api/swagger-json`, location: `/api/swagger` }
+export async function fetchGatewayOptions() {
     return [
         {
             name: 'web-windows-server',
@@ -17,7 +17,13 @@ export function fetchGatewayOptions() {
             prefix: '/api/client',
             baseUrl: `http://localhost:${process.env.NODE_WEB_CLIENT_API_PORT}`
         }
-    ].map(item => Object.assign(options, item))
+    ].map(item => {
+        return Object.assign(item, {
+            swaggerVersion: '1.0.0',
+            url: `${item.baseUrl}/api/swagger-json`,
+            location: `${item.baseUrl}/api/swagger`
+        })
+    })
 }
 
 /**
@@ -25,12 +31,17 @@ export function fetchGatewayOptions() {
  * @param app 服务实例
  */
 export async function setupProxyMiddleware(app) {
-    const options = fetchGatewayOptions()
-    options.forEach(item => {
-        app.use(
-            item.prefix,
-            createProxyMiddleware({ target: item.baseUrl, changeOrigin: true, pathRewrite: path => `${item.prefix}${path}` })
-        )
+    return await fetchGatewayOptions().then(async data => {
+        data.forEach(item => {
+            app.use(
+                item.prefix,
+                createProxyMiddleware({
+                    target: item.baseUrl,
+                    changeOrigin: true,
+                    pathRewrite: path => `${item.prefix}${path}`
+                })
+            )
+        })
+        return await knife4jSetup(app, data)
     })
-    return await knife4jSetup(app, options)
 }

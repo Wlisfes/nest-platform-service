@@ -22,6 +22,15 @@
             "compilerOptions": {
                 "tsConfigPath": "apps/web-gateway-server/tsconfig.app.json"
             }
+        },
+        "web-windows-server": {
+            "type": "application",
+            "root": "apps/web-windows-server",
+            "entryFile": "main",
+            "sourceRoot": "apps/web-windows-server/src",
+            "compilerOptions": {
+                "tsConfigPath": "apps/web-windows-server/tsconfig.app.json"
+            }
         }
     }
 }
