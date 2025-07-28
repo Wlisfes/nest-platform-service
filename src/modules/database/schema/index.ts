@@ -1,0 +1,5 @@
+export * from '@/modules/database/schema/windows/tb_windows_account'
+export * from '@/modules/database/schema/windows/tb_windows_dept'
+export * from '@/modules/database/schema/windows/tb_windows_kines'
+export * from '@/modules/database/schema/windows/tb_windows_resource'
+export * from '@/modules/database/schema/windows/tb_windows_role'

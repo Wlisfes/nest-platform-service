@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common'
-import { Logger } from '@server/modules/logger/logger.service'
-import { moment } from '@server/utils'
+import { Logger } from '@/modules/logger/logger.service'
+import { moment } from '@/utils'
 
 @Catch()
 export class HttpExceptionFilter extends Logger implements ExceptionFilter {

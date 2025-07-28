@@ -27,7 +27,8 @@
         "baseUrl": "./",
         "paths": {
             "@/*": ["./src/*"],
-            "@web-gateway-server/*": ["apps/web-gateway-server/src/*"]
+            "@web-gateway-server/*": ["apps/web-gateway-server/src/*"],
+            "@web-windows-server/*": ["apps/web-windows-server/src/*"]
         }
     },
     "exclude": ["dist", "node_modules"]

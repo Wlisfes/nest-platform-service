@@ -3,7 +3,7 @@ import { ApiOperation, ApiConsumes, ApiProduces, ApiResponse, ApiBearerAuth } fr
 import { applyDecorators, Type } from '@nestjs/common'
 import { Throttle, SkipThrottle } from '@nestjs/throttler'
 import { isEmpty } from 'class-validator'
-import { AuthClientOptions, AuthWindowsOptions, ThrottlerOptions, ApiClientGuardReflector, ApiWindowsGuardReflector } from '@server/guard'
+import { AuthClientOptions, AuthWindowsOptions, ThrottlerOptions, ApiClientGuardReflector, ApiWindowsGuardReflector } from '@/guard'
 
 export interface ApiDecoratorOptions {
     /**接口描述**/

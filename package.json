@@ -10,7 +10,11 @@
         "dev": "npm run dev:web-gateway-server",
         "dev:web-gateway-server": "cross-env NODE_ENV=development nest start --watch web-gateway-server",
         "build:web-gateway-server": "cross-env NODE_ENV=production nest build web-gateway-server",
-        "start:web-gateway-server": "cross-env NODE_ENV=production node dist/apps/web-gateway-server/main"
+        "start:web-gateway-server": "cross-env NODE_ENV=production node dist/apps/web-gateway-server/main",
+        "------WEB管理端API执行------": "WEB管理端API运行、打包执行指令---------------------------------",
+        "dev:web-windows-server": "cross-env NODE_ENV=development nest start --watch web-windows-server",
+        "start:web-windows-server": "cross-env NODE_ENV=production node dist/apps/web-windows-server/main.js",
+        "build:web-windows-server": "cross-env NODE_ENV=production nest build web-windows-server"
     },
     "dependencies": {
         "@faker-js/faker": "^8.4.1",
