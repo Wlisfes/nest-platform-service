@@ -1,11 +1,12 @@
 import { CanActivate, SetMetadata, ExecutionContext, Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { isObject, isBoolean, isNotEmpty } from 'class-validator'
 import { JwtService } from '@/modules/jwt/jwt.service'
-import { OmixRequest } from '@/interface'
 import { Reflector } from '@nestjs/core'
+import { OmixRequest } from '@/interface'
 
 export interface AuthWindowsOptions {
     /**验证失败是否继续执行**/
-    next?: boolean
+    next: boolean
 }
 
 @Injectable()
@@ -13,12 +14,15 @@ export class AuthWindowsGuard implements CanActivate {
     constructor(private readonly reflector: Reflector, private readonly jwtService: JwtService) {}
 
     /**默认配置**/
-    public async fetchCtxOptions(context: ExecutionContext): Promise<AuthWindowsOptions> {
+    public async fetchCtxOptions(context: ExecutionContext, request: OmixRequest) {
+        const token = (request.headers.authorization ?? '').replace(/^Bearer\s+/i, '')
         const node = this.reflector.get<boolean | AuthWindowsOptions>(`APP_AUTH_WINDOWS_CONTEXT`, context.getHandler())
-        if (typeof node === 'boolean') {
-            return { next: false }
+        if (isNotEmpty(node) && isObject(node)) {
+            return { check: true, next: node.next, token }
+        } else if (isNotEmpty(node) && isBoolean(node)) {
+            return { check: true, next: false, token }
         }
-        return node
+        return { check: false, next: false, token }
     }
 
     /**token解析**/
@@ -36,10 +40,10 @@ export class AuthWindowsGuard implements CanActivate {
     /**登录拦截入口**/
     public async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<OmixRequest>()
-        const options = await this.fetchCtxOptions(context)
-        const token = (request.headers.authorization ?? '').replace(/^Bearer\s+/i, '')
-        await new Promise(resolve => setTimeout(resolve, 100))
-        return await this.fetchGuardHandler(request, token, options).then(() => {
+        return await this.fetchCtxOptions(context, request).then(async data => {
+            if (data.check) {
+                await this.fetchGuardHandler(request, data.token, data)
+            }
             return true
         })
     }

@@ -2,7 +2,7 @@ import { ApiOperationOptions, ApiResponseOptions, getSchemaPath, ApiExtraModels 
 import { ApiOperation, ApiConsumes, ApiProduces, ApiResponse, ApiBearerAuth } from '@nestjs/swagger'
 import { applyDecorators, Type } from '@nestjs/common'
 import { Throttle, SkipThrottle } from '@nestjs/throttler'
-import { isEmpty } from 'class-validator'
+import { isEmpty, isNotEmpty } from 'class-validator'
 import { AuthClientOptions, AuthWindowsOptions, ThrottlerOptions, ApiClientGuardReflector, ApiWindowsGuardReflector } from '@/guard'
 
 export interface ApiDecoratorOptions {
@@ -68,9 +68,9 @@ export function ApiServiceDecorator(mthodRequest: MethodDecorator, options: Part
     }
 
     /**开启客户端登录校验**/
-    if (options.clinet) {
+    if (options.clinet && isNotEmpty(options.clinet)) {
         decorators.push(ApiBearerAuth('authorization'), ApiClientGuardReflector(options.clinet))
-    } else if (options.windows) {
+    } else if (options.windows && isNotEmpty(options.windows)) {
         /**开启管理端登录校验**/
         decorators.push(ApiBearerAuth('authorization'), ApiWindowsGuardReflector(options.windows))
     }
