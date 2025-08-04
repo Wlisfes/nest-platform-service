@@ -10,10 +10,10 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
     const originalMethod = descriptor.value
     descriptor.value = function (...args: any[]) {
         this.deplayName = [className, methodName].join(':')
-        // this.logger = new WinstonService(this.logger, args[0], {
-        //     date: args[0]?.headers?.datetime,
-        //     deplayName: this.deplayName
-        // })
+        this.logger = new WinstonService(this.winstonLogger, args[0], {
+            datetime: args[0]?.headers?.datetime,
+            deplayName: this.deplayName
+        })
         return originalMethod.apply(this, args)
     }
 }
@@ -23,15 +23,17 @@ export class WinstonService {
     private logger: WinstonLogger
     private request: OmixRequest
     private options: Omix
-    private date: Date
+    private date: Date = new Date()
     constructor(logger: WinstonLogger, request: OmixRequest, options: Omix) {
         this.logger = logger
         this.request = request
         this.options = options
-        this.date = new Date(options.date ? Number(options.date) : undefined)
+        if (options.datetime) {
+            this.date = new Date(Number(options.datetime))
+        }
     }
     /**日志组合输出**/
-    private output(log: Omix) {
+    private output(log: any) {
         return { duration: `${Date.now() - this.date.getTime()}ms`, logId: this.request.headers.logId, log: log }
     }
     /**时间重置**/
@@ -39,11 +41,11 @@ export class WinstonService {
         this.date = new Date()
         return this
     }
-    public info(log: Omix) {
+    public info(log: any) {
         this.logger.info(this.options.deplayName, this.output(log))
         return this
     }
-    public error(log: Omix) {
+    public error(log: any) {
         this.logger.error(this.options.deplayName, this.output(log))
         return this
     }
@@ -52,11 +54,12 @@ export class WinstonService {
 @Injectable()
 export class Logger {
     public readonly deplayName: string
-    @Inject(WINSTON_MODULE_PROVIDER) protected readonly logger: WinstonLogger
+    protected readonly logger: WinstonService
+    @Inject(WINSTON_MODULE_PROVIDER) protected readonly winstonLogger: WinstonLogger
 
     /**创建日志实例方法**/
     public async fetchServiceTransaction(request: OmixRequest, opts: Omix<{ deplayName: string }>) {
-        return new WinstonService(this.logger, request, opts)
+        return new WinstonService(this.winstonLogger, request, opts)
     }
 
     /**日志方法名称组合**/
