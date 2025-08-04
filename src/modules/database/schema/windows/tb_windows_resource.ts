@@ -11,7 +11,7 @@ export class WindowsResource extends DataBaseByAdapter {
     @ApiProperty({ description: '菜单权限标识' })
     @IsNotEmpty({ message: '菜单权限标识必填' })
     @Length(0, 128, { message: '菜单权限标识不能超过128个字符' })
-    @Column({ comment: '菜单权限标识', length: 128, nullable: true })
+    @Column({ comment: '菜单权限标识', length: 128, nullable: false })
     key: string
 
     @ApiProperty({ description: '菜单名称', example: '工作台' })
@@ -60,7 +60,10 @@ export class WindowsResource extends DataBaseByAdapter {
     @Column({ comment: '排序号', default: 0, nullable: false })
     sort: number
 
-    @ApiProperty({ description: '菜单状态', enum: fetchProperty(COMMON_WINDOWS_RESOUREC.status) })
+    @ApiProperty({
+        description: fetchComment('菜单状态', COMMON_WINDOWS_RESOUREC.status),
+        enum: fetchProperty(COMMON_WINDOWS_RESOUREC.status)
+    })
     @IsNotEmpty({ message: '菜单状态必填' })
     @Length(0, 32, { message: '菜单状态不能超过32个字符' })
     @IsEnum(Object.keys(COMMON_WINDOWS_RESOUREC.status), { message: '菜单状态格式错误' })

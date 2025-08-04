@@ -27,7 +27,7 @@ export interface ApiDecoratorOptions {
 }
 
 export function ApiServiceDecorator(mthodRequest: MethodDecorator, options: Partial<ApiDecoratorOptions> = {}) {
-    const consumes = options.consumes ?? ['application/json']
+    const consumes = options.consumes ?? ['application/json', 'application/x-www-form-urlencoded']
     const produces = options.produces ?? ['application/json', 'application/xml']
     const decorators: Array<any> = [mthodRequest, ApiOperation(options.operation), ApiConsumes(...consumes), ApiProduces(...produces)]
     if (options.skipThrottle) {

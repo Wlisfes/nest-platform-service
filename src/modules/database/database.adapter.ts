@@ -4,9 +4,9 @@ import { snowflakeId } from 'snowflake-id-maker'
 import { isEmpty, IsNotEmpty } from 'class-validator'
 import { moment } from '@/utils'
 
-/**枚举文案转换**/
+/**枚举转换**/
 export function fetchProperty<T>(data: Omix<T>) {
-    return Object.values(data).map(item => `</br> ${item.name}：${item.value}`)
+    return Object.values(data).map(item => item.value)
 }
 
 /**枚举描述转换**/ //prettier-ignore
@@ -75,6 +75,6 @@ export abstract class DataBaseByAdapter extends DataBaseAdapter {
 
     @ApiProperty({ description: '更新账号UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '更新账号UID必填' })
-    @Column({ name: 'modify_by', comment: '更新账号UID', length: 19, nullable: true })
+    @Column({ name: 'modify_by', comment: '更新账号UID', length: 19, nullable: false })
     modifyBy: string
 }
