@@ -13,7 +13,7 @@ export class HttpExceptionFilter extends Logger implements ExceptionFilter {
             deplayName: HttpExceptionFilter.name
         })
         const Result: Omix = {
-            context: request.headers.context,
+            logId: request.headers.logId,
             timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             url: request.url,
             method: request.method,

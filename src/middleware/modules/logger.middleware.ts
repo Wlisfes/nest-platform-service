@@ -10,14 +10,14 @@ export class LoggerMiddleware implements NestMiddleware {
 
     async use(request: Omix<Request>, response: Response, next: NextFunction) {
         const date = Date.now()
-        const context = await fetchIntNumber()
+        const logId = await fetchIntNumber()
         request.ipv4 = fetchIPClient(request)
         request.headers.datetime = date.toString()
-        request.headers.context = context.toString()
+        request.headers.logId = logId.toString()
         response.on('finish', () => {
             /**结束日志 endTime**/
             this.logger.info(LoggerMiddleware.name, {
-                context: context.toString(),
+                logId: logId.toString(),
                 duration: `${Date.now() - date}ms`,
                 log: {
                     url: request.originalUrl,

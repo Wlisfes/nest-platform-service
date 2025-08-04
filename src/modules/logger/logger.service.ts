@@ -10,10 +10,10 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
     const originalMethod = descriptor.value
     descriptor.value = function (...args: any[]) {
         this.deplayName = [className, methodName].join(':')
-        this.logger = new WinstonService(this.logger, args[0], {
-            date: args[0]?.headers?.datetime,
-            deplayName: this.deplayName
-        })
+        // this.logger = new WinstonService(this.logger, args[0], {
+        //     date: args[0]?.headers?.datetime,
+        //     deplayName: this.deplayName
+        // })
         return originalMethod.apply(this, args)
     }
 }
@@ -32,7 +32,7 @@ export class WinstonService {
     }
     /**日志组合输出**/
     private output(log: Omix) {
-        return { duration: `${Date.now() - this.date.getTime()}ms`, context: this.request.headers.context, log: log }
+        return { duration: `${Date.now() - this.date.getTime()}ms`, logId: this.request.headers.logId, log: log }
     }
     /**时间重置**/
     public reset() {
