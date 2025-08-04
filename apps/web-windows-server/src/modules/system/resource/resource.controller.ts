@@ -12,7 +12,9 @@ export class ResourceController {
         operation: { summary: '新增菜单资源' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpBaseSystemCreateResource(@Request() request: OmixRequest, @Body() body: windows.CreateResourceOptions) {}
+    public async httpBaseSystemCreateResource(@Request() request: OmixRequest, @Body() body: windows.CreateResourceOptions) {
+        return await this.resourceService.httpBaseSystemCreateResource(request, body)
+    }
 
     @ApiServiceDecorator(Post('/update'), {
         operation: { summary: '编辑菜单资源' },

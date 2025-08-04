@@ -3,7 +3,7 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface'
 import { isEmpty, isNotEmpty } from 'class-validator'
-import { faker } from '@/utils'
+import { faker, fetchHandler } from '@/utils'
 import * as schema from '@/modules/database/schema'
 import * as enums from '@/modules/database/enums'
 import * as windows from '@web-windows-server/interface'
@@ -18,9 +18,28 @@ export class ResourceService extends Logger {
     public async httpBaseSystemCreateResource(request: OmixRequest, body: windows.CreateResourceOptions) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
+            await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
+                qb.where(`t.key = :key OR t.router = :router`, { key: body.key, router: body.router })
+                await qb.getOne().then(async node => {
+                    if (isNotEmpty(node) && node.key == body.key) {
+                        throw new HttpException(`key:${body.key} 已存在`, HttpStatus.BAD_REQUEST)
+                    } else if (isNotEmpty(node) && node.router === body.router) {
+                        throw new HttpException(`router:${body.router} 已存在`, HttpStatus.BAD_REQUEST)
+                    }
+                    return node
+                })
+            })
+            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.WindowsResource), {
+                request,
+                deplayName: this.deplayName,
+                body: Object.assign(body, {})
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '新增成功' })
+            })
         } catch (err) {
             this.logger.error(err)
-            throw new HttpException(err.message, err.status, err.options)
+            // throw new HttpException(err.message, err.status, err.options)
         } finally {
             await ctx.release()
         }
