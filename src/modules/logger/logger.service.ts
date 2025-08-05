@@ -9,11 +9,24 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
     const methodName = propertyName
     const originalMethod = descriptor.value
     descriptor.value = function (...args: any[]) {
+        const request = args[0]
+        // const logger = this.logger
         this.deplayName = [className, methodName].join(':')
-        this.logger = new WinstonService(this.winstonLogger, args[0], {
+        this.logger = new WinstonService(this.logger, args[0], {
             datetime: args[0]?.headers?.datetime,
             deplayName: this.deplayName
         })
+
+        // if (request && request.headers) {
+        //     this.logger.error = function (err) {
+        //         logger.error(err)
+        //         // logger.error({
+        //         //     duration: `${Date.now() - request.headers.datetime}ms`,
+        //         //     logId: request.headers.logId,
+        //         //     log: err
+        //         // })
+        //     }
+        // }
         return originalMethod.apply(this, args)
     }
 }
@@ -46,6 +59,7 @@ export class WinstonService {
         return this
     }
     public error(log: any) {
+        // console.log(log)
         this.logger.error(this.options.deplayName, this.output(log))
         return this
     }
@@ -53,13 +67,12 @@ export class WinstonService {
 
 @Injectable()
 export class Logger {
-    public readonly deplayName: string
-    protected readonly logger: WinstonService
-    @Inject(WINSTON_MODULE_PROVIDER) protected readonly winstonLogger: WinstonLogger
+    protected readonly deplayName: string
+    @Inject(WINSTON_MODULE_PROVIDER) protected readonly logger: WinstonLogger
 
     /**创建日志实例方法**/
     public async fetchServiceTransaction(request: OmixRequest, opts: Omix<{ deplayName: string }>) {
-        return new WinstonService(this.winstonLogger, request, opts)
+        return new WinstonService(this.logger, request, opts)
     }
 
     /**日志方法名称组合**/

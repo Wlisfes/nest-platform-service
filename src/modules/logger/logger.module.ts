@@ -79,6 +79,8 @@ export function fetchTransports(data: Omix) {
                                 })
                             }
 
+                            // console.log(data)
+
                             /**异常错误日志**/
                             if (data.log instanceof Error) {
                                 console[data.level](`${module}  ${url}  ${duration}`, data.log)

@@ -15,6 +15,7 @@ export class ResourceService extends Logger {
     }
 
     /**新增菜单资源**/
+    @AutoDescriptor
     public async httpBaseSystemCreateResource(request: OmixRequest, body: windows.CreateResourceOptions) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
