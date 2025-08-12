@@ -40,7 +40,7 @@ export class ResourceService extends Logger {
             })
         } catch (err) {
             this.logger.error(err)
-            // throw new HttpException(err.message, err.status, err.options)
+            throw new HttpException(err.message, err.status, err.options)
         } finally {
             await ctx.release()
         }
