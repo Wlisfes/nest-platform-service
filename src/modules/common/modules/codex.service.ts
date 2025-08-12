@@ -19,16 +19,16 @@ export class CodexService extends Logger {
      */
     @AutoDescriptor
     public async httpBaseCommonCodexWrite(request: env.OmixRequest, response: env.OmixResponse, options: env.CodexWriteOptions) {
-        const logger = await this.fetchServiceTransaction(request, { deplayName: this.fetchDeplayName(this.deplayName) })
-        return await this.fetchBaseCommonCodexCreate(options.body).then(async ({ sid, text, data }) => {
-            const key = await this.redisService.fetchCompose(options.keyName, { sid })
+        // const logger = await this.fetchServiceTransaction(request, { deplayName: this.fetchDeplayName(this.deplayName) })
+        return await this.fetchBaseCommonCodexCreate(request, options.body).then(async ({ sid, text, data }) => {
+            const key = await this.redisService.fetchCompose(request, options.keyName, { sid })
             const { seconds } = await this.redisService.setStore(request, {
                 deplayName: this.fetchDeplayName(this.deplayName),
                 key,
                 data: text,
                 seconds: 300
             })
-            logger.info({ message: '图形验证码发送成功', seconds, key, data: text })
+            this.logger.info({ message: '图形验证码发送成功', seconds, key, data: text })
             await response.cookie(options.cookieName, sid, { httpOnly: true, maxAge: 300 * 1000 })
             await response.type('svg')
             return await response.send(data)
@@ -40,7 +40,7 @@ export class CodexService extends Logger {
      * @param body 基础配置
      */
     @AutoDescriptor
-    public async fetchBaseCommonCodexCreate(body: env.CodexCreateOptions) {
+    public async fetchBaseCommonCodexCreate(request: env.OmixRequest, body: env.CodexCreateOptions) {
         return await fetchIntNumber().then(async sid => {
             const { text, data } = create({
                 charPreset: `ABCDEFGHJKLMNPQRSTUVWXYZ123456789`,
