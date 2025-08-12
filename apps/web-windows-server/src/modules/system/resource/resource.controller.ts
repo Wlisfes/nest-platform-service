@@ -9,6 +9,7 @@ export class ResourceController {
     constructor(private readonly resourceService: ResourceService) {}
 
     @ApiServiceDecorator(Post('/create'), {
+        windows: true,
         operation: { summary: '新增菜单资源' },
         response: { status: 200, description: 'OK' }
     })
@@ -17,24 +18,28 @@ export class ResourceController {
     }
 
     @ApiServiceDecorator(Post('/update'), {
+        windows: true,
         operation: { summary: '编辑菜单资源' },
         response: { status: 200, description: 'OK' }
     })
     public async httpBaseSystemUpdateResource(@Request() request: OmixRequest, @Body() body: windows.UpdateResourceOptions) {}
 
     @ApiServiceDecorator(Post('/column'), {
+        windows: true,
         operation: { summary: '菜单资源列表' },
         response: { status: 200, description: 'OK' }
     })
     public async httpBaseSystemColumnResource(@Request() request: OmixRequest, @Body() body: windows.ColumnResourceOptions) {}
 
     @ApiServiceDecorator(Post('/switch'), {
+        windows: true,
         operation: { summary: '菜单资源状态变更' },
         response: { status: 200, description: 'OK' }
     })
     public async httpBaseSystemSwitchResource(@Request() request: OmixRequest, @Body() body: windows.SwitchResourceOptions) {}
 
     @ApiServiceDecorator(Post('/delete'), {
+        windows: true,
         operation: { summary: '删除菜单资源' },
         response: { status: 200, description: 'OK' }
     })

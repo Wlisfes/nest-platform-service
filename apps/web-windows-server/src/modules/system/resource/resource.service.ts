@@ -30,10 +30,18 @@ export class ResourceService extends Logger {
                     return node
                 })
             })
+            if (isNotEmpty(body.pid)) {
+                await this.database.fetchConnectNotNull(this.windows.resource, {
+                    request,
+                    comment: `验证PID是否存在`,
+                    message: 'pid不存在',
+                    dispatch: { where: { keyId: body.pid } }
+                })
+            }
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
                 deplayName: this.deplayName,
-                body: Object.assign(body, {})
+                body: Object.assign(body, { createBy: request.user.uid, modifyBy: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '新增成功' })
