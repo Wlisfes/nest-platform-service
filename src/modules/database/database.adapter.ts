@@ -75,6 +75,6 @@ export abstract class DataBaseByAdapter extends DataBaseAdapter {
 
     @ApiProperty({ description: '更新账号UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '更新账号UID必填' })
-    @Column({ name: 'modify_by', comment: '更新账号UID', length: 19, nullable: false })
+    @Column({ name: 'modify_by', comment: '更新账号UID', length: 19, nullable: true })
     modifyBy: string
 }

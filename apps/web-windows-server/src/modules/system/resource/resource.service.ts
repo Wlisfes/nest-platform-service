@@ -33,7 +33,6 @@ export class ResourceService extends Logger {
             if (isNotEmpty(body.pid)) {
                 await this.database.fetchConnectNotNull(this.windows.resource, {
                     request,
-                    comment: `验证PID是否存在`,
                     message: 'pid不存在',
                     dispatch: { where: { keyId: body.pid } }
                 })
@@ -41,7 +40,7 @@ export class ResourceService extends Logger {
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
                 deplayName: this.deplayName,
-                body: Object.assign(body, { createBy: request.user.uid, modifyBy: request.user.uid })
+                body: Object.assign(body, { createBy: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '新增成功' })
@@ -58,6 +57,11 @@ export class ResourceService extends Logger {
     public async httpBaseSystemUpdateResource(request: OmixRequest, body: windows.UpdateResourceOptions) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
+            await this.database.fetchConnectNotNull(this.windows.resource, {
+                request,
+                message: 'keyId不存在',
+                dispatch: { where: { keyId: body.keyId } }
+            })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)

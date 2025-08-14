@@ -1,3 +1,4 @@
+import { HttpExceptionOptions } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { OmixRequest } from '@/interface'
 
@@ -15,6 +16,14 @@ export interface BaseOptions extends Omix {
     deplayName?: string
 }
 
+/**自定义校验配置**/
+export interface BaseTransformOptions extends Omix {
+    /**是否抛出异常**/
+    where: boolean
+    /**异常信息**/
+    form: Omix<{ message: string; code?: number; cause?: Omix<HttpExceptionOptions> }>
+}
+
 /**通用查询配置**/
 export interface BaseCommonOption<T> extends BaseOptions {
     /**异常提示文案**/
@@ -26,7 +35,7 @@ export interface BaseCommonOption<T> extends BaseOptions {
     /**额外异常数据**/
     cause?: Omix
     /**自定义转换验证**/
-    transform?: (data: T) => boolean | Promise<boolean>
+    transform?: (data: T, node: BaseCommonOption<T>) => BaseTransformOptions | Promise<BaseTransformOptions>
 }
 
 /**创建数据模型**/

@@ -55,7 +55,8 @@ export class DataBaseService extends Logger {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
             }
             if (data.transform) {
-                return await fetchCatchWherer(await data.transform(node), data).then(async () => {
+                const { where, form } = await data.transform(node, data)
+                return await fetchCatchWherer(where, form).then(async () => {
                     return await this.fetchResolver(node)
                 })
             } else {
@@ -79,7 +80,8 @@ export class DataBaseService extends Logger {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
             }
             if (data.transform) {
-                return await fetchCatchWherer(await data.transform(node), data).then(async () => {
+                const { where, form } = await data.transform(node, data)
+                return await fetchCatchWherer(where, form).then(async () => {
                     return await this.fetchResolver(node)
                 })
             } else {
