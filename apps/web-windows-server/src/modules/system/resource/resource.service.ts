@@ -30,20 +30,19 @@ export class ResourceService extends Logger {
                     return node
                 })
             })
-            if (isNotEmpty(body.pid)) {
-                await this.database.fetchConnectNotNull(this.windows.resource, {
-                    request,
-                    message: 'pid不存在',
-                    dispatch: { where: { keyId: body.pid } }
-                })
-            }
+            await this.database.fetchConnectNotNull(this.windows.resource, {
+                next: isNotEmpty(body.pid),
+                request,
+                message: 'pid不存在',
+                dispatch: { where: { keyId: body.pid } }
+            })
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
                 deplayName: this.deplayName,
                 body: Object.assign(body, { createBy: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '新增成功' })
+                return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             this.logger.error(err)
@@ -54,6 +53,7 @@ export class ResourceService extends Logger {
     }
 
     /**编辑菜单资源**/
+    @AutoDescriptor
     public async httpBaseSystemUpdateResource(request: OmixRequest, body: windows.UpdateResourceOptions) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
@@ -61,6 +61,31 @@ export class ResourceService extends Logger {
                 request,
                 message: 'keyId不存在',
                 dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
+                qb.where(`t.key = :key OR t.router = :router`, { key: body.key, router: body.router })
+                await qb.getOne().then(async node => {
+                    if (isNotEmpty(node) && node.keyId !== body.keyId && node.key == body.key) {
+                        throw new HttpException(`key:${body.key} 已存在`, HttpStatus.BAD_REQUEST)
+                    } else if (isNotEmpty(node) && node.keyId !== body.keyId && node.router === body.router) {
+                        throw new HttpException(`router:${body.router} 已存在`, HttpStatus.BAD_REQUEST)
+                    }
+                    return node
+                })
+            })
+            await this.database.fetchConnectNotNull(this.windows.resource, {
+                next: isNotEmpty(body.pid),
+                request,
+                message: 'pid不存在',
+                dispatch: { where: { keyId: body.pid } }
+            })
+            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.WindowsResource), {
+                request,
+                where: { keyId: body.keyId },
+                body: Object.assign(body, { modifyBy: request.user.uid })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             this.logger.error(err)
@@ -71,12 +96,38 @@ export class ResourceService extends Logger {
     }
 
     /**菜单资源列表**/
-    public async httpBaseSystemColumnResource(request: OmixRequest, body: windows.ColumnResourceOptions) {}
+    @AutoDescriptor
+    public async httpBaseSystemColumnResource(request: OmixRequest, body: windows.ColumnResourceOptions) {
+        try {
+            return await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
+                return await qb.getMany().then(async list => {
+                    return await this.fetchResolver({ list })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 
     /**菜单资源状态变更**/
+    @AutoDescriptor
     public async httpBaseSystemSwitchResource(request: OmixRequest, body: windows.SwitchResourceOptions) {
         const ctx = await this.database.fetchConnectTransaction()
         try {
+            await this.database.fetchConnectBatchNotNull(this.windows.resource, {
+                request,
+                message: 'keyId不存在',
+                dispatch: { where: body.keys.map(keyId => ({ keyId })) }
+            })
+            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.WindowsResource), {
+                request,
+                deplayName: this.deplayName,
+                body: body.keys.map(keyId => ({ keyId, status: body.status }))
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
@@ -86,6 +137,7 @@ export class ResourceService extends Logger {
     }
 
     /**删除菜单资源**/
+    @AutoDescriptor
     public async httpBaseSystemDeleteResource(request: OmixRequest, body: windows.DeleteResourceOptions) {
         const ctx = await this.database.fetchConnectTransaction()
         try {

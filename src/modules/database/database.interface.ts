@@ -25,17 +25,27 @@ export interface BaseTransformOptions extends Omix {
 }
 
 /**通用查询配置**/
-export interface BaseCommonOption<T> extends BaseOptions {
+export interface BaseCommonOption<T, R> extends BaseOptions {
     /**异常提示文案**/
     message: string
-    /**findOne查询入参**/
-    dispatch?: Omix<Parameters<Repository<T>['findOne']>['0']>
     /**异常状态码**/
     code?: number
     /**额外异常数据**/
     cause?: Omix
     /**自定义转换验证**/
-    transform?: (data: T, node: BaseCommonOption<T>) => BaseTransformOptions | Promise<BaseTransformOptions>
+    transform?: (data: R, node: BaseCommonOption<T, R>) => BaseTransformOptions | Promise<BaseTransformOptions>
+}
+
+/**单条通用查询配置**/
+export interface BaseOneCommonOption<T> extends BaseCommonOption<T, T> {
+    /**findOne查询入参**/
+    dispatch?: Omix<Parameters<Repository<T>['findOne']>['0']>
+}
+
+/**批量通用查询配置**/
+export interface BaseBatchCommonOption<T> extends BaseCommonOption<T, Array<T>> {
+    /**find查询入参**/
+    dispatch?: Omix<Parameters<Repository<T>['find']>['0']>
 }
 
 /**创建数据模型**/

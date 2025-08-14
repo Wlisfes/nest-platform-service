@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Repository, DataSource, SelectQueryBuilder } from 'typeorm'
-import { isNotEmpty, isEmpty } from 'class-validator'
+import { isNotEmpty, isEmpty, isArray } from 'class-validator'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { fetchSelection, fetchCatchWherer } from '@/utils'
 export { ClientService, WindowsService } from '@/modules/database/database.schema'
@@ -44,7 +44,7 @@ export class DataBaseService extends Logger {
 
     /**查询数据是否存在：存在会抛出异常**/
     @AutoDescriptor
-    public async fetchConnectNull<T>(model: Repository<T>, data: env.BaseCommonOption<T>) {
+    public async fetchConnectNull<T>(model: Repository<T>, data: env.BaseOneCommonOption<T>) {
         if ([false, 'false'].includes(data.next ?? true)) {
             /**next等于false停止执行**/
             return data
@@ -69,7 +69,7 @@ export class DataBaseService extends Logger {
 
     /**查询数据是否不存在：不存在会抛出异常**/
     @AutoDescriptor
-    public async fetchConnectNotNull<T>(model: Repository<T>, data: env.BaseCommonOption<T>) {
+    public async fetchConnectNotNull<T>(model: Repository<T>, data: env.BaseOneCommonOption<T>) {
         if ([false, 'false'].includes(data.next ?? true)) {
             /**next等于false停止执行**/
             return data
@@ -89,6 +89,37 @@ export class DataBaseService extends Logger {
                     return await this.fetchResolver(node)
                 })
             }
+        })
+    }
+
+    /**批量查询数据是否不存在：不存在会抛出异常**/
+    @AutoDescriptor
+    public async fetchConnectBatchNotNull<T>(model: Repository<T>, data: env.BaseBatchCommonOption<T>) {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
+        const logger = await this.fetchServiceTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
+        return await model.find(data.dispatch).then(async list => {
+            if (data.logger ?? true) {
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch, list })
+            }
+            if (isArray(data.dispatch.where)) {
+                if (data.transform) {
+                    const { where, form } = await data.transform(list, data)
+                    return await fetchCatchWherer(where, form).then(async () => {
+                        return await this.fetchResolver(list)
+                    })
+                } else if (data.dispatch.where.length !== list.length) {
+                    data.cause = Object.assign(data.cause ?? {}, {
+                        items: data.dispatch.where.filter((item: Omix) => {
+                            return !list.some((node: Omix) => node.keyId === item.keyId)
+                        })
+                    })
+                    return await fetchCatchWherer(true, data)
+                }
+            }
+            return await this.fetchResolver(list)
         })
     }
 

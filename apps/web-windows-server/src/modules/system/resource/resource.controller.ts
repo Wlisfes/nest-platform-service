@@ -22,26 +22,34 @@ export class ResourceController {
         operation: { summary: '编辑菜单资源' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpBaseSystemUpdateResource(@Request() request: OmixRequest, @Body() body: windows.UpdateResourceOptions) {}
+    public async httpBaseSystemUpdateResource(@Request() request: OmixRequest, @Body() body: windows.UpdateResourceOptions) {
+        return await this.resourceService.httpBaseSystemUpdateResource(request, body)
+    }
 
     @ApiServiceDecorator(Post('/column'), {
         windows: true,
         operation: { summary: '菜单资源列表' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpBaseSystemColumnResource(@Request() request: OmixRequest, @Body() body: windows.ColumnResourceOptions) {}
+    public async httpBaseSystemColumnResource(@Request() request: OmixRequest, @Body() body: windows.ColumnResourceOptions) {
+        return await this.resourceService.httpBaseSystemColumnResource(request, body)
+    }
 
     @ApiServiceDecorator(Post('/switch'), {
         windows: true,
         operation: { summary: '菜单资源状态变更' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpBaseSystemSwitchResource(@Request() request: OmixRequest, @Body() body: windows.SwitchResourceOptions) {}
+    public async httpBaseSystemSwitchResource(@Request() request: OmixRequest, @Body() body: windows.SwitchResourceOptions) {
+        return await this.resourceService.httpBaseSystemSwitchResource(request, body)
+    }
 
     @ApiServiceDecorator(Post('/delete'), {
         windows: true,
         operation: { summary: '删除菜单资源' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpBaseSystemDeleteResource(@Request() request: OmixRequest, @Body() body: windows.DeleteResourceOptions) {}
+    public async httpBaseSystemDeleteResource(@Request() request: OmixRequest, @Body() body: windows.DeleteResourceOptions) {
+        return await this.resourceService.httpBaseSystemDeleteResource(request, body)
+    }
 }
