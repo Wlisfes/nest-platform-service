@@ -15,7 +15,9 @@ export class UpdateResourceOptions extends IntersectionType(
 ) {}
 
 /**菜单资源列表**/
-export class ColumnResourceOptions extends IntersectionType(PickType(OmixColumn, ['page', 'size'])) {}
+export class ColumnResourceOptions extends PartialType(
+    PickType(WindowsResource, ['name', 'keyId', 'pid', 'version', 'status', 'router', 'createBy'])
+) {}
 
 /**菜单资源状态变更**/
 export class SwitchResourceOptions extends IntersectionType(PickType(OmixPayload, ['keys']), PickType(WindowsResource, ['status'])) {}

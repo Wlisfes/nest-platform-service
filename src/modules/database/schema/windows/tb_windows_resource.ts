@@ -96,12 +96,6 @@ export class WindowsResourcePermis extends DataBaseByAdapter {
     @Column({ comment: '版本号', length: 32, default: 'v1.0.0', nullable: false })
     version: string
 
-    @ApiProperty({ description: '排序号', example: 0 })
-    @IsNumber({}, { message: '排序号必须为number' })
-    @Type(() => Number)
-    @Column({ comment: '排序号', default: 0, nullable: false })
-    sort: number
-
     @ApiProperty({ description: '按钮状态', enum: fetchProperty(COMMON_WINDOWS_RESOUREC_PERMISSIONS.status) })
     @IsNotEmpty({ message: '按钮状态必填' })
     @Length(0, 32, { message: '按钮状态不能超过32个字符' })
@@ -128,12 +122,6 @@ export class WindowsResourceApifox extends DataBaseByAdapter {
     @Length(0, 32, { message: '版本号不能超过32个字符' })
     @Column({ comment: '版本号', length: 32, default: 'v1.0.0', nullable: false })
     version: string
-
-    @ApiProperty({ description: '排序号', example: 0 })
-    @IsNumber({}, { message: '排序号必须为number' })
-    @Type(() => Number)
-    @Column({ comment: '排序号', default: 0, nullable: false })
-    sort: number
 
     @ApiProperty({ description: '接口地址' })
     @IsNotEmpty({ message: '接口地址必填' })

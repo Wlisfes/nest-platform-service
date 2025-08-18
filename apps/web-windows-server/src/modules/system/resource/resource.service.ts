@@ -3,7 +3,8 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface'
 import { isEmpty, isNotEmpty } from 'class-validator'
-import { faker, fetchHandler } from '@/utils'
+import { faker, fetchHandler, fetchTreeNodeBlock } from '@/utils'
+import * as tree from 'tree-tool'
 import * as schema from '@/modules/database/schema'
 import * as enums from '@/modules/database/enums'
 import * as windows from '@web-windows-server/interface'
@@ -100,8 +101,9 @@ export class ResourceService extends Logger {
     public async httpBaseSystemColumnResource(request: OmixRequest, body: windows.ColumnResourceOptions) {
         try {
             return await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
-                return await qb.getMany().then(async list => {
-                    return await this.fetchResolver({ list })
+                return await qb.getMany().then(async nodes => {
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
+                    return await this.fetchResolver({ list: items })
                 })
             })
         } catch (err) {
