@@ -3,13 +3,14 @@ import { isEmpty } from 'class-validator'
 import { compareSync } from 'bcryptjs'
 import { pick } from 'lodash'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService } from '@/modules/database/database.service'
+import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
 import { CodexService } from '@/modules/common/modules/codex.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
+import { fetchTreeNodeBlock } from '@/utils'
 import { OmixRequest, OmixResponse, CodexCreateOptions } from '@/interface'
-import * as enums from '@/modules/database/enums'
 import * as windows from '@web-windows-server/interface'
+import * as tree from 'tree-tool'
 
 @Injectable()
 export class AuthService extends Logger {
@@ -84,6 +85,39 @@ export class AuthService extends Logger {
     /**登录账户信息**/
     @AutoDescriptor
     public async httpAuthAccountTokenResolver(request: OmixRequest) {
+        try {
+            return await this.database.fetchConnectBuilder(this.windows.account, async qb => {
+                qb.where(`t.uid = :uid`, { uid: request.user.uid })
+                return await qb.getOne()
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**账户权限菜单**/
+    @AutoDescriptor
+    public async httpAuthAccountTokenResource(request: OmixRequest) {
+        try {
+            return await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
+                await this.database.fetchSelection(qb, [
+                    ['t', ['keyId', 'pid', 'key', 'name', 'router', 'activeRouter', 'iconName', 'check', 'sort', 'status']]
+                ])
+                return await qb.getMany().then(async nodes => {
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
+                    return await this.fetchResolver({ list: items })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**账户权限按钮**/
+    @AutoDescriptor
+    public async httpAuthAccountTokenSheet(request: OmixRequest) {
         try {
             return await this.database.fetchConnectBuilder(this.windows.account, async qb => {
                 qb.where(`t.uid = :uid`, { uid: request.user.uid })

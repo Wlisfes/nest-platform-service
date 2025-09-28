@@ -41,4 +41,22 @@ export class AuthController {
     public async httpAuthAccountTokenResolver(@Request() request: OmixRequest) {
         return await this.authService.httpAuthAccountTokenResolver(request)
     }
+
+    @ApiServiceDecorator(Get('/token/resource'), {
+        operation: { summary: '账户权限菜单' },
+        response: { status: 200, description: 'OK' },
+        windows: true
+    })
+    public async httpAuthAccountTokenResource(@Request() request: OmixRequest) {
+        return await this.authService.httpAuthAccountTokenResource(request)
+    }
+
+    @ApiServiceDecorator(Get('/token/sheet'), {
+        operation: { summary: '账户权限按钮' },
+        response: { status: 200, description: 'OK' },
+        windows: true
+    })
+    public async httpAuthAccountTokenSheet(@Request() request: OmixRequest) {
+        return await this.authService.httpAuthAccountTokenSheet(request)
+    }
 }

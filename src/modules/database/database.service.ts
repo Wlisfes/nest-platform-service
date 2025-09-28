@@ -5,6 +5,8 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { fetchSelection, fetchCatchWherer } from '@/utils'
 export { ClientService, WindowsService } from '@/modules/database/database.schema'
 import * as env from '@/modules/database/database.interface'
+export * as schema from '@/modules/database/schema'
+export * as enums from '@/modules/database/enums'
 
 @Injectable()
 export class DataBaseService extends Logger {
