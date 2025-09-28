@@ -22,7 +22,7 @@ export class WindowsService {
         /**管理端-接口权限表**/
         @InjectRepository(schema.WindowsResourceApifox) readonly resourceApifox: Repository<schema.WindowsResourceApifox>,
         /**管理端-操作按钮权限表**/
-        @InjectRepository(schema.WindowsResourcePermis) readonly resourcePermis: Repository<schema.WindowsResourcePermis>,
+        @InjectRepository(schema.WindowsResourceSheet) readonly resourceSheet: Repository<schema.WindowsResourceSheet>,
         /**管理端-角色配置表**/
         @InjectRepository(schema.WindowsRole) readonly role: Repository<schema.WindowsRole>,
         /**管理端-角色关联账号表**/

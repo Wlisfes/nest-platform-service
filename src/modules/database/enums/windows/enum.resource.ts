@@ -16,7 +16,7 @@ export const COMMON_WINDOWS_RESOUREC = {
 }
 
 /**管理端-操作按钮权限表**/
-export const COMMON_WINDOWS_RESOUREC_PERMISSIONS = {
+export const COMMON_WINDOWS_RESOUREC_SHEET = {
     /**按钮状态**/
     status: {
         enable: {
