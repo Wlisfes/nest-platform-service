@@ -17,7 +17,7 @@ export class AuthController {
     }
 
     @ApiServiceDecorator(Post('/token/login'), {
-        operation: { summary: '账号登录' },
+        operation: { summary: '账户登录' },
         response: { status: 200, description: 'OK' }
     })
     public async httpAuthAccountToken(@Request() request: OmixRequest, @Body() body: windows.AccountTokenOptions) {
@@ -31,5 +31,14 @@ export class AuthController {
     })
     public async httpAuthAccountTokenContinue(@Request() request: OmixRequest) {
         return await this.authService.httpAuthAccountTokenContinue(request)
+    }
+
+    @ApiServiceDecorator(Get('/token/resolver'), {
+        operation: { summary: '登录账户信息' },
+        response: { status: 200, description: 'OK' },
+        windows: true
+    })
+    public async httpAuthAccountTokenResolver(@Request() request: OmixRequest) {
+        return await this.authService.httpAuthAccountTokenResolver(request)
     }
 }

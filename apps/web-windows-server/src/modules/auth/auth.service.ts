@@ -39,7 +39,7 @@ export class AuthService extends Logger {
         }
     }
 
-    /**账号登录**/
+    /**账户登录**/
     @AutoDescriptor
     public async httpAuthAccountToken(request: OmixRequest, body: windows.AccountTokenOptions) {
         try {
@@ -75,6 +75,20 @@ export class AuthService extends Logger {
     public async httpAuthAccountTokenContinue(request: OmixRequest) {
         try {
             return await this.jwtService.fetchJwtSecret(pick(request.user, ['uid', 'number', 'name', 'status']))
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**登录账户信息**/
+    @AutoDescriptor
+    public async httpAuthAccountTokenResolver(request: OmixRequest) {
+        try {
+            return await this.database.fetchConnectBuilder(this.windows.account, async qb => {
+                qb.where(`t.uid = :uid`, { uid: request.user.uid })
+                return await qb.getOne()
+            })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
