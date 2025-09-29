@@ -1,6 +1,6 @@
 import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
 import { OmixColumn, OmixPayload } from '@/interface'
-import { WindowsAccount, WindowsResource } from '@/modules/database/schema'
+import { WindowsResource, WindowsResourceSheet, WindowsResourceApifox } from '@/modules/database/schema'
 
 /**新增菜单资源**/
 export class CreateResourceOptions extends IntersectionType(
@@ -9,10 +9,7 @@ export class CreateResourceOptions extends IntersectionType(
 ) {}
 
 /**编辑菜单资源**/
-export class UpdateResourceOptions extends IntersectionType(
-    PickType(WindowsResource, ['keyId', 'key', 'name', 'router', 'check', 'version', 'sort', 'status']),
-    PartialType(PickType(WindowsResource, ['activeRouter', 'iconName', 'pid']))
-) {}
+export class UpdateResourceOptions extends IntersectionType(CreateResourceOptions, PickType(WindowsResource, ['keyId'])) {}
 
 /**菜单资源列表**/
 export class ColumnResourceOptions extends PartialType(
@@ -24,3 +21,9 @@ export class SwitchResourceOptions extends IntersectionType(PickType(OmixPayload
 
 /**删除菜单资源**/
 export class DeleteResourceOptions extends PickType(OmixPayload, ['keys']) {}
+
+/**新增操作按钮**/
+export class CreateSheetOptions extends PickType(WindowsResourceSheet, ['key', 'pid', 'name', 'version', 'status']) {}
+
+/**编辑操作按钮**/
+export class UpdateSheetOptions extends IntersectionType(CreateSheetOptions, PickType(WindowsResourceSheet, ['keyId'])) {}

@@ -52,4 +52,13 @@ export class ResourceController {
     public async httpBaseSystemDeleteResource(@Request() request: OmixRequest, @Body() body: windows.DeleteResourceOptions) {
         return await this.resourceService.httpBaseSystemDeleteResource(request, body)
     }
+
+    @ApiServiceDecorator(Post('/sheet/create'), {
+        windows: true,
+        operation: { summary: '新增操作按钮' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemCreateSheet(@Request() request: OmixRequest, @Body() body: windows.CreateSheetOptions) {
+        return await this.resourceService.httpBaseSystemCreateSheet(request, body)
+    }
 }
