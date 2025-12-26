@@ -31,8 +31,8 @@ declare namespace NodeJS {
         /**网关服务端口号**/
         NODE_WEB_GATEWAY_PORT: number
         /**管理端API服务端口号**/
-        NODE_WEB_WINDOWS_API_PORT: number
+        NODE_WEB_WINDOWS_PORT: number
         /**客户端API服务端口号**/
-        NODE_WEB_CLIENT_API_PORT: number
+        NODE_WEB_CLIENT_PORT: number
     }
 }

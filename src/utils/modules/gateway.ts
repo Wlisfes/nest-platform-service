@@ -10,12 +10,12 @@ export async function fetchGatewayOptions() {
         {
             name: 'web-windows-server',
             prefix: '/api/windows',
-            baseUrl: `http://localhost:${process.env.NODE_WEB_WINDOWS_API_PORT}`
+            baseUrl: `http://localhost:${process.env.NODE_WEB_WINDOWS_PORT}`
         },
         {
             name: 'web-client-server',
             prefix: '/api/client',
-            baseUrl: `http://localhost:${process.env.NODE_WEB_CLIENT_API_PORT}`
+            baseUrl: `http://localhost:${process.env.NODE_WEB_CLIENT_PORT}`
         }
     ].map(item => {
         return Object.assign(item, {

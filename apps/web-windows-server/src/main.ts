@@ -11,12 +11,12 @@ async function bootstrap() {
     return await setupSwagger(app, {
         title: `ChatBook管理平台API服务`,
         description: `ChatBook Management Platform API Service`,
-        port: process.env.NODE_WEB_WINDOWS_API_PORT
+        port: process.env.NODE_WEB_WINDOWS_PORT
     }).then(() => {
         console.log(
             `ChatBook管理平台API服务启动[${process.env.NODE_ENV}]:`,
-            `http://localhost:${process.env.NODE_WEB_WINDOWS_API_PORT}`,
-            `http://localhost:${process.env.NODE_WEB_WINDOWS_API_PORT}/api/swagger`
+            `http://localhost:${process.env.NODE_WEB_WINDOWS_PORT}`,
+            `http://localhost:${process.env.NODE_WEB_WINDOWS_PORT}/api/swagger`
         )
     })
 }
