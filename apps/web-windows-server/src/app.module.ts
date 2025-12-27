@@ -11,10 +11,11 @@ import { RedisModule } from '@/modules/redis/redis.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { CommonModule } from '@/modules/common/common.module'
 import { AuthModule } from '@web-windows-server/modules/auth/auth.module'
+import { ChunkModule } from '@web-windows-server/modules/chunk/chunk.module'
 import { SystemModule } from '@web-windows-server/modules/system/system.module'
 
 @Module({
-    imports: [LoggerModule, ConfigModule, DatabaseModule, RedisModule, JwtModule, CommonModule, AuthModule, SystemModule],
+    imports: [LoggerModule, ConfigModule, DatabaseModule, RedisModule, JwtModule, CommonModule, AuthModule, ChunkModule, SystemModule],
     providers: [
         { provide: APP_GUARD, useClass: AuthWindowsGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
