@@ -59,6 +59,6 @@ export class ResourceController {
         response: { status: 200, description: 'OK' }
     })
     public async httpBaseSystemCreateSheet(@Request() request: OmixRequest, @Body() body: windows.CreateSheetOptions) {
-        return await this.resourceService.httpBaseSystemCreateSheet(request, body)
+        // return await this.resourceService.httpBaseSystemCreateSheet(request, body)
     }
 }

@@ -19,9 +19,8 @@ export class CodexService extends Logger {
      */
     @AutoDescriptor
     public async httpBaseCommonCodexWrite(request: env.OmixRequest, response: env.OmixResponse, options: env.CodexWriteOptions) {
-        // const logger = await this.fetchServiceTransaction(request, { deplayName: this.fetchDeplayName(this.deplayName) })
         return await this.fetchBaseCommonCodexCreate(request, options.body).then(async ({ sid, text, data }) => {
-            const key = await this.redisService.fetchCompose(request, options.keyName, { sid })
+            const key = await this.redisService.compose(request, options.keyName, { sid })
             const { seconds } = await this.redisService.setStore(request, {
                 deplayName: this.fetchDeplayName(this.deplayName),
                 key,

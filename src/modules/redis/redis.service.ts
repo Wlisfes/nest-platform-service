@@ -12,7 +12,7 @@ export class RedisService extends Logger {
 
     /**redis存储键组合方法**/
     @AutoDescriptor
-    public async fetchCompose(request: OmixRequest, ...args: Array<string | Omix>): Promise<string> {
+    public async compose(request: OmixRequest, ...args: Array<string | Omix>): Promise<string> {
         const data = args.find(item => isObject(item)) ?? {}
         const keys = [...args].filter(name => isString(name) && isNotEmpty(name)).join(':')
         const name = keys.replace(/\{(.*?)\}/g, (match, key) => (isEmpty(data[key]) ? match : data[key]))

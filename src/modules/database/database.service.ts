@@ -14,6 +14,77 @@ export class DataBaseService extends Logger {
         super()
     }
 
+    /**
+     * 条件SQL组合
+     * @param where 是否继续往下执行
+     * @param handler 执行方法
+     * @returns handler执行结果、where条件
+     */
+    public async brackets(where: boolean, handler?: Function) {
+        if (where && handler) {
+            return await handler(where)
+        }
+        return where
+    }
+
+    /**
+     * 字段查询输出组合
+     * @param qb orm实例
+     * @param keys 字段列表
+     * @returns orm实例
+     */
+    public async selection<T>(qb: SelectQueryBuilder<T>, keys: Array<[string, Array<string>]>) {
+        const fields = new Set(keys.map(([alias, names]) => fetchSelection(alias, names)).flat(Infinity)) as never as Array<string>
+        return await qb.select([...fields])
+    }
+
+    /**
+     * typeorm事务
+     * @param where 是否开启事务、默认true
+     * @returns 事务实例
+     */
+    public async transaction(where: boolean = true) {
+        const queryRunner = this.dataSource.createQueryRunner()
+        await queryRunner.connect()
+        if (where) {
+            await queryRunner.startTransaction()
+        }
+        return queryRunner
+    }
+
+    /**
+     * 自定义查询
+     * @param model 表实体
+     * @param callback 回调函数
+     * @returns 回调函数执行结果
+     */
+    public async builder<T, R>(model: Repository<T>, callback: (qb: SelectQueryBuilder<T>) => Promise<R>) {
+        const qb = model.createQueryBuilder('t')
+        return await callback(qb)
+    }
+
+    /**
+     * 创建数据模型
+     * @param model 表实体
+     * @param data 参数对象
+     * @returns 成功结果
+     */
+    @AutoDescriptor
+    public async create<T>(model: Repository<T>, data: env.BaseCreateOptions<T>): Promise<Awaited<T> & T> {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data as never as Promise<Awaited<T> & T>
+        }
+        const logger = await this.fetchServiceTransaction(data.request, { deplayName: this.fetchDeplayName(data.deplayName) })
+        const state = await model.create(data.body)
+        return await model.save(state).then(async node => {
+            if (data.logger ?? true) {
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待创建结果`, body: data.body, node })
+            }
+            return node
+        })
+    }
+
     /**条件SQL组合**/
     public async fetchBrackets(where: boolean, handler?: Function) {
         if (where && handler) {

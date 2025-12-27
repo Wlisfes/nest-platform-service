@@ -17,9 +17,9 @@ export class AccountService extends Logger {
     /**新增账号**/
     @AutoDescriptor
     public async httpBaseSystemCreateAccount(request: OmixRequest, body: windows.CreateAccountOptions) {
-        const ctx = await this.database.fetchConnectTransaction()
+        const ctx = await this.database.transaction()
         try {
-            await this.database.fetchConnectBuilder(this.windows.account, async qb => {
+            await this.database.builder(this.windows.account, async qb => {
                 qb.where(`t.number = :number OR t.phone = :phone`, { number: body.number, phone: body.phone })
                 return await qb.getOne().then(async node => {
                     if (isNotEmpty(node) && node.number == body.number) {
@@ -30,7 +30,7 @@ export class AccountService extends Logger {
                     return node
                 })
             })
-            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.WindowsAccount), {
+            await this.database.create(ctx.manager.getRepository(schema.WindowsAccount), {
                 deplayName: this.deplayName,
                 request,
                 body: body
