@@ -19,23 +19,22 @@ export class AccountService extends Logger {
     public async httpBaseSystemCreateAccount(request: OmixRequest, body: windows.CreateAccountOptions) {
         const ctx = await this.database.transaction()
         try {
-            // await this.database.builder(this.windows.account, async qb => {
-            //     qb.where(`t.number = :number OR t.phone = :phone`, { number: body.number, phone: body.phone })
-            //     return await qb.getOne().then(async node => {
-            //         if (isNotEmpty(node) && node.number == body.number) {
-            //             throw new HttpException(`number:${body.number} 已存在`, HttpStatus.BAD_REQUEST)
-            //         } else if (isNotEmpty(node) && node.phone == body.phone) {
-            //             throw new HttpException(`phone:${body.phone} 已存在`, HttpStatus.BAD_REQUEST)
-            //         }
-            //         return node
-            //     })
-            // })
+            await this.database.builder(this.windows.account, async qb => {
+                qb.where(`t.number = :number OR t.phone = :phone`, { number: body.number, phone: body.phone })
+                return await qb.getOne().then(async node => {
+                    if (isNotEmpty(node) && node.number == body.number) {
+                        throw new HttpException(`number:${body.number} 已存在`, HttpStatus.BAD_REQUEST)
+                    } else if (isNotEmpty(node) && node.phone == body.phone) {
+                        throw new HttpException(`phone:${body.phone} 已存在`, HttpStatus.BAD_REQUEST)
+                    }
+                    return node
+                })
+            })
             await this.database.create(ctx.manager.getRepository(schema.WindowsAccount), {
                 stack: this.stack,
                 request,
                 body: body
             })
-
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })

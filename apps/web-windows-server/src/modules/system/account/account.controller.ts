@@ -10,7 +10,8 @@ export class AccountController {
 
     @ApiServiceDecorator(Post('/create'), {
         operation: { summary: '新增账号' },
-        response: { status: 200, description: 'OK' }
+        response: { status: 200, description: 'OK' },
+        windows: true
     })
     public async httpBaseSystemCreateAccount(@Request() request: OmixRequest, @Body() body: windows.CreateAccountOptions) {
         return await this.accountService.httpBaseSystemCreateAccount(request, body)
@@ -18,7 +19,8 @@ export class AccountController {
 
     @ApiServiceDecorator(Post('/column'), {
         operation: { summary: '账号列表' },
-        response: { status: 200, description: 'OK' }
+        response: { status: 200, description: 'OK' },
+        windows: true
     })
     public async httpBaseSystemColumnAccount(@Request() request: OmixRequest, @Body() body: windows.ColumnAccountOptions) {
         return await this.accountService.httpBaseSystemColumnAccount(request, body)
@@ -26,7 +28,8 @@ export class AccountController {
 
     @ApiServiceDecorator(Post('/update/switch'), {
         operation: { summary: '编辑账号状态' },
-        response: { status: 200, description: 'OK' }
+        response: { status: 200, description: 'OK' },
+        windows: true
     })
     public async httpBaseSystemUpdateSwitchAccount(@Request() request: OmixRequest, @Body() body: windows.UpdateSwitchAccountOptions) {
         return await this.accountService.httpBaseSystemUpdateSwitchAccount(request, body)
