@@ -1,25 +1,8 @@
-import { Injectable, Type } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Repository, DataSource, SelectQueryBuilder } from 'typeorm'
 import { isNotEmpty, isEmpty, isArray } from 'class-validator'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { fetchSelection, fetchCatchWherer } from '@/utils'
-
-/**
- * 获取调用栈信息
- */
-function getCallerInfo(depth = 2): string {
-    const stack = new Error().stack?.split('\n') || []
-    // 跳过前几行，获取调用者的位置
-    const callerLine = stack[depth]?.trim() || ''
-    // 提取文件名和行号信息
-    const match = callerLine.match(/at\s+(.+):(\d+):(\d+)/)
-    if (match) {
-        const [, file, line] = match
-        const fileName = file.split(/[\\/]/).pop() || 'unknown'
-        return `${fileName}:${line}`
-    }
-    return 'unknown:0'
-}
 export { ClientService, WindowsService, SchemaService } from '@/modules/database/database.schema'
 import * as env from '@/modules/database/database.interface'
 export * as schema from '@/modules/database/schema'
@@ -89,20 +72,14 @@ export class DataBaseService extends Logger {
     @AutoDescriptor
     public async create<T>(model: Repository<T>, data: env.BaseCreateOptions<T>): Promise<Awaited<T> & T> {
         if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
             return data as never as Promise<Awaited<T> & T>
         }
-        // 自动获取调用栈信息
-        const stack = data.stack || getCallerInfo()
-        const logger = await this.fetchServiceTransaction(data.request, { stack })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
         const state = await model.create(data.body)
         return await model.save(state).then(async node => {
             if (data.logger ?? true) {
-                logger.info({
-                    comment: data.comment,
-                    message: `[${model.metadata.name}]:事务等待创建结果`,
-                    body: data.body,
-                    node
-                })
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待创建结果`, body: data.body, node })
             }
             return node
         })
@@ -117,11 +94,10 @@ export class DataBaseService extends Logger {
     @AutoDescriptor
     public async update<T>(model: Repository<T>, data: env.BaseUpdateOptions<T>) {
         if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
             return data
         }
-        // 自动获取调用栈信息
-        const stack = data.stack || getCallerInfo()
-        const logger = await this.fetchServiceTransaction(data.request, { stack })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
         return await model.update(data.where, data.body).then(async node => {
             if (data.logger ?? true) {
                 logger.info({
@@ -145,11 +121,10 @@ export class DataBaseService extends Logger {
     @AutoDescriptor
     public async delete<T>(model: Repository<T>, data: env.BaseDeleteOptions<T>) {
         if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
             return data
         }
-        // 自动获取调用栈信息
-        const stack = data.stack || getCallerInfo()
-        const logger = await this.fetchServiceTransaction(data.request, { stack })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
         return await model.delete(data.where).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })
