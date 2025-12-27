@@ -34,13 +34,12 @@ export class OmixColumn {
 export class OmixPayload extends OmixColumn {
     @ApiProperty({ description: 'keyId', example: '2279965746312249344' })
     @IsNotEmpty({ message: 'keyId 必填' })
-    keyId: string
+    keyId: number
 
     @ApiProperty({ description: 'keyId列表', example: [] })
     @IsNotEmpty({ message: 'keys 必填' })
     @IsArray({ message: 'keys 必须为Array<string>格式' })
-    @IsString({ each: true, message: 'keys 必须为Array<string>格式' })
-    keys: Array<string>
+    keys: Array<number>
 
     @ApiProperty({ description: '验证码', example: '495673' })
     @IsNotEmpty({ message: '验证码 必填' })

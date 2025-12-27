@@ -2,7 +2,7 @@ import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsNotEmpty, Length, IsEnum, IsNumber, IsOptional } from 'class-validator'
-import { DataBaseByAdapter, fetchProperty, fetchComment } from '@/modules/database/database.adapter'
+import { DataBaseByAdapter, withProperty, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_resource', comment: '管理端-菜单资源表' })
@@ -38,8 +38,8 @@ export class WindowsResource extends DataBaseByAdapter {
 
     @ApiProperty({ description: '上级菜单ID', required: false })
     @IsOptional()
-    @Column({ comment: '上级菜单ID', length: 19, nullable: true })
-    pid: string
+    @Column({ comment: '上级菜单ID', nullable: true })
+    pid: number
 
     @ApiProperty({ description: '菜单是否可见', example: true })
     @Type(() => Boolean)
@@ -60,13 +60,13 @@ export class WindowsResource extends DataBaseByAdapter {
     sort: number
 
     @ApiProperty({
-        description: fetchComment('菜单状态', enums.COMMON_WINDOWS_RESOUREC.status),
-        enum: fetchProperty(enums.COMMON_WINDOWS_RESOUREC.status)
+        description: withComment('菜单状态', enums.COMMON_WINDOWS_RESOUREC.status),
+        enum: withProperty(enums.COMMON_WINDOWS_RESOUREC.status)
     })
     @IsNotEmpty({ message: '菜单状态必填' })
     @Length(0, 32, { message: '菜单状态不能超过32个字符' })
     @IsEnum(Object.keys(enums.COMMON_WINDOWS_RESOUREC.status), { message: '菜单状态格式错误' })
-    @Column({ nullable: false, comment: fetchComment('菜单状态', enums.COMMON_WINDOWS_RESOUREC.status) })
+    @Column({ nullable: false, comment: withComment('菜单状态', enums.COMMON_WINDOWS_RESOUREC.status) })
     status: string
 }
 
@@ -74,8 +74,8 @@ export class WindowsResource extends DataBaseByAdapter {
 export class WindowsResourceSheet extends DataBaseByAdapter {
     @ApiProperty({ description: '归属菜单ID' })
     @IsNotEmpty({ message: '归属菜单ID必填' })
-    @Column({ comment: '归属菜单ID', length: 19, nullable: true })
-    pid: string
+    @Column({ comment: '归属菜单ID', nullable: true })
+    pid: number
 
     @ApiProperty({ description: '按钮权限标识' })
     @IsNotEmpty({ message: '按钮权限标识必填' })
@@ -95,11 +95,11 @@ export class WindowsResourceSheet extends DataBaseByAdapter {
     @Column({ comment: '版本号', length: 32, default: 'v1.0.0', nullable: false })
     version: string
 
-    @ApiProperty({ description: '按钮状态', enum: fetchProperty(enums.COMMON_WINDOWS_RESOUREC_SHEET.status) })
+    @ApiProperty({ description: '按钮状态', enum: withProperty(enums.COMMON_WINDOWS_RESOUREC_SHEET.status) })
     @IsNotEmpty({ message: '按钮状态必填' })
     @Length(0, 32, { message: '按钮状态不能超过32个字符' })
     @IsEnum(Object.keys(enums.COMMON_WINDOWS_RESOUREC_SHEET.status), { message: '按钮状态格式错误' })
-    @Column({ nullable: false, comment: fetchComment('按钮状态', enums.COMMON_WINDOWS_RESOUREC_SHEET.status) })
+    @Column({ nullable: false, comment: withComment('按钮状态', enums.COMMON_WINDOWS_RESOUREC_SHEET.status) })
     status: string
 }
 
@@ -107,8 +107,8 @@ export class WindowsResourceSheet extends DataBaseByAdapter {
 export class WindowsResourceApifox extends DataBaseByAdapter {
     @ApiProperty({ description: '归属资源ID' })
     @IsNotEmpty({ message: '归属资源ID必填' })
-    @Column({ comment: '归属资源ID', length: 19, nullable: true })
-    pid: string
+    @Column({ comment: '归属资源ID', nullable: true })
+    pid: number
 
     @ApiProperty({ description: '接口名称' })
     @IsNotEmpty({ message: '接口名称必填' })
@@ -128,17 +128,17 @@ export class WindowsResourceApifox extends DataBaseByAdapter {
     @Column({ comment: '接口地址', length: 255, nullable: true })
     path: string
 
-    @ApiProperty({ description: '请求类型', enum: fetchProperty(enums.COMMON_WINDOWS_RESOUREC_APIFOX.method) })
+    @ApiProperty({ description: '请求类型', enum: withProperty(enums.COMMON_WINDOWS_RESOUREC_APIFOX.method) })
     @IsNotEmpty({ message: '请求类型必填' })
     @Length(0, 32, { message: '请求类型不能超过32个字符' })
     @IsEnum(Object.keys(enums.COMMON_WINDOWS_RESOUREC_APIFOX.method), { message: '请求类型态格式错误' })
-    @Column({ nullable: false, comment: fetchComment('请求类型', enums.COMMON_WINDOWS_RESOUREC_APIFOX.method) })
+    @Column({ nullable: false, comment: withComment('请求类型', enums.COMMON_WINDOWS_RESOUREC_APIFOX.method) })
     method: string
 
-    @ApiProperty({ description: '接口状态', enum: fetchProperty(enums.COMMON_WINDOWS_RESOUREC_APIFOX.status) })
+    @ApiProperty({ description: '接口状态', enum: withProperty(enums.COMMON_WINDOWS_RESOUREC_APIFOX.status) })
     @IsNotEmpty({ message: '接口状态必填' })
     @Length(0, 32, { message: '接口状态不能超过32个字符' })
     @IsEnum(Object.keys(enums.COMMON_WINDOWS_RESOUREC_APIFOX.status), { message: '接口状态格式错误' })
-    @Column({ nullable: false, comment: fetchComment('接口状态', enums.COMMON_WINDOWS_RESOUREC_APIFOX.status) })
+    @Column({ nullable: false, comment: withComment('接口状态', enums.COMMON_WINDOWS_RESOUREC_APIFOX.status) })
     status: string
 }

@@ -3,7 +3,7 @@ import { hashSync } from 'bcryptjs'
 import { ApiProperty } from '@nestjs/swagger'
 import { snowflakeId } from 'snowflake-id-maker'
 import { IsNotEmpty, Length, IsEmail, IsEnum, IsMobilePhone } from 'class-validator'
-import { DataBaseAdapter, fetchProperty, fetchComment } from '@/modules/database/database.adapter'
+import { DataBaseAdapter, withComment } from '@/modules/database/database.adapter'
 import { COMMON_WINDOWS_ACCOUNT } from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_account', comment: '管理端-账号表' })
@@ -37,16 +37,19 @@ export class WindowsAccount extends DataBaseAdapter {
     @Column({ comment: '姓名', length: 32, nullable: false })
     name: string
 
-    @ApiProperty({ description: '头像' })
+    @ApiProperty({ description: '头像', example: 'https://picsum.photos/500' })
     @IsNotEmpty({ message: '头像必填' })
     @Column({ comment: '头像', length: 255, nullable: true })
     avatar: string
 
-    @ApiProperty({ description: '账号状态', enum: fetchProperty(COMMON_WINDOWS_ACCOUNT.status) })
+    @ApiProperty({
+        description: withComment('账号状态', COMMON_WINDOWS_ACCOUNT.status),
+        example: COMMON_WINDOWS_ACCOUNT.status.online.value
+    })
     @IsNotEmpty({ message: '账号状态必填' })
     @Length(0, 32, { message: '账号状态不能超过32个字符' })
     @IsEnum(Object.keys(COMMON_WINDOWS_ACCOUNT.status), { message: '账号状态格式错误' })
-    @Column({ nullable: false, comment: fetchComment('账号状态', COMMON_WINDOWS_ACCOUNT.status) })
+    @Column({ nullable: false, comment: withComment('账号状态', COMMON_WINDOWS_ACCOUNT.status) })
     status: string
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })

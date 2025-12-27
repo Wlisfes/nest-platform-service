@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, Length, IsNumber, IsEnum, IsOptional } from 'class-validator'
-import { DataBaseByAdapter, fetchProperty, fetchComment } from '@/modules/database/database.adapter'
+import { DataBaseByAdapter, withProperty, withComment } from '@/modules/database/database.adapter'
 import { COMMON_WINDOWS_ROLE } from '@/modules/database/enums'
 import { Type } from 'class-transformer'
 
@@ -25,11 +25,11 @@ export class WindowsRole extends DataBaseByAdapter {
     @Column({ comment: '排序号', default: 0, nullable: false })
     sort: number
 
-    @ApiProperty({ description: '角色数据权限', enum: fetchProperty(COMMON_WINDOWS_ROLE.model) })
+    @ApiProperty({ description: '角色数据权限', enum: withProperty(COMMON_WINDOWS_ROLE.model) })
     @IsNotEmpty({ message: '角色数据权限必填' })
     @Length(0, 32, { message: '角色数据权限不能超过32个字符' })
     @IsEnum(Object.keys(COMMON_WINDOWS_ROLE.model), { message: '角色数据权限格式错误' })
-    @Column({ nullable: false, comment: fetchComment('角色数据权限', COMMON_WINDOWS_ROLE.model) })
+    @Column({ nullable: false, comment: withComment('角色数据权限', COMMON_WINDOWS_ROLE.model) })
     model: string
 }
 
