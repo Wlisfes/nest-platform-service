@@ -29,14 +29,20 @@ export function fetchGlobalEnv<T>(): Omix<T> {
 
 /**
  * 生成纯数字的雪花ID、随机字符串
- * @param opts.bit 随机字符长度
- * @returns 默认返回雪花ID、输入bit长度返回随机字符串
+ * @param options 配置项
+ * @param options.bit 随机字符长度
+ * @param options.sync 是否同步返回，默认异步
+ * @returns 根据sync参数返回同步值或Promise
  */
-export async function fetchIntNumber(options: Omix<{ bit?: number }> = {}) {
-    if (isNotEmpty(options.bit) && options.bit > 0) {
-        return Array.from({ length: options.bit }, x => Math.floor(Math.random() * 9) + 1).join('')
-    }
-    return snowflakeId({ worker: process.pid, epoch: 1199145600000 })
+
+export function fetchIntNumber<T extends { bit?: number; sync?: boolean } = {}>(
+    options?: T
+): T extends { sync: true } ? string : Promise<string> {
+    const str = fetchWherer((options?.bit ?? 0) > 0, {
+        value: Array.from({ length: options?.bit ?? 4 }, () => Math.floor(Math.random() * 9) + 1).join(''),
+        fallback: snowflakeId({ worker: process.pid, epoch: 1199145600000 })
+    })
+    return (options?.sync ? str : Promise.resolve(str)) as never
 }
 
 /**

@@ -1,8 +1,9 @@
 import { Inject, Injectable, NestMiddleware } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
-import { fetchIntNumber, fetchIPClient } from '@/utils'
+import { fetchIPClient } from '@/utils'
 import { Logger } from 'winston'
+import { v4 } from 'uuid'
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -10,14 +11,12 @@ export class LoggerMiddleware implements NestMiddleware {
 
     async use(request: Omix<Request>, response: Response, next: NextFunction) {
         const date = Date.now()
-        const logId = await fetchIntNumber()
         request.ipv4 = fetchIPClient(request)
+        request.headers.logId = v4()
         request.headers.datetime = date.toString()
-        request.headers.logId = logId.toString()
         response.on('finish', () => {
-            /**结束日志 endTime**/
             this.logger.info(LoggerMiddleware.name, {
-                logId: logId.toString(),
+                logId: request.headers.logId,
                 duration: `${Date.now() - date}ms`,
                 log: {
                     url: request.originalUrl,
