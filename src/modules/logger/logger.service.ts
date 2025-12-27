@@ -10,10 +10,10 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
     const originalMethod = descriptor.value
     descriptor.value = function (...args: any[]) {
         const request = args[0] ?? {}
-        this.deplayName = [className, methodName].join(':')
+        this.stack = [className, methodName].join(':')
         this.logger = new WinstonService(this.winston, request, {
             datetime: request.headers?.datetime,
-            deplayName: this.deplayName
+            stack: this.stack
         })
         return originalMethod.apply(this, args)
     }
@@ -43,30 +43,30 @@ export class WinstonService {
         return this
     }
     public info(log: any) {
-        this.logger.info(this.options.deplayName, this.output(log))
+        this.logger.info(this.options.stack, this.output(log))
         return this
     }
     public error(log: any) {
-        this.logger.error(this.options.deplayName, this.output(log))
+        this.logger.error(this.options.stack, this.output(log))
         return this
     }
 }
 
 @Injectable()
 export class Logger {
-    protected readonly deplayName: string
+    protected readonly stack: string
     protected readonly logger: WinstonService
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly winston: WinstonLogger
 
     /**创建日志实例方法**/
-    public async fetchServiceTransaction(request: OmixRequest, opts: Omix<{ deplayName: string }>) {
+    public async fetchServiceTransaction(request: OmixRequest, opts: Omix<{ stack: string }>) {
         return new WinstonService(this.winston, request, opts)
     }
 
     /**日志方法名称组合**/
     public fetchDeplayName(alias?: string) {
-        const suffix = this.deplayName.split(':').pop()
-        return alias ? `${alias}:${suffix}` : this.deplayName
+        const suffix = this.stack.split(':').pop()
+        return alias ? `${alias}:${suffix}` : this.stack
     }
 
     /**返回包装**/

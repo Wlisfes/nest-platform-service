@@ -13,7 +13,7 @@ export interface BaseOptions extends Omix {
     /**开启日志**/
     logger?: boolean
     /**输出日志方法名**/
-    deplayName?: string
+    stack?: string
 }
 
 /**自定义校验配置**/

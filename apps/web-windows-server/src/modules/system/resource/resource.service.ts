@@ -16,9 +16,9 @@ export class ResourceService extends Logger {
     /**新增菜单资源**/
     @AutoDescriptor
     public async httpBaseSystemCreateResource(request: OmixRequest, body: windows.CreateResourceOptions) {
-        const ctx = await this.database.fetchConnectTransaction()
+        const ctx = await this.database.transaction()
         try {
-            await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
+            await this.database.builder(this.windows.resource, async qb => {
                 qb.where(`t.key = :key OR t.router = :router`, { key: body.key, router: body.router })
                 await qb.getOne().then(async node => {
                     if (isNotEmpty(node) && node.key == body.key) {
@@ -37,7 +37,7 @@ export class ResourceService extends Logger {
             })
             await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
-                deplayName: this.deplayName,
+                stack: this.stack,
                 body: Object.assign(body, { createBy: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -54,14 +54,14 @@ export class ResourceService extends Logger {
     /**编辑菜单资源**/
     @AutoDescriptor
     public async httpBaseSystemUpdateResource(request: OmixRequest, body: windows.UpdateResourceOptions) {
-        const ctx = await this.database.fetchConnectTransaction()
+        const ctx = await this.database.transaction()
         try {
             await this.database.fetchConnectNotNull(this.windows.resource, {
                 request,
                 message: 'keyId不存在',
                 dispatch: { where: { keyId: body.keyId } }
             })
-            await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
+            await this.database.builder(this.windows.resource, async qb => {
                 qb.where(`t.key = :key OR t.router = :router`, { key: body.key, router: body.router })
                 await qb.getOne().then(async node => {
                     if (isNotEmpty(node) && node.keyId !== body.keyId && node.key == body.key) {
@@ -98,7 +98,7 @@ export class ResourceService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemColumnResource(request: OmixRequest, body: windows.ColumnResourceOptions) {
         try {
-            return await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
+            return await this.database.builder(this.windows.resource, async qb => {
                 return await qb.getMany().then(async nodes => {
                     const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
                     return await this.fetchResolver({ list: items })
@@ -113,7 +113,7 @@ export class ResourceService extends Logger {
     /**菜单资源状态变更**/
     @AutoDescriptor
     public async httpBaseSystemSwitchResource(request: OmixRequest, body: windows.SwitchResourceOptions) {
-        const ctx = await this.database.fetchConnectTransaction()
+        const ctx = await this.database.transaction()
         try {
             await this.database.fetchConnectBatchNotNull(this.windows.resource, {
                 request,
@@ -122,7 +122,7 @@ export class ResourceService extends Logger {
             })
             await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
-                deplayName: this.deplayName,
+                stack: this.stack,
                 body: body.keys.map(keyId => ({ keyId, status: body.status }))
             })
             return await ctx.commitTransaction().then(async () => {
@@ -139,7 +139,7 @@ export class ResourceService extends Logger {
     /**删除菜单资源**/
     @AutoDescriptor
     public async httpBaseSystemDeleteResource(request: OmixRequest, body: windows.DeleteResourceOptions) {
-        const ctx = await this.database.fetchConnectTransaction()
+        const ctx = await this.database.transaction()
         try {
         } catch (err) {
             this.logger.error(err)

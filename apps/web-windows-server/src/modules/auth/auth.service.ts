@@ -51,7 +51,7 @@ export class AuthService extends Logger {
                     code: body.code
                 })
             })
-            return await this.database.fetchConnectBuilder(this.windows.account, async qb => {
+            return await this.database.builder(this.windows.account, async qb => {
                 qb.addSelect('t.password')
                 qb.where(`t.number = :number OR t.phone = :number OR t.email = :number`, { number: body.number })
                 return await qb.getOne().then(async node => {
@@ -86,7 +86,7 @@ export class AuthService extends Logger {
     @AutoDescriptor
     public async httpAuthAccountTokenResolver(request: OmixRequest) {
         try {
-            return await this.database.fetchConnectBuilder(this.windows.account, async qb => {
+            return await this.database.builder(this.windows.account, async qb => {
                 qb.where(`t.uid = :uid`, { uid: request.user.uid })
                 return await qb.getOne()
             })
@@ -100,8 +100,8 @@ export class AuthService extends Logger {
     @AutoDescriptor
     public async httpAuthAccountTokenResource(request: OmixRequest) {
         try {
-            return await this.database.fetchConnectBuilder(this.windows.resource, async qb => {
-                await this.database.fetchSelection(qb, [
+            return await this.database.builder(this.windows.resource, async qb => {
+                await this.database.selection(qb, [
                     ['t', ['keyId', 'pid', 'key', 'name', 'router', 'activeRouter', 'iconName', 'check', 'sort', 'status']]
                 ])
                 return await qb.getMany().then(async nodes => {
@@ -119,7 +119,7 @@ export class AuthService extends Logger {
     @AutoDescriptor
     public async httpAuthAccountTokenSheet(request: OmixRequest) {
         try {
-            return await this.database.fetchConnectBuilder(this.windows.account, async qb => {
+            return await this.database.builder(this.windows.account, async qb => {
                 qb.where(`t.uid = :uid`, { uid: request.user.uid })
                 return await qb.getOne()
             })

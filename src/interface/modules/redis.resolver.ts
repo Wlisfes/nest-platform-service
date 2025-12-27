@@ -9,7 +9,7 @@ export interface WriteRedisOption extends Omix {
     /**开启日志**/
     logger?: boolean
     /**输出日志方法名**/
-    deplayName?: string
+    stack?: string
 }
 
 /**redis get读取参数**/
@@ -19,10 +19,10 @@ export interface ReadRedisOption<T> extends Omit<WriteRedisOption, 'data' | 'sec
 }
 
 /**redis mget批量读取**/
-export interface MgetRedisOption extends Pick<WriteRedisOption, 'logger' | 'deplayName'> {
+export interface MgetRedisOption extends Pick<WriteRedisOption, 'logger' | 'stack'> {
     /**存储键列表**/
     keys: Array<string>
 }
 
 /**redis del删除**/
-export interface DelRedisOption extends Pick<WriteRedisOption, 'logger' | 'key' | 'deplayName'> {}
+export interface DelRedisOption extends Pick<WriteRedisOption, 'logger' | 'key' | 'stack'> {}

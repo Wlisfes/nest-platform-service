@@ -23,7 +23,7 @@ export class CodexCreateOptions {
 /**写入图形验证码**/
 export class CodexWriteOptions {
     /**输出日志方法名**/
-    deplayName?: string
+    stack?: string
     /**创建图形验证码配置**/
     body: CodexCreateOptions
     /**redis存储key**/
@@ -35,7 +35,7 @@ export class CodexWriteOptions {
 /**校验redis图形验证码**/
 export class BaseCommonCodexCheck {
     /**输出日志方法名**/
-    deplayName?: string
+    stack?: string
     /**redis存储字段**/
     keyName: string
     /**验证码**/
