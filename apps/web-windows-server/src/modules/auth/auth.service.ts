@@ -29,7 +29,7 @@ export class AuthService extends Logger {
     public async httpAuthCodexWrite(request: OmixRequest, response: OmixResponse, body: CodexCreateOptions) {
         try {
             return await this.codexService.httpBaseCommonCodexWrite(request, response, {
-                deplayName: this.deplayName,
+                stack: this.stack,
                 body,
                 keyName: `windows:codex:common:{sid}`,
                 cookieName: `x-windows-common-write-sid`
@@ -47,7 +47,7 @@ export class AuthService extends Logger {
             await this.codexService.fetchBaseCommonCookiesCodex(request, `x-windows-common-write-sid`).then(async sid => {
                 return await this.codexService.fetchBaseCommonCodexCheck(request, {
                     keyName: `windows:codex:common:${sid}`,
-                    deplayName: this.deplayName,
+                    stack: this.stack,
                     code: body.code
                 })
             })

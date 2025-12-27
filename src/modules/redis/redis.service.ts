@@ -27,7 +27,7 @@ export class RedisService extends Logger {
     /**redis存储**/
     @AutoDescriptor
     public async setStore(request: OmixRequest, body: WriteRedisOption) {
-        const logger = await this.fetchServiceTransaction(request, { stack: this.fetchDeplayName(body.stack) })
+        const logger = await this.fetchServiceTransaction(request, { stack: this.stack })
         if (body.seconds > 0) {
             return await this.client.set(body.key, JSON.stringify(body.data), 'EX', body.seconds).then(async value => {
                 if (body.logger ?? false) {
@@ -48,7 +48,7 @@ export class RedisService extends Logger {
     /**redis读取**/
     @AutoDescriptor
     public async getStore<T>(request: OmixRequest, body: ReadRedisOption<T>): Promise<T> {
-        const logger = await this.fetchServiceTransaction(request, { stack: this.fetchDeplayName(body.stack) })
+        const logger = await this.fetchServiceTransaction(request, { stack: this.stack })
         return await this.client.get(body.key).then(async data => {
             const value = data ? JSON.parse(data) : body.defaultValue
             if (body.logger ?? false) {
@@ -61,7 +61,7 @@ export class RedisService extends Logger {
     /**redis批量读取**/
     @AutoDescriptor
     public async mgetStore(request: OmixRequest, body: MgetRedisOption) {
-        const logger = await this.fetchServiceTransaction(request, { stack: this.fetchDeplayName(body.stack) })
+        const logger = await this.fetchServiceTransaction(request, { stack: this.stack })
         return await this.client.mget(body.keys).then(async data => {
             const values = body.keys.map((key, index) => ({ key, value: data[index] ?? false }))
             if (body.logger ?? false) {
@@ -74,7 +74,7 @@ export class RedisService extends Logger {
     /**redis删除**/
     @AutoDescriptor
     public async delStore(request: OmixRequest, body: DelRedisOption) {
-        const logger = await this.fetchServiceTransaction(request, { stack: this.fetchDeplayName(body.stack) })
+        const logger = await this.fetchServiceTransaction(request, { stack: this.stack })
         return await this.client.del(body.key).then(async value => {
             if (body.logger ?? false) {
                 logger.info({ message: 'Redis删除', ...body })

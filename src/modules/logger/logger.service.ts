@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger as WinstonLogger } from 'winston'
+import { isNotEmpty } from 'class-validator'
 import { OmixRequest } from '@/interface'
 
 /**注入日志配置**/
@@ -10,7 +11,8 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
     const originalMethod = descriptor.value
     descriptor.value = function (...args: any[]) {
         const request = args[0] ?? {}
-        this.stack = [className, methodName].join(':')
+        const { stack } = args.find(item => isNotEmpty(item.stack)) ?? {}
+        this.stack = [stack, className, methodName].filter(isNotEmpty).join(':')
         this.logger = new WinstonService(this.winston, request, {
             datetime: request.headers?.datetime,
             stack: this.stack
@@ -59,14 +61,8 @@ export class Logger {
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly winston: WinstonLogger
 
     /**创建日志实例方法**/
-    public async fetchServiceTransaction(request: OmixRequest, opts: Omix<{ stack: string }>) {
+    public async fetchServiceTransaction(request: OmixRequest, opts: Omix<{ stack?: string }>) {
         return new WinstonService(this.winston, request, opts)
-    }
-
-    /**日志方法名称组合**/
-    public fetchDeplayName(alias?: string) {
-        const suffix = this.stack.split(':').pop()
-        return alias ? `${alias}:${suffix}` : this.stack
     }
 
     /**返回包装**/

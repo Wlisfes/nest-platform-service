@@ -31,7 +31,7 @@ export class AccountService extends Logger {
                 })
             })
             await this.database.create(ctx.manager.getRepository(schema.WindowsAccount), {
-                deplayName: this.deplayName,
+                stack: this.stack,
                 request,
                 body: body
             })

@@ -22,7 +22,7 @@ export class CodexService extends Logger {
         return await this.fetchBaseCommonCodexCreate(request, options.body).then(async ({ sid, text, data }) => {
             const key = await this.redisService.compose(request, options.keyName, { sid })
             const { seconds } = await this.redisService.setStore(request, {
-                deplayName: this.fetchDeplayName(this.deplayName),
+                stack: this.stack,
                 key,
                 data: text,
                 seconds: 300
@@ -76,10 +76,7 @@ export class CodexService extends Logger {
             if (isEmpty(code) || body.code.toUpperCase() !== code.toUpperCase()) {
                 throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
             }
-            return await this.redisService.delStore(request, {
-                key: body.deplayName,
-                deplayName: this.fetchDeplayName(body.deplayName)
-            })
+            return await this.redisService.delStore(request, { key: body.keyName, stack: this.stack })
         })
     }
 }

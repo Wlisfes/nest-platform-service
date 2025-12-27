@@ -75,7 +75,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data as never as Promise<Awaited<T> & T>
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         const state = await model.create(data.body)
         return await model.save(state).then(async node => {
             if (data.logger ?? true) {
@@ -97,7 +97,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.update(data.where, data.body).then(async node => {
             if (data.logger ?? true) {
                 logger.info({
@@ -124,7 +124,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.delete(data.where).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })
@@ -140,7 +140,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
@@ -165,7 +165,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.findOne(data.dispatch).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch.where, node })
@@ -190,7 +190,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.find(data.dispatch).then(async list => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch, list })
@@ -221,7 +221,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data as never as Promise<Awaited<T> & T>
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         const state = await model.create(data.body)
         return await model.save(state).then(async node => {
             if (data.logger ?? true) {
@@ -238,7 +238,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.save(data.body).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待批量创建结果`, body: data.body, node })
@@ -254,7 +254,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.update(data.where, data.body).then(async node => {
             if (data.logger ?? true) {
                 logger.info({
@@ -276,7 +276,7 @@ export class DataBaseService extends Logger {
             /**next等于false停止执行**/
             return data
         }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.fetchDeplayName(data.stack) })
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
         return await model.delete(data.where).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })
