@@ -86,6 +86,27 @@ export class DataBaseService extends Logger {
     }
 
     /**
+     * 批量创建数据模型
+     * @param model 表实体
+     * @param data 参数对象
+     * @returns 成功结果
+     */
+    @AutoDescriptor
+    public async insert<T>(model: Repository<T>, data: env.BaseInsertOptions<T>) {
+        if ([false, 'false'].includes(data.next ?? true)) {
+            /**next等于false停止执行**/
+            return data
+        }
+        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
+        return await model.save(data.body).then(async node => {
+            if (data.logger ?? true) {
+                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待批量创建结果`, body: data.body, node })
+            }
+            return node
+        })
+    }
+
+    /**
      * 更新数据模型
      * @param model 表实体
      * @param data 参数对象
@@ -133,9 +154,14 @@ export class DataBaseService extends Logger {
         })
     }
 
-    /**查询数据是否存在：存在会抛出异常**/
+    /**
+     * 查询数据是否存在：存在会抛出异常
+     * @param model 表实体
+     * @param data 参数对象
+     * @returns 成功结果
+     */
     @AutoDescriptor
-    public async fetchConnectNull<T>(model: Repository<T>, data: env.BaseOneCommonOption<T>) {
+    public async notempty<T>(model: Repository<T>, data: env.BaseOneCommonOption<T>) {
         if ([false, 'false'].includes(data.next ?? true)) {
             /**next等于false停止执行**/
             return data
@@ -158,9 +184,14 @@ export class DataBaseService extends Logger {
         })
     }
 
-    /**查询数据是否不存在：不存在会抛出异常**/
+    /**
+     * 查询数据是否不存在：不存在会抛出异常
+     * @param model 表实体
+     * @param data 参数对象
+     * @returns 成功结果
+     */
     @AutoDescriptor
-    public async fetchConnectNotNull<T>(model: Repository<T>, data: env.BaseOneCommonOption<T>) {
+    public async empty<T>(model: Repository<T>, data: env.BaseOneCommonOption<T>) {
         if ([false, 'false'].includes(data.next ?? true)) {
             /**next等于false停止执行**/
             return data
@@ -180,108 +211,6 @@ export class DataBaseService extends Logger {
                     return await this.fetchResolver(node)
                 })
             }
-        })
-    }
-
-    /**批量查询数据是否不存在：不存在会抛出异常**/
-    @AutoDescriptor
-    public async fetchConnectBatchNotNull<T>(model: Repository<T>, data: env.BaseBatchCommonOption<T>) {
-        if ([false, 'false'].includes(data.next ?? true)) {
-            /**next等于false停止执行**/
-            return data
-        }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
-        return await model.find(data.dispatch).then(async list => {
-            if (data.logger ?? true) {
-                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:查询出参`, where: data.dispatch, list })
-            }
-            if (isArray(data.dispatch.where)) {
-                if (data.transform) {
-                    const { where, form } = await data.transform(list, data)
-                    return await fetchCatchWherer(where, form).then(async () => {
-                        return await this.fetchResolver(list)
-                    })
-                } else if (data.dispatch.where.length !== list.length) {
-                    data.cause = Object.assign(data.cause ?? {}, {
-                        items: data.dispatch.where.filter((item: Omix) => {
-                            return !list.some((node: Omix) => node.keyId === item.keyId)
-                        })
-                    })
-                    return await fetchCatchWherer(true, data)
-                }
-            }
-            return await this.fetchResolver(list)
-        })
-    }
-
-    /**创建数据模型**/
-    @AutoDescriptor
-    public async fetchConnectCreate<T>(model: Repository<T>, data: env.BaseCreateOptions<T>): Promise<Awaited<T> & T> {
-        if ([false, 'false'].includes(data.next ?? true)) {
-            /**next等于false停止执行**/
-            return data as never as Promise<Awaited<T> & T>
-        }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
-        const state = await model.create(data.body)
-        return await model.save(state).then(async node => {
-            if (data.logger ?? true) {
-                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待创建结果`, body: data.body, node })
-            }
-            return node
-        })
-    }
-
-    /**批量创建数据模型**/
-    @AutoDescriptor
-    public async fetchConnectInsert<T>(model: Repository<T>, data: env.BaseInsertOptions<T>) {
-        if ([false, 'false'].includes(data.next ?? true)) {
-            /**next等于false停止执行**/
-            return data
-        }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
-        return await model.save(data.body).then(async node => {
-            if (data.logger ?? true) {
-                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待批量创建结果`, body: data.body, node })
-            }
-            return node
-        })
-    }
-
-    /**更新数据模型**/
-    @AutoDescriptor
-    public async fetchConnectUpdate<T>(model: Repository<T>, data: env.BaseUpdateOptions<T>) {
-        if ([false, 'false'].includes(data.next ?? true)) {
-            /**next等于false停止执行**/
-            return data
-        }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
-        return await model.update(data.where, data.body).then(async node => {
-            if (data.logger ?? true) {
-                logger.info({
-                    comment: data.comment,
-                    message: `[${model.metadata.name}]:事务等待更新结果`,
-                    where: data.where,
-                    body: data.body,
-                    node
-                })
-            }
-            return node
-        })
-    }
-
-    /**删除数据模型**/
-    @AutoDescriptor
-    public async fetchConnectDelete<T>(model: Repository<T>, data: env.BaseDeleteOptions<T>) {
-        if ([false, 'false'].includes(data.next ?? true)) {
-            /**next等于false停止执行**/
-            return data
-        }
-        const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
-        return await model.delete(data.where).then(async node => {
-            if (data.logger ?? true) {
-                logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })
-            }
-            return node
         })
     }
 }

@@ -42,12 +42,6 @@ export interface BaseOneCommonOption<T> extends BaseCommonOption<T, T> {
     dispatch?: Omix<Parameters<Repository<T>['findOne']>['0']>
 }
 
-/**批量通用查询配置**/
-export interface BaseBatchCommonOption<T> extends BaseCommonOption<T, Array<T>> {
-    /**find查询入参**/
-    dispatch?: Omix<Parameters<Repository<T>['find']>['0']>
-}
-
 /**创建数据模型**/
 export interface BaseCreateOptions<T> extends BaseOptions {
     /**创建数据**/

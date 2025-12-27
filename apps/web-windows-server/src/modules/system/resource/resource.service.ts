@@ -29,13 +29,13 @@ export class ResourceService extends Logger {
                     return node
                 })
             })
-            await this.database.fetchConnectNotNull(this.windows.resource, {
+            await this.database.empty(this.windows.resource, {
                 next: isNotEmpty(body.pid),
                 request,
                 message: 'pid不存在',
                 dispatch: { where: { keyId: body.pid } }
             })
-            await this.database.fetchConnectCreate(ctx.manager.getRepository(schema.WindowsResource), {
+            await this.database.create(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
                 stack: this.stack,
                 body: Object.assign(body, { createBy: request.user.uid })
@@ -56,7 +56,7 @@ export class ResourceService extends Logger {
     public async httpBaseSystemUpdateResource(request: OmixRequest, body: windows.UpdateResourceOptions) {
         const ctx = await this.database.transaction()
         try {
-            await this.database.fetchConnectNotNull(this.windows.resource, {
+            await this.database.empty(this.windows.resource, {
                 request,
                 message: 'keyId不存在',
                 dispatch: { where: { keyId: body.keyId } }
@@ -72,13 +72,13 @@ export class ResourceService extends Logger {
                     return node
                 })
             })
-            await this.database.fetchConnectNotNull(this.windows.resource, {
+            await this.database.empty(this.windows.resource, {
                 next: isNotEmpty(body.pid),
                 request,
                 message: 'pid不存在',
                 dispatch: { where: { keyId: body.pid } }
             })
-            await this.database.fetchConnectUpdate(ctx.manager.getRepository(schema.WindowsResource), {
+            await this.database.update(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
                 where: { keyId: body.keyId },
                 body: Object.assign(body, { modifyBy: request.user.uid })
@@ -115,19 +115,19 @@ export class ResourceService extends Logger {
     public async httpBaseSystemSwitchResource(request: OmixRequest, body: windows.SwitchResourceOptions) {
         const ctx = await this.database.transaction()
         try {
-            await this.database.fetchConnectBatchNotNull(this.windows.resource, {
-                request,
-                message: 'keyId不存在',
-                dispatch: { where: body.keys.map(keyId => ({ keyId })) }
-            })
-            await this.database.fetchConnectInsert(ctx.manager.getRepository(schema.WindowsResource), {
-                request,
-                stack: this.stack,
-                body: body.keys.map(keyId => ({ keyId, status: body.status }))
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
+            // await this.database.fetchConnectBatchNotNull(this.windows.resource, {
+            //     request,
+            //     message: 'keyId不存在',
+            //     dispatch: { where: body.keys.map(keyId => ({ keyId })) }
+            // })
+            // await this.database.insert(ctx.manager.getRepository(schema.WindowsResource), {
+            //     request,
+            //     stack: this.stack,
+            //     body: body.keys.map(keyId => ({ keyId, status: body.status }))
+            // })
+            // return await ctx.commitTransaction().then(async () => {
+            //     return await this.fetchResolver({ message: '操作成功' })
+            // })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
