@@ -13,8 +13,9 @@ export const CHUNK_WINDOWS_RESOUREC_STATUS = {
     }
 }
 
-/**菜单是否可见**/
 export const CHUNK_WINDOWS_RESOUREC_CHECK = {
+    name: '菜单显示状态',
+    value: 'CHUNK_WINDOWS_RESOUREC_CHECK',
     show: {
         value: 'show',
         name: '显示',

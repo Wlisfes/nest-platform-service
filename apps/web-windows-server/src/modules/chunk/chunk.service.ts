@@ -13,10 +13,9 @@ export class ChunkService extends Logger {
     @AutoDescriptor
     public async httpBaseChunkSelect(request: OmixRequest, body: windows.ChunkSelectOptions) {
         try {
-            return await this.fetchResolver({
-                message: '操作成功',
-                chunk: body.type.reduce((obs, key: string) => ({ ...obs, [key]: Object.values(windows.COMMON_CHUNK[key].columns) }), {})
-            })
+            return await this.fetchResolver(
+                body.type.reduce((obs, key: string) => ({ ...obs, [key]: Object.values(windows.COMMON_CHUNK[key].columns) }), {})
+            )
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)

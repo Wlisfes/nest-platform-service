@@ -30,9 +30,9 @@ export class ResourceService extends Logger {
                 })
             })
             await this.database.empty(this.windows.resource, {
-                next: isNotEmpty(body.pid),
                 request,
                 message: 'pid不存在',
+                next: isNotEmpty(body.pid),
                 dispatch: { where: { keyId: body.pid } }
             })
             await this.database.create(ctx.manager.getRepository(schema.WindowsResource), {
@@ -61,6 +61,12 @@ export class ResourceService extends Logger {
                 message: 'keyId不存在',
                 dispatch: { where: { keyId: body.keyId } }
             })
+            await this.database.empty(this.windows.resource, {
+                next: isNotEmpty(body.pid),
+                request,
+                message: 'pid不存在',
+                dispatch: { where: { keyId: body.pid } }
+            })
             await this.database.builder(this.windows.resource, async qb => {
                 qb.where(`t.key = :key OR t.router = :router`, { key: body.key, router: body.router })
                 await qb.getOne().then(async node => {
@@ -71,12 +77,6 @@ export class ResourceService extends Logger {
                     }
                     return node
                 })
-            })
-            await this.database.empty(this.windows.resource, {
-                next: isNotEmpty(body.pid),
-                request,
-                message: 'pid不存在',
-                dispatch: { where: { keyId: body.pid } }
             })
             await this.database.update(ctx.manager.getRepository(schema.WindowsResource), {
                 request,

@@ -2,7 +2,7 @@ import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsNotEmpty, Length, IsEnum, IsNumber, IsOptional } from 'class-validator'
-import { DataBaseByAdapter, withProperty, withComment } from '@/modules/database/database.adapter'
+import { DataBaseByAdapter, withKeys, withProperty, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_resource', comment: '管理端-菜单资源表' })
@@ -56,14 +56,14 @@ export class WindowsResource extends DataBaseByAdapter {
     @ApiProperty({ description: withComment('显示状态', enums.CHUNK_WINDOWS_RESOUREC_CHECK) })
     @IsNotEmpty({ message: '显示状态必填' })
     @Length(0, 32, { message: '显示状态不能超过32个字符' })
-    @IsEnum(Object.keys(enums.CHUNK_WINDOWS_RESOUREC_STATUS), { message: '显示状态格式错误' })
-    @Column({ comment: '显示状态', default: true, nullable: false })
+    @IsEnum(withKeys(enums.CHUNK_WINDOWS_RESOUREC_CHECK), { message: '显示状态格式错误' })
+    @Column({ nullable: false, comment: withComment('显示状态', enums.CHUNK_WINDOWS_RESOUREC_CHECK) })
     check: string
 
     @ApiProperty({ description: withComment('菜单状态', enums.CHUNK_WINDOWS_RESOUREC_STATUS) })
     @IsNotEmpty({ message: '菜单状态必填' })
     @Length(0, 32, { message: '菜单状态不能超过32个字符' })
-    @IsEnum(Object.keys(enums.CHUNK_WINDOWS_RESOUREC_STATUS), { message: '菜单状态格式错误' })
+    @IsEnum(withKeys(enums.CHUNK_WINDOWS_RESOUREC_STATUS), { message: '菜单状态格式错误' })
     @Column({ nullable: false, comment: withComment('菜单状态', enums.CHUNK_WINDOWS_RESOUREC_STATUS) })
     status: string
 }
