@@ -1,17 +1,29 @@
-/**管理端-菜单资源表**/
-export const COMMON_WINDOWS_RESOUREC = {
-    /**菜单状态**/
-    status: {
-        enable: {
-            value: 'enable',
-            name: '启用',
-            json: { type: 'success' }
-        },
-        disable: {
-            value: 'disable',
-            name: '禁用',
-            json: { type: 'error' }
-        }
+export const CHUNK_WINDOWS_RESOUREC_STATUS = {
+    name: '菜单状态',
+    value: 'CHUNK_WINDOWS_RESOUREC_STATUS',
+    enable: {
+        value: 'enable',
+        name: '启用',
+        json: { type: 'success' }
+    },
+    disable: {
+        value: 'disable',
+        name: '禁用',
+        json: { type: 'error' }
+    }
+}
+
+/**菜单是否可见**/
+export const CHUNK_WINDOWS_RESOUREC_CHECK = {
+    show: {
+        value: 'show',
+        name: '显示',
+        json: { type: 'success' }
+    },
+    hide: {
+        value: 'hide',
+        name: '隐藏',
+        json: { type: 'error' }
     }
 }
 

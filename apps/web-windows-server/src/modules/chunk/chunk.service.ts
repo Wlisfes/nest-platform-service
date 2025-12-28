@@ -1,14 +1,6 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { isEmpty } from 'class-validator'
-import { compareSync } from 'bcryptjs'
-import { pick } from 'lodash'
+import { Injectable, HttpException } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
-import { CodexService } from '@/modules/common/modules/codex.service'
-import { RedisService } from '@/modules/redis/redis.service'
-import { JwtService } from '@/modules/jwt/jwt.service'
-import { fetchTreeNodeBlock } from '@/utils'
-import { OmixRequest, OmixResponse, CodexCreateOptions } from '@/interface'
+import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
@@ -21,6 +13,10 @@ export class ChunkService extends Logger {
     @AutoDescriptor
     public async httpBaseChunkSelect(request: OmixRequest, body: windows.ChunkSelectOptions) {
         try {
+            return await this.fetchResolver({
+                message: '操作成功',
+                chunk: body.type.reduce((obs, key: string) => ({ ...obs, [key]: Object.values(windows.COMMON_CHUNK[key].columns) }), {})
+            })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)

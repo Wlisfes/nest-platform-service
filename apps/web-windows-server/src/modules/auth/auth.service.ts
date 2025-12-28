@@ -102,7 +102,7 @@ export class AuthService extends Logger {
         try {
             return await this.database.builder(this.windows.resource, async qb => {
                 await this.database.selection(qb, [
-                    ['t', ['keyId', 'pid', 'key', 'name', 'router', 'activeRouter', 'iconName', 'check', 'sort', 'status']]
+                    ['t', ['keyId', 'pid', 'key', 'name', 'router', 'activeRouter', 'icon', 'check', 'sort', 'status']]
                 ])
                 return await qb.getMany().then(async nodes => {
                     const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))

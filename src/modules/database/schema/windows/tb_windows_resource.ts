@@ -33,19 +33,13 @@ export class WindowsResource extends DataBaseByAdapter {
     @ApiProperty({ description: '菜单图标', required: false })
     @IsOptional()
     @Length(0, 64, { message: '菜单图标不能超过64个字符' })
-    @Column({ name: 'icon_name', comment: '菜单图标', length: 64, nullable: true })
-    iconName: string
+    @Column({ name: 'icon', comment: '菜单图标', length: 64, nullable: true })
+    icon: string
 
     @ApiProperty({ description: '上级菜单ID', required: false })
     @IsOptional()
     @Column({ comment: '上级菜单ID', nullable: true })
     pid: number
-
-    @ApiProperty({ description: '菜单是否可见', example: true })
-    @Type(() => Boolean)
-    @IsNotEmpty({ message: '菜单是否可见必填' })
-    @Column({ comment: '菜单是否可见', default: true, nullable: false })
-    check: boolean
 
     @ApiProperty({ description: '版本号', example: 'v1.0.0' })
     @IsNotEmpty({ message: '版本号必填' })
@@ -59,14 +53,18 @@ export class WindowsResource extends DataBaseByAdapter {
     @Column({ comment: '排序号', default: 0, nullable: false })
     sort: number
 
-    @ApiProperty({
-        description: withComment('菜单状态', enums.COMMON_WINDOWS_RESOUREC.status),
-        enum: withProperty(enums.COMMON_WINDOWS_RESOUREC.status)
-    })
+    @ApiProperty({ description: withComment('显示状态', enums.CHUNK_WINDOWS_RESOUREC_CHECK) })
+    @IsNotEmpty({ message: '显示状态必填' })
+    @Length(0, 32, { message: '显示状态不能超过32个字符' })
+    @IsEnum(Object.keys(enums.CHUNK_WINDOWS_RESOUREC_STATUS), { message: '显示状态格式错误' })
+    @Column({ comment: '显示状态', default: true, nullable: false })
+    check: string
+
+    @ApiProperty({ description: withComment('菜单状态', enums.CHUNK_WINDOWS_RESOUREC_STATUS) })
     @IsNotEmpty({ message: '菜单状态必填' })
     @Length(0, 32, { message: '菜单状态不能超过32个字符' })
-    @IsEnum(Object.keys(enums.COMMON_WINDOWS_RESOUREC.status), { message: '菜单状态格式错误' })
-    @Column({ nullable: false, comment: withComment('菜单状态', enums.COMMON_WINDOWS_RESOUREC.status) })
+    @IsEnum(Object.keys(enums.CHUNK_WINDOWS_RESOUREC_STATUS), { message: '菜单状态格式错误' })
+    @Column({ nullable: false, comment: withComment('菜单状态', enums.CHUNK_WINDOWS_RESOUREC_STATUS) })
     status: string
 }
 

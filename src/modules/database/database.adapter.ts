@@ -9,9 +9,16 @@ export function withProperty<T>(data: Omix<T>) {
     return Object.values(data).map(item => item.value)
 }
 
+/**枚举值提取**/
+export function withExtract<T extends Omix, R = Omit<T, 'name' | 'value'>>(data: T): Omix<R> {
+    const keys = Object.keys(data).filter(field => !['name', 'value'].includes(field))
+    return keys.reduce((obs: Omix<R>, key: string) => ({ ...obs, [key]: data[key] }), {} as Omix<R>)
+}
+
 /**枚举描述转换**/
-export function withComment(name: string, data: Omix) {
-    const text = Object.values(data)
+export function withComment<T extends Omix>(name: string, data: T) {
+    const obs = withExtract(data)
+    const text = Object.values(obs)
         .map(item => `${item.name}-${item.value}`)
         .join('、')
     return `${name}：${text}`

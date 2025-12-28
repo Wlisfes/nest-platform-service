@@ -5,7 +5,7 @@ import { WindowsResource, WindowsResourceSheet, WindowsResourceApifox } from '@/
 /**新增菜单资源**/
 export class CreateResourceOptions extends IntersectionType(
     PickType(WindowsResource, ['key', 'name', 'router', 'check', 'version', 'sort', 'status']),
-    PartialType(PickType(WindowsResource, ['activeRouter', 'iconName', 'pid']))
+    PartialType(PickType(WindowsResource, ['activeRouter', 'icon', 'pid']))
 ) {}
 
 /**编辑菜单资源**/
