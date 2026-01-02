@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { IsNumber, IsBoolean } from 'class-validator'
 import { Type } from 'class-transformer'
-import { IsNumber } from 'class-validator'
 
 /**创建图形验证码**/
 export class CodexCreateOptions {
@@ -18,6 +18,11 @@ export class CodexCreateOptions {
     @IsNumber({}, { message: 'fontSize必须是数字' })
     @Type(type => Number)
     fontSize: number = 40
+
+    @ApiProperty({ description: '图形验证码主题', required: false, example: false })
+    @IsBoolean({ message: 'inverse必须是boolean' })
+    @Type(type => Boolean)
+    inverse: boolean = false
 }
 
 /**写入图形验证码**/

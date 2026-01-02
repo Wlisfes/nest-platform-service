@@ -46,6 +46,7 @@ export class CodexService extends Logger {
                 width: body.width ?? 120,
                 height: body.height ?? 40,
                 fontSize: body.fontSize ?? 40,
+                inverse: true,
                 noise: 2
             })
             return Object.assign(body, { sid, text, data })

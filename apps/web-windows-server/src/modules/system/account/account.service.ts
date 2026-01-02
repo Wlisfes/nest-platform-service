@@ -48,7 +48,20 @@ export class AccountService extends Logger {
 
     /**账号列表**/
     @AutoDescriptor
-    public async httpBaseSystemColumnAccount(request: OmixRequest, body: windows.ColumnAccountOptions) {}
+    public async httpBaseSystemColumnAccount(request: OmixRequest, body: windows.ColumnAccountOptions) {
+        try {
+            return await this.database.builder(this.windows.account, async qb => {
+                qb.skip((body.page - 1) * body.size)
+                qb.take(body.size)
+                return await qb.getManyAndCount().then(async ([list, total]) => {
+                    return await this.fetchResolver({ list, total })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 
     /**编辑账号状态**/
     @AutoDescriptor
