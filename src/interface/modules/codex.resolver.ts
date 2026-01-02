@@ -19,10 +19,10 @@ export class CodexCreateOptions {
     @Type(type => Number)
     fontSize: number = 40
 
-    @ApiProperty({ description: '图形验证码主题', required: false, example: false })
-    @IsBoolean({ message: 'inverse必须是boolean' })
-    @Type(type => Boolean)
-    inverse: boolean = false
+    @ApiProperty({ description: '图形验证码主题', required: false, example: 0 })
+    @IsNumber({}, { message: 'inverse必须是数字' })
+    @Type(type => Number)
+    inverse: number = 0
 }
 
 /**写入图形验证码**/
