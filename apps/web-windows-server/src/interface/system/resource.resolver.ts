@@ -11,6 +11,9 @@ export class CreateResourceOptions extends IntersectionType(
 /**编辑菜单资源**/
 export class UpdateResourceOptions extends IntersectionType(CreateResourceOptions, PickType(WindowsResource, ['keyId'])) {}
 
+/**菜单资源详情**/
+export class ResourceResolverOptions extends PickType(WindowsResource, ['keyId']) {}
+
 /**菜单资源列表**/
 export class ColumnResourceOptions extends PartialType(
     PickType(WindowsResource, ['name', 'keyId', 'pid', 'version', 'status', 'router', 'createBy'])

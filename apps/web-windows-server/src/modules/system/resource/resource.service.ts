@@ -94,6 +94,21 @@ export class ResourceService extends Logger {
         }
     }
 
+    /**菜单资源详情**/
+    @AutoDescriptor
+    public async httpBaseSystemResourceResolver(request: OmixRequest, body: windows.ResourceResolverOptions) {
+        try {
+            return await this.database.empty(this.windows.resource, {
+                request,
+                message: 'keyId不存在',
+                dispatch: { where: { keyId: body.keyId } }
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
     /**菜单资源列表**/
     @AutoDescriptor
     public async httpBaseSystemColumnResource(request: OmixRequest, body: windows.ColumnResourceOptions) {

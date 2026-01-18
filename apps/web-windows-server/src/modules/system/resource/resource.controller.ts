@@ -26,6 +26,15 @@ export class ResourceController {
         return await this.resourceService.httpBaseSystemUpdateResource(request, body)
     }
 
+    @ApiServiceDecorator(Post('/resolver'), {
+        windows: true,
+        operation: { summary: '菜单资源详情' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemResourceResolver(@Request() request: OmixRequest, @Body() body: windows.ResourceResolverOptions) {
+        return await this.resourceService.httpBaseSystemResourceResolver(request, body)
+    }
+
     @ApiServiceDecorator(Post('/column'), {
         windows: true,
         operation: { summary: '菜单资源列表' },
