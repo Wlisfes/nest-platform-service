@@ -109,6 +109,22 @@ export class ResourceService extends Logger {
         }
     }
 
+    /**菜单资源树结构表**/
+    @AutoDescriptor
+    public async httpBaseSystemSelectResource(request: OmixRequest) {
+        try {
+            return await this.database.builder(this.windows.resource, async qb => {
+                return await qb.getMany().then(async nodes => {
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
+                    return await this.fetchResolver({ list: items })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
     /**菜单资源列表**/
     @AutoDescriptor
     public async httpBaseSystemColumnResource(request: OmixRequest, body: windows.ColumnResourceOptions) {

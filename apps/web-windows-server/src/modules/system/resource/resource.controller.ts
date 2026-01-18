@@ -35,6 +35,15 @@ export class ResourceController {
         return await this.resourceService.httpBaseSystemResourceResolver(request, body)
     }
 
+    @ApiServiceDecorator(Post('/select'), {
+        windows: true,
+        operation: { summary: '菜单资源树结构表' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemSelectResource(@Request() request: OmixRequest) {
+        return await this.resourceService.httpBaseSystemSelectResource(request)
+    }
+
     @ApiServiceDecorator(Post('/column'), {
         windows: true,
         operation: { summary: '菜单资源列表' },
