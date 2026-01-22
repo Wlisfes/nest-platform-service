@@ -25,7 +25,11 @@ export class SchemaService {
         /**管理端-角色关联账号表**/
         @InjectRepository(schema.WindowsRoleAccount) readonly WindowsRoleAccount: Repository<schema.WindowsRoleAccount>,
         /**管理端-角色菜单资源表**/
-        @InjectRepository(schema.WindowsRoleResource) readonly WindowsRoleResource: Repository<schema.WindowsRoleResource>
+        @InjectRepository(schema.WindowsRoleResource) readonly WindowsRoleResource: Repository<schema.WindowsRoleResource>,
+        /**管理端-角色按钮权限关联表**/
+        @InjectRepository(schema.WindowsRoleSheet) readonly WindowsRoleSheet: Repository<schema.WindowsRoleSheet>,
+        /**管理端-角色接口权限关联表**/
+        @InjectRepository(schema.WindowsRoleApifox) readonly WindowsRoleApifox: Repository<schema.WindowsRoleApifox>
     ) {}
 }
 
@@ -54,6 +58,10 @@ export class WindowsService {
         /**管理端-角色关联账号表**/
         @InjectRepository(schema.WindowsRoleAccount) readonly roleAccount: Repository<schema.WindowsRoleAccount>,
         /**管理端-角色菜单资源表**/
-        @InjectRepository(schema.WindowsRoleResource) readonly roleResource: Repository<schema.WindowsRoleResource>
+        @InjectRepository(schema.WindowsRoleResource) readonly roleResource: Repository<schema.WindowsRoleResource>,
+        /**管理端-角色按钮权限关联表**/
+        @InjectRepository(schema.WindowsRoleSheet) readonly roleSheet: Repository<schema.WindowsRoleSheet>,
+        /**管理端-角色接口权限关联表**/
+        @InjectRepository(schema.WindowsRoleApifox) readonly roleApifox: Repository<schema.WindowsRoleApifox>
     ) {}
 }

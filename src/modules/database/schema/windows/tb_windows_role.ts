@@ -35,6 +35,11 @@ export class WindowsRole extends DataBaseByAdapter {
 
 @Entity({ name: 'tb_windows_role_account', comment: '管理端-角色关联账号表' })
 export class WindowsRoleAccount extends DataBaseByAdapter {
+    @ApiProperty({ description: '角色ID', example: 1000 })
+    @IsNotEmpty({ message: '角色ID必填' })
+    @Column({ name: 'role_id', comment: '角色ID', nullable: false })
+    roleId: number
+
     @ApiProperty({ description: '账号UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '账号UID必填' })
     @Column({ comment: '账号UID', length: 19, nullable: false })
@@ -43,8 +48,39 @@ export class WindowsRoleAccount extends DataBaseByAdapter {
 
 @Entity({ name: 'tb_windows_role_resource', comment: '管理端-角色菜单资源表' })
 export class WindowsRoleResource extends DataBaseByAdapter {
-    @ApiProperty({ description: '菜单资源ID', example: '2149446185344106496' })
+    @ApiProperty({ description: '角色ID', example: 1000 })
+    @IsNotEmpty({ message: '角色ID必填' })
+    @Column({ name: 'role_id', comment: '角色ID', nullable: false })
+    roleId: number
+
+    @ApiProperty({ description: '菜单资源ID', example: 1000 })
     @IsNotEmpty({ message: '菜单资源ID必填' })
-    @Column({ comment: '菜单资源ID', length: 19, nullable: false })
-    sid: string
+    @Column({ comment: '菜单资源ID', nullable: false })
+    sid: number
+}
+
+@Entity({ name: 'tb_windows_role_sheet', comment: '管理端-角色按钮权限关联表' })
+export class WindowsRoleSheet extends DataBaseByAdapter {
+    @ApiProperty({ description: '角色ID', example: 1000 })
+    @IsNotEmpty({ message: '角色ID必填' })
+    @Column({ name: 'role_id', comment: '角色ID', nullable: false })
+    roleId: number
+
+    @ApiProperty({ description: '按钮权限ID', example: 1000 })
+    @IsNotEmpty({ message: '按钮权限ID必填' })
+    @Column({ name: 'sheet_id', comment: '按钮权限ID', nullable: false })
+    sheetId: number
+}
+
+@Entity({ name: 'tb_windows_role_apifox', comment: '管理端-角色接口权限关联表' })
+export class WindowsRoleApifox extends DataBaseByAdapter {
+    @ApiProperty({ description: '角色ID', example: 1000 })
+    @IsNotEmpty({ message: '角色ID必填' })
+    @Column({ name: 'role_id', comment: '角色ID', nullable: false })
+    roleId: number
+
+    @ApiProperty({ description: '接口权限ID', example: 1000 })
+    @IsNotEmpty({ message: '接口权限ID必填' })
+    @Column({ name: 'apifox_id', comment: '接口权限ID', nullable: false })
+    apifoxId: number
 }

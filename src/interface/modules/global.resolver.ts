@@ -20,4 +20,5 @@ export interface OmixRequest extends Omix<Request> {
     headers: OmixHeaders
     ipv4: string
     user: OmixUser
+    permissions?: Array<string>
 }

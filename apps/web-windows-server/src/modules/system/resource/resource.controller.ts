@@ -77,6 +77,105 @@ export class ResourceController {
         response: { status: 200, description: 'OK' }
     })
     public async httpBaseSystemCreateSheet(@Request() request: OmixRequest, @Body() body: windows.CreateSheetOptions) {
-        // return await this.resourceService.httpBaseSystemCreateSheet(request, body)
+        return await this.resourceService.httpBaseSystemCreateSheet(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/sheet/update'), {
+        windows: true,
+        operation: { summary: '编辑操作按钮' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemUpdateSheet(@Request() request: OmixRequest, @Body() body: windows.UpdateSheetOptions) {
+        return await this.resourceService.httpBaseSystemUpdateSheet(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/sheet/resolver'), {
+        windows: true,
+        operation: { summary: '操作按钮详情' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemSheetResolver(@Request() request: OmixRequest, @Body() body: windows.SheetResolverOptions) {
+        return await this.resourceService.httpBaseSystemSheetResolver(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/sheet/column'), {
+        windows: true,
+        operation: { summary: '操作按钮列表' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemColumnSheet(@Request() request: OmixRequest, @Body() body: windows.ColumnSheetOptions) {
+        return await this.resourceService.httpBaseSystemColumnSheet(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/sheet/switch'), {
+        windows: true,
+        operation: { summary: '操作按钮状态变更' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemSwitchSheet(@Request() request: OmixRequest, @Body() body: windows.SwitchSheetOptions) {
+        return await this.resourceService.httpBaseSystemSwitchSheet(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/sheet/delete'), {
+        windows: true,
+        operation: { summary: '删除操作按钮' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemDeleteSheet(@Request() request: OmixRequest, @Body() body: windows.DeleteSheetOptions) {
+        return await this.resourceService.httpBaseSystemDeleteSheet(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/apifox/create'), {
+        windows: true,
+        operation: { summary: '新增接口权限' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemCreateApifox(@Request() request: OmixRequest, @Body() body: windows.CreateApifoxOptions) {
+        return await this.resourceService.httpBaseSystemCreateApifox(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/apifox/update'), {
+        windows: true,
+        operation: { summary: '编辑接口权限' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemUpdateApifox(@Request() request: OmixRequest, @Body() body: windows.UpdateApifoxOptions) {
+        return await this.resourceService.httpBaseSystemUpdateApifox(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/apifox/resolver'), {
+        windows: true,
+        operation: { summary: '接口权限详情' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemApifoxResolver(@Request() request: OmixRequest, @Body() body: windows.ApifoxResolverOptions) {
+        return await this.resourceService.httpBaseSystemApifoxResolver(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/apifox/column'), {
+        windows: true,
+        operation: { summary: '接口权限列表' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemColumnApifox(@Request() request: OmixRequest, @Body() body: windows.ColumnApifoxOptions) {
+        return await this.resourceService.httpBaseSystemColumnApifox(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/apifox/switch'), {
+        windows: true,
+        operation: { summary: '接口权限状态变更' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemSwitchApifox(@Request() request: OmixRequest, @Body() body: windows.SwitchApifoxOptions) {
+        return await this.resourceService.httpBaseSystemSwitchApifox(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/apifox/delete'), {
+        windows: true,
+        operation: { summary: '删除接口权限' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemDeleteApifox(@Request() request: OmixRequest, @Body() body: windows.DeleteApifoxOptions) {
+        return await this.resourceService.httpBaseSystemDeleteApifox(request, body)
     }
 }
