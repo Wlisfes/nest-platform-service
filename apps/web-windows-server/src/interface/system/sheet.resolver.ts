@@ -15,9 +15,21 @@ export class UpdateSheetResourceOptions extends IntersectionType(
 ) {}
 
 /**菜单详情、删除菜单**/
-export class BasicSheetResourceOptions extends PickType(schema.WindowsSheet, ['id']) {}
+export class BasicSheetOptions extends PickType(schema.WindowsSheet, ['id']) {}
 
 /**菜单资源列表**/
 export class ColumnSheetResourceOptions extends PartialType(
     PickType(schema.WindowsSheet, ['name', 'keyName', 'id', 'pid', 'version', 'status', 'router', 'createBy'])
+) {}
+
+/**添加按钮权限**/
+export class CreateSheetAuthorizeOptions extends IntersectionType(
+    PickType(schema.WindowsSheet, ['keyName', 'name', 'version', 'sort', 'status']),
+    PartialType(PickType(schema.WindowsSheet, ['pid']))
+) {}
+
+/**编辑按钮权限**/
+export class UpdateSheetAuthorizeOptions extends IntersectionType(
+    PickType(schema.WindowsSheet, ['id', 'keyName', 'name', 'version', 'sort', 'status']),
+    PartialType(PickType(schema.WindowsSheet, ['pid']))
 ) {}

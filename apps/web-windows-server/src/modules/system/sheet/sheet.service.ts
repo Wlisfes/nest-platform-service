@@ -73,12 +73,12 @@ export class SheetService extends Logger {
                 message: 'pid:不存在',
                 dispatch: { where: { id: body.pid } }
             })
-            await this.database.empty(this.windows.sheetOptions, {
+            await this.database.notempty(this.windows.sheetOptions, {
                 request,
                 message: 'keyName:已存在',
                 dispatch: { where: { keyName: body.keyName, id: Not(body.id) } }
             })
-            await this.database.empty(this.windows.sheetOptions, {
+            await this.database.notempty(this.windows.sheetOptions, {
                 request,
                 message: 'router:已存在',
                 dispatch: { where: { router: body.router, id: Not(body.id) } }
@@ -103,16 +103,14 @@ export class SheetService extends Logger {
         }
     }
 
-    /**菜单详情**/
+    /**菜单、按钮详情**/
     @AutoDescriptor
-    public async httpBaseSystemBasicSheetResource(request: OmixRequest, body: windows.BasicSheetResourceOptions) {
+    public async httpBaseSystemSheetResolver(request: OmixRequest, body: windows.BasicSheetOptions) {
         try {
-            return await this.database.builder(this.windows.sheetOptions, async qb => {
-                const node = await qb.where(`t.id = :id`, { id: body.id }).getOne()
-                if (isEmpty(node)) {
-                    throw new HttpException('id:不存在', HttpStatus.BAD_REQUEST)
-                }
-                return await this.fetchResolver({ message: '操作成功', data: node })
+            return await this.database.empty(this.windows.sheetOptions, {
+                request,
+                message: 'id:不存在',
+                dispatch: { where: { id: body.id } }
             })
         } catch (err) {
             this.logger.error(err)
@@ -134,5 +132,48 @@ export class SheetService extends Logger {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
         }
+    }
+
+    /**添加按钮权限**/
+    @AutoDescriptor
+    public async httpBaseSystemCreateSheetAuthorize(request: OmixRequest, body: windows.CreateSheetAuthorizeOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            await this.database.empty(this.windows.sheetOptions, {
+                next: isNotEmpty(body.pid),
+                request,
+                message: 'pid:不存在',
+                dispatch: { where: { id: body.pid } }
+            })
+            await this.database.notempty(this.windows.sheetOptions, {
+                request,
+                message: 'keyName:已存在',
+                dispatch: { where: { keyName: body.keyName } }
+            })
+            await this.database.create(ctx.manager.getRepository(schema.WindowsSheet), {
+                request,
+                stack: this.stack,
+                body: Object.assign(body, {
+                    id: await fetchIntNumber(),
+                    createBy: request.user.uid,
+                    check: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value,
+                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize
+                })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**编辑按钮权限**/
+    @AutoDescriptor
+    public async httpBaseSystemUpdateSheetAuthorize(request: OmixRequest, body: windows.UpdateSheetAuthorizeOptions) {
+        // return await this.sheetService.httpBaseSystemCreateSheet(request, body)
     }
 }

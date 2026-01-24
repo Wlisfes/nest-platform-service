@@ -67,10 +67,10 @@ export class WindowsSheet extends DataBaseByAdapter {
     @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_WINDOWS_SHEET_STATUS) })
     status: string
 
-    @ApiProperty({ description: withComment('显示状态', enums.CHUNK_WINDOWS_RESOUREC_CHECK) })
+    @ApiProperty({ description: withComment('显示状态', enums.CHUNK_WINDOWS_SHEET_CHECK) })
     @IsNotEmpty({ message: '显示状态必填' })
     @Length(0, 32, { message: '显示状态不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_RESOUREC_CHECK), { message: '显示状态格式错误' })
-    @Column({ nullable: false, comment: withComment('显示状态', enums.CHUNK_WINDOWS_RESOUREC_CHECK) })
+    @IsEnum(withKeys(enums.CHUNK_WINDOWS_SHEET_CHECK), { message: '显示状态格式错误' })
+    @Column({ nullable: false, comment: withComment('显示状态', enums.CHUNK_WINDOWS_SHEET_CHECK) })
     check: string
 }

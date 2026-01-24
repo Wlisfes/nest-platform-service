@@ -26,13 +26,13 @@ export class SheetController {
         return await this.sheetService.httpBaseSystemUpdateSheetResource(request, body)
     }
 
-    @ApiServiceDecorator(Post('basic/resource'), {
+    @ApiServiceDecorator(Post('resolver'), {
         windows: true,
-        operation: { summary: '菜单详情' },
+        operation: { summary: '菜单、按钮详情' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpBaseSystemBasicSheetResource(@Request() request: OmixRequest, @Body() body: windows.BasicSheetResourceOptions) {
-        return await this.sheetService.httpBaseSystemBasicSheetResource(request, body)
+    public async httpBaseSystemSheetResolver(@Request() request: OmixRequest, @Body() body: windows.BasicSheetOptions) {
+        return await this.sheetService.httpBaseSystemSheetResolver(request, body)
     }
 
     @ApiServiceDecorator(Post('select/resource'), {
@@ -51,5 +51,23 @@ export class SheetController {
     })
     public async httpBaseSystemColumnSheetResource(@Request() request: OmixRequest, @Body() body: windows.ColumnSheetResourceOptions) {
         return await this.sheetService.httpBaseSystemColumnSheetResource(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/create/authorize'), {
+        windows: true,
+        operation: { summary: '添加按钮权限' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemCreateSheetAuthorize(@Request() request: OmixRequest, @Body() body: windows.CreateSheetAuthorizeOptions) {
+        return await this.sheetService.httpBaseSystemCreateSheetAuthorize(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/update/authorize'), {
+        windows: true,
+        operation: { summary: '编辑按钮权限' },
+        response: { status: 200, description: 'OK' }
+    })
+    public async httpBaseSystemUpdateSheetAuthorize(@Request() request: OmixRequest, @Body() body: windows.UpdateSheetAuthorizeOptions) {
+        return await this.sheetService.httpBaseSystemUpdateSheetAuthorize(request, body)
     }
 }

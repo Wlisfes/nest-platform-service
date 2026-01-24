@@ -6,9 +6,9 @@ export const CHUNK_WINDOWS_SHEET_CHUNK = {
         name: '菜单',
         json: { type: 'success' }
     },
-    button: {
-        value: 'button',
-        name: '按钮',
+    authorize: {
+        value: 'authorize',
+        name: '按钮权限',
         json: { type: 'info' }
     }
 }
