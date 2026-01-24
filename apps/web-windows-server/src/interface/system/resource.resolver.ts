@@ -32,4 +32,19 @@ export class DeleteResourceOptions extends PickType(OmixPayload, ['keys']) {}
 export class CreateSheetOptions extends PickType(schema.WindowsResourceSheet, ['key', 'pid', 'name', 'version', 'status']) {}
 
 /**编辑操作按钮**/
-export class UpdateSheetOptions extends IntersectionType(CreateSheetOptions, PickType(schema.WindowsResourceSheet, ['keyId'])) {}
+export class UpdateSheetOptions extends IntersectionType(CreateSheetOptions, PickType(schema.WindowsResourceSheet, ['id'])) {}
+
+/**操作按钮详情**/
+export class ResolverSheetOptions extends PickType(schema.WindowsResourceSheet, ['id']) {}
+
+/**操作按钮列表**/
+export class ColumnSheetOptions extends PartialType(PickType(schema.WindowsResourceSheet, ['pid', 'name', 'status'])) {}
+
+/**操作按钮状态变更**/
+export class SwitchSheetOptions extends IntersectionType(
+    PickType(OmixPayload, ['keys']),
+    PickType(schema.WindowsResourceSheet, ['status'])
+) {}
+
+/**删除操作按钮**/
+export class DeleteSheetOptions extends PickType(OmixPayload, ['keys']) {}

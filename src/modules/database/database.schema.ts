@@ -44,6 +44,7 @@ export class WindowsService {
         /**管理端-部门关联账号表**/
         @InjectRepository(schema.WindowsDeptAccount) readonly deptAccount: Repository<schema.WindowsDeptAccount>,
         /**管理端-菜单资源表**/
+        @InjectRepository(schema.WindowsResource) readonly sheetOptions: Repository<schema.WindowsSheet>,
         @InjectRepository(schema.WindowsResource) readonly resource: Repository<schema.WindowsResource>,
         /**管理端-接口权限表**/
         @InjectRepository(schema.WindowsResourceApifox) readonly resourceApifox: Repository<schema.WindowsResourceApifox>,
