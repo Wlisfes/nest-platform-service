@@ -14,7 +14,7 @@ export class AccountService extends Logger {
         super()
     }
 
-    /**新增账号**/
+    /**添加账号**/
     @AutoDescriptor
     public async httpBaseSystemCreateAccount(request: OmixRequest, body: windows.CreateAccountOptions) {
         const ctx = await this.database.transaction()

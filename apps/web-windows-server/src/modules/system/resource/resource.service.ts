@@ -3,7 +3,7 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface'
 import { isEmpty, isNotEmpty } from 'class-validator'
-import { faker, fetchHandler, fetchTreeNodeBlock } from '@/utils'
+import { faker, fetchHandler, fetchTreeNodeBlock, fetchIntNumber } from '@/utils'
 import * as tree from 'tree-tool'
 import * as windows from '@web-windows-server/interface'
 
@@ -13,7 +13,7 @@ export class ResourceService extends Logger {
         super()
     }
 
-    /**新增菜单资源**/
+    /**添加菜单资源**/
     @AutoDescriptor
     public async httpBaseSystemCreateResource(request: OmixRequest, body: windows.CreateResourceOptions) {
         const ctx = await this.database.transaction()
@@ -33,7 +33,7 @@ export class ResourceService extends Logger {
                 request,
                 message: 'pid不存在',
                 next: isNotEmpty(body.pid),
-                dispatch: { where: { keyId: body.pid } }
+                dispatch: { where: { id: body.pid } }
             })
             await this.database.create(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
@@ -58,21 +58,21 @@ export class ResourceService extends Logger {
         try {
             await this.database.empty(this.windows.resource, {
                 request,
-                message: 'keyId不存在',
-                dispatch: { where: { keyId: body.keyId } }
+                message: 'ID不存在',
+                dispatch: { where: { id: body.id } }
             })
             await this.database.empty(this.windows.resource, {
                 next: isNotEmpty(body.pid),
                 request,
                 message: 'pid不存在',
-                dispatch: { where: { keyId: body.pid } }
+                dispatch: { where: { id: body.pid } }
             })
             await this.database.builder(this.windows.resource, async qb => {
                 qb.where(`t.key = :key OR t.router = :router`, { key: body.key, router: body.router })
                 await qb.getOne().then(async node => {
-                    if (isNotEmpty(node) && node.keyId !== body.keyId && node.key == body.key) {
+                    if (isNotEmpty(node) && node.id !== body.id && node.key == body.key) {
                         throw new HttpException(`key:${body.key} 已存在`, HttpStatus.BAD_REQUEST)
-                    } else if (isNotEmpty(node) && node.keyId !== body.keyId && node.router === body.router) {
+                    } else if (isNotEmpty(node) && node.id !== body.id && node.router === body.router) {
                         throw new HttpException(`router:${body.router} 已存在`, HttpStatus.BAD_REQUEST)
                     }
                     return node
@@ -80,7 +80,7 @@ export class ResourceService extends Logger {
             })
             await this.database.update(ctx.manager.getRepository(schema.WindowsResource), {
                 request,
-                where: { keyId: body.keyId },
+                where: { id: body.id },
                 body: Object.assign(body, { modifyBy: request.user.uid })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -100,8 +100,8 @@ export class ResourceService extends Logger {
         try {
             return await this.database.empty(this.windows.resource, {
                 request,
-                message: 'keyId不存在',
-                dispatch: { where: { keyId: body.keyId } }
+                message: 'ID不存在',
+                dispatch: { where: { id: body.id } }
             })
         } catch (err) {
             this.logger.error(err)
@@ -115,7 +115,7 @@ export class ResourceService extends Logger {
         try {
             return await this.database.builder(this.windows.resource, async qb => {
                 return await qb.getMany().then(async nodes => {
-                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
                     return await this.fetchResolver({ list: items })
                 })
             })
@@ -131,7 +131,7 @@ export class ResourceService extends Logger {
         try {
             return await this.database.builder(this.windows.resource, async qb => {
                 return await qb.getMany().then(async nodes => {
-                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
                     return await this.fetchResolver({ list: items })
                 })
             })

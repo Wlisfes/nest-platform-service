@@ -2,7 +2,7 @@ import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
 import { OmixColumn, OmixPayload } from '@/interface'
 import { WindowsAccount } from '@/modules/database/schema'
 
-/**新增用户账号**/
+/**添加用户账号**/
 export class CreateAccountOptions extends IntersectionType(
     PickType(WindowsAccount, ['name', 'number', 'phone', 'password', 'status']),
     PickType(WindowsAccount, ['avatar', 'email'])

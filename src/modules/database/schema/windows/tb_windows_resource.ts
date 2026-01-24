@@ -7,6 +7,11 @@ import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_resource', comment: '管理端-菜单资源表' })
 export class WindowsResource extends DataBaseByAdapter {
+    @ApiProperty({ description: 'ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'ID必填' })
+    @Column({ comment: '唯一ID', update: false, length: 19, nullable: false })
+    id: string
+
     @ApiProperty({ description: '菜单权限标识' })
     @IsNotEmpty({ message: '菜单权限标识必填' })
     @Length(0, 128, { message: '菜单权限标识不能超过128个字符' })
@@ -38,8 +43,8 @@ export class WindowsResource extends DataBaseByAdapter {
 
     @ApiProperty({ description: '上级菜单ID', required: false })
     @IsOptional()
-    @Column({ comment: '上级菜单ID', nullable: true })
-    pid: number
+    @Column({ comment: '上级菜单ID', length: 19, nullable: true })
+    pid: string
 
     @ApiProperty({ description: '版本号', example: 'v1.0.0' })
     @IsNotEmpty({ message: '版本号必填' })
@@ -70,10 +75,15 @@ export class WindowsResource extends DataBaseByAdapter {
 
 @Entity({ name: 'tb_windows_resource_sheet', comment: '管理端-操作按钮权限表' })
 export class WindowsResourceSheet extends DataBaseByAdapter {
+    @ApiProperty({ description: 'ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: 'ID必填' })
+    @Column({ comment: '唯一ID', update: false, length: 19, nullable: false })
+    id: string
+
     @ApiProperty({ description: '归属菜单ID' })
     @IsNotEmpty({ message: '归属菜单ID必填' })
-    @Column({ comment: '归属菜单ID', nullable: true })
-    pid: number
+    @Column({ comment: '归属菜单ID', length: 19, nullable: true })
+    pid: string
 
     @ApiProperty({ description: '按钮权限标识' })
     @IsNotEmpty({ message: '按钮权限标识必填' })
@@ -93,6 +103,12 @@ export class WindowsResourceSheet extends DataBaseByAdapter {
     @Column({ comment: '版本号', length: 32, default: 'v1.0.0', nullable: false })
     version: string
 
+    @ApiProperty({ description: '排序号', example: 0 })
+    @IsNumber({}, { message: '排序号必须为number' })
+    @Type(() => Number)
+    @Column({ comment: '排序号', default: 0, nullable: false })
+    sort: number
+
     @ApiProperty({ description: '按钮状态', enum: withProperty(enums.COMMON_WINDOWS_RESOUREC_SHEET.status) })
     @IsNotEmpty({ message: '按钮状态必填' })
     @Length(0, 32, { message: '按钮状态不能超过32个字符' })
@@ -105,8 +121,8 @@ export class WindowsResourceSheet extends DataBaseByAdapter {
 export class WindowsResourceApifox extends DataBaseByAdapter {
     @ApiProperty({ description: '归属资源ID' })
     @IsNotEmpty({ message: '归属资源ID必填' })
-    @Column({ comment: '归属资源ID', nullable: true })
-    pid: number
+    @Column({ comment: '归属资源ID', length: 19, nullable: true })
+    pid: string
 
     @ApiProperty({ description: '接口名称' })
     @IsNotEmpty({ message: '接口名称必填' })
@@ -119,6 +135,12 @@ export class WindowsResourceApifox extends DataBaseByAdapter {
     @Length(0, 32, { message: '版本号不能超过32个字符' })
     @Column({ comment: '版本号', length: 32, default: 'v1.0.0', nullable: false })
     version: string
+
+    @ApiProperty({ description: '排序号', example: 0 })
+    @IsNumber({}, { message: '排序号必须为number' })
+    @Type(() => Number)
+    @Column({ comment: '排序号', default: 0, nullable: false })
+    sort: number
 
     @ApiProperty({ description: '接口地址' })
     @IsNotEmpty({ message: '接口地址必填' })
