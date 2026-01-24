@@ -5,6 +5,22 @@ import * as enums from '@/modules/database/enums'
 
 /**固定枚举类型**/
 export const COMMON_CHUNK = {
+    [enums.CHUNK_WINDOWS_SHEET_CHECK.value]: {
+        name: enums.CHUNK_WINDOWS_SHEET_CHECK.name,
+        value: enums.CHUNK_WINDOWS_SHEET_CHECK.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_SHEET_CHECK)
+    },
+    [enums.CHUNK_WINDOWS_SHEET_CHUNK.value]: {
+        name: enums.CHUNK_WINDOWS_SHEET_CHUNK.name,
+        value: enums.CHUNK_WINDOWS_SHEET_CHUNK.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_SHEET_CHUNK)
+    },
+    [enums.CHUNK_WINDOWS_SHEET_STATUS.value]: {
+        name: enums.CHUNK_WINDOWS_SHEET_STATUS.name,
+        value: enums.CHUNK_WINDOWS_SHEET_STATUS.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_SHEET_STATUS)
+    },
+
     [enums.CHUNK_WINDOWS_RESOUREC_STATUS.value]: {
         name: enums.CHUNK_WINDOWS_RESOUREC_STATUS.name,
         value: enums.CHUNK_WINDOWS_RESOUREC_STATUS.value,

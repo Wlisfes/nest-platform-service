@@ -38,7 +38,7 @@ export class WindowsSheet extends DataBaseByAdapter {
 
     @ApiProperty({ description: '上级ID', required: false, example: '2149446185344106496' })
     @IsOptional()
-    @Column({ comment: '上级ID', length: 32, nullable: false })
+    @Column({ comment: '上级ID', length: 32, nullable: true })
     pid: string
 
     @ApiProperty({ description: '版本号', example: 'v1.0.0' })
