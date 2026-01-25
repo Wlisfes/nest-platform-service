@@ -35,13 +35,13 @@ export class SheetController {
         return await this.sheetService.httpBaseSystemSheetResolver(request, body)
     }
 
-    @ApiServiceDecorator(Post('select/resource'), {
+    @ApiServiceDecorator(Post('tree/resource'), {
         windows: true,
         operation: { summary: '菜单树结构' },
         response: { status: 200, description: 'OK' }
     })
-    public async httpBaseSystemSelectSheetResource(@Request() request: OmixRequest) {
-        // return await this.resourceService.httpBaseSystemSelectResource(request)
+    public async httpBaseSystemTreeSheetResource(@Request() request: OmixRequest) {
+        return await this.sheetService.httpBaseSystemTreeSheetResource(request)
     }
 
     @ApiServiceDecorator(Post('column/resource'), {

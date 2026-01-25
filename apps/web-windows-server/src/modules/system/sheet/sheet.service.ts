@@ -103,6 +103,22 @@ export class SheetService extends Logger {
         }
     }
 
+    /**菜单树结构**/
+    @AutoDescriptor
+    public async httpBaseSystemTreeSheetResource(request: OmixRequest) {
+        try {
+            return await this.database.builder(this.windows.sheetOptions, async qb => {
+                return await qb.getMany().then(async nodes => {
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
+                    return await this.fetchResolver({ list: items })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
     /**菜单、按钮详情**/
     @AutoDescriptor
     public async httpBaseSystemSheetResolver(request: OmixRequest, body: windows.BasicSheetOptions) {
