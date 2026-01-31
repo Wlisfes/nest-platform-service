@@ -100,9 +100,10 @@ export class AuthService extends Logger {
     @AutoDescriptor
     public async httpAuthAccountTokenResource(request: OmixRequest) {
         try {
-            return await this.database.builder(this.windows.resource, async qb => {
+            return await this.database.builder(this.windows.sheetOptions, async qb => {
+                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value })
                 await this.database.selection(qb, [
-                    ['t', ['keyId', 'id', 'pid', 'key', 'name', 'router', 'activeRouter', 'icon', 'check', 'sort', 'status']]
+                    ['t', ['keyId', 'id', 'pid', 'keyName', 'name', 'router', 'iconName', 'check', 'sort', 'status']]
                 ])
                 return await qb.getMany().then(async nodes => {
                     const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))

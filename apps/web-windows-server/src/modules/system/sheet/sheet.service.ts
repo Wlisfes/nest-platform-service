@@ -62,7 +62,6 @@ export class SheetService extends Logger {
         const ctx = await this.database.transaction()
         try {
             await this.database.empty(this.windows.sheetOptions, {
-                next: isNotEmpty(body.id),
                 request,
                 message: 'id:不存在',
                 dispatch: { where: { id: body.id } }
@@ -173,7 +172,7 @@ export class SheetService extends Logger {
                     id: await fetchIntNumber(),
                     createBy: request.user.uid,
                     check: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value,
-                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize
+                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize.value
                 })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -190,6 +189,42 @@ export class SheetService extends Logger {
     /**编辑按钮权限**/
     @AutoDescriptor
     public async httpBaseSystemUpdateSheetAuthorize(request: OmixRequest, body: windows.UpdateSheetAuthorizeOptions) {
-        // return await this.sheetService.httpBaseSystemCreateSheet(request, body)
+        const ctx = await this.database.transaction()
+        try {
+            await this.database.empty(this.windows.sheetOptions, {
+                request,
+                message: 'id:不存在',
+                dispatch: { where: { id: body.id } }
+            })
+            await this.database.empty(this.windows.sheetOptions, {
+                next: isNotEmpty(body.pid),
+                request,
+                message: 'pid:不存在',
+                dispatch: { where: { id: body.pid } }
+            })
+            await this.database.notempty(this.windows.sheetOptions, {
+                request,
+                message: 'keyName:已存在',
+                dispatch: { where: { keyName: body.keyName, id: Not(body.id) } }
+            })
+            await this.database.update(ctx.manager.getRepository(schema.WindowsSheet), {
+                request,
+                stack: this.stack,
+                where: { id: body.id },
+                body: Object.assign(body, {
+                    modifyBy: request.user.uid,
+                    check: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value,
+                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize.value
+                })
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
     }
 }
