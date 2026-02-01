@@ -107,6 +107,7 @@ export class SheetService extends Logger {
     public async httpBaseSystemTreeSheetResource(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
+                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value })
                 return await qb.getMany().then(async nodes => {
                     const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
                     return await this.fetchResolver({ list: items })
@@ -138,9 +139,32 @@ export class SheetService extends Logger {
     public async httpBaseSystemColumnSheetResource(request: OmixRequest, body: windows.ColumnSheetResourceOptions) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
+                qb.leftJoinAndMapOne('t.createBy', schema.WindowsAccount, 'createBy', 'createBy.uid = t.createBy')
+                qb.leftJoinAndMapOne('t.modifyBy', schema.WindowsAccount, 'modifyBy', 'modifyBy.uid = t.modifyBy')
+                if (isNotEmpty(body.name)) {
+                    qb.where(`t.name LIKE :name`, { name: `%${body.name}%` })
+                }
+                if (isNotEmpty(body.keyName)) {
+                    qb.orWhere(`t.keyName LIKE :keyName`, { keyName: `%${body.keyName}%` })
+                }
+                if (isNotEmpty(body.router)) {
+                    qb.orWhere(`t.router LIKE :router`, { router: `%${body.router}%` })
+                }
+                if (isNotEmpty(body.version)) {
+                    qb.orWhere(`t.version LIKE :version`, { version: `%${body.version}%` })
+                }
+                if (isNotEmpty(body.pid)) {
+                    qb.orWhere(`t.id = :pid OR t.pid = :pid`, { pid: body.pid })
+                }
                 return await qb.getMany().then(async nodes => {
-                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
-                    return await this.fetchResolver({ list: items })
+                    const values = [body.name, body.keyName, body.router, body.version, body.pid]
+                    if (values.some(isNotEmpty)) {
+                        return await this.fetchResolver({ list: nodes })
+                    } else {
+                        return await this.fetchResolver({
+                            list: fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
+                        })
+                    }
                 })
             })
         } catch (err) {

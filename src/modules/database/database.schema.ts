@@ -33,6 +33,7 @@ export class WindowsService {
         @InjectRepository(schema.WindowsKines) readonly kines: Repository<schema.WindowsKines>,
         /**管理端-账号表**/
         @InjectRepository(schema.WindowsAccount) readonly account: Repository<schema.WindowsAccount>,
+        @InjectRepository(schema.WindowsAccount) readonly accountOptions: Repository<schema.WindowsAccount>,
         /**管理端-部门组织表**/
         @InjectRepository(schema.WindowsDept) readonly dept: Repository<schema.WindowsDept>,
         /**管理端-部门关联账号表**/
