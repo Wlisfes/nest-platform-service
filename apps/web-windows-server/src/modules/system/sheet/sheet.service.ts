@@ -104,7 +104,7 @@ export class SheetService extends Logger {
 
     /**菜单树结构**/
     @AutoDescriptor
-    public async httpBaseSystemTreeSheetResource(request: OmixRequest) {
+    public async httpBaseSystemSheetTreeStructure(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
                 qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value })
