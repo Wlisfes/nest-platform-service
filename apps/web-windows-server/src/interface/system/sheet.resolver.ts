@@ -1,4 +1,4 @@
-import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
+import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
 import { OmixColumn, OmixPayload } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
@@ -33,3 +33,18 @@ export class UpdateSheetAuthorizeOptions extends IntersectionType(
     PickType(schema.WindowsSheet, ['id', 'keyName', 'name', 'version', 'sort', 'status']),
     PartialType(PickType(schema.WindowsSheet, ['pid']))
 ) {}
+
+/**操作响应**/
+export class SheetBaseResponse {
+    @ApiProperty({ description: '响应消息', example: '操作成功' })
+    message: string
+}
+
+/**菜单、按钮详情响应**/
+export class SheetResolverResponse extends schema.WindowsSheet {}
+
+/**菜单列表响应**/
+export class SheetColumnResponse {
+    @ApiProperty({ description: '列表数据', type: () => [schema.WindowsSheet] })
+    list: schema.WindowsSheet[]
+}
