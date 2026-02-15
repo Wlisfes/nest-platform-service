@@ -56,3 +56,8 @@ export class OmixPayloadOptions extends OmixColumnOptions {
     @IsNotEmpty({ message: '验证码 必填' })
     code: string
 }
+
+export class OmixPayloadResponse {
+    @ApiProperty({ description: '响应消息', example: '操作成功' })
+    message: string
+}

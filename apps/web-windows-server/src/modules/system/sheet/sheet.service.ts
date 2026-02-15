@@ -16,7 +16,7 @@ export class SheetService extends Logger {
 
     /**添加菜单**/
     @AutoDescriptor
-    public async httpBaseSystemCreateSheetResource(request: OmixRequest, body: windows.CreateSheetResourceOptions) {
+    public async httpBaseSystemCreateSheetResource(request: OmixRequest, body: windows.CreateSheetOptionsResource) {
         const ctx = await this.database.transaction()
         try {
             await this.database.empty(this.windows.sheetOptions, {
@@ -58,7 +58,7 @@ export class SheetService extends Logger {
 
     /**编辑菜单**/
     @AutoDescriptor
-    public async httpBaseSystemUpdateSheetResource(request: OmixRequest, body: windows.UpdateSheetResourceOptions) {
+    public async httpBaseSystemUpdateSheetResource(request: OmixRequest, body: windows.UpdateSheetOptionsResource) {
         const ctx = await this.database.transaction()
         try {
             await this.database.empty(this.windows.sheetOptions, {
@@ -121,7 +121,7 @@ export class SheetService extends Logger {
 
     /**菜单、按钮详情**/
     @AutoDescriptor
-    public async httpBaseSystemSheetResolver(request: OmixRequest, body: windows.BasicSheetOptions) {
+    public async httpBaseSystemSheetResolver(request: OmixRequest, body: windows.SheetPayloadOptions) {
         try {
             return await this.database.empty(this.windows.sheetOptions, {
                 request,
@@ -170,7 +170,7 @@ export class SheetService extends Logger {
 
     /**添加按钮权限**/
     @AutoDescriptor
-    public async httpBaseSystemCreateSheetAuthorize(request: OmixRequest, body: windows.CreateSheetAuthorizeOptions) {
+    public async httpBaseSystemCreateSheetAuthorize(request: OmixRequest, body: windows.CreateSheetOptionsAuthorize) {
         const ctx = await this.database.transaction()
         try {
             await this.database.empty(this.windows.sheetOptions, {
@@ -207,7 +207,7 @@ export class SheetService extends Logger {
 
     /**编辑按钮权限**/
     @AutoDescriptor
-    public async httpBaseSystemUpdateSheetAuthorize(request: OmixRequest, body: windows.UpdateSheetAuthorizeOptions) {
+    public async httpBaseSystemUpdateSheetAuthorize(request: OmixRequest, body: windows.UpdateSheetOptionsAuthorize) {
         const ctx = await this.database.transaction()
         try {
             await this.database.empty(this.windows.sheetOptions, {

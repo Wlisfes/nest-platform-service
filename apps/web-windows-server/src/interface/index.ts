@@ -1,3 +1,4 @@
+export * from '@/interface'
 export * from '@web-windows-server/interface/common/auth.resolver'
 export * from '@web-windows-server/interface/common/chunk.resolver'
 export * from '@web-windows-server/interface/system/account.resolver'
