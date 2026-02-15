@@ -1,9 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
-import { OmixRequest } from '@/interface'
+import { fetchTreeNodeBlock } from '@/utils'
 import { isNotEmpty } from 'class-validator'
+import { OmixRequest } from '@/interface'
 import { Not } from 'typeorm'
+import * as tree from 'tree-tool'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
@@ -83,6 +85,22 @@ export class DeptService extends Logger {
             throw new HttpException(err.message, err.status, err.options)
         } finally {
             await ctx.release()
+        }
+    }
+
+    /**菜单树结构**/
+    @AutoDescriptor
+    public async httpBaseSystemDepartmentTreeStructure(request: OmixRequest) {
+        try {
+            return await this.database.builder(this.windows.deptOptions, async qb => {
+                return await qb.getMany().then(async nodes => {
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
+                    return await this.fetchResolver({ list: items })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
         }
     }
 

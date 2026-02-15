@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('部门组织模块', 'system/dept')
+@ApifoxController('部门组织', 'system/dept')
 export class DeptController {
     constructor(private readonly deptService: DeptService) {}
 
@@ -33,6 +33,15 @@ export class DeptController {
     })
     public async httpBaseSystemDepartmentResolver(@Request() request: OmixRequest, @Body() body: windows.DeptPayloadOptions) {
         return await this.deptService.httpBaseSystemDepartmentResolver(request, body)
+    }
+
+    @ApiServiceDecorator(Post('tree/structure'), {
+        windows: true,
+        operation: { summary: '部门树结构' },
+        response: { status: 200, description: 'OK', type: windows.ColumnDeptOptionsResponse }
+    })
+    public async httpBaseSystemDepartmentTreeStructure(@Request() request: OmixRequest) {
+        return await this.deptService.httpBaseSystemDepartmentTreeStructure(request)
     }
 
     @ApiServiceDecorator(Post('column'), {
