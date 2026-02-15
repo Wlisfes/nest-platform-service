@@ -44,13 +44,13 @@ export class SheetController {
         return await this.sheetService.httpBaseSystemSheetTreeStructure(request)
     }
 
-    @ApiServiceDecorator(Post('column/resource'), {
+    @ApiServiceDecorator(Post('column'), {
         windows: true,
-        operation: { summary: '菜单列表' },
-        response: { status: 200, description: 'OK', type: windows.SheetColumnResponse }
+        operation: { summary: '分页列表查询' },
+        customize: { status: 200, description: 'OK', type: windows.SheetColumnResponse }
     })
-    public async httpBaseSystemColumnSheetResource(@Request() request: OmixRequest, @Body() body: windows.ColumnSheetResourceOptions) {
-        return await this.sheetService.httpBaseSystemColumnSheetResource(request, body)
+    public async httpBaseSystemColumnSheet(@Request() request: OmixRequest, @Body() body: windows.ColumnSheetOptions) {
+        return await this.sheetService.httpBaseSystemColumnSheet(request, body)
     }
 
     @ApiServiceDecorator(Post('/create/authorize'), {

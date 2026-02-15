@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, Min, IsArray, IsString, IsOptional } from 'class-
 import { Type } from 'class-transformer'
 import { IsDateCustomize } from '@/decorator'
 
-export class OmixColumn {
+export class OmixColumnOptions {
     @ApiProperty({ description: '分页数', required: false, example: 1 })
     @IsNumber({}, { message: 'page必须是数字' })
     @Min(1, { message: 'page必须大于或等于0' })
@@ -31,7 +31,18 @@ export class OmixColumn {
     vague: string
 }
 
-export class OmixPayload extends OmixColumn {
+export class OmixColumnResponse {
+    @ApiProperty({ description: '分页数', example: 1 })
+    page: number = 1
+
+    @ApiProperty({ description: '分页数量', example: 20 })
+    size: number = 20
+
+    @ApiProperty({ description: '总数量', example: 0 })
+    total: number = 0
+}
+
+export class OmixPayloadOptions extends OmixColumnOptions {
     @ApiProperty({ description: 'keyId', example: '2279965746312249344' })
     @IsNotEmpty({ message: 'keyId 必填' })
     keyId: number

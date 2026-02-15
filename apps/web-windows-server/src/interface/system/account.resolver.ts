@@ -1,5 +1,5 @@
 import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { OmixColumn, OmixPayload } from '@/interface'
+import { OmixColumnOptions, OmixPayloadOptions } from '@/interface'
 import { WindowsAccount } from '@/modules/database/schema'
 
 /**添加用户账号**/
@@ -10,7 +10,7 @@ export class CreateAccountOptions extends IntersectionType(
 
 /**用户账号列表**/
 export class ColumnAccountOptions extends IntersectionType(
-    PickType(OmixColumn, ['page', 'size', 'vague', 'startTime', 'endTime']),
+    PickType(OmixColumnOptions, ['page', 'size', 'vague', 'startTime', 'endTime']),
     PickType(PartialType(WindowsAccount), ['number', 'phone', 'email', 'name', 'status'])
 ) {}
 

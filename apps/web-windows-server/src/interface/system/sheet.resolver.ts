@@ -1,5 +1,5 @@
 import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { OmixColumn, OmixPayload } from '@/interface'
+import { OmixColumnOptions, OmixColumnResponse, OmixPayloadOptions } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
 /**添加菜单**/
@@ -17,10 +17,17 @@ export class UpdateSheetResourceOptions extends IntersectionType(
 /**菜单详情、删除菜单**/
 export class BasicSheetOptions extends PickType(schema.WindowsSheet, ['id']) {}
 
-/**菜单资源列表**/
-export class ColumnSheetResourceOptions extends PartialType(
-    PickType(schema.WindowsSheet, ['name', 'keyName', 'id', 'pid', 'version', 'status', 'router', 'createBy'])
+/**分页列表查询**/
+export class ColumnSheetOptions extends IntersectionType(
+    PickType(OmixColumnOptions, ['page', 'size']),
+    PartialType(PickType(schema.WindowsSheet, ['name', 'keyName', 'id', 'pid', 'version', 'status', 'router', 'createBy']))
 ) {}
+
+/**分页列表响应**/
+export class SheetColumnResponse extends PickType(OmixColumnResponse, ['page', 'size', 'total']) {
+    @ApiProperty({ description: '列表数据', type: () => [schema.WindowsSheet] })
+    list: schema.WindowsSheet[]
+}
 
 /**添加按钮权限**/
 export class CreateSheetAuthorizeOptions extends IntersectionType(
@@ -42,9 +49,3 @@ export class SheetBaseResponse {
 
 /**菜单、按钮详情响应**/
 export class SheetResolverResponse extends schema.WindowsSheet {}
-
-/**菜单列表响应**/
-export class SheetColumnResponse {
-    @ApiProperty({ description: '列表数据', type: () => [schema.WindowsSheet] })
-    list: schema.WindowsSheet[]
-}

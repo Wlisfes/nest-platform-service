@@ -134,9 +134,9 @@ export class SheetService extends Logger {
         }
     }
 
-    /**菜单列表**/
+    /**分页列表查询**/
     @AutoDescriptor
-    public async httpBaseSystemColumnSheetResource(request: OmixRequest, body: windows.ColumnSheetResourceOptions) {
+    public async httpBaseSystemColumnSheet(request: OmixRequest, body: windows.ColumnSheetOptions) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
                 qb.leftJoinAndMapOne('t.createBy', schema.WindowsAccount, 'createBy', 'createBy.uid = t.createBy')
@@ -156,15 +156,10 @@ export class SheetService extends Logger {
                 if (isNotEmpty(body.pid)) {
                     qb.orWhere(`t.id = :pid OR t.pid = :pid`, { pid: body.pid })
                 }
-                return await qb.getMany().then(async nodes => {
-                    const values = [body.name, body.keyName, body.router, body.version, body.pid]
-                    if (values.some(isNotEmpty)) {
-                        return await this.fetchResolver({ list: nodes })
-                    } else {
-                        return await this.fetchResolver({
-                            list: fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
-                        })
-                    }
+                qb.skip((body.page - 1) * body.size)
+                qb.take(body.size)
+                return await qb.getManyAndCount().then(async ([list, total]) => {
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })
         } catch (err) {
