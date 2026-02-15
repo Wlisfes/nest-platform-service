@@ -31,7 +31,7 @@ export class SheetController {
         operation: { summary: '菜单、按钮详情' },
         response: { status: 200, description: 'OK', type: windows.SheetPayloadOptionsResponse }
     })
-    public async httpBaseSystemSheetResolver(@Request() request: OmixRequest, @Body() body: windows.SheetPayloadOptionsResponse) {
+    public async httpBaseSystemSheetResolver(@Request() request: OmixRequest, @Body() body: windows.SheetPayloadOptions) {
         return await this.sheetService.httpBaseSystemSheetResolver(request, body)
     }
 
