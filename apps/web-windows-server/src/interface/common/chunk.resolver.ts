@@ -1,8 +1,7 @@
-import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { IsNotEmpty, ArrayNotEmpty, IsEnum, IsArray, ValidateNested } from 'class-validator'
+import { ApiProperty, PickType } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
+import { IsNotEmpty, ArrayNotEmpty, IsEnum, IsArray, ValidateNested } from 'class-validator'
 import { withExtract, withComment } from '@/modules/database/database.adapter'
-import { OmixPayloadResponse } from '@/interface'
 import * as enums from '@/modules/database/enums'
 import * as schema from '@/modules/database/schema'
 

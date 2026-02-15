@@ -38,7 +38,8 @@ export class ChunkService extends Logger {
                     prop: field.prop,
                     label: field.label,
                     check: field.check,
-                    createBy: request.user.uid
+                    createBy: request.user.uid,
+                    modifyBy: request.user.uid
                 }))
                 await repository.insert(entities)
             }
@@ -67,7 +68,8 @@ export class ChunkService extends Logger {
                     prop: field.prop,
                     label: field.label,
                     check: field.check,
-                    createBy: request.user.uid
+                    createBy: request.user.uid,
+                    modifyBy: request.user.uid
                 }))
                 await repository.insert(entities)
             }

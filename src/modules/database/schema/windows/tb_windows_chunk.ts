@@ -1,7 +1,6 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsNotEmpty, Length, IsEnum, IsNumber, IsOptional } from 'class-validator'
+import { IsNotEmpty, Length, IsEnum } from 'class-validator'
 import { DataBaseByAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
 
