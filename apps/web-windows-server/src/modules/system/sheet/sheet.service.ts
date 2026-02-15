@@ -107,7 +107,6 @@ export class SheetService extends Logger {
     public async httpBaseSystemSheetTreeStructure(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
-                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value })
                 return await qb.getMany().then(async nodes => {
                     const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
                     return await this.fetchResolver({ list: items })
@@ -145,16 +144,16 @@ export class SheetService extends Logger {
                     qb.where(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
                 if (isNotEmpty(body.keyName)) {
-                    qb.orWhere(`t.keyName LIKE :keyName`, { keyName: `%${body.keyName}%` })
+                    qb.andWhere(`t.keyName LIKE :keyName`, { keyName: `%${body.keyName}%` })
                 }
                 if (isNotEmpty(body.router)) {
-                    qb.orWhere(`t.router LIKE :router`, { router: `%${body.router}%` })
+                    qb.andWhere(`t.router LIKE :router`, { router: `%${body.router}%` })
                 }
                 if (isNotEmpty(body.version)) {
-                    qb.orWhere(`t.version LIKE :version`, { version: `%${body.version}%` })
+                    qb.andWhere(`t.version LIKE :version`, { version: `%${body.version}%` })
                 }
                 if (isNotEmpty(body.pid)) {
-                    qb.orWhere(`t.id = :pid OR t.pid = :pid`, { pid: body.pid })
+                    qb.andWhere(`t.id = :pid OR t.pid = :pid`, { pid: body.pid })
                 }
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
