@@ -29,6 +29,8 @@ export class ClientService {}
 @Injectable()
 export class WindowsService {
     constructor(
+        /**管理端-字段自定义显示规则表**/
+        @InjectRepository(schema.WindowsChunk) readonly chunkOptions: Repository<schema.WindowsChunk>,
         /**管理端-自定义json配置表**/
         @InjectRepository(schema.WindowsKines) readonly kines: Repository<schema.WindowsKines>,
         /**管理端-账号表**/

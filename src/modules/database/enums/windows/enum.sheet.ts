@@ -1,3 +1,18 @@
+export const CHUNK_WINDOWS_COMMON_CHUNK = {
+    name: '字段自定义显示类型',
+    value: 'CHUNK_WINDOWS_COMMON_CHUNK',
+    search: {
+        value: 'search',
+        name: '搜索',
+        json: { type: 'success' }
+    },
+    columns: {
+        value: 'columns',
+        name: '列表',
+        json: { type: 'info' }
+    }
+}
+
 export const CHUNK_WINDOWS_SHEET_CHUNK = {
     name: '菜单类型',
     value: 'CHUNK_WINDOWS_SHEET_CHUNK',
