@@ -37,7 +37,7 @@ export class WindowsService {
         @InjectRepository(schema.WindowsAccount) readonly account: Repository<schema.WindowsAccount>,
         @InjectRepository(schema.WindowsAccount) readonly accountOptions: Repository<schema.WindowsAccount>,
         /**管理端-部门组织表**/
-        @InjectRepository(schema.WindowsDept) readonly dept: Repository<schema.WindowsDept>,
+        @InjectRepository(schema.WindowsDept) readonly deptOptions: Repository<schema.WindowsDept>,
         /**管理端-部门关联账号表**/
         @InjectRepository(schema.WindowsDeptAccount) readonly deptAccount: Repository<schema.WindowsDeptAccount>,
         /**管理端-菜单资源表**/

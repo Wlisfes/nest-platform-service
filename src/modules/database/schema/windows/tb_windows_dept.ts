@@ -17,10 +17,10 @@ export class WindowsDept extends DataBaseByAdapter {
     @Column({ comment: '别名简称', length: 32, nullable: true })
     alias: string
 
-    @ApiProperty({ description: '上级部门ID', required: false, example: '2149446185344106496' })
+    @ApiProperty({ description: '上级ID', required: false, example: '1000' })
     @IsOptional()
-    @Column({ comment: '上级部门ID', length: 19, nullable: true })
-    pid: string
+    @Column({ comment: '上级ID', nullable: true })
+    pid: number
 }
 
 @Entity({ name: 'tb_windows_dept_account', comment: '管理端-部门关联账号表' })
