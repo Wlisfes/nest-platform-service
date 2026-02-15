@@ -7,11 +7,6 @@ import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_sheet', comment: '管理端-菜单管理' })
 export class WindowsSheet extends DataBaseByAdapter {
-    @ApiProperty({ description: 'ID', example: '2149446185344106496' })
-    @IsNotEmpty({ message: 'ID必填' })
-    @Column({ comment: '唯一ID', update: false, length: 32, nullable: false })
-    id: string
-
     @ApiProperty({ description: '权限标识', example: 'chatbok:manager' })
     @IsNotEmpty({ message: '权限标识必填' })
     @Length(0, 128, { message: '权限标识不能超过128个字符' })
@@ -36,10 +31,10 @@ export class WindowsSheet extends DataBaseByAdapter {
     @Column({ name: 'icon_name', comment: '图标', length: 64, nullable: true })
     iconName: string
 
-    @ApiProperty({ description: '上级ID', required: false, example: '2149446185344106496' })
+    @ApiProperty({ description: '上级ID', required: false, example: '1000' })
     @IsOptional()
-    @Column({ comment: '上级ID', length: 32, nullable: true })
-    pid: string
+    @Column({ comment: '上级ID', nullable: true })
+    pid: number
 
     @ApiProperty({ description: '版本号', example: 'v1.0.0' })
     @IsNotEmpty({ message: '版本号必填' })

@@ -3,7 +3,7 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface'
 import { isEmpty, isNotEmpty } from 'class-validator'
-import { faker, fetchHandler, fetchTreeNodeBlock, fetchIntNumber } from '@/utils'
+import { faker, fetchHandler, fetchTreeNodeBlock } from '@/utils'
 import { In, Not } from 'typeorm'
 import * as tree from 'tree-tool'
 import * as windows from '@web-windows-server/interface'
@@ -23,7 +23,7 @@ export class SheetService extends Logger {
                 next: isNotEmpty(body.pid),
                 request,
                 message: 'pid:不存在',
-                dispatch: { where: { id: body.pid } }
+                dispatch: { where: { keyId: body.pid } }
             })
             await this.database.builder(this.windows.sheetOptions, async qb => {
                 qb.where(`t.keyName = :keyName OR t.router = :router`, { keyName: body.keyName, router: body.router })
@@ -40,7 +40,6 @@ export class SheetService extends Logger {
                 request,
                 stack: this.stack,
                 body: Object.assign(body, {
-                    id: await fetchIntNumber(),
                     createBy: request.user.uid,
                     chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value
                 })
@@ -63,29 +62,29 @@ export class SheetService extends Logger {
         try {
             await this.database.empty(this.windows.sheetOptions, {
                 request,
-                message: 'id:不存在',
-                dispatch: { where: { id: body.id } }
+                message: 'keyId:不存在',
+                dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.empty(this.windows.sheetOptions, {
                 next: isNotEmpty(body.pid),
                 request,
                 message: 'pid:不存在',
-                dispatch: { where: { id: body.pid } }
+                dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.notempty(this.windows.sheetOptions, {
                 request,
                 message: 'keyName:已存在',
-                dispatch: { where: { keyName: body.keyName, id: Not(body.id) } }
+                dispatch: { where: { keyName: body.keyName, keyId: Not(body.keyId) } }
             })
             await this.database.notempty(this.windows.sheetOptions, {
                 request,
                 message: 'router:已存在',
-                dispatch: { where: { router: body.router, id: Not(body.id) } }
+                dispatch: { where: { router: body.router, keyId: Not(body.keyId) } }
             })
             await this.database.update(ctx.manager.getRepository(schema.WindowsSheet), {
                 request,
                 stack: this.stack,
-                where: { id: body.id },
+                where: { keyId: body.keyId },
                 body: Object.assign(body, {
                     modifyBy: request.user.uid,
                     chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value
@@ -108,7 +107,7 @@ export class SheetService extends Logger {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
                 return await qb.getMany().then(async nodes => {
-                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'id', pid: 'pid' }))
+                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
                     return await this.fetchResolver({ list: items })
                 })
             })
@@ -124,8 +123,8 @@ export class SheetService extends Logger {
         try {
             return await this.database.empty(this.windows.sheetOptions, {
                 request,
-                message: 'id:不存在',
-                dispatch: { where: { id: body.id } }
+                message: 'keyId:不存在',
+                dispatch: { where: { keyId: body.keyId } }
             })
         } catch (err) {
             this.logger.error(err)
@@ -153,7 +152,7 @@ export class SheetService extends Logger {
                     qb.andWhere(`t.version LIKE :version`, { version: `%${body.version}%` })
                 }
                 if (isNotEmpty(body.pid)) {
-                    qb.andWhere(`t.id = :pid OR t.pid = :pid`, { pid: body.pid })
+                    qb.andWhere(`t.keyId = :pid OR t.pid = :pid`, { pid: body.pid })
                 }
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
@@ -176,7 +175,7 @@ export class SheetService extends Logger {
                 next: isNotEmpty(body.pid),
                 request,
                 message: 'pid:不存在',
-                dispatch: { where: { id: body.pid } }
+                dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.notempty(this.windows.sheetOptions, {
                 request,
@@ -187,7 +186,6 @@ export class SheetService extends Logger {
                 request,
                 stack: this.stack,
                 body: Object.assign(body, {
-                    id: await fetchIntNumber(),
                     createBy: request.user.uid,
                     check: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value,
                     chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize.value
@@ -211,24 +209,24 @@ export class SheetService extends Logger {
         try {
             await this.database.empty(this.windows.sheetOptions, {
                 request,
-                message: 'id:不存在',
-                dispatch: { where: { id: body.id } }
+                message: 'keyId:不存在',
+                dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.empty(this.windows.sheetOptions, {
                 next: isNotEmpty(body.pid),
                 request,
                 message: 'pid:不存在',
-                dispatch: { where: { id: body.pid } }
+                dispatch: { where: { keyId: body.pid } }
             })
             await this.database.notempty(this.windows.sheetOptions, {
                 request,
                 message: 'keyName:已存在',
-                dispatch: { where: { keyName: body.keyName, id: Not(body.id) } }
+                dispatch: { where: { keyName: body.keyName, keyId: Not(body.keyId) } }
             })
             await this.database.update(ctx.manager.getRepository(schema.WindowsSheet), {
                 request,
                 stack: this.stack,
-                where: { id: body.id },
+                where: { keyId: body.keyId },
                 body: Object.assign(body, {
                     modifyBy: request.user.uid,
                     check: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value,

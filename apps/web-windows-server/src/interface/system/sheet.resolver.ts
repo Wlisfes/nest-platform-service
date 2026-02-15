@@ -3,7 +3,7 @@ import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
 /**菜单、按钮详情**/
-export class SheetPayloadOptions extends PickType(schema.WindowsSheet, ['id']) {}
+export class SheetPayloadOptions extends PickType(schema.WindowsSheet, ['keyId']) {}
 
 /**菜单、按钮详情响应**/
 export class SheetPayloadOptionsResponse extends schema.WindowsSheet {}
@@ -16,14 +16,14 @@ export class CreateSheetOptionsResource extends IntersectionType(
 
 /**编辑菜单**/
 export class UpdateSheetOptionsResource extends IntersectionType(
-    PickType(schema.WindowsSheet, ['id', 'keyName', 'name', 'router', 'version', 'sort', 'status', 'check']),
+    PickType(schema.WindowsSheet, ['keyId', 'keyName', 'name', 'router', 'version', 'sort', 'status', 'check']),
     PartialType(PickType(schema.WindowsSheet, ['pid', 'iconName']))
 ) {}
 
 /**分页列表查询**/
 export class ColumnSheetOptions extends IntersectionType(
     PickType(OmixColumnOptions, ['page', 'size']),
-    PartialType(PickType(schema.WindowsSheet, ['name', 'keyName', 'id', 'pid', 'version', 'status', 'router', 'createBy']))
+    PartialType(PickType(schema.WindowsSheet, ['name', 'keyName', 'keyId', 'pid', 'version', 'status', 'router', 'createBy']))
 ) {}
 
 /**分页列表响应**/
@@ -40,6 +40,6 @@ export class CreateSheetOptionsAuthorize extends IntersectionType(
 
 /**编辑按钮权限**/
 export class UpdateSheetOptionsAuthorize extends IntersectionType(
-    PickType(schema.WindowsSheet, ['id', 'keyName', 'name', 'version', 'sort', 'status']),
+    PickType(schema.WindowsSheet, ['keyId', 'keyName', 'name', 'version', 'sort', 'status']),
     PartialType(PickType(schema.WindowsSheet, ['pid']))
 ) {}
