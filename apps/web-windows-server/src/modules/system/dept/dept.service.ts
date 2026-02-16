@@ -25,11 +25,6 @@ export class DeptService extends Logger {
                 message: 'pid:不存在',
                 dispatch: { where: { keyId: body.pid } }
             })
-            await this.database.notempty(this.windows.deptOptions, {
-                request,
-                message: 'name:已存在',
-                dispatch: { where: { name: body.name } }
-            })
             await this.database.create(ctx.manager.getRepository(schema.WindowsDept), {
                 request,
                 stack: this.stack,
@@ -63,11 +58,6 @@ export class DeptService extends Logger {
                 request,
                 message: 'pid:不存在',
                 dispatch: { where: { keyId: body.pid } }
-            })
-            await this.database.notempty(this.windows.deptOptions, {
-                request,
-                message: 'name:已存在',
-                dispatch: { where: { name: body.name, keyId: Not(body.keyId) } }
             })
             await this.database.update(ctx.manager.getRepository(schema.WindowsDept), {
                 request,
