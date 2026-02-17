@@ -25,19 +25,39 @@ export class WindowsRole extends DataBaseByAdapter {
     @Column({ comment: '排序号', default: 0, nullable: false })
     sort: number
 
+    @ApiProperty({ description: '部门ID', required: false, example: '1000' })
+    @IsOptional()
+    @Column({ name: 'dept_id', comment: '部门ID', nullable: true })
+    deptId: number
+
     @ApiProperty({
-        description: withComment('数据权限', enums.CHUNK_WINDOWS_ROLE_CHUNK),
-        example: enums.CHUNK_WINDOWS_ROLE_CHUNK.self_member.value
+        description: withComment('角色类型', enums.CHUNK_WINDOWS_ROLE_CHUNK),
+        example: enums.CHUNK_WINDOWS_ROLE_CHUNK.common.value
+    })
+    @IsNotEmpty({ message: '角色类型必填' })
+    @Length(0, 32, { message: '角色类型不能超过32个字符' })
+    @IsEnum(withKeys(enums.CHUNK_WINDOWS_ROLE_CHUNK), { message: '角色类型格式错误' })
+    @Column({ nullable: false, comment: withComment('角色类型', enums.CHUNK_WINDOWS_ROLE_CHUNK) })
+    chunk: string
+
+    @ApiProperty({
+        description: withComment('数据权限', enums.CHUNK_WINDOWS_ROLE_MODEL),
+        example: enums.CHUNK_WINDOWS_ROLE_MODEL.self_member.value
     })
     @IsNotEmpty({ message: '数据权限必填' })
     @Length(0, 32, { message: '数据权限不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_ROLE_CHUNK), { message: '数据权限格式错误' })
-    @Column({ nullable: false, comment: withComment('数据权限', enums.CHUNK_WINDOWS_ROLE_CHUNK) })
-    chunk: string
+    @IsEnum(withKeys(enums.CHUNK_WINDOWS_ROLE_MODEL), { message: '数据权限格式错误' })
+    @Column({ nullable: false, comment: withComment('数据权限', enums.CHUNK_WINDOWS_ROLE_MODEL) })
+    model: string
 }
 
 @Entity({ name: 'tb_windows_role_account', comment: '管理端-角色关联账号表' })
 export class WindowsRoleAccount extends DataBaseByAdapter {
+    @ApiProperty({ description: '角色ID', example: 1000 })
+    @IsNotEmpty({ message: '角色ID必填' })
+    @Column({ name: 'role_id', comment: '角色ID', nullable: false })
+    roleId: number
+
     @ApiProperty({ description: '账号UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '账号UID必填' })
     @Column({ comment: '账号UID', length: 19, nullable: false })
@@ -46,8 +66,13 @@ export class WindowsRoleAccount extends DataBaseByAdapter {
 
 @Entity({ name: 'tb_windows_role_sheet', comment: '管理端-角色菜单资源表' })
 export class WindowsRoleSheet extends DataBaseByAdapter {
-    @ApiProperty({ description: '菜单ID', required: false, example: '1000' })
+    @ApiProperty({ description: '角色ID', example: 1000 })
+    @IsNotEmpty({ message: '角色ID必填' })
+    @Column({ name: 'role_id', comment: '角色ID', nullable: false })
+    roleId: number
+
+    @ApiProperty({ description: '菜单ID', example: 1000 })
     @IsNotEmpty({ message: '菜单ID必填' })
-    @Column({ type: 'int', name: 'key_id', comment: '菜单ID', nullable: true })
+    @Column({ name: 'sheet_id', comment: '菜单ID', nullable: false })
     sheetId: number
 }

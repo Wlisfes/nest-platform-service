@@ -1,8 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
-import { fetchTreeNodeBlock } from '@/utils'
-import { isNotEmpty } from 'class-validator'
+import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
+import { fetchTreeNodeBlock, fetchHandler, isEmpty, isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
 import { Not } from 'typeorm'
 import * as tree from 'tree-tool'
@@ -25,12 +24,23 @@ export class DeptService extends Logger {
                 message: 'pid:不存在',
                 dispatch: { where: { keyId: body.pid } }
             })
-            await this.database.create(ctx.manager.getRepository(schema.WindowsDept), {
+            const node = await this.database.create(ctx.manager.getRepository(schema.WindowsDept), {
                 request,
                 stack: this.stack,
-                body: Object.assign(body, {
+                body: Object.assign(body, { createBy: request.user.uid })
+            })
+            await this.database.create(ctx.manager.getRepository(schema.WindowsRole), {
+                request,
+                stack: this.stack,
+                body: {
+                    name: node.name,
+                    comment: `${node.name}默认部门角色`,
+                    sort: 10,
+                    deptId: node.keyId,
+                    chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value,
+                    model: enums.CHUNK_WINDOWS_ROLE_MODEL.dept_member.value,
                     createBy: request.user.uid
-                })
+                }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -65,6 +75,30 @@ export class DeptService extends Logger {
                 where: { keyId: body.keyId },
                 body: Object.assign(body, {
                     modifyBy: request.user.uid
+                })
+            })
+            await this.database.builder(this.windows.roleOptions, async qb => {
+                const node = await qb.where({ deptId: body.keyId, chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value }).getOne()
+                if (isNotEmpty(node)) {
+                    return await this.database.update(ctx.manager.getRepository(schema.WindowsRole), {
+                        request,
+                        stack: this.stack,
+                        where: { keyId: node.keyId },
+                        body: { name: body.name }
+                    })
+                }
+                return await this.database.create(ctx.manager.getRepository(schema.WindowsRole), {
+                    request,
+                    stack: this.stack,
+                    body: {
+                        name: body.name,
+                        comment: `${body.name}默认部门角色`,
+                        sort: 10,
+                        deptId: body.keyId,
+                        chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value,
+                        model: enums.CHUNK_WINDOWS_ROLE_MODEL.dept_member.value,
+                        createBy: request.user.uid
+                    }
                 })
             })
             return await ctx.commitTransaction().then(async () => {

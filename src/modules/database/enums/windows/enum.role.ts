@@ -1,6 +1,21 @@
 export const CHUNK_WINDOWS_ROLE_CHUNK = {
-    name: '角色数据权限',
+    name: '角色类型',
     value: 'CHUNK_WINDOWS_ROLE_CHUNK',
+    common: {
+        value: 'common',
+        name: '通用角色',
+        json: { type: 'success' }
+    },
+    department: {
+        value: 'department',
+        name: '部门角色',
+        json: { type: 'info' }
+    }
+}
+
+export const CHUNK_WINDOWS_ROLE_MODEL = {
+    name: '角色数据权限',
+    value: 'CHUNK_WINDOWS_ROLE_MODEL',
     self: {
         value: 'self',
         name: '本人',

@@ -31,16 +31,17 @@ export const COMMON_CHUNK = {
         value: enums.CHUNK_WINDOWS_SHEET_STATUS.value,
         columns: withExtract(enums.CHUNK_WINDOWS_SHEET_STATUS)
     },
-
-    [enums.CHUNK_WINDOWS_RESOUREC_STATUS.value]: {
-        name: enums.CHUNK_WINDOWS_RESOUREC_STATUS.name,
-        value: enums.CHUNK_WINDOWS_RESOUREC_STATUS.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_RESOUREC_STATUS)
+    /**角色类型**/
+    [enums.CHUNK_WINDOWS_ROLE_CHUNK.value]: {
+        name: enums.CHUNK_WINDOWS_ROLE_CHUNK.name,
+        value: enums.CHUNK_WINDOWS_ROLE_CHUNK.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_ROLE_CHUNK)
     },
-    [enums.CHUNK_WINDOWS_RESOUREC_CHECK.value]: {
-        name: enums.CHUNK_WINDOWS_RESOUREC_CHECK.name,
-        value: enums.CHUNK_WINDOWS_RESOUREC_CHECK.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_RESOUREC_CHECK)
+    /**角色数据权限**/
+    [enums.CHUNK_WINDOWS_ROLE_MODEL.value]: {
+        name: enums.CHUNK_WINDOWS_ROLE_MODEL.name,
+        value: enums.CHUNK_WINDOWS_ROLE_MODEL.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_ROLE_MODEL)
     }
 }
 
