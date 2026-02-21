@@ -12,7 +12,7 @@ export class RoleService extends Logger {
         super()
     }
 
-    /**添加通用角色**/
+    /**添加岗位角色**/
     @AutoDescriptor
     public async httpBaseSystemCreateCommonRole(request: OmixRequest, body: windows.CreateCommonRoleOptions) {
         const ctx = await this.database.transaction()
@@ -36,7 +36,7 @@ export class RoleService extends Logger {
         }
     }
 
-    /**编辑通用角色**/
+    /**编辑岗位角色**/
     @AutoDescriptor
     public async httpBaseSystemUpdateCommonRole(request: OmixRequest, body: windows.UpdateCommonRoleOptions) {
         const ctx = await this.database.transaction()

@@ -10,7 +10,7 @@ export class RoleController {
 
     @ApiServiceDecorator(Post('create/common'), {
         windows: true,
-        operation: { summary: '添加通用角色' },
+        operation: { summary: '添加岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateCommonRole(@Request() request: OmixRequest, @Body() body: windows.CreateCommonRoleOptions) {
@@ -19,7 +19,7 @@ export class RoleController {
 
     @ApiServiceDecorator(Post('update/common'), {
         windows: true,
-        operation: { summary: '编辑通用角色' },
+        operation: { summary: '编辑岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemUpdateCommonRole(@Request() request: OmixRequest, @Body() body: windows.UpdateCommonRoleOptions) {

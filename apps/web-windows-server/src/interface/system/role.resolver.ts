@@ -8,13 +8,13 @@ export class RolePayloadOptions extends PickType(schema.WindowsRole, ['keyId']) 
 /**角色详情响应**/
 export class RolePayloadOptionsResponse extends schema.WindowsRole {}
 
-/**添加通用角色**/
+/**添加岗位角色**/
 export class CreateCommonRoleOptions extends IntersectionType(
     PickType(schema.WindowsRole, ['name', 'model']),
     PartialType(PickType(schema.WindowsRole, ['comment', 'sort']))
 ) {}
 
-/**编辑通用角色**/
+/**编辑岗位角色**/
 export class UpdateCommonRoleOptions extends IntersectionType(
     PickType(schema.WindowsRole, ['keyId', 'name', 'model']),
     PartialType(PickType(schema.WindowsRole, ['comment', 'sort']))
@@ -22,7 +22,7 @@ export class UpdateCommonRoleOptions extends IntersectionType(
 
 /**角色列表响应**/
 export class ColumnRoleOptionsResponse {
-    @ApiProperty({ description: '通用角色列表', type: [schema.WindowsRole] })
+    @ApiProperty({ description: '岗位角色列表', type: [schema.WindowsRole] })
     list: schema.WindowsRole[]
 
     @ApiProperty({ description: '部门角色树结构', type: [schema.WindowsDept] })

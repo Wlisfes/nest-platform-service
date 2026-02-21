@@ -3,7 +3,7 @@ export const CHUNK_WINDOWS_ROLE_CHUNK = {
     value: 'CHUNK_WINDOWS_ROLE_CHUNK',
     common: {
         value: 'common',
-        name: '通用角色',
+        name: '岗位角色',
         json: { type: 'success' }
     },
     department: {
