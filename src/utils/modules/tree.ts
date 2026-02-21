@@ -1,4 +1,4 @@
-import { fromList, toList, findNode, findPath, filter } from 'tree-tool'
+import * as tree from 'tree-tool'
 
 /**
  * 列表转树结构
@@ -7,7 +7,7 @@ import { fromList, toList, findNode, findPath, filter } from 'tree-tool'
  * @returns 树结构数据
  */
 export function fetchTreeFromList<T extends Omix>(data: Array<T>, options?: Omix<{ id?: string; pid?: string }>): Array<T> {
-    return fromList(data, options) as Array<T>
+    return tree.fromList(data, options) as Array<T>
 }
 
 /**
@@ -17,7 +17,7 @@ export function fetchTreeFromList<T extends Omix>(data: Array<T>, options?: Omix
  * @returns 列表数据
  */
 export function fetchTreeToList<T extends Omix>(data: Array<T>, options?: Omix): Array<T> {
-    return toList(data, options) as Array<T>
+    return tree.toList(data, options) as Array<T>
 }
 
 /**
@@ -27,7 +27,7 @@ export function fetchTreeToList<T extends Omix>(data: Array<T>, options?: Omix):
  * @returns 匹配的节点
  */
 export function fetchTreeFindNode<T extends Omix>(data: Array<T>, callback: (node: T) => boolean): T | null {
-    return findNode(data, callback) as T | null
+    return tree.findNode(data, callback) as T | null
 }
 
 /**
@@ -37,7 +37,7 @@ export function fetchTreeFindNode<T extends Omix>(data: Array<T>, callback: (nod
  * @returns 匹配的节点路径
  */
 export function fetchTreeFindPath<T extends Omix>(data: Array<T>, callback: (node: T) => boolean): Array<T> | null {
-    return findPath(data, callback) as Array<T> | null
+    return tree.findPath(data, callback) as Array<T> | null
 }
 
 /**
@@ -47,7 +47,7 @@ export function fetchTreeFindPath<T extends Omix>(data: Array<T>, callback: (nod
  * @returns 过滤后的树结构数据
  */
 export function fetchTreeFilter<T extends Omix>(data: Array<T>, callback: (node: T) => boolean): Array<T> {
-    return filter(data, callback) as Array<T>
+    return tree.filter(data, callback) as Array<T>
 }
 
 /**

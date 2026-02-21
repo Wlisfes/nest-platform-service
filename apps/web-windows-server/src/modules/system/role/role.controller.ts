@@ -17,15 +17,6 @@ export class RoleController {
         return await this.roleService.httpBaseSystemCreateCommonRole(request, body)
     }
 
-    @ApiServiceDecorator(Post('create/department'), {
-        windows: true,
-        operation: { summary: '添加部门角色' },
-        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
-    })
-    public async httpBaseSystemCreateDepartmentRole(@Request() request: OmixRequest, @Body() body: windows.CreateDepartmentRoleOptions) {
-        return await this.roleService.httpBaseSystemCreateDepartmentRole(request, body)
-    }
-
     @ApiServiceDecorator(Post('update/common'), {
         windows: true,
         operation: { summary: '编辑通用角色' },
@@ -33,15 +24,6 @@ export class RoleController {
     })
     public async httpBaseSystemUpdateCommonRole(@Request() request: OmixRequest, @Body() body: windows.UpdateCommonRoleOptions) {
         return await this.roleService.httpBaseSystemUpdateCommonRole(request, body)
-    }
-
-    @ApiServiceDecorator(Post('update/department'), {
-        windows: true,
-        operation: { summary: '编辑部门角色' },
-        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
-    })
-    public async httpBaseSystemUpdateDepartmentRole(@Request() request: OmixRequest, @Body() body: windows.UpdateDepartmentRoleOptions) {
-        return await this.roleService.httpBaseSystemUpdateDepartmentRole(request, body)
     }
 
     @ApiServiceDecorator(Post('resolver'), {
@@ -53,22 +35,13 @@ export class RoleController {
         return await this.roleService.httpBaseSystemRoleResolver(request, body)
     }
 
-    @ApiServiceDecorator(Post('column/common'), {
+    @ApiServiceDecorator(Post('column'), {
         windows: true,
-        operation: { summary: '通用角色列表查询' },
+        operation: { summary: '角色列表查询' },
         response: { status: 200, description: 'OK', type: windows.ColumnRoleOptionsResponse }
     })
-    public async httpBaseSystemColumnCommonRole(@Request() request: OmixRequest, @Body() body: windows.ColumnCommonRoleOptions) {
-        return await this.roleService.httpBaseSystemColumnCommonRole(request, body)
-    }
-
-    @ApiServiceDecorator(Post('column/department'), {
-        windows: true,
-        operation: { summary: '部门角色列表查询' },
-        response: { status: 200, description: 'OK', type: windows.ColumnRoleOptionsResponse }
-    })
-    public async httpBaseSystemColumnDepartmentRole(@Request() request: OmixRequest, @Body() body: windows.ColumnDepartmentRoleOptions) {
-        return await this.roleService.httpBaseSystemColumnDepartmentRole(request, body)
+    public async httpBaseSystemColumnRole(@Request() request: OmixRequest) {
+        return await this.roleService.httpBaseSystemColumnRole(request)
     }
 
     @ApiServiceDecorator(Post('account/column'), {

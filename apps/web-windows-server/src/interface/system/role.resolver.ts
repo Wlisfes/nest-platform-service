@@ -20,34 +20,13 @@ export class UpdateCommonRoleOptions extends IntersectionType(
     PartialType(PickType(schema.WindowsRole, ['comment', 'sort']))
 ) {}
 
-/**添加部门角色**/
-export class CreateDepartmentRoleOptions extends IntersectionType(
-    PickType(schema.WindowsRole, ['name', 'model', 'deptId']),
-    PartialType(PickType(schema.WindowsRole, ['comment', 'sort']))
-) {}
-
-/**编辑部门角色**/
-export class UpdateDepartmentRoleOptions extends IntersectionType(
-    PickType(schema.WindowsRole, ['keyId', 'name', 'model', 'deptId']),
-    PartialType(PickType(schema.WindowsRole, ['comment', 'sort']))
-) {}
-
-/**通用角色列表查询**/
-export class ColumnCommonRoleOptions extends IntersectionType(
-    PickType(OmixColumnOptions, ['page', 'size']),
-    PartialType(PickType(schema.WindowsRole, ['name']))
-) {}
-
-/**部门角色列表查询**/
-export class ColumnDepartmentRoleOptions extends IntersectionType(
-    PickType(OmixColumnOptions, ['page', 'size']),
-    PartialType(PickType(schema.WindowsRole, ['name', 'deptId']))
-) {}
-
 /**角色列表响应**/
-export class ColumnRoleOptionsResponse extends OmixColumnResponse {
-    @ApiProperty({ description: '列表数据', type: [schema.WindowsRole] })
+export class ColumnRoleOptionsResponse {
+    @ApiProperty({ description: '通用角色列表', type: [schema.WindowsRole] })
     list: schema.WindowsRole[]
+
+    @ApiProperty({ description: '部门角色树结构', type: [schema.WindowsDept] })
+    dept: schema.WindowsDept[]
 }
 
 /**角色关联账号列表查询**/
