@@ -75,6 +75,21 @@ export class AccountService extends Logger {
         }
     }
 
+    /**账号详情**/
+    @AutoDescriptor
+    public async httpBaseSystemAccountResolver(request: OmixRequest, body: windows.AccountPayloadOptions) {
+        try {
+            return await this.database.empty(this.windows.accountOptions, {
+                request,
+                message: 'uid:不存在',
+                dispatch: { where: { uid: body.uid } }
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
     /**编辑账号状态**/
     @AutoDescriptor
     public async httpBaseSystemUpdateSwitchAccount(request: OmixRequest, body: windows.UpdateSwitchAccountOptions) {}

@@ -3,7 +3,7 @@ import { OmixColumnOptions, OmixPayloadOptions, OmixColumnResponse } from '@/int
 import * as schema from '@/modules/database/schema'
 
 /**账号详情**/
-export class AccountPayloadOptions extends PickType(schema.WindowsAccount, ['keyId']) {}
+export class AccountPayloadOptions extends PickType(schema.WindowsAccount, ['uid']) {}
 
 /**账号详情响应**/
 export class AccountPayloadOptionsResponse extends schema.WindowsAccount {}
