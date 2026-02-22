@@ -18,8 +18,8 @@ export class AccountController {
     }
 
     @ApiServiceDecorator(Post('/column'), {
-        operation: { summary: '账号列表' },
-        response: { status: 200, description: 'OK' },
+        operation: { summary: '分页列表查询' },
+        response: { status: 200, description: 'OK', type: windows.ColumnAccountOptionsResponse },
         windows: true
     })
     public async httpBaseSystemColumnAccount(@Request() request: OmixRequest, @Body() body: windows.ColumnAccountOptions) {
