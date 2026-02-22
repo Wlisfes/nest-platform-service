@@ -7,6 +7,12 @@ import * as schema from '@/modules/database/schema'
 
 /**固定枚举类型**/
 export const COMMON_CHUNK = {
+    /**账号状态**/
+    [enums.CHUNK_WINDOWS_ACCOUNT_STATUS.value]: {
+        name: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.name,
+        value: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_ACCOUNT_STATUS)
+    },
     /**字段自定义显示类型**/
     [enums.CHUNK_WINDOWS_COMMON_CHUNK.value]: {
         name: enums.CHUNK_WINDOWS_COMMON_CHUNK.name,

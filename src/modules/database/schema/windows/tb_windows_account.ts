@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { snowflakeId } from 'snowflake-id-maker'
 import { IsNotEmpty, Length, IsEmail, IsEnum, IsMobilePhone } from 'class-validator'
 import { DataBaseAdapter, withComment } from '@/modules/database/database.adapter'
-import { COMMON_WINDOWS_ACCOUNT } from '@/modules/database/enums'
+import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_account', comment: '管理端-账号表' })
 export class WindowsAccount extends DataBaseAdapter {
@@ -43,13 +43,13 @@ export class WindowsAccount extends DataBaseAdapter {
     avatar: string
 
     @ApiProperty({
-        description: withComment('账号状态', COMMON_WINDOWS_ACCOUNT.status),
-        example: COMMON_WINDOWS_ACCOUNT.status.online.value
+        description: withComment('账号状态', enums.CHUNK_WINDOWS_ACCOUNT_STATUS),
+        example: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.online.value
     })
     @IsNotEmpty({ message: '账号状态必填' })
     @Length(0, 32, { message: '账号状态不能超过32个字符' })
-    @IsEnum(Object.keys(COMMON_WINDOWS_ACCOUNT.status), { message: '账号状态格式错误' })
-    @Column({ nullable: false, comment: withComment('账号状态', COMMON_WINDOWS_ACCOUNT.status) })
+    @IsEnum(Object.keys(enums.CHUNK_WINDOWS_ACCOUNT_STATUS), { message: '账号状态格式错误' })
+    @Column({ nullable: false, comment: withComment('账号状态', enums.CHUNK_WINDOWS_ACCOUNT_STATUS) })
     status: string
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })

@@ -51,10 +51,22 @@ export class AccountService extends Logger {
     public async httpBaseSystemColumnAccount(request: OmixRequest, body: windows.ColumnAccountOptions) {
         try {
             return await this.database.builder(this.windows.accountOptions, async qb => {
+                if (isNotEmpty(body.name)) {
+                    qb.andWhere(`(t.name LIKE :name OR t.number LIKE :number)`, { name: `%${body.name}%`, number: `%${body.name}%` })
+                }
+                if (isNotEmpty(body.phone)) {
+                    qb.andWhere(`t.phone LIKE :phone`, { phone: `%${body.phone}%` })
+                }
+                if (isNotEmpty(body.email)) {
+                    qb.andWhere(`t.email LIKE :email`, { email: `%${body.email}%` })
+                }
+                if (isNotEmpty(body.status)) {
+                    qb.andWhere(`t.status = :status`, { status: body.status })
+                }
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    return await this.fetchResolver({ list, total })
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })
         } catch (err) {
