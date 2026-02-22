@@ -23,7 +23,7 @@ export class UpdateDeptOptions extends IntersectionType(
 /**分页列表查询**/
 export class ColumnDeptOptions extends IntersectionType(
     PickType(OmixColumnOptions, ['page', 'size']),
-    PartialType(PickType(schema.WindowsDept, ['name', 'keyId', 'pid', 'createBy']))
+    PartialType(PickType(schema.WindowsDept, ['name', 'alias', 'pid']))
 ) {}
 
 /**分页列表响应**/

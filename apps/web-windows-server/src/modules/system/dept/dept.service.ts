@@ -153,6 +153,9 @@ export class DeptService extends Logger {
                 if (isNotEmpty(body.name)) {
                     qb.where(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
+                if (isNotEmpty(body.alias)) {
+                    qb.where(`t.alias LIKE :alias`, { alias: `%${body.alias}%` })
+                }
                 if (isNotEmpty(body.pid)) {
                     qb.andWhere(`t.keyId = :pid OR t.pid = :pid`, { pid: body.pid })
                 }
