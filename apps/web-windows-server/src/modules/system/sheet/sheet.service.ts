@@ -153,6 +153,11 @@ export class SheetService extends Logger {
                 }
                 if (isNotEmpty(body.pid)) {
                     qb.andWhere(`t.keyId = :pid OR t.pid = :pid`, { pid: body.pid })
+                    qb.addSelect(`CASE WHEN t.keyId = :pid THEN 0 ELSE 1 END`, 'pidSort')
+                    qb.orderBy('pidSort', 'ASC')
+                    qb.addOrderBy('t.sort', 'ASC')
+                } else {
+                    qb.orderBy('t.sort', 'ASC')
                 }
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)

@@ -4,6 +4,7 @@ import { DataBaseService, WindowsService, schema, enums } from '@/modules/databa
 import { fetchTreeNodeBlock, fetchTreeFromList } from '@/utils'
 import { isNotEmpty } from 'class-validator'
 import { OmixRequest } from '@/interface'
+import { In } from 'typeorm'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
@@ -14,7 +15,7 @@ export class RoleService extends Logger {
 
     /**添加岗位角色**/
     @AutoDescriptor
-    public async httpBaseSystemCreateCommonRole(request: OmixRequest, body: windows.CreateCommonRoleOptions) {
+    public async httpBaseSystemCreateRole(request: OmixRequest, body: windows.CreateRoleOptions) {
         const ctx = await this.database.transaction()
         try {
             await this.database.create(ctx.manager.getRepository(schema.WindowsRole), {
@@ -38,12 +39,13 @@ export class RoleService extends Logger {
 
     /**编辑岗位角色**/
     @AutoDescriptor
-    public async httpBaseSystemUpdateCommonRole(request: OmixRequest, body: windows.UpdateCommonRoleOptions) {
+    public async httpBaseSystemUpdateRole(request: OmixRequest, body: windows.UpdateRoleOptions) {
         const ctx = await this.database.transaction()
         try {
             await this.database.empty(this.windows.roleOptions, {
                 request,
                 message: 'keyId:不存在',
+                stack: this.stack,
                 dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.update(ctx.manager.getRepository(schema.WindowsRole), {
@@ -63,21 +65,6 @@ export class RoleService extends Logger {
             throw new HttpException(err.message, err.status, err.options)
         } finally {
             await ctx.release()
-        }
-    }
-
-    /**角色详情**/
-    @AutoDescriptor
-    public async httpBaseSystemRoleResolver(request: OmixRequest, body: windows.RolePayloadOptions) {
-        try {
-            return await this.database.empty(this.windows.roleOptions, {
-                request,
-                message: 'keyId:不存在',
-                dispatch: { where: { keyId: body.keyId } }
-            })
-        } catch (err) {
-            this.logger.error(err)
-            throw new HttpException(err.message, err.status, err.options)
         }
     }
 
@@ -104,25 +91,105 @@ export class RoleService extends Logger {
         }
     }
 
+    /**角色详情**/
+    @AutoDescriptor
+    public async httpBaseSystemRoleResolver(request: OmixRequest, body: windows.RolePayloadOptions) {
+        try {
+            return await this.database.empty(this.windows.roleOptions, {
+                request,
+                message: 'keyId:不存在',
+                stack: this.stack,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
     /**角色关联账号列表**/
     @AutoDescriptor
-    public async httpBaseSystemColumnRoleAccount(request: OmixRequest, body: windows.ColumnRoleAccountOptions) {
+    public async httpBaseSystemColumnAccountRole(request: OmixRequest, body: windows.ColumnAccountRoleOptions) {
+        try {
+            await this.database.empty(this.windows.roleOptions, {
+                request,
+                message: 'roleId:不存在',
+                stack: this.stack,
+                dispatch: { where: { keyId: body.roleId } }
+            })
+            return await this.database.builder(this.windows.roleAccountOptions, async qb => {
+                qb.leftJoinAndMapOne('t.uid', schema.WindowsAccount, 'account', 'account.uid = t.uid')
+                qb.where(`t.role_id = :roleId`, { roleId: body.roleId })
+                qb.skip((body.page - 1) * body.size)
+                qb.take(body.size)
+                return await qb.getManyAndCount().then(async ([list, total]) => {
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**角色关联用户**/
+    @AutoDescriptor
+    public async httpBaseSystemCreateAccountRole(request: OmixRequest, body: windows.CreateAccountRoleOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            await this.database.empty(this.windows.roleOptions, {
+                request,
+                message: 'roleId:不存在',
+                stack: this.stack,
+                dispatch: { where: { keyId: body.roleId } }
+            })
+            for (const uid of body.uids) {
+                const exist = await this.database.builder(this.windows.roleAccountOptions, async qb => {
+                    qb.where(`t.role_id = :roleId AND t.uid = :uid`, { roleId: body.roleId, uid })
+                    return await qb.getOne()
+                })
+                if (!exist) {
+                    await this.database.create(ctx.manager.getRepository(schema.WindowsRoleAccount), {
+                        request,
+                        stack: this.stack,
+                        body: { roleId: body.roleId, uid, createBy: request.user.uid }
+                    })
+                }
+            }
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**删除角色关联用户**/
+    @AutoDescriptor
+    public async httpBaseSystemDeleteAccountRole(request: OmixRequest, body: windows.DeleteAccountRoleOptions) {
+        const ctx = await this.database.transaction()
         try {
             await this.database.empty(this.windows.roleOptions, {
                 request,
                 message: 'roleId:不存在',
                 dispatch: { where: { keyId: body.roleId } }
             })
-            return await this.database.builder(this.windows.roleAccountOptions, async qb => {
-                qb.leftJoinAndMapOne('t.uid', schema.WindowsAccount, 'account', 'account.uid = t.uid')
-                qb.where(`t.role_id = :roleId`, { roleId: body.roleId })
-                return await qb.getMany().then(async list => {
-                    return await this.fetchResolver({ list })
-                })
+            await this.database.delete(ctx.manager.getRepository(schema.WindowsRoleAccount), {
+                request,
+                stack: this.stack,
+                where: { roleId: body.roleId, keyId: In(body.keys) }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
         }
     }
 

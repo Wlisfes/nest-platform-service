@@ -8,31 +8,22 @@ import * as windows from '@web-windows-server/interface'
 export class RoleController {
     constructor(private readonly roleService: RoleService) {}
 
-    @ApiServiceDecorator(Post('create/common'), {
+    @ApiServiceDecorator(Post('create'), {
         windows: true,
         operation: { summary: '添加岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
-    public async httpBaseSystemCreateCommonRole(@Request() request: OmixRequest, @Body() body: windows.CreateCommonRoleOptions) {
-        return await this.roleService.httpBaseSystemCreateCommonRole(request, body)
+    public async httpBaseSystemCreateRole(@Request() request: OmixRequest, @Body() body: windows.CreateRoleOptions) {
+        return await this.roleService.httpBaseSystemCreateRole(request, body)
     }
 
-    @ApiServiceDecorator(Post('update/common'), {
+    @ApiServiceDecorator(Post('update'), {
         windows: true,
         operation: { summary: '编辑岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
-    public async httpBaseSystemUpdateCommonRole(@Request() request: OmixRequest, @Body() body: windows.UpdateCommonRoleOptions) {
-        return await this.roleService.httpBaseSystemUpdateCommonRole(request, body)
-    }
-
-    @ApiServiceDecorator(Post('resolver'), {
-        windows: true,
-        operation: { summary: '角色详情' },
-        response: { status: 200, description: 'OK', type: windows.RolePayloadOptionsResponse }
-    })
-    public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Body() body: windows.RolePayloadOptions) {
-        return await this.roleService.httpBaseSystemRoleResolver(request, body)
+    public async httpBaseSystemUpdateRole(@Request() request: OmixRequest, @Body() body: windows.UpdateRoleOptions) {
+        return await this.roleService.httpBaseSystemUpdateRole(request, body)
     }
 
     @ApiServiceDecorator(Post('column'), {
@@ -44,13 +35,40 @@ export class RoleController {
         return await this.roleService.httpBaseSystemColumnRole(request)
     }
 
+    @ApiServiceDecorator(Post('resolver'), {
+        windows: true,
+        operation: { summary: '角色详情' },
+        response: { status: 200, description: 'OK', type: windows.RolePayloadOptionsResponse }
+    })
+    public async httpBaseSystemRoleResolver(@Request() request: OmixRequest, @Body() body: windows.RolePayloadOptions) {
+        return await this.roleService.httpBaseSystemRoleResolver(request, body)
+    }
+
     @ApiServiceDecorator(Post('account/column'), {
         windows: true,
         operation: { summary: '角色关联账号列表' },
-        response: { status: 200, description: 'OK', type: windows.ColumnRoleAccountOptionsResponse }
+        response: { status: 200, description: 'OK', type: windows.ColumnAccountRoleOptionsResponse }
     })
-    public async httpBaseSystemColumnRoleAccount(@Request() request: OmixRequest, @Body() body: windows.ColumnRoleAccountOptions) {
-        return await this.roleService.httpBaseSystemColumnRoleAccount(request, body)
+    public async httpBaseSystemColumnAccountRole(@Request() request: OmixRequest, @Body() body: windows.ColumnAccountRoleOptions) {
+        return await this.roleService.httpBaseSystemColumnAccountRole(request, body)
+    }
+
+    @ApiServiceDecorator(Post('account/create'), {
+        windows: true,
+        operation: { summary: '角色关联用户' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemCreateAccountRole(@Request() request: OmixRequest, @Body() body: windows.CreateAccountRoleOptions) {
+        return await this.roleService.httpBaseSystemCreateAccountRole(request, body)
+    }
+
+    @ApiServiceDecorator(Post('account/delete'), {
+        windows: true,
+        operation: { summary: '删除角色关联用户' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemDeleteAccountRole(@Request() request: OmixRequest, @Body() body: windows.DeleteAccountRoleOptions) {
+        return await this.roleService.httpBaseSystemDeleteAccountRole(request, body)
     }
 
     @ApiServiceDecorator(Post('sheet/column'), {
