@@ -9,7 +9,7 @@ export class AccountController {
     constructor(private readonly accountService: AccountService) {}
 
     @ApiServiceDecorator(Post('/create'), {
-        operation: { summary: '添加账号' },
+        operation: { summary: '新增账号' },
         response: { status: 200, description: 'OK' },
         windows: true
     })

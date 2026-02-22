@@ -13,7 +13,7 @@ export class RoleService extends Logger {
         super()
     }
 
-    /**添加岗位角色**/
+    /**新增岗位角色**/
     @AutoDescriptor
     public async httpBaseSystemCreateRole(request: OmixRequest, body: windows.CreateRoleOptions) {
         const ctx = await this.database.transaction()

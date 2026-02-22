@@ -8,7 +8,7 @@ export class SheetPayloadOptions extends PickType(schema.WindowsSheet, ['keyId']
 /**菜单、按钮详情响应**/
 export class SheetPayloadOptionsResponse extends schema.WindowsSheet {}
 
-/**添加菜单**/
+/**新增菜单**/
 export class CreateSheetOptionsResource extends IntersectionType(
     PickType(schema.WindowsSheet, ['keyName', 'name', 'router', 'version', 'sort', 'status', 'check']),
     PartialType(PickType(schema.WindowsSheet, ['pid', 'iconName']))
@@ -32,7 +32,7 @@ export class ColumnSheetOptionsResponse extends OmixColumnResponse {
     list: schema.WindowsSheet[]
 }
 
-/**添加按钮权限**/
+/**新增按钮权限**/
 export class CreateSheetOptionsAuthorize extends IntersectionType(
     PickType(schema.WindowsSheet, ['keyName', 'name', 'version', 'sort', 'status']),
     PartialType(PickType(schema.WindowsSheet, ['pid']))

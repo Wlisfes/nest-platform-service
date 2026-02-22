@@ -10,7 +10,7 @@ export class DeptController {
 
     @ApiServiceDecorator(Post('create'), {
         windows: true,
-        operation: { summary: '添加部门' },
+        operation: { summary: '新增部门' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateDepartment(@Request() request: OmixRequest, @Body() body: windows.CreateDeptOptions) {

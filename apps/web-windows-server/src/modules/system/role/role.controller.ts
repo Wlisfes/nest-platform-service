@@ -10,7 +10,7 @@ export class RoleController {
 
     @ApiServiceDecorator(Post('create'), {
         windows: true,
-        operation: { summary: '添加岗位角色' },
+        operation: { summary: '新增岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateRole(@Request() request: OmixRequest, @Body() body: windows.CreateRoleOptions) {

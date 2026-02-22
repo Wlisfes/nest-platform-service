@@ -8,7 +8,7 @@ export class AccountPayloadOptions extends PickType(schema.WindowsAccount, ['uid
 /**账号详情响应**/
 export class AccountPayloadOptionsResponse extends schema.WindowsAccount {}
 
-/**添加用户账号**/
+/**新增用户账号**/
 export class CreateAccountOptions extends IntersectionType(
     PickType(schema.WindowsAccount, ['name', 'number', 'phone', 'password', 'status']),
     PickType(schema.WindowsAccount, ['avatar', 'email'])

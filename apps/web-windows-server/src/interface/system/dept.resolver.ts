@@ -8,7 +8,7 @@ export class DeptPayloadOptions extends PickType(schema.WindowsDept, ['keyId']) 
 /**部门详情响应**/
 export class DeptPayloadOptionsResponse extends schema.WindowsDept {}
 
-/**添加部门**/
+/**新增部门**/
 export class CreateDeptOptions extends IntersectionType(
     PickType(schema.WindowsDept, ['name']),
     PartialType(PickType(schema.WindowsDept, ['alias', 'pid']))

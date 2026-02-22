@@ -13,7 +13,7 @@ export class DeptService extends Logger {
         super()
     }
 
-    /**添加部门**/
+    /**新增部门**/
     @AutoDescriptor
     public async httpBaseSystemCreateDepartment(request: OmixRequest, body: windows.CreateDeptOptions) {
         const ctx = await this.database.transaction()

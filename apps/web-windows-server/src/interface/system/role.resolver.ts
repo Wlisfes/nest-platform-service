@@ -8,7 +8,7 @@ export class RolePayloadOptions extends PickType(schema.WindowsRole, ['keyId']) 
 /**角色详情响应**/
 export class RolePayloadOptionsResponse extends schema.WindowsRole {}
 
-/**添加岗位角色**/
+/**新增岗位角色**/
 export class CreateRoleOptions extends IntersectionType(
     PickType(schema.WindowsRole, ['name', 'model']),
     PartialType(PickType(schema.WindowsRole, ['comment', 'sort']))

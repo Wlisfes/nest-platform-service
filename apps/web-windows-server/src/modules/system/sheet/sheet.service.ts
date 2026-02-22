@@ -14,7 +14,7 @@ export class SheetService extends Logger {
         super()
     }
 
-    /**添加菜单**/
+    /**新增菜单**/
     @AutoDescriptor
     public async httpBaseSystemCreateSheetResource(request: OmixRequest, body: windows.CreateSheetOptionsResource) {
         const ctx = await this.database.transaction()
@@ -171,7 +171,7 @@ export class SheetService extends Logger {
         }
     }
 
-    /**添加按钮权限**/
+    /**新增按钮权限**/
     @AutoDescriptor
     public async httpBaseSystemCreateSheetAuthorize(request: OmixRequest, body: windows.CreateSheetOptionsAuthorize) {
         const ctx = await this.database.transaction()

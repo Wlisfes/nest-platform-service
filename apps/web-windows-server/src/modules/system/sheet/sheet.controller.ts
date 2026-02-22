@@ -10,7 +10,7 @@ export class SheetController {
 
     @ApiServiceDecorator(Post('create/resource'), {
         windows: true,
-        operation: { summary: '添加菜单' },
+        operation: { summary: '新增菜单' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateSheetResource(@Request() request: OmixRequest, @Body() body: windows.CreateSheetOptionsResource) {
@@ -55,7 +55,7 @@ export class SheetController {
 
     @ApiServiceDecorator(Post('/create/authorize'), {
         windows: true,
-        operation: { summary: '添加按钮权限' },
+        operation: { summary: '新增按钮权限' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateSheetAuthorize(@Request() request: OmixRequest, @Body() body: windows.CreateSheetOptionsAuthorize) {
