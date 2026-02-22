@@ -59,7 +59,7 @@ export class AuthService extends Logger {
                         throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
                     } else if (!compareSync(body.password, node.password)) {
                         throw new HttpException(`账号密码不正确`, HttpStatus.BAD_REQUEST)
-                    } else if (node.status === enums.COMMON_WINDOWS_ACCOUNT.status.offline.value) {
+                    } else if (node.status === enums.CHUNK_WINDOWS_ACCOUNT_STATUS.offline.value) {
                         throw new HttpException(`员工账号已离职`, HttpStatus.FORBIDDEN)
                     }
                     return await this.jwtService.fetchJwtSecret(pick(node, ['uid', 'number', 'name', 'status']))
