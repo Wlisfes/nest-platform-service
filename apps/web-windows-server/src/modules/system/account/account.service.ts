@@ -52,8 +52,13 @@ export class AccountService extends Logger {
     public async httpBaseSystemColumnAccount(request: OmixRequest, body: windows.ColumnAccountOptions) {
         try {
             return await this.database.builder(this.windows.accountOptions, async qb => {
-                qb.leftJoinAndMapMany('t.depts', schema.WindowsDeptAccount, 'da', 'da.uid = t.uid')
-                qb.leftJoinAndMapOne('da.deptId', schema.WindowsDept, 'dept', 'dept.key_id = da.dept_id')
+                qb.leftJoinAndMapMany(
+                    't.depts',
+                    schema.WindowsDept,
+                    'dept',
+                    'dept.key_id IN (SELECT da.dept_id FROM tb_windows_dept_account da WHERE da.uid = t.uid)'
+                )
+                qb.select('t').addSelect(['dept.keyId', 'dept.name', 'dept.alias'])
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`(t.name LIKE :name OR t.number LIKE :number)`, { name: `%${body.name}%`, number: `%${body.name}%` })
                 }
@@ -67,7 +72,9 @@ export class AccountService extends Logger {
                     qb.andWhere(`t.status = :status`, { status: body.status })
                 }
                 if (isNotEmpty(body.depts) && body.depts.length > 0) {
-                    qb.andWhere(`da.dept_id IN (:...depts)`, { depts: body.depts })
+                    qb.andWhere(`EXISTS (SELECT 1 FROM tb_windows_dept_account da WHERE da.uid = t.uid AND da.dept_id IN (:...depts))`, {
+                        depts: body.depts
+                    })
                 }
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
@@ -86,8 +93,13 @@ export class AccountService extends Logger {
     public async httpBaseSystemAccountResolver(request: OmixRequest, body: windows.AccountPayloadOptions) {
         try {
             return await this.database.builder(this.windows.accountOptions, async qb => {
-                qb.leftJoinAndMapMany('t.depts', schema.WindowsDeptAccount, 'da', 'da.uid = t.uid')
-                qb.leftJoinAndMapOne('da.deptId', schema.WindowsDept, 'dept', 'dept.key_id = da.dept_id')
+                qb.leftJoinAndMapMany(
+                    't.depts',
+                    schema.WindowsDept,
+                    'dept',
+                    'dept.key_id IN (SELECT da.dept_id FROM tb_windows_dept_account da WHERE da.uid = t.uid)'
+                )
+                qb.select('t').addSelect(['dept.keyId', 'dept.name', 'dept.alias'])
                 qb.where(`t.uid = :uid`, { uid: body.uid })
                 return await qb.getOne().then(async node => {
                     if (isEmpty(node)) {
