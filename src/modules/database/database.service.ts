@@ -5,8 +5,9 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { fetchSelection, fetchCatchWherer } from '@/utils'
 export { ClientService, WindowsService } from '@/modules/database/database.schema'
 import * as env from '@/modules/database/database.interface'
-export * as schema from '@/modules/database/schema'
-export * as enums from '@/modules/database/enums'
+import * as schema from '@/modules/database/schema'
+import * as enums from '@/modules/database/enums'
+export { schema, enums }
 
 @Injectable()
 export class DataBaseService extends Logger {
@@ -40,16 +41,23 @@ export class DataBaseService extends Logger {
 
     /**
      * typeorm事务
-     * @param where 是否开启事务、默认true
-     * @returns 事务实例
+     * @param options 事务配置
+     * @returns 事务实例、挂载schema对应的Repository
      */
-    public async transaction(where: boolean = true) {
+    public async transaction<S extends Array<keyof typeof schema> = []>(
+        options: env.BaseTransactionOptions<S> = {} as env.BaseTransactionOptions<S>
+    ): Promise<env.BaseTransactionResult<S>> {
         const queryRunner = this.dataSource.createQueryRunner()
         await queryRunner.connect()
-        if (where) {
+        if (options.where ?? true) {
             await queryRunner.startTransaction()
         }
-        return queryRunner
+        if (isArray(options.schema)) {
+            for (const key of options.schema) {
+                ;(queryRunner as Omix)[key] = queryRunner.manager.getRepository(schema[key] as any)
+            }
+        }
+        return queryRunner as env.BaseTransactionResult<S>
     }
 
     /**
@@ -149,6 +157,9 @@ export class DataBaseService extends Logger {
         return await model.delete(data.where).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待删除结果`, where: data.where, node })
+            }
+            if (data.transaction) {
+                return await data.transaction(node as never)
             }
             return node
         })

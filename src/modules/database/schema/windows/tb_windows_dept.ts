@@ -25,6 +25,11 @@ export class WindowsDept extends DataBaseByAdapter {
 
 @Entity({ name: 'tb_windows_dept_account', comment: '管理端-部门关联账号表' })
 export class WindowsDeptAccount extends DataBaseAdapter {
+    @ApiProperty({ description: '部门ID', example: 1000 })
+    @IsNotEmpty({ message: '部门ID必填' })
+    @Column({ name: 'dept_id', comment: '部门ID', nullable: false })
+    deptId: number
+
     @ApiProperty({ description: '账号UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '账号UID必填' })
     @Column({ comment: '账号UID', length: 19, nullable: false })

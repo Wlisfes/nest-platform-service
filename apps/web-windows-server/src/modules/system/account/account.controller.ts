@@ -35,6 +35,15 @@ export class AccountController {
         return await this.accountService.httpBaseSystemAccountResolver(request, body)
     }
 
+    @ApiServiceDecorator(Post('/update'), {
+        operation: { summary: '编辑账号' },
+        response: { status: 200, description: 'OK' },
+        windows: true
+    })
+    public async httpBaseSystemUpdateAccount(@Request() request: OmixRequest, @Body() body: windows.UpdateAccountOptions) {
+        return await this.accountService.httpBaseSystemUpdateAccount(request, body)
+    }
+
     @ApiServiceDecorator(Post('/update/switch'), {
         operation: { summary: '编辑账号状态' },
         response: { status: 200, description: 'OK' },

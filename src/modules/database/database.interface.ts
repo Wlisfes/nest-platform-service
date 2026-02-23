@@ -1,6 +1,23 @@
 import { HttpExceptionOptions } from '@nestjs/common'
-import { Repository } from 'typeorm'
+import { Repository, QueryRunner } from 'typeorm'
 import { OmixRequest } from '@/interface'
+import * as schema from '@/modules/database/schema'
+
+/**Schema映射类型**/
+type SchemaEntity<K extends keyof typeof schema> = (typeof schema)[K] extends new (...args: any[]) => infer E ? E : never
+
+/**事务返回类型**/
+export type BaseTransactionResult<S extends Array<keyof typeof schema> = []> = QueryRunner & {
+    [K in S[number]]: Repository<SchemaEntity<K>>
+}
+
+/**事务配置**/
+export interface BaseTransactionOptions<S extends Array<keyof typeof schema> = []> extends Omix {
+    /**是否开启事务、默认true**/
+    where?: boolean
+    /**表实例名称**/
+    schema?: [...S]
+}
 
 /**基础配置**/
 export interface BaseOptions extends Omix {
@@ -66,4 +83,6 @@ export interface BaseUpdateOptions<T> extends BaseOptions {
 export interface BaseDeleteOptions<T> extends BaseOptions {
     /**删除条件**/
     where: Parameters<Repository<T>['delete']>['0']
+    /**回调函数**/
+    transaction?: (data: Omix<T>) => void | Promise<void> | Promise<any>
 }
