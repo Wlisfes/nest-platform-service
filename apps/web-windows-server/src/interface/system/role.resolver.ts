@@ -37,8 +37,8 @@ export class ColumnAccountRoleOptions extends IntersectionType(
 
 /**角色关联账号分页列表响应**/
 export class ColumnAccountRoleOptionsResponse extends OmixColumnResponse {
-    @ApiProperty({ description: '列表数据', type: [schema.WindowsRoleAccount] })
-    list: schema.WindowsRoleAccount[]
+    @ApiProperty({ description: '列表数据', type: [schema.WindowsAccount] })
+    list: schema.WindowsAccount[]
 }
 
 /**角色关联用户**/
