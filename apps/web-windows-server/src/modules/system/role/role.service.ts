@@ -6,6 +6,7 @@ import { isNotEmpty } from 'class-validator'
 import { OmixRequest } from '@/interface'
 import { In } from 'typeorm'
 import * as windows from '@web-windows-server/interface'
+import * as tree from 'tree-tool'
 
 @Injectable()
 export class RoleService extends Logger {
@@ -81,7 +82,12 @@ export class RoleService extends Logger {
                 qb.leftJoinAndMapOne('t.node', schema.WindowsRole, 'node', 'node.deptId = t.keyId')
                 qb.where(`node.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value })
                 return await qb.getMany().then(async nodes => {
-                    return fetchTreeNodeBlock(fetchTreeFromList(nodes, { id: 'keyId', pid: 'pid' }))
+                    return fetchTreeNodeBlock(
+                        fetchTreeFromList(
+                            nodes.map((e: Omix) => ({ ...e, nodeId: e.node?.keyId })),
+                            { id: 'keyId', pid: 'pid' }
+                        )
+                    )
                 })
             })
             return await this.fetchResolver({ list, dept })
@@ -111,21 +117,73 @@ export class RoleService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemColumnAccountRole(request: OmixRequest, body: windows.ColumnAccountRoleOptions) {
         try {
-            await this.database.empty(this.windows.roleOptions, {
+            const node = await this.database.empty(this.windows.roleOptions, {
                 request,
                 message: 'roleId:不存在',
                 stack: this.stack,
                 dispatch: { where: { keyId: body.roleId } }
             })
-            return await this.database.builder(this.windows.roleAccountOptions, async qb => {
-                qb.leftJoinAndMapOne('t.uid', schema.WindowsAccount, 'account', 'account.uid = t.uid')
-                qb.where(`t.role_id = :roleId`, { roleId: body.roleId })
-                qb.skip((body.page - 1) * body.size)
-                qb.take(body.size)
-                return await qb.getManyAndCount().then(async ([list, total]) => {
+            if (node.chunk === enums.CHUNK_WINDOWS_ROLE_CHUNK.common.value) {
+                return await this.database.builder(this.windows.accountOptions, async qb => {
+                    qb.innerJoin(schema.WindowsRoleAccount, 'rel', 'rel.uid = t.uid')
+                    qb.where(`rel.role_id = :roleId`, { roleId: body.roleId })
+                    qb.distinct(true)
+
+                    const countQb = qb.clone()
+                    countQb.skip(undefined)
+                    countQb.take(undefined)
+                    const total = await countQb.getCount()
+
+                    qb.skip((body.page - 1) * body.size)
+                    qb.take(body.size)
+                    const list = await qb.getMany()
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
-            })
+            }
+            if (node.chunk === enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value) {
+                if (!isNotEmpty(node.deptId)) {
+                    throw new HttpException('deptId:不存在', HttpStatus.BAD_REQUEST)
+                }
+
+                const deptIds = await this.database.builder(this.windows.deptOptions, async qb => {
+                    const nodes = await qb.getMany()
+                    const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
+                    const root = items.find(item => item.keyId === node.deptId)
+                    if (!root) {
+                        throw new HttpException('deptId:不存在', HttpStatus.BAD_REQUEST)
+                    }
+                    const result = new Set<number>()
+                    const queue: any[] = [root]
+                    while (queue.length) {
+                        const current = queue.shift()
+                        if (current && isNotEmpty(current.keyId)) {
+                            result.add(current.keyId)
+                        }
+                        const children = current?.children
+                        if (Array.isArray(children) && children.length) {
+                            queue.push(...children)
+                        }
+                    }
+                    return Array.from(result)
+                })
+
+                return await this.database.builder(this.windows.accountOptions, async qb => {
+                    qb.innerJoin(schema.WindowsDeptAccount, 'rel', 'rel.uid = t.uid')
+                    qb.where(`rel.dept_id IN (:...deptIds)`, { deptIds })
+                    qb.distinct(true)
+
+                    const countQb = qb.clone()
+                    countQb.skip(undefined)
+                    countQb.take(undefined)
+                    const total = await countQb.getCount()
+
+                    qb.skip((body.page - 1) * body.size)
+                    qb.take(body.size)
+                    const list = await qb.getMany()
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                })
+            }
+            throw new HttpException('node.chunk:格式错误', HttpStatus.BAD_REQUEST)
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
