@@ -52,4 +52,13 @@ export class DeptController {
     public async httpBaseSystemColumnDepartment(@Request() request: OmixRequest, @Body() body: windows.ColumnDeptOptions) {
         return await this.deptService.httpBaseSystemColumnDepartment(request, body)
     }
+
+    @ApiServiceDecorator(Post('delete'), {
+        windows: true,
+        operation: { summary: '删除部门' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemDeleteDepartment(@Request() request: OmixRequest, @Body() body: windows.DeleteDeptOptions) {
+        return await this.deptService.httpBaseSystemDeleteDepartment(request, body)
+    }
 }

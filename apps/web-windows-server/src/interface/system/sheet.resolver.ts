@@ -43,3 +43,6 @@ export class UpdateSheetOptionsAuthorize extends IntersectionType(
     PickType(schema.WindowsSheet, ['keyId', 'keyName', 'name', 'version', 'sort', 'status']),
     PartialType(PickType(schema.WindowsSheet, ['pid']))
 ) {}
+
+/**删除菜单**/
+export class DeleteSheetOptions extends PickType(schema.WindowsSheet, ['keyId']) {}

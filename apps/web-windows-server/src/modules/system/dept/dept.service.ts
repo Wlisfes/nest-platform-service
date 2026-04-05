@@ -170,4 +170,64 @@ export class DeptService extends Logger {
             throw new HttpException(err.message, err.status, err.options)
         }
     }
+
+    /**删除部门**/
+    @AutoDescriptor
+    public async httpBaseSystemDeleteDepartment(request: OmixRequest, body: windows.DeleteDeptOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            // 查询部门是否存在
+            const dept = await this.database.empty(this.windows.deptOptions, {
+                request,
+                message: 'keyId:不存在',
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            // 递归获取所有子部门ID
+            const getAllChildDeptIds = async (parentId: number): Promise<number[]> => {
+                const childDepts = await this.database.builder(this.windows.deptOptions, async qb => {
+                    qb.where(`t.pid = :pid`, { pid: parentId })
+                    return await qb.getMany()
+                })
+                let allIds: number[] = []
+                for (const child of childDepts) {
+                    const childIds = await getAllChildDeptIds(child.keyId)
+                    allIds = [...allIds, child.keyId, ...childIds]
+                }
+                return allIds
+            }
+            const allDeptIds = [body.keyId, ...(await getAllChildDeptIds(body.keyId))]
+            // 删除部门关联的部门-账号关系
+            for (const deptId of allDeptIds) {
+                await this.database.delete(ctx.manager.getRepository(schema.WindowsDeptAccount), {
+                    request,
+                    stack: this.stack,
+                    where: { deptId }
+                })
+            }
+            // 删除部门关联的角色（部门角色）
+            for (const deptId of allDeptIds) {
+                await this.database.delete(ctx.manager.getRepository(schema.WindowsRole), {
+                    request,
+                    stack: this.stack,
+                    where: { deptId }
+                })
+            }
+            // 删除所有子部门
+            for (const deptId of allDeptIds) {
+                await this.database.delete(ctx.manager.getRepository(schema.WindowsDept), {
+                    request,
+                    stack: this.stack,
+                    where: { keyId: deptId }
+                })
+            }
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
 }

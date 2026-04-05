@@ -70,4 +70,13 @@ export class SheetController {
     public async httpBaseSystemUpdateSheetAuthorize(@Request() request: OmixRequest, @Body() body: windows.UpdateSheetOptionsAuthorize) {
         return await this.sheetService.httpBaseSystemUpdateSheetAuthorize(request, body)
     }
+
+    @ApiServiceDecorator(Post('delete'), {
+        windows: true,
+        operation: { summary: '删除菜单/按钮' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemDeleteSheet(@Request() request: OmixRequest, @Body() body: windows.DeleteSheetOptions) {
+        return await this.sheetService.httpBaseSystemDeleteSheet(request, body)
+    }
 }

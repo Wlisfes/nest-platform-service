@@ -31,3 +31,6 @@ export class ColumnDeptOptionsResponse extends OmixColumnResponse {
     @ApiProperty({ description: '列表数据', type: [schema.WindowsDept] })
     list: schema.WindowsDept[]
 }
+
+/**删除部门**/
+export class DeleteDeptOptions extends PickType(schema.WindowsDept, ['keyId']) {}

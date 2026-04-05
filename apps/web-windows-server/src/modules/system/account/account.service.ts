@@ -171,5 +171,66 @@ export class AccountService extends Logger {
 
     /**编辑账号状态**/
     @AutoDescriptor
-    public async httpBaseSystemUpdateSwitchAccount(request: OmixRequest, body: windows.UpdateSwitchAccountOptions) {}
+    public async httpBaseSystemUpdateSwitchAccount(request: OmixRequest, body: windows.UpdateSwitchAccountOptions) {
+        try {
+            const account = await this.database.builder(this.windows.account, async qb => {
+                qb.where(`t.uid = :uid`, { uid: body.uid })
+                return await qb.getOne()
+            })
+            if (isEmpty(account)) {
+                throw new HttpException(`uid:${body.uid} 不存在`, HttpStatus.BAD_REQUEST)
+            }
+            await this.database.update(this.windows.account, {
+                request,
+                stack: this.stack,
+                where: { uid: body.uid },
+                body: { status: body.status }
+            })
+            return await this.fetchResolver({ message: '操作成功' })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**删除账号**/
+    @AutoDescriptor
+    public async httpBaseSystemDeleteAccount(request: OmixRequest, body: windows.DeleteAccountOptions) {
+        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsDeptAccount', 'WindowsRoleAccount'] })
+        try {
+            const account = await this.database.builder(this.windows.account, async qb => {
+                qb.where(`t.uid = :uid`, { uid: body.uid })
+                return await qb.getOne()
+            })
+            if (isEmpty(account)) {
+                throw new HttpException(`uid:${body.uid} 不存在`, HttpStatus.BAD_REQUEST)
+            }
+            // 删除账号关联的部门
+            await this.database.delete(ctx.WindowsDeptAccount, {
+                request,
+                stack: this.stack,
+                where: { uid: body.uid }
+            })
+            // 删除账号关联的角色
+            await this.database.delete(ctx.WindowsRoleAccount, {
+                request,
+                stack: this.stack,
+                where: { uid: body.uid }
+            })
+            // 删除账号
+            await this.database.delete(ctx.WindowsAccount, {
+                request,
+                stack: this.stack,
+                where: { uid: body.uid }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
 }

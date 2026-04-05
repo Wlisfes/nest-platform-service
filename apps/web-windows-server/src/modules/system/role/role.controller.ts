@@ -79,4 +79,31 @@ export class RoleController {
     public async httpBaseSystemColumnRoleSheet(@Request() request: OmixRequest, @Body() body: windows.ColumnRoleSheetOptions) {
         return await this.roleService.httpBaseSystemColumnRoleSheet(request, body)
     }
+
+    @ApiServiceDecorator(Post('sheet/update'), {
+        windows: true,
+        operation: { summary: '更新角色菜单权限' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemUpdateRoleSheet(@Request() request: OmixRequest, @Body() body: windows.UpdateRoleSheetOptions) {
+        return await this.roleService.httpBaseSystemUpdateRoleSheet(request, body)
+    }
+
+    @ApiServiceDecorator(Post('model/update'), {
+        windows: true,
+        operation: { summary: '更新角色数据权限' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemUpdateRoleModel(@Request() request: OmixRequest, @Body() body: windows.UpdateRoleModelOptions) {
+        return await this.roleService.httpBaseSystemUpdateRoleModel(request, body)
+    }
+
+    @ApiServiceDecorator(Post('delete'), {
+        windows: true,
+        operation: { summary: '删除岗位角色' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemDeleteRole(@Request() request: OmixRequest, @Body() body: windows.DeleteRoleOptions) {
+        return await this.roleService.httpBaseSystemDeleteRole(request, body)
+    }
 }

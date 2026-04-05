@@ -44,3 +44,6 @@ export class UpdateAccountOptions extends IntersectionType(
 
 /**编辑账号状态**/
 export class UpdateSwitchAccountOptions extends PickType(schema.WindowsAccount, ['uid', 'status']) {}
+
+/**删除账号**/
+export class DeleteAccountOptions extends PickType(schema.WindowsAccount, ['uid']) {}

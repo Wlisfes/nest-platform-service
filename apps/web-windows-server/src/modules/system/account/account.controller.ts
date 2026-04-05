@@ -52,4 +52,13 @@ export class AccountController {
     public async httpBaseSystemUpdateSwitchAccount(@Request() request: OmixRequest, @Body() body: windows.UpdateSwitchAccountOptions) {
         return await this.accountService.httpBaseSystemUpdateSwitchAccount(request, body)
     }
+
+    @ApiServiceDecorator(Post('/delete'), {
+        operation: { summary: '删除账号' },
+        response: { status: 200, description: 'OK' },
+        windows: true
+    })
+    public async httpBaseSystemDeleteAccount(@Request() request: OmixRequest, @Body() body: windows.DeleteAccountOptions) {
+        return await this.accountService.httpBaseSystemDeleteAccount(request, body)
+    }
 }

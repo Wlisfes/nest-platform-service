@@ -238,7 +238,7 @@ export class RoleService extends Logger {
             await this.database.delete(ctx.manager.getRepository(schema.WindowsRoleAccount), {
                 request,
                 stack: this.stack,
-                where: { roleId: body.roleId, keyId: In(body.keys) }
+                where: { roleId: body.roleId, uid: In(body.uids) }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -269,6 +269,100 @@ export class RoleService extends Logger {
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**更新角色菜单权限**/
+    @AutoDescriptor
+    public async httpBaseSystemUpdateRoleSheet(request: OmixRequest, body: windows.UpdateRoleSheetOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            await this.database.empty(this.windows.roleOptions, {
+                request,
+                message: 'roleId:不存在',
+                stack: this.stack,
+                dispatch: { where: { keyId: body.roleId } }
+            })
+            // 删除旧的关联记录
+            await ctx.manager.getRepository(schema.WindowsRoleSheet).delete({ roleId: body.roleId })
+            // 批量插入新的关联记录
+            if (body.sheetIds && body.sheetIds.length > 0) {
+                for (const sheetId of body.sheetIds) {
+                    await this.database.create(ctx.manager.getRepository(schema.WindowsRoleSheet), {
+                        request,
+                        stack: this.stack,
+                        body: { roleId: body.roleId, sheetId, createBy: request.user.uid }
+                    })
+                }
+            }
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**更新角色数据权限**/
+    @AutoDescriptor
+    public async httpBaseSystemUpdateRoleModel(request: OmixRequest, body: windows.UpdateRoleModelOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            await this.database.empty(this.windows.roleOptions, {
+                request,
+                message: 'keyId:不存在',
+                stack: this.stack,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            await this.database.update(ctx.manager.getRepository(schema.WindowsRole), {
+                request,
+                stack: this.stack,
+                where: { keyId: body.keyId },
+                body: { model: body.model, modifyBy: request.user.uid }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**删除岗位角色**/
+    @AutoDescriptor
+    public async httpBaseSystemDeleteRole(request: OmixRequest, body: windows.DeleteRoleOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            await this.database.empty(this.windows.roleOptions, {
+                request,
+                message: 'keyId:不存在',
+                stack: this.stack,
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            // 删除角色关联的菜单权限记录
+            await ctx.manager.getRepository(schema.WindowsRoleSheet).delete({ roleId: body.keyId })
+            // 删除角色关联的用户记录
+            await ctx.manager.getRepository(schema.WindowsRoleAccount).delete({ roleId: body.keyId })
+            // 删除角色本身
+            await this.database.delete(ctx.manager.getRepository(schema.WindowsRole), {
+                request,
+                stack: this.stack,
+                where: { keyId: body.keyId }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
         }
     }
 }

@@ -248,4 +248,56 @@ export class SheetService extends Logger {
             await ctx.release()
         }
     }
+
+    /**删除菜单/按钮**/
+    @AutoDescriptor
+    public async httpBaseSystemDeleteSheet(request: OmixRequest, body: windows.DeleteSheetOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            // 查询菜单是否存在
+            await this.database.empty(this.windows.sheetOptions, {
+                request,
+                message: 'keyId:不存在',
+                dispatch: { where: { keyId: body.keyId } }
+            })
+            // 递归获取所有子菜单ID
+            const getAllChildSheetIds = async (parentId: number): Promise<number[]> => {
+                const childSheets = await this.database.builder(this.windows.sheetOptions, async qb => {
+                    qb.where(`t.pid = :pid`, { pid: parentId })
+                    return await qb.getMany()
+                })
+                let allIds: number[] = []
+                for (const child of childSheets) {
+                    const childIds = await getAllChildSheetIds(child.keyId)
+                    allIds = [...allIds, child.keyId, ...childIds]
+                }
+                return allIds
+            }
+            const allSheetIds = [body.keyId, ...(await getAllChildSheetIds(body.keyId))]
+            // 删除菜单关联的角色-菜单关系
+            for (const sheetId of allSheetIds) {
+                await this.database.delete(ctx.manager.getRepository(schema.WindowsRoleSheet), {
+                    request,
+                    stack: this.stack,
+                    where: { sheetId }
+                })
+            }
+            // 删除所有子菜单
+            for (const sheetId of allSheetIds) {
+                await this.database.delete(ctx.manager.getRepository(schema.WindowsSheet), {
+                    request,
+                    stack: this.stack,
+                    where: { keyId: sheetId }
+                })
+            }
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
 }
