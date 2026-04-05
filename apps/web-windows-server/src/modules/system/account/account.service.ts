@@ -233,4 +233,21 @@ export class AccountService extends Logger {
             await ctx.release()
         }
     }
+
+    /**账号下拉列表**/
+    @AutoDescriptor
+    public async httpBaseSystemSelectAccount(request: OmixRequest) {
+        try {
+            return await this.database.builder(this.windows.account, async qb => {
+                qb.where(`t.status = :status`, { status: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.online.value })
+                const list = await qb.getMany()
+                return await this.fetchResolver({
+                    list: list.map(item => ({ value: item.uid, name: `${item.name} ${item.number}` }))
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 }

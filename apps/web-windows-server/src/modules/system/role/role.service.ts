@@ -197,20 +197,20 @@ export class RoleService extends Logger {
         try {
             await this.database.empty(this.windows.roleOptions, {
                 request,
-                message: 'roleId:不存在',
+                message: 'keyId:不存在',
                 stack: this.stack,
-                dispatch: { where: { keyId: body.roleId } }
+                dispatch: { where: { keyId: body.keyId } }
             })
             for (const uid of body.uids) {
                 const exist = await this.database.builder(this.windows.roleAccountOptions, async qb => {
-                    qb.where(`t.role_id = :roleId AND t.uid = :uid`, { roleId: body.roleId, uid })
+                    qb.where(`t.role_id = :roleId AND t.uid = :uid`, { roleId: body.keyId, uid })
                     return await qb.getOne()
                 })
                 if (!exist) {
                     await this.database.create(ctx.manager.getRepository(schema.WindowsRoleAccount), {
                         request,
                         stack: this.stack,
-                        body: { roleId: body.roleId, uid, createBy: request.user.uid }
+                        body: { roleId: body.keyId, uid, createBy: request.user.uid }
                     })
                 }
             }
@@ -232,13 +232,13 @@ export class RoleService extends Logger {
         try {
             await this.database.empty(this.windows.roleOptions, {
                 request,
-                message: 'roleId:不存在',
-                dispatch: { where: { keyId: body.roleId } }
+                message: 'keyId:不存在',
+                dispatch: { where: { keyId: body.keyId } }
             })
             await this.database.delete(ctx.manager.getRepository(schema.WindowsRoleAccount), {
                 request,
                 stack: this.stack,
-                where: { roleId: body.roleId, uid: In(body.uids) }
+                where: { roleId: body.keyId, uid: In(body.uids) }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })

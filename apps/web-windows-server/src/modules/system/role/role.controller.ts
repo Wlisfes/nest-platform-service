@@ -8,7 +8,7 @@ import * as windows from '@web-windows-server/interface'
 export class RoleController {
     constructor(private readonly roleService: RoleService) {}
 
-    @ApiServiceDecorator(Post('create'), {
+    @ApiServiceDecorator(Post('/create'), {
         windows: true,
         operation: { summary: '新增岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
@@ -17,7 +17,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemCreateRole(request, body)
     }
 
-    @ApiServiceDecorator(Post('update'), {
+    @ApiServiceDecorator(Post('/update'), {
         windows: true,
         operation: { summary: '编辑岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
@@ -26,7 +26,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemUpdateRole(request, body)
     }
 
-    @ApiServiceDecorator(Post('column'), {
+    @ApiServiceDecorator(Post('/column'), {
         windows: true,
         operation: { summary: '角色列表查询' },
         response: { status: 200, description: 'OK', type: windows.ColumnRoleOptionsResponse }
@@ -35,7 +35,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemColumnRole(request)
     }
 
-    @ApiServiceDecorator(Post('resolver'), {
+    @ApiServiceDecorator(Post('/resolver'), {
         windows: true,
         operation: { summary: '角色详情' },
         response: { status: 200, description: 'OK', type: windows.RolePayloadOptionsResponse }
@@ -44,7 +44,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemRoleResolver(request, body)
     }
 
-    @ApiServiceDecorator(Post('account/column'), {
+    @ApiServiceDecorator(Post('/account/column'), {
         windows: true,
         operation: { summary: '角色关联账号列表' },
         response: { status: 200, description: 'OK', type: windows.ColumnAccountRoleOptionsResponse }
@@ -53,7 +53,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemColumnAccountRole(request, body)
     }
 
-    @ApiServiceDecorator(Post('account/create'), {
+    @ApiServiceDecorator(Post('/account/create'), {
         windows: true,
         operation: { summary: '角色关联用户' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
@@ -62,7 +62,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemCreateAccountRole(request, body)
     }
 
-    @ApiServiceDecorator(Post('account/delete'), {
+    @ApiServiceDecorator(Post('/account/delete'), {
         windows: true,
         operation: { summary: '删除角色关联用户' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
@@ -71,7 +71,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemDeleteAccountRole(request, body)
     }
 
-    @ApiServiceDecorator(Post('sheet/column'), {
+    @ApiServiceDecorator(Post('/sheet/column'), {
         windows: true,
         operation: { summary: '角色菜单权限列表' },
         response: { status: 200, description: 'OK', type: windows.ColumnRoleSheetOptionsResponse }
@@ -80,7 +80,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemColumnRoleSheet(request, body)
     }
 
-    @ApiServiceDecorator(Post('sheet/update'), {
+    @ApiServiceDecorator(Post('/sheet/update'), {
         windows: true,
         operation: { summary: '更新角色菜单权限' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
@@ -89,7 +89,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemUpdateRoleSheet(request, body)
     }
 
-    @ApiServiceDecorator(Post('model/update'), {
+    @ApiServiceDecorator(Post('/model/update'), {
         windows: true,
         operation: { summary: '更新角色数据权限' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
@@ -98,7 +98,7 @@ export class RoleController {
         return await this.roleService.httpBaseSystemUpdateRoleModel(request, body)
     }
 
-    @ApiServiceDecorator(Post('delete'), {
+    @ApiServiceDecorator(Post('/delete'), {
         windows: true,
         operation: { summary: '删除岗位角色' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }

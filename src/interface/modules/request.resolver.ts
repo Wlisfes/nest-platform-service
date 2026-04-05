@@ -52,6 +52,11 @@ export class OmixPayloadOptions extends OmixColumnOptions {
     @IsArray({ message: 'keys 必须为Array<string>格式' })
     keys: Array<number>
 
+    @ApiProperty({ description: 'UID列表', example: [] })
+    @IsNotEmpty({ message: 'uids 必填' })
+    @IsArray({ message: 'uids 必须为Array<string>格式' })
+    uids: Array<string>
+
     @ApiProperty({ description: '验证码', example: '495673' })
     @IsNotEmpty({ message: '验证码 必填' })
     code: string
