@@ -68,3 +68,46 @@ export function fetchTreeNodeBlock<T extends Omix>(data: Array<T>, options: Omix
     })
     return data
 }
+
+/**
+ * 递归过滤禁用节点及其子树，可选收集指定节点值
+ * @param data 树结构数据
+ * @param options 配置项
+ *   - status: 禁用状态值，匹配的节点及其子树将被移除
+ *   - collect: 可选，收集回调函数，返回需要收集的值
+ * @returns collect 为空时返回过滤后的树，否则返回收集的值数组
+ */
+export function fetchTreeFilterDisabled<T extends Omix, R = T>(
+    data: Array<T>,
+    options: { status: string; collect?: (node: T) => R | undefined }
+): Array<R> {
+    const { status, collect } = options
+    const filterNodes = (list: Array<T>): Array<T> => {
+        return list.reduce((result: Array<T>, node: Omix) => {
+            if (node.status === status) {
+                return result
+            }
+            if (node.children && node.children.length > 0) {
+                node.children = filterNodes(node.children)
+            }
+            return [...result, node as T]
+        }, [])
+    }
+    const filtered = filterNodes(data)
+    if (!collect) {
+        return filtered as unknown as Array<R>
+    }
+    const collectValues = (list: Array<T>): Array<R> => {
+        return list.reduce((result: Array<R>, node: Omix) => {
+            const value = collect(node as T)
+            if (value !== undefined) {
+                result.push(value)
+            }
+            if (node.children && node.children.length > 0) {
+                result.push(...collectValues(node.children))
+            }
+            return result
+        }, [])
+    }
+    return collectValues(filtered)
+}

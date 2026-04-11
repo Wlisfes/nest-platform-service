@@ -7,7 +7,7 @@ import { DataBaseService, WindowsService, enums } from '@/modules/database/datab
 import { CodexService } from '@/modules/common/modules/codex.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
-import { fetchTreeNodeBlock } from '@/utils'
+import { fetchTreeNodeBlock, fetchTreeFilterDisabled } from '@/utils'
 import { OmixRequest, OmixResponse, CodexCreateOptions } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 import * as tree from 'tree-tool'
@@ -102,12 +102,22 @@ export class AuthService extends Logger {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
                 qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value })
+                qb.andWhere(
+                    `t.key_id IN (
+                        SELECT rs.sheet_id FROM tb_windows_role_sheet rs
+                        WHERE rs.role_id IN (
+                            SELECT ra.role_id FROM tb_windows_role_account ra WHERE ra.uid = :uid
+                        )
+                    )`,
+                    { uid: request.user.uid }
+                )
                 await this.database.selection(qb, [
                     ['t', ['keyId', 'pid', 'keyName', 'name', 'router', 'iconName', 'check', 'sort', 'status']]
                 ])
                 return await qb.getMany().then(async nodes => {
-                    const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
-                    return await this.fetchResolver({ list: items })
+                    const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
+                    const filtered = fetchTreeFilterDisabled(items, { status: enums.CHUNK_WINDOWS_SHEET_STATUS.disable.value })
+                    return await this.fetchResolver({ list: fetchTreeNodeBlock(filtered) })
                 })
             })
         } catch (err) {
@@ -120,9 +130,30 @@ export class AuthService extends Logger {
     @AutoDescriptor
     public async httpAuthAccountTokenSheet(request: OmixRequest) {
         try {
-            return await this.database.builder(this.windows.account, async qb => {
-                qb.where(`t.uid = :uid`, { uid: request.user.uid })
-                return await qb.getOne()
+            return await this.database.builder(this.windows.sheetOptions, async qb => {
+                qb.where(
+                    `t.key_id IN (
+                        SELECT rs.sheet_id FROM tb_windows_role_sheet rs
+                        WHERE rs.role_id IN (
+                            SELECT ra.role_id FROM tb_windows_role_account ra WHERE ra.uid = :uid
+                        )
+                    )`,
+                    { uid: request.user.uid }
+                )
+                await this.database.selection(qb, [['t', ['keyId', 'pid', 'keyName', 'chunk', 'status']]])
+                return await qb.getMany().then(async nodes => {
+                    const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
+                    const list = fetchTreeFilterDisabled<Omix, Omix>(items, {
+                        status: enums.CHUNK_WINDOWS_SHEET_STATUS.disable.value,
+                        collect: node => {
+                            if (node.chunk === enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize.value) {
+                                return { keyId: node.keyId, keyName: node.keyName }
+                            }
+                            return undefined
+                        }
+                    })
+                    return await this.fetchResolver({ list: list })
+                })
             })
         } catch (err) {
             this.logger.error(err)
