@@ -279,9 +279,10 @@ export class RoleService extends Logger {
                 dispatch: { where: { keyId: body.roleId } }
             })
             return await this.database.builder(this.windows.roleSheetOptions, async qb => {
+                qb.select('t.sheet_id', 'sheetId')
                 qb.where(`t.role_id = :roleId`, { roleId: body.roleId })
-                return await qb.getMany().then(async list => {
-                    return await this.fetchResolver({ list })
+                return await qb.getRawMany().then(async list => {
+                    return await this.fetchResolver({ list: list.map(item => item.sheetId) })
                 })
             })
         } catch (err) {
@@ -305,13 +306,9 @@ export class RoleService extends Logger {
             await ctx.manager.getRepository(schema.WindowsRoleSheet).delete({ roleId: body.roleId })
             // 批量插入新的关联记录
             if (body.sheetIds && body.sheetIds.length > 0) {
-                for (const sheetId of body.sheetIds) {
-                    await this.database.create(ctx.manager.getRepository(schema.WindowsRoleSheet), {
-                        request,
-                        stack: this.stack,
-                        body: { roleId: body.roleId, sheetId, createBy: request.user.uid }
-                    })
-                }
+                await ctx.manager.getRepository(schema.WindowsRoleSheet).insert(
+                    body.sheetIds.map(sheetId => ({ roleId: body.roleId, sheetId, createBy: request.user.uid }))
+                )
             }
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -373,6 +370,25 @@ export class RoleService extends Logger {
                 stack: this.stack,
                 where: { keyId: body.keyId }
             })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
+
+    /**批量更新角色排序**/
+    @AutoDescriptor
+    public async httpBaseSystemUpdateRoleSort(request: OmixRequest, body: windows.UpdateRoleSortOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            for (const item of body.list) {
+                await ctx.manager.getRepository(schema.WindowsRole).update({ keyId: item.keyId }, { sort: item.sort })
+            }
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })

@@ -106,4 +106,12 @@ export class RoleController {
     public async httpBaseSystemDeleteRole(@Request() request: OmixRequest, @Body() body: windows.DeleteRoleOptions) {
         return await this.roleService.httpBaseSystemDeleteRole(request, body)
     }
+    @ApiServiceDecorator(Post('/sort/update'), {
+        windows: true,
+        operation: { summary: '批量更新角色排序' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemUpdateRoleSort(@Request() request: OmixRequest, @Body() body: windows.UpdateRoleSortOptions) {
+        return await this.roleService.httpBaseSystemUpdateRoleSort(request, body)
+    }
 }
