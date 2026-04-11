@@ -47,3 +47,18 @@ export class UpdateSwitchAccountOptions extends PickType(schema.WindowsAccount, 
 
 /**删除账号**/
 export class DeleteAccountOptions extends PickType(schema.WindowsAccount, ['uid']) {}
+
+/**账号下拉列表项**/
+export class SelectAccountItem {
+    @ApiProperty({ description: '账号UID', example: '2149446185344106496' })
+    value: string
+
+    @ApiProperty({ description: '账号名称', example: '张三 1001' })
+    name: string
+}
+
+/**账号下拉列表响应**/
+export class SelectAccountOptionsResponse {
+    @ApiProperty({ description: '列表数据', type: [SelectAccountItem] })
+    list: SelectAccountItem[]
+}

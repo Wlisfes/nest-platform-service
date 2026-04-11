@@ -64,7 +64,7 @@ export class AccountController {
 
     @ApiServiceDecorator(Post('/select'), {
         operation: { summary: '账号下拉列表' },
-        response: { status: 200, description: 'OK', type: windows.ColumnAccountOptionsResponse },
+        response: { status: 200, description: 'OK', type: windows.SelectAccountOptionsResponse },
         windows: true
     })
     public async httpBaseSystemSelectAccount(@Request() request: OmixRequest) {

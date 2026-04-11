@@ -18,7 +18,7 @@ export class AuthController {
 
     @ApiServiceDecorator(Post('/token/login'), {
         operation: { summary: '账户登录' },
-        response: { status: 200, description: 'OK' }
+        response: { status: 200, description: 'OK', type: windows.AccountTokenResponse }
     })
     public async httpAuthAccountToken(@Request() request: OmixRequest, @Body() body: windows.AccountTokenOptions) {
         return await this.authService.httpAuthAccountToken(request, body)
@@ -26,7 +26,7 @@ export class AuthController {
 
     @ApiServiceDecorator(Post('/token/continue'), {
         operation: { summary: '登录续时' },
-        response: { status: 200, description: 'OK' },
+        response: { status: 200, description: 'OK', type: windows.AccountTokenResponse },
         windows: true
     })
     public async httpAuthAccountTokenContinue(@Request() request: OmixRequest) {
@@ -35,7 +35,7 @@ export class AuthController {
 
     @ApiServiceDecorator(Get('/token/resolver'), {
         operation: { summary: '登录账户信息' },
-        response: { status: 200, description: 'OK' },
+        response: { status: 200, description: 'OK', type: windows.AccountTokenResolverResponse },
         windows: true
     })
     public async httpAuthAccountTokenResolver(@Request() request: OmixRequest) {
@@ -44,7 +44,7 @@ export class AuthController {
 
     @ApiServiceDecorator(Get('/token/resource'), {
         operation: { summary: '账户权限菜单' },
-        response: { status: 200, description: 'OK' },
+        response: { status: 200, description: 'OK', type: windows.AccountTokenResourceResponse },
         windows: true
     })
     public async httpAuthAccountTokenResource(@Request() request: OmixRequest) {
@@ -53,7 +53,7 @@ export class AuthController {
 
     @ApiServiceDecorator(Get('/token/sheet'), {
         operation: { summary: '账户权限按钮' },
-        response: { status: 200, description: 'OK' },
+        response: { status: 200, description: 'OK', type: windows.AccountTokenSheetResponse },
         windows: true
     })
     public async httpAuthAccountTokenSheet(@Request() request: OmixRequest) {

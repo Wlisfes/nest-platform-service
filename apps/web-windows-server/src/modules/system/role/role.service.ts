@@ -157,7 +157,7 @@ export class RoleService extends Logger {
                 const deptIds = await this.database.builder(this.windows.deptOptions, async qb => {
                     const nodes = await qb.getMany()
                     const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
-                    const root = items.find(item => item.keyId === node.deptId)
+                    const root = tree.findNode(items, (dept: Omix) => dept.keyId === node.deptId, { id: 'keyId', children: 'children' })
                     if (!root) {
                         throw new HttpException('deptId:不存在', HttpStatus.BAD_REQUEST)
                     }
@@ -228,9 +228,9 @@ export class RoleService extends Logger {
             const newUids = body.uids.filter(uid => !existUids.has(uid))
             // 批量插入新的关联记录
             if (newUids.length > 0) {
-                await ctx.manager.getRepository(schema.WindowsRoleAccount).insert(
-                    newUids.map(uid => ({ roleId: body.keyId, uid, createBy: request.user.uid }))
-                )
+                await ctx.manager
+                    .getRepository(schema.WindowsRoleAccount)
+                    .insert(newUids.map(uid => ({ roleId: body.keyId, uid, createBy: request.user.uid })))
             }
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -306,9 +306,9 @@ export class RoleService extends Logger {
             await ctx.manager.getRepository(schema.WindowsRoleSheet).delete({ roleId: body.roleId })
             // 批量插入新的关联记录
             if (body.sheetIds && body.sheetIds.length > 0) {
-                await ctx.manager.getRepository(schema.WindowsRoleSheet).insert(
-                    body.sheetIds.map(sheetId => ({ roleId: body.roleId, sheetId, createBy: request.user.uid }))
-                )
+                await ctx.manager
+                    .getRepository(schema.WindowsRoleSheet)
+                    .insert(body.sheetIds.map(sheetId => ({ roleId: body.roleId, sheetId, createBy: request.user.uid })))
             }
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -388,7 +388,8 @@ export class RoleService extends Logger {
             if (body.list && body.list.length > 0) {
                 const keyIds = body.list.map(item => item.keyId)
                 const cases = body.list.map(item => `WHEN key_id = ${item.keyId} THEN ${item.sort}`).join(' ')
-                await this.windows.roleOptions.createQueryBuilder()
+                await this.windows.roleOptions
+                    .createQueryBuilder()
                     .update()
                     .set({ sort: () => `CASE ${cases} END` })
                     .whereInIds(keyIds)
