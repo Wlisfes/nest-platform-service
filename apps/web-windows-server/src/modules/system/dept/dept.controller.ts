@@ -44,6 +44,15 @@ export class DeptController {
         return await this.deptService.httpBaseSystemDepartmentTreeStructure(request)
     }
 
+    @ApiServiceDecorator(Post('member/options'), {
+        windows: true,
+        operation: { summary: '部门成员列表' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemDeptMemberOptions(@Request() request: OmixRequest, @Body() body: windows.DeptPayloadOptions) {
+        return await this.deptService.httpBaseSystemDeptMemberOptions(request, body)
+    }
+
     @ApiServiceDecorator(Post('column'), {
         windows: true,
         operation: { summary: '分页列表查询' },
@@ -60,5 +69,14 @@ export class DeptController {
     })
     public async httpBaseSystemDeleteDepartment(@Request() request: OmixRequest, @Body() body: windows.DeleteDeptOptions) {
         return await this.deptService.httpBaseSystemDeleteDepartment(request, body)
+    }
+
+    @ApiServiceDecorator(Post('member/update'), {
+        windows: true,
+        operation: { summary: '设置部门成员角色' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemUpdateDeptMember(@Request() request: OmixRequest, @Body() body: windows.UpdateDeptMemberOptions) {
+        return await this.deptService.httpBaseSystemUpdateDeptMember(request, body)
     }
 }

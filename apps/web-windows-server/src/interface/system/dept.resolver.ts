@@ -34,3 +34,8 @@ export class ColumnDeptOptionsResponse extends OmixColumnResponse {
 
 /**删除部门**/
 export class DeleteDeptOptions extends PickType(schema.WindowsDept, ['keyId']) {}
+
+/**设置部门成员角色**/
+export class UpdateDeptMemberOptions extends IntersectionType(
+    PickType(schema.WindowsDeptAccount, ['deptId', 'uid', 'chunk'])
+) {}

@@ -1,7 +1,8 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, Length, IsOptional } from 'class-validator'
-import { DataBaseByAdapter, DataBaseAdapter } from '@/modules/database/database.adapter'
+import { IsNotEmpty, Length, IsOptional, IsEnum } from 'class-validator'
+import { DataBaseByAdapter, DataBaseAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
+import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_dept', comment: '管理端-部门组织表' })
 export class WindowsDept extends DataBaseByAdapter {
@@ -34,4 +35,13 @@ export class WindowsDeptAccount extends DataBaseAdapter {
     @IsNotEmpty({ message: '账号UID必填' })
     @Column({ comment: '账号UID', length: 19, nullable: false })
     uid: string
+
+    @ApiProperty({
+        description: withComment('成员角色', enums.CHUNK_WINDOWS_DEPT_MEMBER),
+        example: enums.CHUNK_WINDOWS_DEPT_MEMBER.member.value
+    })
+    @IsOptional()
+    @IsEnum(withKeys(enums.CHUNK_WINDOWS_DEPT_MEMBER), { message: '成员角色格式错误' })
+    @Column({ nullable: false, comment: withComment('成员角色', enums.CHUNK_WINDOWS_DEPT_MEMBER) })
+    chunk: string
 }
