@@ -127,6 +127,15 @@ export class RoleService extends Logger {
                 return await this.database.builder(this.windows.accountOptions, async qb => {
                     qb.innerJoin(schema.WindowsRoleAccount, 'rel', 'rel.uid = t.uid')
                     qb.where(`rel.role_id = :roleId`, { roleId: body.roleId })
+                    if (isNotEmpty(body.vague)) {
+                        qb.andWhere(`(t.number LIKE :vague OR t.name LIKE :vague)`, { vague: `%${body.vague}%` })
+                    }
+                    if (isNotEmpty(body.phone)) {
+                        qb.andWhere(`t.phone LIKE :phone`, { phone: `%${body.phone}%` })
+                    }
+                    if (isNotEmpty(body.email)) {
+                        qb.andWhere(`t.email LIKE :email`, { email: `%${body.email}%` })
+                    }
                     qb.distinct(true)
 
                     const countQb = qb.clone()
@@ -170,6 +179,15 @@ export class RoleService extends Logger {
                 return await this.database.builder(this.windows.accountOptions, async qb => {
                     qb.innerJoin(schema.WindowsDeptAccount, 'rel', 'rel.uid = t.uid')
                     qb.where(`rel.dept_id IN (:...deptIds)`, { deptIds })
+                    if (isNotEmpty(body.vague)) {
+                        qb.andWhere(`(t.number LIKE :vague OR t.name LIKE :vague)`, { vague: `%${body.vague}%` })
+                    }
+                    if (isNotEmpty(body.phone)) {
+                        qb.andWhere(`t.phone LIKE :phone`, { phone: `%${body.phone}%` })
+                    }
+                    if (isNotEmpty(body.email)) {
+                        qb.andWhere(`t.email LIKE :email`, { email: `%${body.email}%` })
+                    }
                     qb.distinct(true)
 
                     const countQb = qb.clone()

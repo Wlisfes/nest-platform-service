@@ -31,8 +31,9 @@ export class ColumnRoleOptionsResponse {
 
 /**角色关联账号分页列表查询**/
 export class ColumnAccountRoleOptions extends IntersectionType(
-    PickType(OmixColumnOptions, ['page', 'size']),
-    PartialType(PickType(schema.WindowsRoleAccount, ['roleId']))
+    PickType(OmixColumnOptions, ['page', 'size', 'vague']),
+    PartialType(PickType(schema.WindowsRoleAccount, ['roleId'])),
+    PartialType(PickType(schema.WindowsAccount, ['phone', 'email']))
 ) {}
 
 /**角色关联账号分页列表响应**/
