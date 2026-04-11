@@ -3,7 +3,7 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { fetchTreeNodeBlock, fetchHandler, isEmpty, isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
-import { Not } from 'typeorm'
+import { Not, In } from 'typeorm'
 import * as tree from 'tree-tool'
 import * as windows from '@web-windows-server/interface'
 
@@ -196,30 +196,12 @@ export class DeptService extends Logger {
                 return allIds
             }
             const allDeptIds = [body.keyId, ...(await getAllChildDeptIds(body.keyId))]
-            // 删除部门关联的部门-账号关系
-            for (const deptId of allDeptIds) {
-                await this.database.delete(ctx.manager.getRepository(schema.WindowsDeptAccount), {
-                    request,
-                    stack: this.stack,
-                    where: { deptId }
-                })
-            }
-            // 删除部门关联的角色（部门角色）
-            for (const deptId of allDeptIds) {
-                await this.database.delete(ctx.manager.getRepository(schema.WindowsRole), {
-                    request,
-                    stack: this.stack,
-                    where: { deptId }
-                })
-            }
-            // 删除所有子部门
-            for (const deptId of allDeptIds) {
-                await this.database.delete(ctx.manager.getRepository(schema.WindowsDept), {
-                    request,
-                    stack: this.stack,
-                    where: { keyId: deptId }
-                })
-            }
+            // 批量删除部门关联的部门-账号关系
+            await ctx.manager.getRepository(schema.WindowsDeptAccount).delete({ deptId: In(allDeptIds) })
+            // 批量删除部门关联的角色（部门角色）
+            await ctx.manager.getRepository(schema.WindowsRole).delete({ deptId: In(allDeptIds) })
+            // 批量删除所有子部门
+            await ctx.manager.getRepository(schema.WindowsDept).delete({ keyId: In(allDeptIds) })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })

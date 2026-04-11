@@ -274,22 +274,10 @@ export class SheetService extends Logger {
                 return allIds
             }
             const allSheetIds = [body.keyId, ...(await getAllChildSheetIds(body.keyId))]
-            // 删除菜单关联的角色-菜单关系
-            for (const sheetId of allSheetIds) {
-                await this.database.delete(ctx.manager.getRepository(schema.WindowsRoleSheet), {
-                    request,
-                    stack: this.stack,
-                    where: { sheetId }
-                })
-            }
-            // 删除所有子菜单
-            for (const sheetId of allSheetIds) {
-                await this.database.delete(ctx.manager.getRepository(schema.WindowsSheet), {
-                    request,
-                    stack: this.stack,
-                    where: { keyId: sheetId }
-                })
-            }
+            // 批量删除菜单关联的角色-菜单关系
+            await ctx.manager.getRepository(schema.WindowsRoleSheet).delete({ sheetId: In(allSheetIds) })
+            // 批量删除所有子菜单
+            await ctx.manager.getRepository(schema.WindowsSheet).delete({ keyId: In(allSheetIds) })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })
