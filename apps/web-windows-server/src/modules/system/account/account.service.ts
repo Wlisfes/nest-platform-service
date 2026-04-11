@@ -20,7 +20,7 @@ export class AccountService extends Logger {
     public async httpBaseSystemCreateAccount(request: OmixRequest, body: windows.CreateAccountOptions) {
         const ctx = await this.database.transaction()
         try {
-            await this.database.builder(this.windows.account, async qb => {
+            await this.database.builder(this.windows.accountOptions, async qb => {
                 qb.where(`t.number = :number OR t.phone = :phone`, { number: body.number, phone: body.phone })
                 return await qb.getOne().then(async node => {
                     if (isNotEmpty(node) && node.number == body.number) {
@@ -173,14 +173,14 @@ export class AccountService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemUpdateSwitchAccount(request: OmixRequest, body: windows.UpdateSwitchAccountOptions) {
         try {
-            const account = await this.database.builder(this.windows.account, async qb => {
+            const account = await this.database.builder(this.windows.accountOptions, async qb => {
                 qb.where(`t.uid = :uid`, { uid: body.uid })
                 return await qb.getOne()
             })
             if (isEmpty(account)) {
                 throw new HttpException(`uid:${body.uid} 不存在`, HttpStatus.BAD_REQUEST)
             }
-            await this.database.update(this.windows.account, {
+            await this.database.update(this.windows.accountOptions, {
                 request,
                 stack: this.stack,
                 where: { uid: body.uid },
@@ -198,7 +198,7 @@ export class AccountService extends Logger {
     public async httpBaseSystemDeleteAccount(request: OmixRequest, body: windows.DeleteAccountOptions) {
         const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsDeptAccount', 'WindowsRoleAccount'] })
         try {
-            const account = await this.database.builder(this.windows.account, async qb => {
+            const account = await this.database.builder(this.windows.accountOptions, async qb => {
                 qb.where(`t.uid = :uid`, { uid: body.uid })
                 return await qb.getOne()
             })
@@ -238,7 +238,7 @@ export class AccountService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemSelectAccount(request: OmixRequest) {
         try {
-            return await this.database.builder(this.windows.account, async qb => {
+            return await this.database.builder(this.windows.accountOptions, async qb => {
                 qb.where(`t.status = :status`, { status: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.online.value })
                 const list = await qb.getMany()
                 return await this.fetchResolver({
