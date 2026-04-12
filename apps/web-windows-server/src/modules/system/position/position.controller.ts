@@ -52,4 +52,13 @@ export class PositionController {
     public async httpBaseSystemDeletePosition(@Request() request: OmixRequest, @Body() body: windows.DeletePositionOptions) {
         return await this.positionService.httpBaseSystemDeletePosition(request, body)
     }
+
+    @ApiServiceDecorator(Post('select'), {
+        windows: true,
+        operation: { summary: '职位下拉列表' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemSelectPosition(@Request() request: OmixRequest) {
+        return await this.positionService.httpBaseSystemSelectPosition(request)
+    }
 }

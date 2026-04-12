@@ -18,7 +18,7 @@ export class AccountService extends Logger {
     /**新增账号**/
     @AutoDescriptor
     public async httpBaseSystemCreateAccount(request: OmixRequest, body: windows.CreateAccountOptions) {
-        const ctx = await this.database.transaction()
+        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsPositionAccount'] })
         try {
             await this.database.builder(this.windows.accountOptions, async qb => {
                 qb.where(`t.number = :number OR t.phone = :phone`, { number: body.number, phone: body.phone })
@@ -31,10 +31,19 @@ export class AccountService extends Logger {
                     return node
                 })
             })
-            await this.database.create(ctx.manager.getRepository(schema.WindowsAccount), {
+            await this.database.create(ctx.WindowsAccount, {
                 stack: this.stack,
                 request,
                 body: body
+            }).then(async (node: any) => {
+                /**关联职位**/
+                if (isNotEmpty(body.positions) && body.positions.length > 0) {
+                    await this.database.insert(ctx.WindowsPositionAccount, {
+                        request,
+                        stack: this.stack,
+                        body: body.positions.map(postId => ({ postId, uid: node.uid })) as any
+                    })
+                }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -52,13 +61,6 @@ export class AccountService extends Logger {
     public async httpBaseSystemColumnAccount(request: OmixRequest, body: windows.ColumnAccountOptions) {
         try {
             return await this.database.builder(this.windows.accountOptions, async qb => {
-                qb.leftJoinAndMapMany(
-                    't.depts',
-                    schema.WindowsDept,
-                    'dept',
-                    'dept.key_id IN (SELECT da.dept_id FROM tb_windows_dept_account da WHERE da.uid = t.uid)'
-                )
-                qb.select('t').addSelect(['dept.keyId', 'dept.name', 'dept.alias'])
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`(t.name LIKE :name OR t.number LIKE :number)`, { name: `%${body.name}%`, number: `%${body.name}%` })
                 }
@@ -79,6 +81,53 @@ export class AccountService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
+                    const uids = list.map((item: any) => item.uid)
+                    if (uids.length > 0) {
+                        /**批量查询归属部门**/
+                        const deptRows = await this.database.builder(this.windows.deptAccountOptions, async dqb => {
+                            dqb.leftJoinAndMapOne('t.dept', schema.WindowsDept, 'dept', 'dept.key_id = t.deptId')
+                            dqb.addSelect(['dept.keyId', 'dept.name', 'dept.alias'])
+                            dqb.where(`t.uid IN (:...uids)`, { uids })
+                            return await dqb.getMany()
+                        })
+                        /**批量查询关联职位**/
+                        const positionRows = await this.database.builder(this.windows.positionAccountOptions, async pqb => {
+                            pqb.leftJoinAndMapOne('t.position', schema.WindowsPosition, 'position', 'position.key_id = t.postId')
+                            pqb.addSelect(['position.keyId', 'position.name'])
+                            pqb.where(`t.uid IN (:...uids)`, { uids })
+                            return await pqb.getMany()
+                        })
+                        /**批量查询关联角色（直接关联 + 部门角色）**/
+                        const deptIds = [...new Set(deptRows.map((r: any) => r.deptId).filter(Boolean))]
+                        const roleAccountRows = await this.database.builder(this.windows.roleAccountOptions, async rqb => {
+                            rqb.leftJoinAndMapOne('t.role', schema.WindowsRole, 'role', 'role.key_id = t.roleId')
+                            rqb.addSelect(['role.keyId', 'role.name'])
+                            rqb.where(`t.uid IN (:...uids)`, { uids })
+                            return await rqb.getMany()
+                        })
+                        const deptRoles = deptIds.length > 0
+                            ? await this.database.builder(this.windows.roleOptions, async drqb => {
+                                drqb.where(`t.deptId IN (:...deptIds)`, { deptIds })
+                                return await drqb.getMany()
+                            })
+                            : []
+                        /**组装数据**/
+                        list.forEach((item: any) => {
+                            item.depts = deptRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.dept).filter(Boolean)
+                            item.positions = positionRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.position).filter(Boolean)
+                            /**直接关联的角色**/
+                            const directRoles = roleAccountRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.role).filter(Boolean)
+                            /**部门角色：通过账号的部门ID匹配**/
+                            const itemDeptIds = deptRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.deptId)
+                            const itemDeptRoles = (deptRoles as any[]).filter((r: any) => itemDeptIds.includes(r.deptId))
+                            /**合并去重**/
+                            const roleMap = new Map()
+                            ;[...directRoles, ...itemDeptRoles].forEach((r: any) => {
+                                if (r && !roleMap.has(r.keyId)) roleMap.set(r.keyId, r)
+                            })
+                            item.roles = [...roleMap.values()]
+                        })
+                    }
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })
@@ -99,7 +148,13 @@ export class AccountService extends Logger {
                     'dept',
                     'dept.key_id IN (SELECT da.dept_id FROM tb_windows_dept_account da WHERE da.uid = t.uid)'
                 )
-                qb.select('t').addSelect(['dept.keyId', 'dept.name', 'dept.alias'])
+                qb.leftJoinAndMapMany(
+                    't.positions',
+                    schema.WindowsPosition,
+                    'position',
+                    'position.key_id IN (SELECT pa.post_id FROM tb_windows_position_account pa WHERE pa.uid = t.uid)'
+                )
+                qb.select('t').addSelect(['dept.keyId', 'dept.name', 'dept.alias']).addSelect(['position.keyId', 'position.name'])
                 qb.where(`t.uid = :uid`, { uid: body.uid })
                 return await qb.getOne().then(async node => {
                     if (isEmpty(node)) {
@@ -117,7 +172,7 @@ export class AccountService extends Logger {
     /**编辑账号**/
     @AutoDescriptor
     public async httpBaseSystemUpdateAccount(request: OmixRequest, body: windows.UpdateAccountOptions) {
-        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsDeptAccount'] })
+        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsDeptAccount', 'WindowsPositionAccount'] })
         try {
             await this.database.empty(this.windows.accountOptions, {
                 request,
@@ -156,6 +211,21 @@ export class AccountService extends Logger {
                         stack: this.stack,
                         body: body.depts.map(deptId => ({ deptId, uid: body.uid }))
                     })
+                }
+            })
+            /**更新关联职位**/
+            await this.database.delete(ctx.WindowsPositionAccount, {
+                request,
+                stack: this.stack,
+                where: { uid: body.uid },
+                transaction: async node => {
+                    if (isNotEmpty(body.positions) && body.positions.length > 0) {
+                        return await this.database.insert(ctx.WindowsPositionAccount, {
+                            request,
+                            stack: this.stack,
+                            body: body.positions.map(postId => ({ postId, uid: body.uid }))
+                        })
+                    }
                 }
             })
             return await ctx.commitTransaction().then(async () => {

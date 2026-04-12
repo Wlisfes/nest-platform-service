@@ -42,6 +42,6 @@ export class WindowsDeptAccount extends DataBaseAdapter {
     })
     @IsOptional()
     @IsEnum(withKeys(enums.CHUNK_WINDOWS_DEPT_MEMBER), { message: '成员角色格式错误' })
-    @Column({ nullable: false, comment: withComment('成员角色', enums.CHUNK_WINDOWS_DEPT_MEMBER) })
+    @Column({ nullable: false, default: enums.CHUNK_WINDOWS_DEPT_MEMBER.member.value, comment: withComment('成员角色', enums.CHUNK_WINDOWS_DEPT_MEMBER) })
     chunk: string
 }

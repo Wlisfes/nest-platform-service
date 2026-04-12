@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, Length, IsNumber } from 'class-validator'
-import { DataBaseByAdapter } from '@/modules/database/database.adapter'
+import { DataBaseByAdapter, DataBaseAdapter } from '@/modules/database/database.adapter'
 import { Type } from 'class-transformer'
 
 @Entity({ name: 'tb_windows_position', comment: '管理端-部门职位表' })
@@ -20,7 +20,7 @@ export class WindowsPosition extends DataBaseByAdapter {
 }
 
 @Entity({ name: 'tb_windows_position_account', comment: '管理端-职位关联账号表' })
-export class WindowsPositionAccount extends DataBaseByAdapter {
+export class WindowsPositionAccount extends DataBaseAdapter {
     @ApiProperty({ description: '职位ID', example: 1000 })
     @IsNotEmpty({ message: '职位ID必填' })
     @Column({ name: 'post_id', comment: '职位ID', nullable: false })

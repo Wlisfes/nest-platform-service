@@ -156,4 +156,21 @@ export class PositionService extends Logger {
             await ctx.release()
         }
     }
+
+    /**职位下拉列表**/
+    @AutoDescriptor
+    public async httpBaseSystemSelectPosition(request: OmixRequest) {
+        try {
+            return await this.database.builder(this.windows.positionOptions, async qb => {
+                qb.orderBy('t.sort', 'ASC')
+                const list = await qb.getMany()
+                return await this.fetchResolver({
+                    list: list.map(item => ({ value: item.keyId, name: item.name }))
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 }

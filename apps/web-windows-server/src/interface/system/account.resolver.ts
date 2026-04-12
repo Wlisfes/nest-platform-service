@@ -13,7 +13,12 @@ export class AccountPayloadOptionsResponse extends schema.WindowsAccount {}
 export class CreateAccountOptions extends IntersectionType(
     PickType(schema.WindowsAccount, ['name', 'number', 'phone', 'password', 'status']),
     PickType(schema.WindowsAccount, ['avatar', 'email'])
-) {}
+) {
+    @ApiProperty({ description: '关联职位', required: false, example: [] })
+    @IsArray({ message: '关联职位 必须为Array<number>格式' })
+    @IsOptional()
+    positions: Array<number>
+}
 
 /**分页列表查询**/
 export class ColumnAccountOptions extends IntersectionType(
@@ -24,6 +29,11 @@ export class ColumnAccountOptions extends IntersectionType(
     @IsArray({ message: '归属部门 必须为Array<number>格式' })
     @IsOptional()
     depts: Array<number>
+
+    @ApiProperty({ description: '关联职位', required: false, example: [] })
+    @IsArray({ message: '关联职位 必须为Array<number>格式' })
+    @IsOptional()
+    positions: Array<number>
 }
 
 /**分页列表响应**/
@@ -40,6 +50,11 @@ export class UpdateAccountOptions extends IntersectionType(
     @ApiProperty({ description: '归属部门', example: [] })
     @IsArray({ message: '归属部门 必须为Array<number>格式' })
     depts: Array<number>
+
+    @ApiProperty({ description: '关联职位', required: false, example: [] })
+    @IsArray({ message: '关联职位 必须为Array<number>格式' })
+    @IsOptional()
+    positions: Array<number>
 }
 
 /**编辑账号状态**/
