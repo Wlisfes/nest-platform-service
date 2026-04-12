@@ -18,6 +18,11 @@ export class CreateAccountOptions extends IntersectionType(
     @IsArray({ message: '关联职位 必须为Array<number>格式' })
     @IsOptional()
     positions: Array<number>
+
+    @ApiProperty({ description: '关联职级', required: false, example: [] })
+    @IsArray({ message: '关联职级 必须为Array<number>格式' })
+    @IsOptional()
+    ranks: Array<number>
 }
 
 /**分页列表查询**/
@@ -34,6 +39,11 @@ export class ColumnAccountOptions extends IntersectionType(
     @IsArray({ message: '关联职位 必须为Array<number>格式' })
     @IsOptional()
     positions: Array<number>
+
+    @ApiProperty({ description: '关联职级', required: false, example: [] })
+    @IsArray({ message: '关联职级 必须为Array<number>格式' })
+    @IsOptional()
+    ranks: Array<number>
 }
 
 /**分页列表响应**/
@@ -55,6 +65,11 @@ export class UpdateAccountOptions extends IntersectionType(
     @IsArray({ message: '关联职位 必须为Array<number>格式' })
     @IsOptional()
     positions: Array<number>
+
+    @ApiProperty({ description: '关联职级', required: false, example: [] })
+    @IsArray({ message: '关联职级 必须为Array<number>格式' })
+    @IsOptional()
+    ranks: Array<number>
 }
 
 /**编辑账号状态**/

@@ -18,7 +18,7 @@ export class AccountService extends Logger {
     /**新增账号**/
     @AutoDescriptor
     public async httpBaseSystemCreateAccount(request: OmixRequest, body: windows.CreateAccountOptions) {
-        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsPositionAccount'] })
+        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsPositionAccount', 'WindowsRankAccount'] })
         try {
             await this.database.builder(this.windows.accountOptions, async qb => {
                 qb.where(`t.number = :number OR t.phone = :phone`, { number: body.number, phone: body.phone })
@@ -42,6 +42,14 @@ export class AccountService extends Logger {
                         request,
                         stack: this.stack,
                         body: body.positions.map(postId => ({ postId, uid: node.uid })) as any
+                    })
+                }
+                /**关联职级**/
+                if (isNotEmpty(body.ranks) && body.ranks.length > 0) {
+                    await this.database.insert(ctx.WindowsRankAccount, {
+                        request,
+                        stack: this.stack,
+                        body: body.ranks.map(rankId => ({ rankId, uid: node.uid })) as any
                     })
                 }
             })
@@ -97,6 +105,13 @@ export class AccountService extends Logger {
                             pqb.where(`t.uid IN (:...uids)`, { uids })
                             return await pqb.getMany()
                         })
+                        /**批量查询关联职级**/
+                        const rankRows = await this.database.builder(this.windows.rankAccountOptions, async rkqb => {
+                            rkqb.leftJoinAndMapOne('t.rank', schema.WindowsRank, 'rank', 'rank.key_id = t.rankId')
+                            rkqb.addSelect(['rank.keyId', 'rank.name', 'rank.chunk'])
+                            rkqb.where(`t.uid IN (:...uids)`, { uids })
+                            return await rkqb.getMany()
+                        })
                         /**批量查询关联角色（直接关联 + 部门角色）**/
                         const deptIds = [...new Set(deptRows.map((r: any) => r.deptId).filter(Boolean))]
                         const roleAccountRows = await this.database.builder(this.windows.roleAccountOptions, async rqb => {
@@ -115,6 +130,7 @@ export class AccountService extends Logger {
                         list.forEach((item: any) => {
                             item.depts = deptRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.dept).filter(Boolean)
                             item.positions = positionRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.position).filter(Boolean)
+                            item.ranks = rankRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.rank).filter(Boolean)
                             /**直接关联的角色**/
                             const directRoles = roleAccountRows.filter((r: any) => r.uid === item.uid).map((r: any) => r.role).filter(Boolean)
                             /**部门角色：通过账号的部门ID匹配**/
@@ -154,7 +170,13 @@ export class AccountService extends Logger {
                     'position',
                     'position.key_id IN (SELECT pa.post_id FROM tb_windows_position_account pa WHERE pa.uid = t.uid)'
                 )
-                qb.select('t').addSelect(['dept.keyId', 'dept.name', 'dept.alias']).addSelect(['position.keyId', 'position.name'])
+                qb.leftJoinAndMapMany(
+                    't.ranks',
+                    schema.WindowsRank,
+                    'rank',
+                    'rank.key_id IN (SELECT ra.rank_id FROM tb_windows_rank_account ra WHERE ra.uid = t.uid)'
+                )
+                qb.select('t').addSelect(['dept.keyId', 'dept.name', 'dept.alias']).addSelect(['position.keyId', 'position.name']).addSelect(['rank.keyId', 'rank.name', 'rank.chunk'])
                 qb.where(`t.uid = :uid`, { uid: body.uid })
                 return await qb.getOne().then(async node => {
                     if (isEmpty(node)) {
@@ -172,7 +194,7 @@ export class AccountService extends Logger {
     /**编辑账号**/
     @AutoDescriptor
     public async httpBaseSystemUpdateAccount(request: OmixRequest, body: windows.UpdateAccountOptions) {
-        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsDeptAccount', 'WindowsPositionAccount'] })
+        const ctx = await this.database.transaction({ schema: ['WindowsAccount', 'WindowsDeptAccount', 'WindowsPositionAccount', 'WindowsRankAccount'] })
         try {
             await this.database.empty(this.windows.accountOptions, {
                 request,
@@ -224,6 +246,21 @@ export class AccountService extends Logger {
                             request,
                             stack: this.stack,
                             body: body.positions.map(postId => ({ postId, uid: body.uid }))
+                        })
+                    }
+                }
+            })
+            /**更新关联职级**/
+            await this.database.delete(ctx.WindowsRankAccount, {
+                request,
+                stack: this.stack,
+                where: { uid: body.uid },
+                transaction: async node => {
+                    if (isNotEmpty(body.ranks) && body.ranks.length > 0) {
+                        return await this.database.insert(ctx.WindowsRankAccount, {
+                            request,
+                            stack: this.stack,
+                            body: body.ranks.map(rankId => ({ rankId, uid: body.uid })) as any
                         })
                     }
                 }

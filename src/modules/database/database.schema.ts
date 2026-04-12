@@ -19,6 +19,9 @@ export class WindowsService {
         @InjectRepository(schema.WindowsRoleSheet) readonly roleSheetOptions: Repository<schema.WindowsRoleSheet>,
         @InjectRepository(schema.WindowsRoleAccount) readonly roleAccountOptions: Repository<schema.WindowsRoleAccount>,
         @InjectRepository(schema.WindowsPosition) readonly positionOptions: Repository<schema.WindowsPosition>,
-        @InjectRepository(schema.WindowsPositionAccount) readonly positionAccountOptions: Repository<schema.WindowsPositionAccount>
+        @InjectRepository(schema.WindowsPositionAccount) readonly positionAccountOptions: Repository<schema.WindowsPositionAccount>,
+        /**管理端-职级表**/
+        @InjectRepository(schema.WindowsRank) readonly rankOptions: Repository<schema.WindowsRank>,
+        @InjectRepository(schema.WindowsRankAccount) readonly rankAccountOptions: Repository<schema.WindowsRankAccount>
     ) {}
 }

@@ -61,4 +61,13 @@ export class PositionController {
     public async httpBaseSystemSelectPosition(@Request() request: OmixRequest) {
         return await this.positionService.httpBaseSystemSelectPosition(request)
     }
+
+    @ApiServiceDecorator(Post('rank/select'), {
+        windows: true,
+        operation: { summary: '职级下拉列表' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseSystemSelectRank(@Request() request: OmixRequest) {
+        return await this.positionService.httpBaseSystemSelectRank(request)
+    }
 }

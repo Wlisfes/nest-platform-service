@@ -173,4 +173,21 @@ export class PositionService extends Logger {
             throw new HttpException(err.message, err.status, err.options)
         }
     }
+
+    /**职级下拉列表**/
+    @AutoDescriptor
+    public async httpBaseSystemSelectRank(request: OmixRequest) {
+        try {
+            return await this.database.builder(this.windows.rankOptions, async qb => {
+                qb.orderBy('t.sort', 'ASC')
+                const list = await qb.getMany()
+                return await this.fetchResolver({
+                    list: list.map(item => ({ value: item.keyId, name: item.name, chunk: item.chunk }))
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 }
