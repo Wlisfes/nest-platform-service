@@ -22,6 +22,7 @@ export class WindowsService {
         @InjectRepository(schema.WindowsPositionAccount) readonly positionAccountOptions: Repository<schema.WindowsPositionAccount>,
         @InjectRepository(schema.WindowsRank) readonly rankOptions: Repository<schema.WindowsRank>,
         @InjectRepository(schema.WindowsRankAccount) readonly rankAccountOptions: Repository<schema.WindowsRankAccount>,
-        @InjectRepository(schema.WindowsClient) readonly clientOptions: Repository<schema.WindowsClient>
+        @InjectRepository(schema.WindowsClient) readonly clientOptions: Repository<schema.WindowsClient>,
+        @InjectRepository(schema.WindowsBrand) readonly brandOptions: Repository<schema.WindowsBrand>
     ) {}
 }

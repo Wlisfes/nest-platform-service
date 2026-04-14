@@ -13,9 +13,21 @@ import { CommonModule } from '@/modules/common/common.module'
 import { AuthModule } from '@web-windows-server/modules/auth/auth.module'
 import { ChunkModule } from '@web-windows-server/modules/chunk/chunk.module'
 import { SystemModule } from '@web-windows-server/modules/system/system.module'
+import { FinanceModule } from '@web-windows-server/modules/finance/finance.module'
 
 @Module({
-    imports: [LoggerModule, ConfigModule, DatabaseModule, RedisModule, JwtModule, CommonModule, AuthModule, ChunkModule, SystemModule],
+    imports: [
+        LoggerModule,
+        ConfigModule,
+        DatabaseModule,
+        RedisModule,
+        JwtModule,
+        CommonModule,
+        AuthModule,
+        ChunkModule,
+        SystemModule,
+        FinanceModule
+    ],
     providers: [
         { provide: APP_GUARD, useClass: AuthWindowsGuard },
         { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
