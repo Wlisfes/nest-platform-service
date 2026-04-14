@@ -48,6 +48,12 @@ export const COMMON_CHUNK = {
         name: enums.CHUNK_WINDOWS_ROLE_MODEL.name,
         value: enums.CHUNK_WINDOWS_ROLE_MODEL.value,
         columns: withExtract(enums.CHUNK_WINDOWS_ROLE_MODEL)
+    },
+    /**品牌状态**/
+    [enums.CHUNK_WINDOWS_BRAND_STATUS.value]: {
+        name: enums.CHUNK_WINDOWS_BRAND_STATUS.name,
+        value: enums.CHUNK_WINDOWS_BRAND_STATUS.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_BRAND_STATUS)
     }
 }
 
