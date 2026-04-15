@@ -54,6 +54,12 @@ export const COMMON_CHUNK = {
         name: enums.CHUNK_WINDOWS_BRAND_STATUS.name,
         value: enums.CHUNK_WINDOWS_BRAND_STATUS.value,
         columns: withExtract(enums.CHUNK_WINDOWS_BRAND_STATUS)
+    },
+    /**币种状态**/
+    [enums.CHUNK_WINDOWS_CURRENCY_STATUS.value]: {
+        name: enums.CHUNK_WINDOWS_CURRENCY_STATUS.name,
+        value: enums.CHUNK_WINDOWS_CURRENCY_STATUS.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_CURRENCY_STATUS)
     }
 }
 

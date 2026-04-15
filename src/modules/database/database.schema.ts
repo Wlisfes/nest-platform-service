@@ -23,6 +23,7 @@ export class WindowsService {
         @InjectRepository(schema.WindowsRank) readonly rankOptions: Repository<schema.WindowsRank>,
         @InjectRepository(schema.WindowsRankAccount) readonly rankAccountOptions: Repository<schema.WindowsRankAccount>,
         @InjectRepository(schema.WindowsClient) readonly clientOptions: Repository<schema.WindowsClient>,
-        @InjectRepository(schema.WindowsBrand) readonly brandOptions: Repository<schema.WindowsBrand>
+        @InjectRepository(schema.WindowsBrand) readonly brandOptions: Repository<schema.WindowsBrand>,
+        @InjectRepository(schema.WindowsCurrency) readonly currencyOptions: Repository<schema.WindowsCurrency>
     ) {}
 }
