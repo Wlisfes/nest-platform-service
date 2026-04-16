@@ -16,3 +16,9 @@ export class ColumnCurrencyOptionsResponse extends OmixColumnResponse {
 
 /**状态修改**/
 export class UpdateCurrencyStatusOptions extends PickType(schema.WindowsCurrency, ['keyId', 'status']) {}
+
+/**下拉列表响应**/
+export class SelectCurrencyOptionsResponse {
+    @ApiProperty({ description: '币种列表', type: [schema.WindowsCurrency] })
+    list: schema.WindowsCurrency[]
+}

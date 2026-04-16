@@ -6,30 +6,30 @@ import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
-export class BrandService extends Logger {
+export class ClientService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }
 
-    /**新增品牌**/
+    /**新增客户**/
     @AutoDescriptor
-    public async httpBaseFinanceCreateBrand(request: OmixRequest, body: windows.CreateBrandOptions) {
+    public async httpBaseFinanceCreateClient(request: OmixRequest, body: windows.CreateClientOptions) {
         const ctx = await this.database.transaction()
         try {
-            /**验证品牌存在**/
-            await this.database.notempty(this.windows.brandOptions, {
-                request,
-                message: '品牌名称已存在',
-                dispatch: { where: { name: body.name } }
-            })
-            const node = ctx.manager.getRepository(schema.WindowsBrand).create({
+            const node = ctx.manager.getRepository(schema.WindowsClient).create({
                 name: body.name,
-                document: body.document,
-                status: body.status ?? enums.CHUNK_WINDOWS_BRAND_STATUS.enable.value,
-                createBy: request.user.uid,
-                modifyBy: request.user.uid
+                alias: body.alias,
+                brandId: body.brandId,
+                currency: body.currency,
+                email: body.email,
+                phone: body.phone,
+                status: body.status ?? enums.CHUNK_WINDOWS_CLIENT_STATUS.enable.value,
+                payMode: body.payMode,
+                authStatus: body.authStatus ?? enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.unverified.value,
+                source: body.source ?? enums.CHUNK_WINDOWS_CLIENT_SOURCE.manual.value,
+                remark: body.remark
             })
-            await ctx.manager.getRepository(schema.WindowsBrand).save(node)
+            await ctx.manager.getRepository(schema.WindowsClient).save(node)
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })
@@ -41,30 +41,31 @@ export class BrandService extends Logger {
         }
     }
 
-    /**编辑品牌**/
+    /**编辑客户**/
     @AutoDescriptor
-    public async httpBaseFinanceUpdateBrand(request: OmixRequest, body: windows.UpdateBrandOptions) {
+    public async httpBaseFinanceUpdateClient(request: OmixRequest, body: windows.UpdateClientOptions) {
         const ctx = await this.database.transaction()
         try {
-            /**验证品牌不存在**/
-            await this.database.empty(this.windows.brandOptions, {
+            /**验证客户存在**/
+            await this.database.empty(this.windows.clientOptions, {
                 request,
                 message: 'keyId:不存在',
                 dispatch: { where: { keyId: body.keyId } }
             })
-            /**验证名称是否重复**/
-            const exist = await this.database.builder(this.windows.brandOptions, async qb => {
-                qb.where(`t.name = :name AND t.keyId != :keyId`, { name: body.name, keyId: body.keyId })
-                return await qb.getOne()
-            })
-            if (isNotEmpty(exist)) {
-                throw new HttpException('品牌名称已存在', HttpStatus.BAD_REQUEST)
-            }
-            await this.database.update(ctx.manager.getRepository(schema.WindowsBrand), {
+            await this.database.update(ctx.manager.getRepository(schema.WindowsClient), {
                 request,
                 stack: this.stack,
                 where: { keyId: body.keyId },
-                body: { name: body.name, document: body.document }
+                body: {
+                    name: body.name,
+                    alias: body.alias,
+                    brandId: body.brandId,
+                    currency: body.currency,
+                    email: body.email,
+                    phone: body.phone,
+                    payMode: body.payMode,
+                    remark: body.remark
+                }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -79,16 +80,29 @@ export class BrandService extends Logger {
 
     /**分页列表查询**/
     @AutoDescriptor
-    public async httpBaseFinanceColumnBrand(request: OmixRequest, body: windows.ColumnBrandOptions) {
+    public async httpBaseFinanceColumnClient(request: OmixRequest, body: windows.ColumnClientOptions) {
         try {
-            return await this.database.builder(this.windows.brandOptions, async qb => {
-                qb.leftJoinAndMapOne('t.createBy', schema.WindowsAccount, 'createBy', 'createBy.uid = t.createBy')
-                qb.leftJoinAndMapOne('t.modifyBy', schema.WindowsAccount, 'modifyBy', 'modifyBy.uid = t.modifyBy')
+            return await this.database.builder(this.windows.clientOptions, async qb => {
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
                 if (isNotEmpty(body.status)) {
                     qb.andWhere(`t.status = :status`, { status: body.status })
+                }
+                if (isNotEmpty(body.brandId)) {
+                    qb.andWhere(`t.brandId = :brandId`, { brandId: body.brandId })
+                }
+                if (isNotEmpty(body.currency)) {
+                    qb.andWhere(`t.currency = :currency`, { currency: body.currency })
+                }
+                if (isNotEmpty(body.payMode)) {
+                    qb.andWhere(`t.payMode = :payMode`, { payMode: body.payMode })
+                }
+                if (isNotEmpty(body.authStatus)) {
+                    qb.andWhere(`t.authStatus = :authStatus`, { authStatus: body.authStatus })
+                }
+                if (isNotEmpty(body.source)) {
+                    qb.andWhere(`t.source = :source`, { source: body.source })
                 }
                 qb.orderBy('t.createTime', 'DESC')
                 qb.skip((body.page - 1) * body.size)
@@ -105,16 +119,16 @@ export class BrandService extends Logger {
 
     /**状态修改**/
     @AutoDescriptor
-    public async httpBaseFinanceUpdateBrandStatus(request: OmixRequest, body: windows.UpdateBrandStatusOptions) {
+    public async httpBaseFinanceUpdateClientStatus(request: OmixRequest, body: windows.UpdateClientStatusOptions) {
         const ctx = await this.database.transaction()
         try {
-            /**验证品牌存在**/
-            await this.database.empty(this.windows.brandOptions, {
+            /**验证客户存在**/
+            await this.database.empty(this.windows.clientOptions, {
                 request,
                 message: 'keyId:不存在',
                 dispatch: { where: { keyId: body.keyId } }
             })
-            await this.database.update(ctx.manager.getRepository(schema.WindowsBrand), {
+            await this.database.update(ctx.manager.getRepository(schema.WindowsClient), {
                 request,
                 stack: this.stack,
                 where: { keyId: body.keyId },
@@ -128,23 +142,6 @@ export class BrandService extends Logger {
             throw new HttpException(err.message, err.status, err.options)
         } finally {
             await ctx.release()
-        }
-    }
-
-    /**品牌下拉列表（启用状态）**/
-    @AutoDescriptor
-    public async httpBaseFinanceSelectBrand(request: OmixRequest) {
-        try {
-            return await this.database.builder(this.windows.brandOptions, async qb => {
-                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_WINDOWS_BRAND_STATUS.enable.value })
-                qb.orderBy('t.createTime', 'DESC')
-                return await qb.getMany().then(async list => {
-                    return await this.fetchResolver({ list })
-                })
-            })
-        } catch (err) {
-            this.logger.error(err)
-            throw new HttpException(err.message, err.status, err.options)
         }
     }
 }

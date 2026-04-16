@@ -25,4 +25,13 @@ export class CurrencyController {
     public async httpBaseFinanceUpdateCurrencyStatus(@Request() request: OmixRequest, @Body() body: windows.UpdateCurrencyStatusOptions) {
         return await this.currencyService.httpBaseFinanceUpdateCurrencyStatus(request, body)
     }
+
+    @ApiServiceDecorator(Post('select'), {
+        windows: true,
+        operation: { summary: '币种下拉列表' },
+        response: { status: 200, description: 'OK', type: windows.SelectCurrencyOptionsResponse }
+    })
+    public async httpBaseFinanceSelectCurrency(@Request() request: OmixRequest) {
+        return await this.currencyService.httpBaseFinanceSelectCurrency(request)
+    }
 }

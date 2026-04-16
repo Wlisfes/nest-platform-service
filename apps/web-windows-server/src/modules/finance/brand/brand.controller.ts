@@ -43,4 +43,13 @@ export class BrandController {
     public async httpBaseFinanceUpdateBrandStatus(@Request() request: OmixRequest, @Body() body: windows.UpdateBrandStatusOptions) {
         return await this.brandService.httpBaseFinanceUpdateBrandStatus(request, body)
     }
+
+    @ApiServiceDecorator(Post('select'), {
+        windows: true,
+        operation: { summary: '品牌下拉列表' },
+        response: { status: 200, description: 'OK', type: windows.SelectBrandOptionsResponse }
+    })
+    public async httpBaseFinanceSelectBrand(@Request() request: OmixRequest) {
+        return await this.brandService.httpBaseFinanceSelectBrand(request)
+    }
 }

@@ -5,14 +5,8 @@ import { IsNotEmpty, Length, IsEmail, IsEnum, IsOptional } from 'class-validator
 import { DataBaseAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
 
-@Entity({ name: 'tb_windows_client', comment: '管理端-客户表' })
+@Entity({ name: 'tb_windows_client', comment: '管理端-C端客户表' })
 export class WindowsClient extends DataBaseAdapter {
-    @ApiProperty({ description: '客户编码', example: 'C10001' })
-    @IsNotEmpty({ message: '客户编码必填' })
-    @Length(1, 32, { message: '客户编码长度1~32位' })
-    @Column({ comment: '客户编码', length: 32, nullable: false })
-    code: string
-
     @ApiProperty({ description: '客户名称', example: '测试客户' })
     @IsNotEmpty({ message: '客户名称必填' })
     @Length(1, 64, { message: '客户名称长度1~64位' })

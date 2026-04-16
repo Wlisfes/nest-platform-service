@@ -62,4 +62,21 @@ export class CurrencyService extends Logger {
             await ctx.release()
         }
     }
+
+    /**币种下拉列表（启用状态）**/
+    @AutoDescriptor
+    public async httpBaseFinanceSelectCurrency(request: OmixRequest) {
+        try {
+            return await this.database.builder(this.windows.currencyOptions, async qb => {
+                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_WINDOWS_CURRENCY_STATUS.enable.value })
+                qb.orderBy('t.createTime', 'DESC')
+                return await qb.getMany().then(async list => {
+                    return await this.fetchResolver({ list })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 }

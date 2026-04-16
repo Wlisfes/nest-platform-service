@@ -28,3 +28,9 @@ export class ColumnBrandOptionsResponse extends OmixColumnResponse {
 
 /**状态修改**/
 export class UpdateBrandStatusOptions extends PickType(schema.WindowsBrand, ['keyId', 'status']) {}
+
+/**下拉列表响应**/
+export class SelectBrandOptionsResponse {
+    @ApiProperty({ description: '品牌列表', type: [schema.WindowsBrand] })
+    list: schema.WindowsBrand[]
+}
