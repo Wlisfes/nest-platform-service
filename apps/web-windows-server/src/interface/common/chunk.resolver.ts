@@ -60,6 +60,30 @@ export const COMMON_CHUNK = {
         name: enums.CHUNK_WINDOWS_CURRENCY_STATUS.name,
         value: enums.CHUNK_WINDOWS_CURRENCY_STATUS.value,
         columns: withExtract(enums.CHUNK_WINDOWS_CURRENCY_STATUS)
+    },
+    /**客户状态**/
+    [enums.CHUNK_WINDOWS_CLIENT_STATUS.value]: {
+        name: enums.CHUNK_WINDOWS_CLIENT_STATUS.name,
+        value: enums.CHUNK_WINDOWS_CLIENT_STATUS.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_STATUS)
+    },
+    /**付款模式**/
+    [enums.CHUNK_WINDOWS_CLIENT_PAY_MODE.value]: {
+        name: enums.CHUNK_WINDOWS_CLIENT_PAY_MODE.name,
+        value: enums.CHUNK_WINDOWS_CLIENT_PAY_MODE.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_PAY_MODE)
+    },
+    /**认证状态**/
+    [enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.value]: {
+        name: enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.name,
+        value: enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS)
+    },
+    /**注册来源**/
+    [enums.CHUNK_WINDOWS_CLIENT_SOURCE.value]: {
+        name: enums.CHUNK_WINDOWS_CLIENT_SOURCE.name,
+        value: enums.CHUNK_WINDOWS_CLIENT_SOURCE.value,
+        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_SOURCE)
     }
 }
 

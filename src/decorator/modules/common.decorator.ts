@@ -14,6 +14,22 @@ export function IsCustomize(option: {
     })
 }
 
+/**自定义装饰器-验证手机号**/
+export function IsMobile(validationOptions?: ValidationOptions) {
+    return ValidateBy(
+        {
+            name: 'isMobile',
+            validator: {
+                validate: (value, args) => {
+                    return /^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(value)
+                },
+                defaultMessage: buildMessage(eachPrefix => eachPrefix + '$property must be a string', validationOptions)
+            }
+        },
+        validationOptions
+    )
+}
+
 /**自定义时间格式验证**/
 export function IsDateCustomize(validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
