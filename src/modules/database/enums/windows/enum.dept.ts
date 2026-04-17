@@ -1,7 +1,7 @@
 /**管理端部门关联账号表**/
-export const CHUNK_WINDOWS_DEPT_MEMBER = {
+export const CHUNK_DEPT_MEMBER = {
     name: '部门成员角色',
-    value: 'CHUNK_WINDOWS_DEPT_MEMBER',
+    value: 'CHUNK_DEPT_MEMBER',
     admin: {
         value: 'admin',
         name: '管理员',

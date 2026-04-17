@@ -42,21 +42,21 @@ export class WindowsClient extends DataBaseAdapter {
     phone: string
 
     @ApiProperty({
-        description: withComment('状态', enums.CHUNK_WINDOWS_CLIENT_STATUS),
-        example: enums.CHUNK_WINDOWS_CLIENT_STATUS.enable.value
+        description: withComment('状态', enums.CHUNK_CLIENT_STATUS),
+        example: enums.CHUNK_CLIENT_STATUS.enable.value
     })
     @IsNotEmpty({ message: '状态必填' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_CLIENT_STATUS), { message: '状态格式错误' })
-    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_WINDOWS_CLIENT_STATUS) })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_STATUS), { message: '状态格式错误' })
+    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_CLIENT_STATUS) })
     status: string
 
     @ApiProperty({
-        description: withComment('付款模式', enums.CHUNK_WINDOWS_CLIENT_PAY_MODE),
-        example: enums.CHUNK_WINDOWS_CLIENT_PAY_MODE.prepaid.value
+        description: withComment('付款模式', enums.CHUNK_CLIENT_PAY_MODE),
+        example: enums.CHUNK_CLIENT_PAY_MODE.prepaid.value
     })
     @IsNotEmpty({ message: '付款模式必填' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_CLIENT_PAY_MODE), { message: '付款模式格式错误' })
-    @Column({ name: 'pay_mode', nullable: false, comment: withComment('付款模式', enums.CHUNK_WINDOWS_CLIENT_PAY_MODE) })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_PAY_MODE), { message: '付款模式格式错误' })
+    @Column({ name: 'pay_mode', nullable: false, comment: withComment('付款模式', enums.CHUNK_CLIENT_PAY_MODE) })
     payMode: string
 
     @ApiProperty({ description: '余额', example: 0 })
@@ -68,21 +68,21 @@ export class WindowsClient extends DataBaseAdapter {
     credit: number
 
     @ApiProperty({
-        description: withComment('认证状态', enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS),
-        example: enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.unverified.value
+        description: withComment('认证状态', enums.CHUNK_CLIENT_AUTH_STATUS),
+        example: enums.CHUNK_CLIENT_AUTH_STATUS.unverified.value
     })
     @IsNotEmpty({ message: '认证状态必填' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS), { message: '认证状态格式错误' })
-    @Column({ name: 'auth_status', nullable: false, comment: withComment('认证状态', enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS) })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_AUTH_STATUS), { message: '认证状态格式错误' })
+    @Column({ name: 'auth_status', nullable: false, comment: withComment('认证状态', enums.CHUNK_CLIENT_AUTH_STATUS) })
     authStatus: string
 
     @ApiProperty({
-        description: withComment('注册来源', enums.CHUNK_WINDOWS_CLIENT_SOURCE),
-        example: enums.CHUNK_WINDOWS_CLIENT_SOURCE.manual.value
+        description: withComment('注册来源', enums.CHUNK_CLIENT_SOURCE),
+        example: enums.CHUNK_CLIENT_SOURCE.manual.value
     })
     @IsNotEmpty({ message: '注册来源必填' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_CLIENT_SOURCE), { message: '注册来源格式错误' })
-    @Column({ nullable: false, comment: withComment('注册来源', enums.CHUNK_WINDOWS_CLIENT_SOURCE) })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_SOURCE), { message: '注册来源格式错误' })
+    @Column({ nullable: false, comment: withComment('注册来源', enums.CHUNK_CLIENT_SOURCE) })
     source: string
 
     @ApiProperty({ description: '备注', example: '' })

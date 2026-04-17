@@ -49,32 +49,32 @@ export class WindowsSheet extends DataBaseByAdapter {
     sort: number
 
     @ApiProperty({
-        description: withComment('类型', enums.CHUNK_WINDOWS_SHEET_CHUNK),
-        example: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value
+        description: withComment('类型', enums.CHUNK_SHEET_CHUNK),
+        example: enums.CHUNK_SHEET_CHUNK.resource.value
     })
     @IsNotEmpty({ message: '类型必填' })
     @Length(0, 32, { message: '类型不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_SHEET_CHUNK), { message: '类型格式错误' })
-    @Column({ nullable: false, comment: withComment('类型', enums.CHUNK_WINDOWS_SHEET_CHUNK) })
+    @IsEnum(withKeys(enums.CHUNK_SHEET_CHUNK), { message: '类型格式错误' })
+    @Column({ nullable: false, comment: withComment('类型', enums.CHUNK_SHEET_CHUNK) })
     chunk: string
 
     @ApiProperty({
-        description: withComment('状态', enums.CHUNK_WINDOWS_SHEET_STATUS),
-        example: enums.CHUNK_WINDOWS_SHEET_STATUS.enable.value
+        description: withComment('状态', enums.CHUNK_SHEET_STATUS),
+        example: enums.CHUNK_SHEET_STATUS.enable.value
     })
     @IsNotEmpty({ message: '状态必填' })
     @Length(0, 32, { message: '状态不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_SHEET_STATUS), { message: '状态格式错误' })
-    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_WINDOWS_SHEET_STATUS) })
+    @IsEnum(withKeys(enums.CHUNK_SHEET_STATUS), { message: '状态格式错误' })
+    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_SHEET_STATUS) })
     status: string
 
     @ApiProperty({
-        description: withComment('显示状态', enums.CHUNK_WINDOWS_SHEET_CHECK),
-        example: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value
+        description: withComment('显示状态', enums.CHUNK_SHEET_CHECK),
+        example: enums.CHUNK_SHEET_CHECK.show.value
     })
     @IsNotEmpty({ message: '显示状态必填' })
     @Length(0, 32, { message: '显示状态不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_SHEET_CHECK), { message: '显示状态格式错误' })
-    @Column({ nullable: false, comment: withComment('显示状态', enums.CHUNK_WINDOWS_SHEET_CHECK) })
+    @IsEnum(withKeys(enums.CHUNK_SHEET_CHECK), { message: '显示状态格式错误' })
+    @Column({ nullable: false, comment: withComment('显示状态', enums.CHUNK_SHEET_CHECK) })
     check: string
 }

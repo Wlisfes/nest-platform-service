@@ -13,13 +13,13 @@ export class WindowsChunk extends DataBaseByAdapter {
     keyName: string
 
     @ApiProperty({
-        description: withComment('类型', enums.CHUNK_WINDOWS_COMMON_CHUNK),
-        example: enums.CHUNK_WINDOWS_COMMON_CHUNK.search.value
+        description: withComment('类型', enums.CHUNK_COMMON_CHUNK),
+        example: enums.CHUNK_COMMON_CHUNK.search.value
     })
     @IsNotEmpty({ message: '类型必填' })
     @Length(0, 32, { message: '类型不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_COMMON_CHUNK), { message: '类型格式错误' })
-    @Column({ nullable: false, comment: withComment('类型', enums.CHUNK_WINDOWS_COMMON_CHUNK) })
+    @IsEnum(withKeys(enums.CHUNK_COMMON_CHUNK), { message: '类型格式错误' })
+    @Column({ nullable: false, comment: withComment('类型', enums.CHUNK_COMMON_CHUNK) })
     chunk: string
 
     @ApiProperty({ description: '字段', example: 'name' })

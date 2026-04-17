@@ -41,7 +41,7 @@ export class SheetService extends Logger {
                 stack: this.stack,
                 body: Object.assign(body, {
                     createBy: request.user.uid,
-                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value
+                    chunk: enums.CHUNK_SHEET_CHUNK.resource.value
                 })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -87,7 +87,7 @@ export class SheetService extends Logger {
                 where: { keyId: body.keyId },
                 body: Object.assign(body, {
                     modifyBy: request.user.uid,
-                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value
+                    chunk: enums.CHUNK_SHEET_CHUNK.resource.value
                 })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -192,8 +192,8 @@ export class SheetService extends Logger {
                 stack: this.stack,
                 body: Object.assign(body, {
                     createBy: request.user.uid,
-                    check: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value,
-                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize.value
+                    check: enums.CHUNK_SHEET_CHECK.show.value,
+                    chunk: enums.CHUNK_SHEET_CHUNK.authorize.value
                 })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -234,8 +234,8 @@ export class SheetService extends Logger {
                 where: { keyId: body.keyId },
                 body: Object.assign(body, {
                     modifyBy: request.user.uid,
-                    check: enums.CHUNK_WINDOWS_SHEET_CHECK.show.value,
-                    chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize.value
+                    check: enums.CHUNK_SHEET_CHECK.show.value,
+                    chunk: enums.CHUNK_SHEET_CHUNK.authorize.value
                 })
             })
             return await ctx.commitTransaction().then(async () => {

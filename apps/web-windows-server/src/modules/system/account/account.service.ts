@@ -346,7 +346,7 @@ export class AccountService extends Logger {
     public async httpBaseSystemSelectAccount(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.accountOptions, async qb => {
-                qb.where(`t.status = :status`, { status: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.online.value })
+                qb.where(`t.status = :status`, { status: enums.CHUNK_ACCOUNT_STATUS.online.value })
                 const list = await qb.getMany()
                 return await this.fetchResolver({
                     list: list.map(item => ({ value: item.uid, name: `${item.name} ${item.number}` }))

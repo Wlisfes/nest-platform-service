@@ -68,7 +68,7 @@ export class CurrencyService extends Logger {
     public async httpBaseFinanceSelectCurrency(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.currencyOptions, async qb => {
-                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_WINDOWS_CURRENCY_STATUS.enable.value })
+                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_CURRENCY_STATUS.enable.value })
                 qb.orderBy('t.createTime', 'DESC')
                 return await qb.getMany().then(async list => {
                     return await this.fetchResolver({ list })

@@ -30,11 +30,11 @@ export class ChunkService extends Logger {
         const ctx = await this.database.transaction()
         try {
             const repository = ctx.manager.getRepository(schema.WindowsChunk)
-            await repository.delete({ keyName: body.keyName, chunk: enums.CHUNK_WINDOWS_COMMON_CHUNK.search.value })
+            await repository.delete({ keyName: body.keyName, chunk: enums.CHUNK_COMMON_CHUNK.search.value })
             if (body.fields.length > 0) {
                 const entities = body.fields.map(field => ({
                     keyName: body.keyName,
-                    chunk: enums.CHUNK_WINDOWS_COMMON_CHUNK.search.value,
+                    chunk: enums.CHUNK_COMMON_CHUNK.search.value,
                     prop: field.prop,
                     label: field.label,
                     check: field.check,
@@ -60,11 +60,11 @@ export class ChunkService extends Logger {
         const ctx = await this.database.transaction()
         try {
             const repository = ctx.manager.getRepository(schema.WindowsChunk)
-            await repository.delete({ keyName: body.keyName, chunk: enums.CHUNK_WINDOWS_COMMON_CHUNK.columns.value })
+            await repository.delete({ keyName: body.keyName, chunk: enums.CHUNK_COMMON_CHUNK.columns.value })
             if (body.fields.length > 0) {
                 const entities = body.fields.map(field => ({
                     keyName: body.keyName,
-                    chunk: enums.CHUNK_WINDOWS_COMMON_CHUNK.columns.value,
+                    chunk: enums.CHUNK_COMMON_CHUNK.columns.value,
                     prop: field.prop,
                     label: field.label,
                     check: field.check,
@@ -91,8 +91,8 @@ export class ChunkService extends Logger {
             return await this.database.builder(this.windows.chunkOptions, async qb => {
                 qb.where('t.keyName = :keyName', { keyName: body.keyName })
                 return await qb.getMany().then(async list => {
-                    const database = list.filter(item => item.chunk === enums.CHUNK_WINDOWS_COMMON_CHUNK.search.value)
-                    const customize = list.filter(item => item.chunk === enums.CHUNK_WINDOWS_COMMON_CHUNK.columns.value)
+                    const database = list.filter(item => item.chunk === enums.CHUNK_COMMON_CHUNK.search.value)
+                    const customize = list.filter(item => item.chunk === enums.CHUNK_COMMON_CHUNK.columns.value)
                     return await this.fetchResolver({
                         database: database.map(item => pick(item, ['check', 'prop', 'label'])),
                         customize: customize.map(item => pick(item, ['check', 'prop', 'label']))

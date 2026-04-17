@@ -1,6 +1,6 @@
-export const CHUNK_WINDOWS_BRAND_STATUS = {
+export const CHUNK_BRAND_STATUS = {
     name: '品牌状态',
-    value: 'CHUNK_WINDOWS_BRAND_STATUS',
+    value: 'CHUNK_BRAND_STATUS',
     enable: {
         value: 'enable',
         name: '启用',

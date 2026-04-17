@@ -1,6 +1,6 @@
-export const CHUNK_WINDOWS_CURRENCY_STATUS = {
+export const CHUNK_CURRENCY_STATUS = {
     name: '币种状态',
-    value: 'CHUNK_WINDOWS_CURRENCY_STATUS',
+    value: 'CHUNK_CURRENCY_STATUS',
     enable: {
         value: 'enable',
         name: '启用',

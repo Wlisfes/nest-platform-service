@@ -19,12 +19,12 @@ export class WindowsBrand extends DataBaseByAdapter {
     document: string
 
     @ApiProperty({
-        description: withComment('状态', enums.CHUNK_WINDOWS_SHEET_STATUS),
-        example: enums.CHUNK_WINDOWS_SHEET_STATUS.enable.value
+        description: withComment('状态', enums.CHUNK_SHEET_STATUS),
+        example: enums.CHUNK_SHEET_STATUS.enable.value
     })
     @IsNotEmpty({ message: '状态必填' })
     @Length(0, 32, { message: '状态不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_SHEET_STATUS), { message: '状态格式错误' })
-    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_WINDOWS_SHEET_STATUS) })
+    @IsEnum(withKeys(enums.CHUNK_SHEET_STATUS), { message: '状态格式错误' })
+    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_SHEET_STATUS) })
     status: string
 }

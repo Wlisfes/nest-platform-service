@@ -23,10 +23,10 @@ export class ClientService extends Logger {
                 currency: body.currency,
                 email: body.email,
                 phone: body.phone,
-                status: body.status ?? enums.CHUNK_WINDOWS_CLIENT_STATUS.enable.value,
+                status: body.status ?? enums.CHUNK_CLIENT_STATUS.enable.value,
                 payMode: body.payMode,
-                authStatus: body.authStatus ?? enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.unverified.value,
-                source: body.source ?? enums.CHUNK_WINDOWS_CLIENT_SOURCE.manual.value,
+                authStatus: body.authStatus ?? enums.CHUNK_CLIENT_AUTH_STATUS.unverified.value,
+                source: body.source ?? enums.CHUNK_CLIENT_SOURCE.manual.value,
                 remark: body.remark
             })
             await ctx.manager.getRepository(schema.WindowsClient).save(node)

@@ -14,12 +14,12 @@ export class WindowsRank extends DataBaseByAdapter {
     name: string
 
     @ApiProperty({
-        description: withComment('职级类型', enums.CHUNK_WINDOWS_RANK_TYPE),
-        example: enums.CHUNK_WINDOWS_RANK_TYPE.professional.value
+        description: withComment('职级类型', enums.CHUNK_RANK_TYPE),
+        example: enums.CHUNK_RANK_TYPE.professional.value
     })
     @IsNotEmpty({ message: '职级类型必填' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_RANK_TYPE), { message: '职级类型格式错误' })
-    @Column({ nullable: false, comment: withComment('职级类型', enums.CHUNK_WINDOWS_RANK_TYPE) })
+    @IsEnum(withKeys(enums.CHUNK_RANK_TYPE), { message: '职级类型格式错误' })
+    @Column({ nullable: false, comment: withComment('职级类型', enums.CHUNK_RANK_TYPE) })
     chunk: string
 
     @ApiProperty({ description: '排序号', example: 0 })

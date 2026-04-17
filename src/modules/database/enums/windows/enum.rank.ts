@@ -1,7 +1,7 @@
 /**管理端职级类型**/
-export const CHUNK_WINDOWS_RANK_TYPE = {
+export const CHUNK_RANK_TYPE = {
     name: '职级类型',
-    value: 'CHUNK_WINDOWS_RANK_TYPE',
+    value: 'CHUNK_RANK_TYPE',
     professional: {
         value: 'professional',
         name: 'P级（专业岗）',

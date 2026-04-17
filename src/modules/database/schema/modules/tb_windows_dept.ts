@@ -37,11 +37,11 @@ export class WindowsDeptAccount extends DataBaseAdapter {
     uid: string
 
     @ApiProperty({
-        description: withComment('成员角色', enums.CHUNK_WINDOWS_DEPT_MEMBER),
-        example: enums.CHUNK_WINDOWS_DEPT_MEMBER.member.value
+        description: withComment('成员角色', enums.CHUNK_DEPT_MEMBER),
+        example: enums.CHUNK_DEPT_MEMBER.member.value
     })
     @IsOptional()
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_DEPT_MEMBER), { message: '成员角色格式错误' })
-    @Column({ nullable: false, default: enums.CHUNK_WINDOWS_DEPT_MEMBER.member.value, comment: withComment('成员角色', enums.CHUNK_WINDOWS_DEPT_MEMBER) })
+    @IsEnum(withKeys(enums.CHUNK_DEPT_MEMBER), { message: '成员角色格式错误' })
+    @Column({ nullable: false, default: enums.CHUNK_DEPT_MEMBER.member.value, comment: withComment('成员角色', enums.CHUNK_DEPT_MEMBER) })
     chunk: string
 }

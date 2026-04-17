@@ -59,7 +59,7 @@ export class AuthService extends Logger {
                         throw new HttpException(`账号不存在`, HttpStatus.BAD_REQUEST)
                     } else if (!compareSync(body.password, node.password)) {
                         throw new HttpException(`账号密码不正确`, HttpStatus.BAD_REQUEST)
-                    } else if (node.status === enums.CHUNK_WINDOWS_ACCOUNT_STATUS.offline.value) {
+                    } else if (node.status === enums.CHUNK_ACCOUNT_STATUS.offline.value) {
                         throw new HttpException(`员工账号已离职`, HttpStatus.FORBIDDEN)
                     }
                     return await this.jwtService.fetchJwtSecret(pick(node, ['uid', 'number', 'name', 'status']))
@@ -101,7 +101,7 @@ export class AuthService extends Logger {
     public async httpAuthAccountTokenResource(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
-                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_SHEET_CHUNK.resource.value })
+                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_SHEET_CHUNK.resource.value })
                 qb.andWhere(
                     `t.key_id IN (
                         SELECT rs.sheet_id FROM tb_windows_role_sheet rs
@@ -116,7 +116,7 @@ export class AuthService extends Logger {
                 ])
                 return await qb.getMany().then(async nodes => {
                     const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
-                    const filtered = fetchTreeFilterDisabled(items, { status: enums.CHUNK_WINDOWS_SHEET_STATUS.disable.value })
+                    const filtered = fetchTreeFilterDisabled(items, { status: enums.CHUNK_SHEET_STATUS.disable.value })
                     return await this.fetchResolver({ list: fetchTreeNodeBlock(filtered) })
                 })
             })
@@ -144,9 +144,9 @@ export class AuthService extends Logger {
                 return await qb.getMany().then(async nodes => {
                     const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
                     const list = fetchTreeFilterDisabled<Omix, Omix>(items, {
-                        status: enums.CHUNK_WINDOWS_SHEET_STATUS.disable.value,
+                        status: enums.CHUNK_SHEET_STATUS.disable.value,
                         collect: node => {
-                            if (node.chunk === enums.CHUNK_WINDOWS_SHEET_CHUNK.authorize.value) {
+                            if (node.chunk === enums.CHUNK_SHEET_CHUNK.authorize.value) {
                                 return { keyId: node.keyId, keyName: node.keyName }
                             }
                             return undefined

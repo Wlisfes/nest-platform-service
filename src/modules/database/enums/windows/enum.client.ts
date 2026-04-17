@@ -1,6 +1,6 @@
-export const CHUNK_WINDOWS_CLIENT_STATUS = {
+export const CHUNK_CLIENT_STATUS = {
     name: '客户状态',
-    value: 'CHUNK_WINDOWS_CLIENT_STATUS',
+    value: 'CHUNK_CLIENT_STATUS',
     enable: {
         value: 'enable',
         name: '启用',
@@ -13,9 +13,9 @@ export const CHUNK_WINDOWS_CLIENT_STATUS = {
     }
 }
 
-export const CHUNK_WINDOWS_CLIENT_PAY_MODE = {
+export const CHUNK_CLIENT_PAY_MODE = {
     name: '付款模式',
-    value: 'CHUNK_WINDOWS_CLIENT_PAY_MODE',
+    value: 'CHUNK_CLIENT_PAY_MODE',
     prepaid: {
         value: 'prepaid',
         name: '预付',
@@ -28,9 +28,9 @@ export const CHUNK_WINDOWS_CLIENT_PAY_MODE = {
     }
 }
 
-export const CHUNK_WINDOWS_CLIENT_AUTH_STATUS = {
+export const CHUNK_CLIENT_AUTH_STATUS = {
     name: '认证状态',
-    value: 'CHUNK_WINDOWS_CLIENT_AUTH_STATUS',
+    value: 'CHUNK_CLIENT_AUTH_STATUS',
     unverified: {
         value: 'unverified',
         name: '未认证',
@@ -53,9 +53,9 @@ export const CHUNK_WINDOWS_CLIENT_AUTH_STATUS = {
     }
 }
 
-export const CHUNK_WINDOWS_CLIENT_SOURCE = {
+export const CHUNK_CLIENT_SOURCE = {
     name: '注册来源',
-    value: 'CHUNK_WINDOWS_CLIENT_SOURCE',
+    value: 'CHUNK_CLIENT_SOURCE',
     platform: {
         value: 'platform',
         name: '平台注册',

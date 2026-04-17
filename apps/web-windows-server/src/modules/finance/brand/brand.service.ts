@@ -25,7 +25,7 @@ export class BrandService extends Logger {
             const node = ctx.manager.getRepository(schema.WindowsBrand).create({
                 name: body.name,
                 document: body.document,
-                status: body.status ?? enums.CHUNK_WINDOWS_BRAND_STATUS.enable.value,
+                status: body.status ?? enums.CHUNK_BRAND_STATUS.enable.value,
                 createBy: request.user.uid,
                 modifyBy: request.user.uid
             })
@@ -136,7 +136,7 @@ export class BrandService extends Logger {
     public async httpBaseFinanceSelectBrand(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.brandOptions, async qb => {
-                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_WINDOWS_BRAND_STATUS.enable.value })
+                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_BRAND_STATUS.enable.value })
                 qb.orderBy('t.createTime', 'DESC')
                 return await qb.getMany().then(async list => {
                     return await this.fetchResolver({ list })

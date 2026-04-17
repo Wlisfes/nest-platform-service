@@ -43,13 +43,13 @@ export class WindowsAccount extends DataBaseAdapter {
     avatar: string
 
     @ApiProperty({
-        description: withComment('账号状态', enums.CHUNK_WINDOWS_ACCOUNT_STATUS),
-        example: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.online.value
+        description: withComment('账号状态', enums.CHUNK_ACCOUNT_STATUS),
+        example: enums.CHUNK_ACCOUNT_STATUS.online.value
     })
     @IsNotEmpty({ message: '账号状态必填' })
     @Length(0, 32, { message: '账号状态不能超过32个字符' })
-    @IsEnum(Object.keys(enums.CHUNK_WINDOWS_ACCOUNT_STATUS), { message: '账号状态格式错误' })
-    @Column({ nullable: false, comment: withComment('账号状态', enums.CHUNK_WINDOWS_ACCOUNT_STATUS) })
+    @IsEnum(Object.keys(enums.CHUNK_ACCOUNT_STATUS), { message: '账号状态格式错误' })
+    @Column({ nullable: false, comment: withComment('账号状态', enums.CHUNK_ACCOUNT_STATUS) })
     status: string
 
     @ApiProperty({ description: '密码', example: 'MTIzNDU2' })

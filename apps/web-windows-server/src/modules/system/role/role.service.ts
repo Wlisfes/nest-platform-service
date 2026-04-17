@@ -24,7 +24,7 @@ export class RoleService extends Logger {
                 stack: this.stack,
                 body: Object.assign(body, {
                     createBy: request.user.uid,
-                    chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.common.value
+                    chunk: enums.CHUNK_ROLE_CHUNK.common.value
                 })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -55,7 +55,7 @@ export class RoleService extends Logger {
                 where: { keyId: body.keyId },
                 body: Object.assign(body, {
                     modifyBy: request.user.uid,
-                    chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.common.value
+                    chunk: enums.CHUNK_ROLE_CHUNK.common.value
                 })
             })
             return await ctx.commitTransaction().then(async () => {
@@ -74,13 +74,13 @@ export class RoleService extends Logger {
     public async httpBaseSystemColumnRole(request: OmixRequest) {
         try {
             const list = await this.database.builder(this.windows.roleOptions, async qb => {
-                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.common.value })
+                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_ROLE_CHUNK.common.value })
                 qb.orderBy('t.sort', 'ASC')
                 return await qb.getMany()
             })
             const dept = await this.database.builder(this.windows.deptOptions, async qb => {
                 qb.leftJoinAndMapOne('t.node', schema.WindowsRole, 'node', 'node.deptId = t.keyId')
-                qb.where(`node.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value })
+                qb.where(`node.chunk = :chunk`, { chunk: enums.CHUNK_ROLE_CHUNK.department.value })
                 return await qb.getMany().then(async nodes => {
                     return fetchTreeNodeBlock(
                         fetchTreeFromList(
@@ -123,7 +123,7 @@ export class RoleService extends Logger {
                 stack: this.stack,
                 dispatch: { where: { keyId: body.roleId } }
             })
-            if (node.chunk === enums.CHUNK_WINDOWS_ROLE_CHUNK.common.value) {
+            if (node.chunk === enums.CHUNK_ROLE_CHUNK.common.value) {
                 return await this.database.builder(this.windows.accountOptions, async qb => {
                     qb.innerJoin(schema.WindowsRoleAccount, 'rel', 'rel.uid = t.uid')
                     qb.where(`rel.role_id = :roleId`, { roleId: body.roleId })
@@ -149,7 +149,7 @@ export class RoleService extends Logger {
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             }
-            if (node.chunk === enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value) {
+            if (node.chunk === enums.CHUNK_ROLE_CHUNK.department.value) {
                 if (!isNotEmpty(node.deptId)) {
                     throw new HttpException('deptId:不存在', HttpStatus.BAD_REQUEST)
                 }

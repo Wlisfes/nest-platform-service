@@ -31,23 +31,23 @@ export class WindowsRole extends DataBaseByAdapter {
     deptId: number
 
     @ApiProperty({
-        description: withComment('角色类型', enums.CHUNK_WINDOWS_ROLE_CHUNK),
-        example: enums.CHUNK_WINDOWS_ROLE_CHUNK.common.value
+        description: withComment('角色类型', enums.CHUNK_ROLE_CHUNK),
+        example: enums.CHUNK_ROLE_CHUNK.common.value
     })
     @IsNotEmpty({ message: '角色类型必填' })
     @Length(0, 32, { message: '角色类型不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_ROLE_CHUNK), { message: '角色类型格式错误' })
-    @Column({ nullable: false, comment: withComment('角色类型', enums.CHUNK_WINDOWS_ROLE_CHUNK) })
+    @IsEnum(withKeys(enums.CHUNK_ROLE_CHUNK), { message: '角色类型格式错误' })
+    @Column({ nullable: false, comment: withComment('角色类型', enums.CHUNK_ROLE_CHUNK) })
     chunk: string
 
     @ApiProperty({
-        description: withComment('数据权限', enums.CHUNK_WINDOWS_ROLE_MODEL),
-        example: enums.CHUNK_WINDOWS_ROLE_MODEL.self_member.value
+        description: withComment('数据权限', enums.CHUNK_ROLE_MODEL),
+        example: enums.CHUNK_ROLE_MODEL.self_member.value
     })
     @IsNotEmpty({ message: '数据权限必填' })
     @Length(0, 32, { message: '数据权限不能超过32个字符' })
-    @IsEnum(withKeys(enums.CHUNK_WINDOWS_ROLE_MODEL), { message: '数据权限格式错误' })
-    @Column({ nullable: false, comment: withComment('数据权限', enums.CHUNK_WINDOWS_ROLE_MODEL) })
+    @IsEnum(withKeys(enums.CHUNK_ROLE_MODEL), { message: '数据权限格式错误' })
+    @Column({ nullable: false, comment: withComment('数据权限', enums.CHUNK_ROLE_MODEL) })
     model: string
 }
 

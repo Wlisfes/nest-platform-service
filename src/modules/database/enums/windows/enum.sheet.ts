@@ -1,6 +1,6 @@
-export const CHUNK_WINDOWS_COMMON_CHUNK = {
+export const CHUNK_COMMON_CHUNK = {
     name: '字段自定义显示类型',
-    value: 'CHUNK_WINDOWS_COMMON_CHUNK',
+    value: 'CHUNK_COMMON_CHUNK',
     search: {
         value: 'search',
         name: '搜索',
@@ -13,9 +13,9 @@ export const CHUNK_WINDOWS_COMMON_CHUNK = {
     }
 }
 
-export const CHUNK_WINDOWS_SHEET_CHUNK = {
+export const CHUNK_SHEET_CHUNK = {
     name: '菜单类型',
-    value: 'CHUNK_WINDOWS_SHEET_CHUNK',
+    value: 'CHUNK_SHEET_CHUNK',
     resource: {
         value: 'resource',
         name: '菜单',
@@ -28,9 +28,9 @@ export const CHUNK_WINDOWS_SHEET_CHUNK = {
     }
 }
 
-export const CHUNK_WINDOWS_SHEET_STATUS = {
+export const CHUNK_SHEET_STATUS = {
     name: '菜单状态',
-    value: 'CHUNK_WINDOWS_SHEET_STATUS',
+    value: 'CHUNK_SHEET_STATUS',
     enable: {
         value: 'enable',
         name: '启用',
@@ -43,9 +43,9 @@ export const CHUNK_WINDOWS_SHEET_STATUS = {
     }
 }
 
-export const CHUNK_WINDOWS_SHEET_CHECK = {
+export const CHUNK_SHEET_CHECK = {
     name: '菜单显示状态',
-    value: 'CHUNK_WINDOWS_SHEET_CHECK',
+    value: 'CHUNK_SHEET_CHECK',
     show: {
         value: 'show',
         name: '显示',

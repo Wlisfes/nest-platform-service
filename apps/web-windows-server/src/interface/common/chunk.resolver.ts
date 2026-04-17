@@ -8,82 +8,82 @@ import * as schema from '@/modules/database/schema'
 /**固定枚举类型**/
 export const COMMON_CHUNK = {
     /**账号状态**/
-    [enums.CHUNK_WINDOWS_ACCOUNT_STATUS.value]: {
-        name: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.name,
-        value: enums.CHUNK_WINDOWS_ACCOUNT_STATUS.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_ACCOUNT_STATUS)
+    [enums.CHUNK_ACCOUNT_STATUS.value]: {
+        name: enums.CHUNK_ACCOUNT_STATUS.name,
+        value: enums.CHUNK_ACCOUNT_STATUS.value,
+        columns: withExtract(enums.CHUNK_ACCOUNT_STATUS)
     },
     /**字段自定义显示类型**/
-    [enums.CHUNK_WINDOWS_COMMON_CHUNK.value]: {
-        name: enums.CHUNK_WINDOWS_COMMON_CHUNK.name,
-        value: enums.CHUNK_WINDOWS_COMMON_CHUNK.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_COMMON_CHUNK)
+    [enums.CHUNK_COMMON_CHUNK.value]: {
+        name: enums.CHUNK_COMMON_CHUNK.name,
+        value: enums.CHUNK_COMMON_CHUNK.value,
+        columns: withExtract(enums.CHUNK_COMMON_CHUNK)
     },
     /**菜单显示状态**/
-    [enums.CHUNK_WINDOWS_SHEET_CHECK.value]: {
-        name: enums.CHUNK_WINDOWS_SHEET_CHECK.name,
-        value: enums.CHUNK_WINDOWS_SHEET_CHECK.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_SHEET_CHECK)
+    [enums.CHUNK_SHEET_CHECK.value]: {
+        name: enums.CHUNK_SHEET_CHECK.name,
+        value: enums.CHUNK_SHEET_CHECK.value,
+        columns: withExtract(enums.CHUNK_SHEET_CHECK)
     },
     /**菜单类型**/
-    [enums.CHUNK_WINDOWS_SHEET_CHUNK.value]: {
-        name: enums.CHUNK_WINDOWS_SHEET_CHUNK.name,
-        value: enums.CHUNK_WINDOWS_SHEET_CHUNK.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_SHEET_CHUNK)
+    [enums.CHUNK_SHEET_CHUNK.value]: {
+        name: enums.CHUNK_SHEET_CHUNK.name,
+        value: enums.CHUNK_SHEET_CHUNK.value,
+        columns: withExtract(enums.CHUNK_SHEET_CHUNK)
     },
     /**菜单状态**/
-    [enums.CHUNK_WINDOWS_SHEET_STATUS.value]: {
-        name: enums.CHUNK_WINDOWS_SHEET_STATUS.name,
-        value: enums.CHUNK_WINDOWS_SHEET_STATUS.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_SHEET_STATUS)
+    [enums.CHUNK_SHEET_STATUS.value]: {
+        name: enums.CHUNK_SHEET_STATUS.name,
+        value: enums.CHUNK_SHEET_STATUS.value,
+        columns: withExtract(enums.CHUNK_SHEET_STATUS)
     },
     /**角色类型**/
-    [enums.CHUNK_WINDOWS_ROLE_CHUNK.value]: {
-        name: enums.CHUNK_WINDOWS_ROLE_CHUNK.name,
-        value: enums.CHUNK_WINDOWS_ROLE_CHUNK.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_ROLE_CHUNK)
+    [enums.CHUNK_ROLE_CHUNK.value]: {
+        name: enums.CHUNK_ROLE_CHUNK.name,
+        value: enums.CHUNK_ROLE_CHUNK.value,
+        columns: withExtract(enums.CHUNK_ROLE_CHUNK)
     },
     /**角色数据权限**/
-    [enums.CHUNK_WINDOWS_ROLE_MODEL.value]: {
-        name: enums.CHUNK_WINDOWS_ROLE_MODEL.name,
-        value: enums.CHUNK_WINDOWS_ROLE_MODEL.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_ROLE_MODEL)
+    [enums.CHUNK_ROLE_MODEL.value]: {
+        name: enums.CHUNK_ROLE_MODEL.name,
+        value: enums.CHUNK_ROLE_MODEL.value,
+        columns: withExtract(enums.CHUNK_ROLE_MODEL)
     },
     /**品牌状态**/
-    [enums.CHUNK_WINDOWS_BRAND_STATUS.value]: {
-        name: enums.CHUNK_WINDOWS_BRAND_STATUS.name,
-        value: enums.CHUNK_WINDOWS_BRAND_STATUS.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_BRAND_STATUS)
+    [enums.CHUNK_BRAND_STATUS.value]: {
+        name: enums.CHUNK_BRAND_STATUS.name,
+        value: enums.CHUNK_BRAND_STATUS.value,
+        columns: withExtract(enums.CHUNK_BRAND_STATUS)
     },
     /**币种状态**/
-    [enums.CHUNK_WINDOWS_CURRENCY_STATUS.value]: {
-        name: enums.CHUNK_WINDOWS_CURRENCY_STATUS.name,
-        value: enums.CHUNK_WINDOWS_CURRENCY_STATUS.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_CURRENCY_STATUS)
+    [enums.CHUNK_CURRENCY_STATUS.value]: {
+        name: enums.CHUNK_CURRENCY_STATUS.name,
+        value: enums.CHUNK_CURRENCY_STATUS.value,
+        columns: withExtract(enums.CHUNK_CURRENCY_STATUS)
     },
     /**客户状态**/
-    [enums.CHUNK_WINDOWS_CLIENT_STATUS.value]: {
-        name: enums.CHUNK_WINDOWS_CLIENT_STATUS.name,
-        value: enums.CHUNK_WINDOWS_CLIENT_STATUS.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_STATUS)
+    [enums.CHUNK_CLIENT_STATUS.value]: {
+        name: enums.CHUNK_CLIENT_STATUS.name,
+        value: enums.CHUNK_CLIENT_STATUS.value,
+        columns: withExtract(enums.CHUNK_CLIENT_STATUS)
     },
     /**付款模式**/
-    [enums.CHUNK_WINDOWS_CLIENT_PAY_MODE.value]: {
-        name: enums.CHUNK_WINDOWS_CLIENT_PAY_MODE.name,
-        value: enums.CHUNK_WINDOWS_CLIENT_PAY_MODE.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_PAY_MODE)
+    [enums.CHUNK_CLIENT_PAY_MODE.value]: {
+        name: enums.CHUNK_CLIENT_PAY_MODE.name,
+        value: enums.CHUNK_CLIENT_PAY_MODE.value,
+        columns: withExtract(enums.CHUNK_CLIENT_PAY_MODE)
     },
     /**认证状态**/
-    [enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.value]: {
-        name: enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.name,
-        value: enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_AUTH_STATUS)
+    [enums.CHUNK_CLIENT_AUTH_STATUS.value]: {
+        name: enums.CHUNK_CLIENT_AUTH_STATUS.name,
+        value: enums.CHUNK_CLIENT_AUTH_STATUS.value,
+        columns: withExtract(enums.CHUNK_CLIENT_AUTH_STATUS)
     },
     /**注册来源**/
-    [enums.CHUNK_WINDOWS_CLIENT_SOURCE.value]: {
-        name: enums.CHUNK_WINDOWS_CLIENT_SOURCE.name,
-        value: enums.CHUNK_WINDOWS_CLIENT_SOURCE.value,
-        columns: withExtract(enums.CHUNK_WINDOWS_CLIENT_SOURCE)
+    [enums.CHUNK_CLIENT_SOURCE.value]: {
+        name: enums.CHUNK_CLIENT_SOURCE.name,
+        value: enums.CHUNK_CLIENT_SOURCE.value,
+        columns: withExtract(enums.CHUNK_CLIENT_SOURCE)
     }
 }
 

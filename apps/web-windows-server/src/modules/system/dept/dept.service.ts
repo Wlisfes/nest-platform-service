@@ -37,8 +37,8 @@ export class DeptService extends Logger {
                     comment: `${node.name}默认部门角色`,
                     sort: 10,
                     deptId: node.keyId,
-                    chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value,
-                    model: enums.CHUNK_WINDOWS_ROLE_MODEL.dept_member.value,
+                    chunk: enums.CHUNK_ROLE_CHUNK.department.value,
+                    model: enums.CHUNK_ROLE_MODEL.dept_member.value,
                     createBy: request.user.uid
                 }
             })
@@ -78,7 +78,7 @@ export class DeptService extends Logger {
                 })
             })
             await this.database.builder(this.windows.roleOptions, async qb => {
-                const node = await qb.where({ deptId: body.keyId, chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value }).getOne()
+                const node = await qb.where({ deptId: body.keyId, chunk: enums.CHUNK_ROLE_CHUNK.department.value }).getOne()
                 if (isNotEmpty(node)) {
                     return await this.database.update(ctx.manager.getRepository(schema.WindowsRole), {
                         request,
@@ -95,8 +95,8 @@ export class DeptService extends Logger {
                         comment: `${body.name}默认部门角色`,
                         sort: 10,
                         deptId: body.keyId,
-                        chunk: enums.CHUNK_WINDOWS_ROLE_CHUNK.department.value,
-                        model: enums.CHUNK_WINDOWS_ROLE_MODEL.dept_member.value,
+                        chunk: enums.CHUNK_ROLE_CHUNK.department.value,
+                        model: enums.CHUNK_ROLE_MODEL.dept_member.value,
                         createBy: request.user.uid
                     }
                 })
@@ -202,17 +202,17 @@ export class DeptService extends Logger {
                             mqb.leftJoinAndMapOne('t.account', schema.WindowsAccount, 'account', 'account.uid = t.uid')
                             mqb.where(`t.deptId IN (:...deptIds)`, { deptIds })
                             mqb.andWhere(`t.chunk IN (:...chunks)`, {
-                                chunks: [enums.CHUNK_WINDOWS_DEPT_MEMBER.admin.value, enums.CHUNK_WINDOWS_DEPT_MEMBER.sub_admin.value]
+                                chunks: [enums.CHUNK_DEPT_MEMBER.admin.value, enums.CHUNK_DEPT_MEMBER.sub_admin.value]
                             })
                             return await mqb.getMany()
                         })
                         list.forEach((item: Omix<schema.WindowsDept>) => {
                             const deptMembers = members.filter((m: any) => m.deptId === item.keyId)
                             const deptAdmin: Omix<schema.WindowsDeptAccount> = deptMembers.find((m: Omix) => {
-                                return m.chunk === enums.CHUNK_WINDOWS_DEPT_MEMBER.admin.value
+                                return m.chunk === enums.CHUNK_DEPT_MEMBER.admin.value
                             })
                             const deptSubAdmins: Array<Omix<schema.WindowsDeptAccount>> = deptMembers.filter((m: Omix) => {
-                                return m.chunk === enums.CHUNK_WINDOWS_DEPT_MEMBER.sub_admin.value
+                                return m.chunk === enums.CHUNK_DEPT_MEMBER.sub_admin.value
                             })
                             item.admin = deptAdmin?.account ?? null
                             item.subAdmins = deptSubAdmins.map(m => m.account)
@@ -288,10 +288,10 @@ export class DeptService extends Logger {
                 dispatch: { where: { deptId: body.deptId, uid: body.uid } }
             })
             /**如果设置为管理员，先将该部门已有管理员降为普通成员**/
-            if (body.chunk === enums.CHUNK_WINDOWS_DEPT_MEMBER.admin.value) {
+            if (body.chunk === enums.CHUNK_DEPT_MEMBER.admin.value) {
                 const currentAdmin = await this.database.builder(this.windows.deptAccountOptions, async qb => {
                     qb.where(`t.deptId = :deptId`, { deptId: body.deptId })
-                    qb.andWhere(`t.chunk = :chunk`, { chunk: enums.CHUNK_WINDOWS_DEPT_MEMBER.admin.value })
+                    qb.andWhere(`t.chunk = :chunk`, { chunk: enums.CHUNK_DEPT_MEMBER.admin.value })
                     return await qb.getOne()
                 })
                 if (isNotEmpty(currentAdmin)) {
@@ -299,7 +299,7 @@ export class DeptService extends Logger {
                         request,
                         stack: this.stack,
                         where: { keyId: currentAdmin.keyId },
-                        body: { chunk: enums.CHUNK_WINDOWS_DEPT_MEMBER.member.value }
+                        body: { chunk: enums.CHUNK_DEPT_MEMBER.member.value }
                     })
                 }
             }
