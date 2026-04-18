@@ -59,12 +59,12 @@ export class WindowsClient extends DataBaseAdapter {
     @Column({ name: 'pay_mode', nullable: false, comment: withComment('付款模式', enums.CHUNK_CLIENT_PAY_MODE) })
     payMode: string
 
-    @ApiProperty({ description: '余额', example: 0 })
-    @Column({ type: 'decimal', precision: 14, scale: 2, comment: '余额', nullable: false, default: 0 })
+    @ApiProperty({ description: '余额（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', comment: '余额（放大百万倍存储）', nullable: false, default: 0 })
     balance: number
 
-    @ApiProperty({ description: '信用额度', example: 0 })
-    @Column({ type: 'decimal', precision: 14, scale: 2, name: 'credit', comment: '信用额度', nullable: false, default: 0 })
+    @ApiProperty({ description: '信用额度（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', name: 'credit', comment: '信用额度（放大百万倍存储）', nullable: false, default: 0 })
     credit: number
 
     @ApiProperty({

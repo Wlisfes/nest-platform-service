@@ -5,6 +5,9 @@ import { isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
+/**金额放大倍数**/
+const AMOUNT_SCALE = 1_000_000
+
 @Injectable()
 export class ClientService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
@@ -108,7 +111,12 @@ export class ClientService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                    const converted = list.map(item => ({
+                        ...item,
+                        balance: Number(item.balance) / AMOUNT_SCALE,
+                        credit: Number(item.credit) / AMOUNT_SCALE
+                    }))
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list: converted })
                 })
             })
         } catch (err) {
