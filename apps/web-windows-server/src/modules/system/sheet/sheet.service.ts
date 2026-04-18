@@ -106,6 +106,7 @@ export class SheetService extends Logger {
     public async httpBaseSystemSheetTreeStructure(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
+                qb.orderBy('t.sort', 'ASC')
                 return await qb.getMany().then(async nodes => {
                     const items = fetchTreeNodeBlock(tree.fromList(nodes, { id: 'keyId', pid: 'pid' }))
                     return await this.fetchResolver({ list: items })

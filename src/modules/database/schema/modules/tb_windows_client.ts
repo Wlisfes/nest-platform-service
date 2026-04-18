@@ -7,6 +7,11 @@ import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_client', comment: '管理端-C端客户表' })
 export class WindowsClient extends DataBaseAdapter {
+    @ApiProperty({ description: '归属人ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: '归属人ID必填' })
+    @Column({ comment: '归属人ID', length: 19, nullable: false })
+    userId: string
+
     @ApiProperty({ description: '客户名称', example: '测试客户' })
     @IsNotEmpty({ message: '客户名称必填' })
     @Length(1, 64, { message: '客户名称长度1~64位' })

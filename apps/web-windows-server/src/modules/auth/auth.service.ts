@@ -114,6 +114,7 @@ export class AuthService extends Logger {
                 await this.database.selection(qb, [
                     ['t', ['keyId', 'pid', 'keyName', 'name', 'router', 'iconName', 'check', 'sort', 'status']]
                 ])
+                qb.orderBy('t.sort', 'ASC')
                 return await qb.getMany().then(async nodes => {
                     const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
                     const filtered = fetchTreeFilterDisabled(items, { status: enums.CHUNK_SHEET_STATUS.disable.value })
@@ -141,6 +142,7 @@ export class AuthService extends Logger {
                     { uid: request.user.uid }
                 )
                 await this.database.selection(qb, [['t', ['keyId', 'pid', 'keyName', 'chunk', 'status']]])
+                qb.orderBy('t.sort', 'ASC')
                 return await qb.getMany().then(async nodes => {
                     const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
                     const list = fetchTreeFilterDisabled<Omix, Omix>(items, {
