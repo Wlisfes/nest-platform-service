@@ -84,6 +84,18 @@ export const COMMON_CHUNK = {
         name: enums.CHUNK_CLIENT_SOURCE.name,
         value: enums.CHUNK_CLIENT_SOURCE.value,
         columns: withExtract(enums.CHUNK_CLIENT_SOURCE)
+    },
+    /**客户类型**/
+    [enums.CHUNK_CLIENT_CLASS.value]: {
+        name: enums.CHUNK_CLIENT_CLASS.name,
+        value: enums.CHUNK_CLIENT_CLASS.value,
+        columns: withExtract(enums.CHUNK_CLIENT_CLASS)
+    },
+    /**客户阶段**/
+    [enums.CHUNK_CLIENT_STAGE.value]: {
+        name: enums.CHUNK_CLIENT_STAGE.name,
+        value: enums.CHUNK_CLIENT_STAGE.value,
+        columns: withExtract(enums.CHUNK_CLIENT_STAGE)
     }
 }
 

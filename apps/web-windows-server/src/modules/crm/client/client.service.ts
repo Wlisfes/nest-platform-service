@@ -65,9 +65,9 @@ export class CrmClientService extends Logger {
                         })
                     ])
                     list.forEach((item: Omix) => {
-                        item.chunkUser = accounts.find(e => e.uid === item.userId)
-                        item.chunkBrand = brands.find(e => e.keyId === item.brandId)
-                        item.chunkDepts = depts.filter((e: Omix) => e.uid === item.userId)
+                        item.user = accounts.find(e => e.uid === item.userId)
+                        item.brand = brands.find(e => e.keyId === item.brandId)
+                        item.depts = depts.filter((e: Omix) => e.uid === item.userId)
                     })
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
