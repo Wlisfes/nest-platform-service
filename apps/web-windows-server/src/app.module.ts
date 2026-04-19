@@ -12,6 +12,7 @@ import { JwtModule } from '@/modules/jwt/jwt.module'
 import { CommonModule } from '@/modules/common/common.module'
 import { AuthModule } from '@web-windows-server/modules/auth/auth.module'
 import { ChunkModule } from '@web-windows-server/modules/chunk/chunk.module'
+import { CrmModule } from '@web-windows-server/modules/crm/crm.module'
 import { SystemModule } from '@web-windows-server/modules/system/system.module'
 import { FinanceModule } from '@web-windows-server/modules/finance/finance.module'
 
@@ -25,6 +26,7 @@ import { FinanceModule } from '@web-windows-server/modules/finance/finance.modul
         CommonModule,
         AuthModule,
         ChunkModule,
+        CrmModule,
         SystemModule,
         FinanceModule
     ],

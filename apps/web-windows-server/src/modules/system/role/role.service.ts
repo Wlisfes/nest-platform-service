@@ -1,7 +1,8 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
+import { AccountUtilsService } from '@web-windows-server/modules/system/account/account.utils.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
-import { fetchTreeNodeBlock, fetchTreeFromList } from '@/utils'
+import { fetchTreeNodeBlock, fetchTreeFromList, fetchCloneByte } from '@/utils'
 import { isNotEmpty } from 'class-validator'
 import { OmixRequest } from '@/interface'
 import { In } from 'typeorm'
@@ -10,7 +11,11 @@ import * as tree from 'tree-tool'
 
 @Injectable()
 export class RoleService extends Logger {
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly accountUtilsService: AccountUtilsService
+    ) {
         super()
     }
 
@@ -136,24 +141,22 @@ export class RoleService extends Logger {
                     if (isNotEmpty(body.email)) {
                         qb.andWhere(`t.email LIKE :email`, { email: `%${body.email}%` })
                     }
-                    qb.distinct(true)
-
-                    const countQb = qb.clone()
-                    countQb.skip(undefined)
-                    countQb.take(undefined)
-                    const total = await countQb.getCount()
-
                     qb.skip((body.page - 1) * body.size)
                     qb.take(body.size)
-                    const list = await qb.getMany()
-                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                    return await qb.getManyAndCount().then(async ([list, total]) => {
+                        return await this.fetchResolver({
+                            page: body.page,
+                            size: body.size,
+                            total,
+                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, list)
+                        })
+                    })
                 })
             }
             if (node.chunk === enums.CHUNK_ROLE_CHUNK.department.value) {
                 if (!isNotEmpty(node.deptId)) {
                     throw new HttpException('deptId:不存在', HttpStatus.BAD_REQUEST)
                 }
-
                 const deptIds = await this.database.builder(this.windows.deptOptions, async qb => {
                     const nodes = await qb.getMany()
                     const items = tree.fromList(nodes, { id: 'keyId', pid: 'pid' })
@@ -188,17 +191,16 @@ export class RoleService extends Logger {
                     if (isNotEmpty(body.email)) {
                         qb.andWhere(`t.email LIKE :email`, { email: `%${body.email}%` })
                     }
-                    qb.distinct(true)
-
-                    const countQb = qb.clone()
-                    countQb.skip(undefined)
-                    countQb.take(undefined)
-                    const total = await countQb.getCount()
-
                     qb.skip((body.page - 1) * body.size)
                     qb.take(body.size)
-                    const list = await qb.getMany()
-                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                    return await qb.getManyAndCount().then(async ([list, total]) => {
+                        return await this.fetchResolver({
+                            page: body.page,
+                            size: body.size,
+                            total,
+                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, list)
+                        })
+                    })
                 })
             }
             throw new HttpException('node.chunk:格式错误', HttpStatus.BAD_REQUEST)
