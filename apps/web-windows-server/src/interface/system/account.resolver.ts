@@ -1,5 +1,5 @@
 import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { OmixColumnOptions, OmixPayloadOptions, OmixColumnResponse } from '@/interface'
+import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import { IsOptional, IsArray } from 'class-validator'
 import * as schema from '@/modules/database/schema'
 
@@ -14,6 +14,11 @@ export class CreateAccountOptions extends IntersectionType(
     PickType(schema.WindowsAccount, ['name', 'number', 'phone', 'password', 'status']),
     PickType(schema.WindowsAccount, ['avatar', 'email'])
 ) {
+    @ApiProperty({ description: '归属部门', required: false, example: [] })
+    @IsArray({ message: '归属部门 必须为Array<number>格式' })
+    @IsOptional()
+    depts: Array<number>
+
     @ApiProperty({ description: '关联职位', required: false, example: [] })
     @IsArray({ message: '关联职位 必须为Array<number>格式' })
     @IsOptional()

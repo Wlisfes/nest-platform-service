@@ -106,7 +106,8 @@ export class DataBaseService extends Logger {
             return data
         }
         const logger = await this.fetchServiceTransaction(data.request, { stack: this.stack })
-        return await model.save(data.body).then(async node => {
+        const state = model.create(data.body)
+        return await model.save(state).then(async node => {
             if (data.logger ?? true) {
                 logger.info({ comment: data.comment, message: `[${model.metadata.name}]:事务等待批量创建结果`, body: data.body, node })
             }

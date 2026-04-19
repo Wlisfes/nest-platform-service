@@ -1,18 +1,19 @@
 import { snowflakeId } from 'snowflake-id-maker'
 import { zh_CN, Faker } from '@faker-js/faker'
-import { isNotEmpty } from 'class-validator'
 import { Request } from 'express'
 import { getClientIp } from 'request-ip'
 import { resolve } from 'path'
+import { cloneDeep, concat, omit, pick } from 'lodash'
+import { isNotEmpty, isEmpty, isArray, isEmail, isString, isObject, isBoolean } from 'class-validator'
+import tree from 'tree-tool'
 import dotenv from 'dotenv'
-import DayJS from 'dayjs'
+import moment from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
-DayJS.extend(timezone)
-DayJS.extend(utc)
+moment.extend(timezone)
+moment.extend(utc)
 
-/**dayjs实例**/
-export const moment = DayJS
+export { tree, moment, cloneDeep, concat, omit, pick, isNotEmpty, isEmpty, isArray, isEmail, isString, isObject, isBoolean }
 
 /**虚拟数据实例**/
 export const faker = new Faker({ locale: zh_CN })
