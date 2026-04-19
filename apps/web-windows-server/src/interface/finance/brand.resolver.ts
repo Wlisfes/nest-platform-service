@@ -2,6 +2,12 @@ import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/sw
 import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
+/**批量查询品牌**/
+export interface UtilsUidByColumnBrandOptions extends Omix {
+    keyIds: Array<number>
+    fields?: Array<keyof schema.WindowsBrand>
+}
+
 /**新增品牌**/
 export class CreateBrandOptions extends PickType(schema.WindowsBrand, ['name', 'document', 'status']) {}
 

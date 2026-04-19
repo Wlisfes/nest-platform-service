@@ -148,7 +148,7 @@ export class DeployRoleService extends Logger {
                             page: body.page,
                             size: body.size,
                             total,
-                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, list)
+                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, { list })
                         })
                     })
                 })
@@ -198,7 +198,7 @@ export class DeployRoleService extends Logger {
                             page: body.page,
                             size: body.size,
                             total,
-                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, list)
+                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, { list })
                         })
                     })
                 })

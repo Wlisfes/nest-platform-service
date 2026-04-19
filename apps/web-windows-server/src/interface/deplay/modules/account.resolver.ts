@@ -6,6 +6,13 @@ import * as schema from '@/modules/database/schema'
 /**批量查询账号**/
 export interface UtilsUidByColumnAccountOptions extends Omix {
     uids: Array<string>
+    fields?: Array<keyof schema.WindowsAccount>
+}
+
+/**批量查询创建人/修改人数据**/
+export interface UtilsMergeColumnAccountOptions extends Omix {
+    list: Array<Omix>
+    fields?: Array<keyof schema.WindowsAccount>
 }
 
 /**账号详情**/

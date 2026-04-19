@@ -18,6 +18,9 @@ export class DeployAccountUtilsService extends Logger {
             return []
         }
         return await this.database.builder(this.windows.accountOptions, async qb => {
+            if (body.fields && body.fields.length > 0) {
+                qb.select([...new Set(['t.uid', ...body.fields.map(f => `t.${f}`)])])
+            }
             qb.where(`t.uid IN (:...uids)`, { uids: [...new Set(body.uids.filter(isNotEmpty))] })
             return await qb.getMany()
         })
@@ -25,11 +28,12 @@ export class DeployAccountUtilsService extends Logger {
 
     /**批量查询创建人/修改人数据**/
     @AutoDescriptor
-    public async fetchUtilsMergeColumnAccount(request: OmixRequest, list: Array<Omix>) {
+    public async fetchUtilsMergeColumnAccount(request: OmixRequest, body: windows.UtilsMergeColumnAccountOptions) {
         const items = await this.fetchUtilsUidByColumnAccount(request, {
-            uids: list.map(item => [item.createBy, item.modifyBy].filter(Boolean)).flat()
+            uids: body.list.map(item => [item.createBy, item.modifyBy].filter(Boolean)).flat(),
+            fields: body.fields
         })
-        return list.map(item => {
+        return body.list.map(item => {
             return fetchCloneByte(item, {
                 createBy: items.find(e => e.uid === item.createBy),
                 modifyBy: items.find(e => e.uid === item.modifyBy)

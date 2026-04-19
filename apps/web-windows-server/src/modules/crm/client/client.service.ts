@@ -1,5 +1,7 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Injectable, HttpException } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
+import { DeployDeptUtilsService } from '@web-windows-server/modules/deploy/dept/dept.utils.service'
+import { FinanceBrandUtilsService } from '@web-windows-server/modules/finance/brand/brand.utils.service'
 import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { isNotEmpty } from '@/utils'
@@ -11,6 +13,8 @@ export class CrmClientService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
+        private readonly deptUtilsService: DeployDeptUtilsService,
+        private readonly brandUtilsService: FinanceBrandUtilsService,
         private readonly accountUtilsService: DeployAccountUtilsService
     ) {
         super()
@@ -47,11 +51,23 @@ export class CrmClientService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    const account = await this.accountUtilsService.fetchUtilsUidByColumnAccount(request, {
-                        uids: list.map(item => item.userId)
-                    })
+                    const [depts, accounts, brands] = await Promise.all([
+                        this.deptUtilsService.fetchUtilsUidByColumnDepartment(request, {
+                            uids: list.map(item => item.userId)
+                        }),
+                        this.accountUtilsService.fetchUtilsUidByColumnAccount(request, {
+                            uids: list.map(item => item.userId),
+                            fields: ['uid', 'name', 'number', 'status', 'avatar']
+                        }),
+                        this.brandUtilsService.fetchUtilsUidByColumnBrand(request, {
+                            keyIds: list.map(item => item.brandId),
+                            fields: ['name', 'document', 'status']
+                        })
+                    ])
                     list.forEach((item: Omix) => {
-                        item.chunkUser = account.find(e => e.uid === item.userId)
+                        item.chunkUser = accounts.find(e => e.uid === item.userId)
+                        item.chunkBrand = brands.find(e => e.keyId === item.brandId)
+                        item.chunkDepts = depts.filter((e: Omix) => e.uid === item.userId)
                     })
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
