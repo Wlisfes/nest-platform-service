@@ -1,12 +1,12 @@
 import { Post, Body, Request } from '@nestjs/common'
-import { SheetService } from '@web-windows-server/modules/system/sheet/sheet.service'
+import { DeploySheetService } from '@web-windows-server/modules/deploy/sheet/sheet.service'
 import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('菜单管理', 'system/sheet')
-export class SheetController {
-    constructor(private readonly sheetService: SheetService) {}
+@ApifoxController('菜单管理', 'deploy/sheet')
+export class DeploySheetController {
+    constructor(private readonly deploySheetService: DeploySheetService) {}
 
     @ApiServiceDecorator(Post('create/resource'), {
         windows: true,
@@ -14,7 +14,7 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateSheetResource(@Request() request: OmixRequest, @Body() body: windows.CreateSheetOptionsResource) {
-        return await this.sheetService.httpBaseSystemCreateSheetResource(request, body)
+        return await this.deploySheetService.httpBaseSystemCreateSheetResource(request, body)
     }
 
     @ApiServiceDecorator(Post('update/resource'), {
@@ -23,7 +23,7 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemUpdateSheetResource(@Request() request: OmixRequest, @Body() body: windows.UpdateSheetOptionsResource) {
-        return await this.sheetService.httpBaseSystemUpdateSheetResource(request, body)
+        return await this.deploySheetService.httpBaseSystemUpdateSheetResource(request, body)
     }
 
     @ApiServiceDecorator(Post('resolver'), {
@@ -32,7 +32,7 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.SheetPayloadOptionsResponse }
     })
     public async httpBaseSystemSheetResolver(@Request() request: OmixRequest, @Body() body: windows.SheetPayloadOptions) {
-        return await this.sheetService.httpBaseSystemSheetResolver(request, body)
+        return await this.deploySheetService.httpBaseSystemSheetResolver(request, body)
     }
 
     @ApiServiceDecorator(Post('tree/structure'), {
@@ -41,7 +41,7 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.ColumnSheetOptionsResponse }
     })
     public async httpBaseSystemSheetTreeStructure(@Request() request: OmixRequest) {
-        return await this.sheetService.httpBaseSystemSheetTreeStructure(request)
+        return await this.deploySheetService.httpBaseSystemSheetTreeStructure(request)
     }
 
     @ApiServiceDecorator(Post('column'), {
@@ -50,7 +50,7 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.ColumnSheetOptionsResponse }
     })
     public async httpBaseSystemColumnSheet(@Request() request: OmixRequest, @Body() body: windows.ColumnSheetOptions) {
-        return await this.sheetService.httpBaseSystemColumnSheet(request, body)
+        return await this.deploySheetService.httpBaseSystemColumnSheet(request, body)
     }
 
     @ApiServiceDecorator(Post('/create/authorize'), {
@@ -59,7 +59,7 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateSheetAuthorize(@Request() request: OmixRequest, @Body() body: windows.CreateSheetOptionsAuthorize) {
-        return await this.sheetService.httpBaseSystemCreateSheetAuthorize(request, body)
+        return await this.deploySheetService.httpBaseSystemCreateSheetAuthorize(request, body)
     }
 
     @ApiServiceDecorator(Post('/update/authorize'), {
@@ -68,7 +68,7 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemUpdateSheetAuthorize(@Request() request: OmixRequest, @Body() body: windows.UpdateSheetOptionsAuthorize) {
-        return await this.sheetService.httpBaseSystemUpdateSheetAuthorize(request, body)
+        return await this.deploySheetService.httpBaseSystemUpdateSheetAuthorize(request, body)
     }
 
     @ApiServiceDecorator(Post('delete'), {
@@ -77,6 +77,6 @@ export class SheetController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemDeleteSheet(@Request() request: OmixRequest, @Body() body: windows.DeleteSheetOptions) {
-        return await this.sheetService.httpBaseSystemDeleteSheet(request, body)
+        return await this.deploySheetService.httpBaseSystemDeleteSheet(request, body)
     }
 }

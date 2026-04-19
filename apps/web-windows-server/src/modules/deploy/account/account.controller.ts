@@ -1,10 +1,10 @@
 import { Post, Body, Request } from '@nestjs/common'
-import { DeployAccountService } from '@web-windows-server/modules/system/account/account.service'
+import { DeployAccountService } from '@web-windows-server/modules/deploy/account/account.service'
 import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest, OmixPayloadResponse } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('账号模块', 'system/account')
+@ApifoxController('账号模块', 'deploy/account')
 export class DeployAccountController {
     constructor(private readonly accountService: DeployAccountService) {}
 

@@ -1,12 +1,12 @@
 import { Post, Body, Request } from '@nestjs/common'
-import { DeployDeptService } from '@web-windows-server/modules/system/dept/dept.service'
+import { DeployDeptService } from '@web-windows-server/modules/deploy/dept/dept.service'
 import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('部门组织', 'system/dept')
+@ApifoxController('部门组织', 'deploy/dept')
 export class DeployDeptController {
-    constructor(private readonly deptService: DeployDeptService) {}
+    constructor(private readonly deployDeptService: DeployDeptService) {}
 
     @ApiServiceDecorator(Post('create'), {
         windows: true,
@@ -14,7 +14,7 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemCreateDepartment(@Request() request: OmixRequest, @Body() body: windows.CreateDeptOptions) {
-        return await this.deptService.httpBaseSystemCreateDepartment(request, body)
+        return await this.deployDeptService.httpBaseSystemCreateDepartment(request, body)
     }
 
     @ApiServiceDecorator(Post('update'), {
@@ -23,7 +23,7 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemUpdateDepartment(@Request() request: OmixRequest, @Body() body: windows.UpdateDeptOptions) {
-        return await this.deptService.httpBaseSystemUpdateDepartment(request, body)
+        return await this.deployDeptService.httpBaseSystemUpdateDepartment(request, body)
     }
 
     @ApiServiceDecorator(Post('resolver'), {
@@ -32,7 +32,7 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.DeptPayloadOptionsResponse }
     })
     public async httpBaseSystemDepartmentResolver(@Request() request: OmixRequest, @Body() body: windows.DeptPayloadOptions) {
-        return await this.deptService.httpBaseSystemDepartmentResolver(request, body)
+        return await this.deployDeptService.httpBaseSystemDepartmentResolver(request, body)
     }
 
     @ApiServiceDecorator(Post('tree/structure'), {
@@ -41,7 +41,7 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.ColumnDeptOptionsResponse }
     })
     public async httpBaseSystemDepartmentTreeStructure(@Request() request: OmixRequest) {
-        return await this.deptService.httpBaseSystemDepartmentTreeStructure(request)
+        return await this.deployDeptService.httpBaseSystemDepartmentTreeStructure(request)
     }
 
     @ApiServiceDecorator(Post('member/options'), {
@@ -50,7 +50,7 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemDeptMemberOptions(@Request() request: OmixRequest, @Body() body: windows.DeptPayloadOptions) {
-        return await this.deptService.httpBaseSystemDeptMemberOptions(request, body)
+        return await this.deployDeptService.httpBaseSystemDeptMemberOptions(request, body)
     }
 
     @ApiServiceDecorator(Post('column'), {
@@ -59,7 +59,7 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.ColumnDeptOptionsResponse }
     })
     public async httpBaseSystemColumnDepartment(@Request() request: OmixRequest, @Body() body: windows.ColumnDeptOptions) {
-        return await this.deptService.httpBaseSystemColumnDepartment(request, body)
+        return await this.deployDeptService.httpBaseSystemColumnDepartment(request, body)
     }
 
     @ApiServiceDecorator(Post('delete'), {
@@ -68,7 +68,7 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemDeleteDepartment(@Request() request: OmixRequest, @Body() body: windows.DeleteDeptOptions) {
-        return await this.deptService.httpBaseSystemDeleteDepartment(request, body)
+        return await this.deployDeptService.httpBaseSystemDeleteDepartment(request, body)
     }
 
     @ApiServiceDecorator(Post('member/update'), {
@@ -77,6 +77,6 @@ export class DeployDeptController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseSystemUpdateDeptMember(@Request() request: OmixRequest, @Body() body: windows.UpdateDeptMemberOptions) {
-        return await this.deptService.httpBaseSystemUpdateDeptMember(request, body)
+        return await this.deployDeptService.httpBaseSystemUpdateDeptMember(request, body)
     }
 }

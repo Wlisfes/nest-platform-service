@@ -7,7 +7,7 @@ import { Not, In } from 'typeorm'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
-export class PositionService extends Logger {
+export class DeployPositionService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }

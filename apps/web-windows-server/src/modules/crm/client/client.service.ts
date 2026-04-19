@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DeployAccountUtilsService } from '@web-windows-server/modules/system/account/account.utils.service'
+import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'

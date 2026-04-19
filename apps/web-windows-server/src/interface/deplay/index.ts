@@ -1,0 +1,5 @@
+export * from '@web-windows-server/interface/deplay/modules/account.resolver'
+export * from '@web-windows-server/interface/deplay/modules/sheet.resolver'
+export * from '@web-windows-server/interface/deplay/modules/dept.resolver'
+export * from '@web-windows-server/interface/deplay/modules/role.resolver'
+export * from '@web-windows-server/interface/deplay/modules/position.resolver'

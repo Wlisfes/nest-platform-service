@@ -9,7 +9,7 @@ import * as tree from 'tree-tool'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
-export class SheetService extends Logger {
+export class DeploySheetService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }
