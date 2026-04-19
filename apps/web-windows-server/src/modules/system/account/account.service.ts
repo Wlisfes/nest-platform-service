@@ -36,7 +36,7 @@ export class AccountService extends Logger {
                 comment: `添加新账号`,
                 stack: this.stack,
                 request,
-                body: body
+                body: pick(body, ['name', 'number', 'phone', 'email', 'password', 'avatar', 'status']) as Omix
             })
             await this.database.insert(ctx.WindowsDeptAccount, {
                 comment: '关联部门',
