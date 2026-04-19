@@ -9,7 +9,7 @@ import * as enums from '@/modules/database/enums'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
-export class AccountService extends Logger {
+export class DeployAccountService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }

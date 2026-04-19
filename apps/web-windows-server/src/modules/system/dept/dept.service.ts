@@ -8,7 +8,7 @@ import * as tree from 'tree-tool'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
-export class DeptService extends Logger {
+export class DeployDeptService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }

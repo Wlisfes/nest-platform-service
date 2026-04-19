@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { AccountUtilsService } from '@web-windows-server/modules/system/account/account.utils.service'
+import { DeployAccountUtilsService } from '@web-windows-server/modules/system/account/account.utils.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { fetchTreeNodeBlock, fetchTreeFromList, fetchCloneByte } from '@/utils'
 import { isNotEmpty } from 'class-validator'
@@ -14,7 +14,7 @@ export class RoleService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
-        private readonly accountUtilsService: AccountUtilsService
+        private readonly accountUtilsService: DeployAccountUtilsService
     ) {
         super()
     }

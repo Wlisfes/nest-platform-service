@@ -1,12 +1,12 @@
 import { Post, Body, Request } from '@nestjs/common'
-import { DeptService } from '@web-windows-server/modules/system/dept/dept.service'
+import { DeployDeptService } from '@web-windows-server/modules/system/dept/dept.service'
 import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @ApifoxController('部门组织', 'system/dept')
-export class DeptController {
-    constructor(private readonly deptService: DeptService) {}
+export class DeployDeptController {
+    constructor(private readonly deptService: DeployDeptService) {}
 
     @ApiServiceDecorator(Post('create'), {
         windows: true,

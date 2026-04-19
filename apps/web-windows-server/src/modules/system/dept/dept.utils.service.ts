@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
-import { fetchCloneByte, isNotEmpty } from '@/utils'
+import { isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as schema from '@/modules/database/schema'
-import * as enums from '@/modules/database/enums'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
-export class DeptUtilsService extends Logger {
+export class DeployDeptUtilsService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }
