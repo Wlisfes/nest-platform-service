@@ -7,3 +7,9 @@ export class BaseCrmClientCommonConsumerOptions extends IntersectionType(
     PickType(OmixColumnOptions, ['page', 'size']),
     PartialType(PickType(schema.WindowsClient, ['name', 'status', 'brandId', 'currency', 'payMode', 'authStatus', 'source']))
 ) {}
+
+/**分页列表响应**/
+export class BaseCrmClientCommonConsumerOptionsResponse extends OmixColumnResponse {
+    @ApiProperty({ description: '列表数据', type: [schema.WindowsClient] })
+    list: schema.WindowsClient[]
+}

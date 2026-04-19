@@ -11,7 +11,7 @@ export class CrmClientController {
     @ApiServiceDecorator(Post('/common/consumer'), {
         windows: true,
         operation: { summary: '客户分页列表' },
-        response: { status: 200, description: 'OK', type: windows.BaseCrmClientCommonConsumerOptions }
+        response: { status: 200, description: 'OK', type: windows.BaseCrmClientCommonConsumerOptionsResponse }
     })
     public async httpBaseCrmClientCommonConsumer(
         @Request() request: OmixRequest,

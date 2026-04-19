@@ -2,6 +2,11 @@ import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/sw
 import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
+/**批量查询账号关联部门**/
+export interface UtilsUidByColumnDepartmentOptions extends Omix {
+    uids: Array<string>
+}
+
 /**部门详情**/
 export class DeptPayloadOptions extends PickType(schema.WindowsDept, ['keyId']) {}
 
@@ -36,6 +41,4 @@ export class ColumnDeptOptionsResponse extends OmixColumnResponse {
 export class DeleteDeptOptions extends PickType(schema.WindowsDept, ['keyId']) {}
 
 /**设置部门成员角色**/
-export class UpdateDeptMemberOptions extends IntersectionType(
-    PickType(schema.WindowsDeptAccount, ['deptId', 'uid', 'chunk'])
-) {}
+export class UpdateDeptMemberOptions extends IntersectionType(PickType(schema.WindowsDeptAccount, ['deptId', 'uid', 'chunk'])) {}

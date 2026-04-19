@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
-import { fetchCloneByte } from '@/utils'
+import { fetchCloneByte, isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
@@ -18,7 +18,7 @@ export class AccountUtilsService extends Logger {
             return []
         }
         return await this.database.builder(this.windows.accountOptions, async qb => {
-            qb.where(`t.uid IN (:...uids)`, { uids: [...new Set(body.uids)] })
+            qb.where(`t.uid IN (:...uids)`, { uids: [...new Set(body.uids.filter(isNotEmpty))] })
             return await qb.getMany()
         })
     }

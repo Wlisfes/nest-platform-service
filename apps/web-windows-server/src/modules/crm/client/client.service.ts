@@ -1,16 +1,18 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
+import { AccountUtilsService } from '@web-windows-server/modules/system/account/account.utils.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-/**金额放大倍数**/
-const AMOUNT_SCALE = 1_000_000
-
 @Injectable()
 export class CrmClientService extends Logger {
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly utilsService: AccountUtilsService
+    ) {
         super()
     }
 
@@ -19,6 +21,7 @@ export class CrmClientService extends Logger {
     public async httpBaseCrmClientCommonConsumer(request: OmixRequest, body: windows.BaseCrmClientCommonConsumerOptions) {
         try {
             return await this.database.builder(this.windows.clientOptions, async qb => {
+                qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
@@ -44,12 +47,13 @@ export class CrmClientService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    const converted = list.map(item => ({
-                        ...item,
-                        balance: Number(item.balance) / AMOUNT_SCALE,
-                        credit: Number(item.credit) / AMOUNT_SCALE
-                    }))
-                    return await this.fetchResolver({ page: body.page, size: body.size, total, list: converted })
+                    const account = await this.utilsService.fetchUtilsUidByColumnAccount(request, {
+                        uids: list.map(item => item.userId)
+                    })
+                    list.forEach((item: Omix) => {
+                        item.chunkUser = account.find(e => e.uid === item.userId)
+                    })
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })
         } catch (err) {

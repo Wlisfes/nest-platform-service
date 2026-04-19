@@ -2,7 +2,7 @@ import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsMobile } from '@/decorator'
 import { IsNotEmpty, Length, IsEmail, IsEnum, IsOptional } from 'class-validator'
-import { DataBaseAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
+import { DataBaseAdapter, DataBaseByAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_client', comment: '管理端-C端客户表' })
@@ -64,6 +64,12 @@ export class WindowsClient extends DataBaseAdapter {
     @Column({ name: 'pay_mode', nullable: false, comment: withComment('付款模式', enums.CHUNK_CLIENT_PAY_MODE) })
     payMode: string
 
+    @ApiProperty({ description: withComment('客户类型', enums.CHUNK_CLIENT_CLASS), example: enums.CHUNK_CLIENT_CLASS.common.value })
+    @IsNotEmpty({ message: '客户类型必填' })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_CLASS), { message: '客户类型格式错误' })
+    @Column({ name: 'class_type', nullable: false, comment: withComment('客户类型', enums.CHUNK_CLIENT_CLASS) })
+    classType: string
+
     @ApiProperty({ description: '余额（放大百万倍存储）', example: 0 })
     @Column({ type: 'bigint', comment: '余额（放大百万倍存储）', nullable: false, default: 0 })
     balance: number
@@ -71,6 +77,16 @@ export class WindowsClient extends DataBaseAdapter {
     @ApiProperty({ description: '信用额度（放大百万倍存储）', example: 0 })
     @Column({ type: 'bigint', name: 'credit', comment: '信用额度（放大百万倍存储）', nullable: false, default: 0 })
     credit: number
+
+    @ApiProperty({ description: '等级', example: 1 })
+    @Column({ comment: '等级', type: 'int', default: 1, nullable: false })
+    level: number
+
+    @ApiProperty({ description: withComment('阶段', enums.CHUNK_CLIENT_STAGE), example: enums.CHUNK_CLIENT_STAGE.cluetrail.value })
+    @IsNotEmpty({ message: '阶段必填' })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_STAGE), { message: '阶段格式错误' })
+    @Column({ name: 'stage', nullable: false, comment: withComment('阶段', enums.CHUNK_CLIENT_STAGE) })
+    stage: string
 
     @ApiProperty({
         description: withComment('认证状态', enums.CHUNK_CLIENT_AUTH_STATUS),
@@ -81,10 +97,7 @@ export class WindowsClient extends DataBaseAdapter {
     @Column({ name: 'auth_status', nullable: false, comment: withComment('认证状态', enums.CHUNK_CLIENT_AUTH_STATUS) })
     authStatus: string
 
-    @ApiProperty({
-        description: withComment('注册来源', enums.CHUNK_CLIENT_SOURCE),
-        example: enums.CHUNK_CLIENT_SOURCE.manual.value
-    })
+    @ApiProperty({ description: withComment('注册来源', enums.CHUNK_CLIENT_SOURCE), example: enums.CHUNK_CLIENT_SOURCE.manual.value })
     @IsNotEmpty({ message: '注册来源必填' })
     @IsEnum(withKeys(enums.CHUNK_CLIENT_SOURCE), { message: '注册来源格式错误' })
     @Column({ nullable: false, comment: withComment('注册来源', enums.CHUNK_CLIENT_SOURCE) })
@@ -95,4 +108,18 @@ export class WindowsClient extends DataBaseAdapter {
     @Length(0, 1024, { message: '备注长度不能超过1024位' })
     @Column({ comment: '备注', length: 1024, nullable: true })
     remark: string
+}
+
+@Entity({ name: 'tb_windows_client_tags', comment: '管理端-C端客户标签表' })
+export class WindowsClientTags extends DataBaseByAdapter {
+    @ApiProperty({ description: '客户ID', example: 1000 })
+    @IsNotEmpty({ message: '客户ID必填' })
+    @Column({ name: 'client_id', comment: '客户ID', nullable: false })
+    clientId: number
+
+    @ApiProperty({ description: '标签名称', example: 'VIP' })
+    @IsNotEmpty({ message: '标签名称必填' })
+    @Length(0, 64, { message: '标签名称长度不能超过64位' })
+    @Column({ name: 'tag_name', comment: '标签名称', nullable: false })
+    tagName: string
 }

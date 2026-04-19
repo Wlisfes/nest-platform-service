@@ -13,6 +13,21 @@ export const CHUNK_CLIENT_STATUS = {
     }
 }
 
+export const CHUNK_CLIENT_CLASS = {
+    name: '客户类型',
+    value: 'CHUNK_CLIENT_CLASS',
+    common: {
+        value: 'common',
+        name: '普通客户',
+        json: { type: 'info' }
+    },
+    cooperate: {
+        value: 'cooperate',
+        name: '推广客户',
+        json: { type: 'info' }
+    }
+}
+
 export const CHUNK_CLIENT_PAY_MODE = {
     name: '付款模式',
     value: 'CHUNK_CLIENT_PAY_MODE',
@@ -64,6 +79,41 @@ export const CHUNK_CLIENT_SOURCE = {
     manual: {
         value: 'manual',
         name: '手动创建',
+        json: { type: 'success' }
+    }
+}
+
+export const CHUNK_CLIENT_STAGE = {
+    name: '阶段',
+    value: 'CHUNK_CLIENT_STAGE',
+    cluetrail: {
+        value: 'cluetrail',
+        name: '线索阶段',
+        json: { type: 'info' }
+    },
+    intention: {
+        value: 'intention',
+        name: '意向阶段',
+        json: { type: 'info' }
+    },
+    testing: {
+        value: 'testing',
+        name: '测试阶段',
+        json: { type: 'warning' }
+    },
+    charge: {
+        value: 'charge',
+        name: '充值阶段',
+        json: { type: 'success' }
+    },
+    production: {
+        value: 'production',
+        name: '生产阶段',
+        json: { type: 'success' }
+    },
+    cooperate: {
+        value: 'cooperate',
+        name: '价值阶段',
         json: { type: 'success' }
     }
 }
