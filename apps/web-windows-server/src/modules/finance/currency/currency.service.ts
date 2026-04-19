@@ -6,7 +6,7 @@ import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
-export class CurrencyService extends Logger {
+export class FinanceCurrencyService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }

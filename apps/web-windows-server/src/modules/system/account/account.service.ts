@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { isEmpty, isNotEmpty } from 'class-validator'
-import { faker, pick } from '@/utils'
+import { faker, pick, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as schema from '@/modules/database/schema'
 import * as enums from '@/modules/database/enums'
@@ -36,7 +36,9 @@ export class AccountService extends Logger {
                 comment: `添加新账号`,
                 stack: this.stack,
                 request,
-                body: pick(body, ['name', 'number', 'phone', 'email', 'password', 'avatar', 'status']) as Omix
+                body: fetchCloneByte(pick(body, ['name', 'number', 'phone', 'email', 'password', 'avatar', 'status']), {
+                    createBy: request.user.uid
+                })
             })
             await this.database.insert(ctx.WindowsDeptAccount, {
                 comment: '关联部门',
@@ -237,7 +239,9 @@ export class AccountService extends Logger {
                 request,
                 stack: this.stack,
                 where: { uid: body.uid },
-                body: pick(body, ['name', 'phone', 'email', 'avatar', 'status'])
+                body: fetchCloneByte(pick(body, ['name', 'phone', 'email', 'avatar', 'status']), {
+                    modifyBy: request.user.uid
+                })
             })
             /**更新关联部门**/
             await this.database.delete(ctx.WindowsDeptAccount, {

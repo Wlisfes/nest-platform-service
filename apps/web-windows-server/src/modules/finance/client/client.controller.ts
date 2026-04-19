@@ -1,12 +1,12 @@
 import { Post, Body, Request } from '@nestjs/common'
-import { ClientService } from '@web-windows-server/modules/finance/client/client.service'
+import { FinanceClientService } from '@web-windows-server/modules/finance/client/client.service'
 import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @ApifoxController('C端客户管理', 'finance/client')
-export class ClientController {
-    constructor(private readonly clientService: ClientService) {}
+export class FinanceClientController {
+    constructor(private readonly financeClientService: FinanceClientService) {}
 
     @ApiServiceDecorator(Post('create'), {
         windows: true,
@@ -14,7 +14,7 @@ export class ClientController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseFinanceCreateClient(@Request() request: OmixRequest, @Body() body: windows.CreateClientOptions) {
-        return await this.clientService.httpBaseFinanceCreateClient(request, body)
+        return await this.financeClientService.httpBaseFinanceCreateClient(request, body)
     }
 
     @ApiServiceDecorator(Post('update'), {
@@ -23,7 +23,7 @@ export class ClientController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseFinanceUpdateClient(@Request() request: OmixRequest, @Body() body: windows.UpdateClientOptions) {
-        return await this.clientService.httpBaseFinanceUpdateClient(request, body)
+        return await this.financeClientService.httpBaseFinanceUpdateClient(request, body)
     }
 
     @ApiServiceDecorator(Post('column'), {
@@ -32,7 +32,7 @@ export class ClientController {
         response: { status: 200, description: 'OK', type: windows.ColumnClientOptionsResponse }
     })
     public async httpBaseFinanceColumnClient(@Request() request: OmixRequest, @Body() body: windows.ColumnClientOptions) {
-        return await this.clientService.httpBaseFinanceColumnClient(request, body)
+        return await this.financeClientService.httpBaseFinanceColumnClient(request, body)
     }
 
     @ApiServiceDecorator(Post('update/status'), {
@@ -41,6 +41,6 @@ export class ClientController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseFinanceUpdateClientStatus(@Request() request: OmixRequest, @Body() body: windows.UpdateClientStatusOptions) {
-        return await this.clientService.httpBaseFinanceUpdateClientStatus(request, body)
+        return await this.financeClientService.httpBaseFinanceUpdateClientStatus(request, body)
     }
 }

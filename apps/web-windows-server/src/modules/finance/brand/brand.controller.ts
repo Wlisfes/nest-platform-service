@@ -1,12 +1,12 @@
 import { Post, Body, Request } from '@nestjs/common'
-import { BrandService } from '@web-windows-server/modules/finance/brand/brand.service'
+import { FinanceBrandService } from '@web-windows-server/modules/finance/brand/brand.service'
 import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @ApifoxController('品牌管理', 'finance/brand')
-export class BrandController {
-    constructor(private readonly brandService: BrandService) {}
+export class FinanceBrandController {
+    constructor(private readonly financeBrandService: FinanceBrandService) {}
 
     @ApiServiceDecorator(Post('create'), {
         windows: true,
@@ -14,7 +14,7 @@ export class BrandController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseFinanceCreateBrand(@Request() request: OmixRequest, @Body() body: windows.CreateBrandOptions) {
-        return await this.brandService.httpBaseFinanceCreateBrand(request, body)
+        return await this.financeBrandService.httpBaseFinanceCreateBrand(request, body)
     }
 
     @ApiServiceDecorator(Post('update'), {
@@ -23,7 +23,7 @@ export class BrandController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseFinanceUpdateBrand(@Request() request: OmixRequest, @Body() body: windows.UpdateBrandOptions) {
-        return await this.brandService.httpBaseFinanceUpdateBrand(request, body)
+        return await this.financeBrandService.httpBaseFinanceUpdateBrand(request, body)
     }
 
     @ApiServiceDecorator(Post('column'), {
@@ -32,7 +32,7 @@ export class BrandController {
         response: { status: 200, description: 'OK', type: windows.ColumnBrandOptionsResponse }
     })
     public async httpBaseFinanceColumnBrand(@Request() request: OmixRequest, @Body() body: windows.ColumnBrandOptions) {
-        return await this.brandService.httpBaseFinanceColumnBrand(request, body)
+        return await this.financeBrandService.httpBaseFinanceColumnBrand(request, body)
     }
 
     @ApiServiceDecorator(Post('update/status'), {
@@ -41,7 +41,7 @@ export class BrandController {
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
     public async httpBaseFinanceUpdateBrandStatus(@Request() request: OmixRequest, @Body() body: windows.UpdateBrandStatusOptions) {
-        return await this.brandService.httpBaseFinanceUpdateBrandStatus(request, body)
+        return await this.financeBrandService.httpBaseFinanceUpdateBrandStatus(request, body)
     }
 
     @ApiServiceDecorator(Post('select'), {
@@ -50,6 +50,6 @@ export class BrandController {
         response: { status: 200, description: 'OK', type: windows.SelectBrandOptionsResponse }
     })
     public async httpBaseFinanceSelectBrand(@Request() request: OmixRequest) {
-        return await this.brandService.httpBaseFinanceSelectBrand(request)
+        return await this.financeBrandService.httpBaseFinanceSelectBrand(request)
     }
 }

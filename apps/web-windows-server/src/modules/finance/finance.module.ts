@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common'
-import { BrandService } from '@web-windows-server/modules/finance/brand/brand.service'
-import { BrandController } from '@web-windows-server/modules/finance/brand/brand.controller'
-import { CurrencyService } from '@web-windows-server/modules/finance/currency/currency.service'
-import { CurrencyController } from '@web-windows-server/modules/finance/currency/currency.controller'
-import { ClientService } from '@web-windows-server/modules/finance/client/client.service'
-import { ClientController } from '@web-windows-server/modules/finance/client/client.controller'
+import { FinanceBrandService } from '@web-windows-server/modules/finance/brand/brand.service'
+import { FinanceBrandController } from '@web-windows-server/modules/finance/brand/brand.controller'
+import { FinanceCurrencyService } from '@web-windows-server/modules/finance/currency/currency.service'
+import { FinanceCurrencyController } from '@web-windows-server/modules/finance/currency/currency.controller'
+import { FinanceClientService } from '@web-windows-server/modules/finance/client/client.service'
+import { FinanceClientController } from '@web-windows-server/modules/finance/client/client.controller'
 
 @Module({
-    providers: [BrandService, CurrencyService, ClientService],
-    controllers: [BrandController, CurrencyController, ClientController],
-    exports: [BrandService, CurrencyService, ClientService]
+    providers: [FinanceBrandService, FinanceCurrencyService, FinanceClientService],
+    controllers: [FinanceBrandController, FinanceCurrencyController, FinanceClientController],
+    exports: [FinanceBrandService, FinanceCurrencyService, FinanceClientService]
 })
 export class FinanceModule {}

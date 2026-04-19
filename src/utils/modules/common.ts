@@ -28,6 +28,11 @@ export function fetchGlobalEnv<T>(): Omix<T> {
     }).parsed ?? {}) as Omix<T>
 }
 
+/**深度克隆组合**/
+export function fetchCloneByte<T extends Omix, M extends Omix = {}>(data: T, mergeData: M = {} as M): T & M {
+    return Object.assign(cloneDeep(data), mergeData)
+}
+
 /**
  * 生成纯数字的雪花ID、随机字符串
  * @param options 配置项

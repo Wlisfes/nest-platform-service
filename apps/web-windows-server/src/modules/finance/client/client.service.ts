@@ -9,7 +9,7 @@ import * as windows from '@web-windows-server/interface'
 const AMOUNT_SCALE = 1_000_000
 
 @Injectable()
-export class ClientService extends Logger {
+export class FinanceClientService extends Logger {
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }

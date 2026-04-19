@@ -3,11 +3,11 @@ import { hashSync } from 'bcryptjs'
 import { ApiProperty } from '@nestjs/swagger'
 import { snowflakeId } from 'snowflake-id-maker'
 import { IsNotEmpty, Length, IsEmail, IsEnum, IsMobilePhone } from 'class-validator'
-import { DataBaseAdapter, withComment } from '@/modules/database/database.adapter'
+import { DataBaseByAdapter, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_account', comment: '管理端-账号表' })
-export class WindowsAccount extends DataBaseAdapter {
+export class WindowsAccount extends DataBaseByAdapter {
     @ApiProperty({ description: 'UID', example: '2149446185344106496' })
     @IsNotEmpty({ message: 'UID必填' })
     @Column({ comment: '唯一UUID', update: false, length: 19, nullable: false })
