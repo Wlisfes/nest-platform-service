@@ -92,6 +92,7 @@ export class AccountService extends Logger {
                         depts: body.depts
                     })
                 }
+                qb.orderBy('t.createTime', 'DESC')
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
