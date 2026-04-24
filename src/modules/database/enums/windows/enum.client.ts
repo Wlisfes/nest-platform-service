@@ -96,6 +96,11 @@ export const CHUNK_CLIENT_STAGE = {
         name: '意向阶段',
         json: { type: 'info' }
     },
+    authenticate: {
+        value: 'authenticate',
+        name: '认证阶段',
+        json: { type: 'info' }
+    },
     testing: {
         value: 'testing',
         name: '测试阶段',
