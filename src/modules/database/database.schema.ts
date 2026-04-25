@@ -4,7 +4,14 @@ import { Repository } from 'typeorm'
 import * as schema from '@/modules/database/schema'
 
 @Injectable()
-export class ClientService {}
+export class SmsWindowsService {
+    constructor(
+        @InjectRepository(schema.TbSmsApp) readonly tbSmsAppOptions: Repository<schema.TbSmsApp>,
+        @InjectRepository(schema.TbSmsAppQuotation) readonly tbSmsQuotationOptions: Repository<schema.TbSmsAppQuotation>,
+        @InjectRepository(schema.TbSmsAppTasks) readonly tbSmsTasksOptions: Repository<schema.TbSmsAppTasks>,
+        @InjectRepository(schema.TbSmsAppRecord) readonly tbSmsRecordOptions: Repository<schema.TbSmsAppRecord>
+    ) {}
+}
 
 @Injectable()
 export class WindowsService {
@@ -23,6 +30,8 @@ export class WindowsService {
         @InjectRepository(schema.WindowsRank) readonly rankOptions: Repository<schema.WindowsRank>,
         @InjectRepository(schema.WindowsRankAccount) readonly rankAccountOptions: Repository<schema.WindowsRankAccount>,
         @InjectRepository(schema.WindowsClient) readonly clientOptions: Repository<schema.WindowsClient>,
+        @InjectRepository(schema.WindowsClientSettings) readonly clientSettingsOptions: Repository<schema.WindowsClientSettings>,
+        @InjectRepository(schema.WindowsClientShare) readonly clientShareOptions: Repository<schema.WindowsClientShare>,
         @InjectRepository(schema.WindowsClientTags) readonly clientTagsOptions: Repository<schema.WindowsClientTags>,
         @InjectRepository(schema.WindowsBrand) readonly brandOptions: Repository<schema.WindowsBrand>,
         @InjectRepository(schema.WindowsCurrency) readonly currencyOptions: Repository<schema.WindowsCurrency>

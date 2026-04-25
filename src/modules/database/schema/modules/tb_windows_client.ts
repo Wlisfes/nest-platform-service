@@ -1,6 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsMobile } from '@/decorator'
+import { Type } from 'class-transformer'
 import { IsNotEmpty, Length, IsEmail, IsEnum, IsOptional } from 'class-validator'
 import { DataBaseAdapter, DataBaseByAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
@@ -137,50 +138,46 @@ export class WindowsClientShare extends DataBaseByAdapter {
     userId: string
 }
 
-@Entity({ name: 'tb_windows_client_sms_app', comment: '管理端-C端客户短信应用表' })
-export class WindowsClientSmsApp extends DataBaseByAdapter {
+@Entity({ name: 'tb_windows_client_settings', comment: '管理端-C端客户配置表' })
+export class WindowsClientSettings extends DataBaseByAdapter {
     @ApiProperty({ description: '客户ID', example: 1000 })
     @IsNotEmpty({ message: '客户ID必填' })
     @Column({ name: 'client_id', comment: '客户ID', nullable: false })
     clientId: number
 
-    @ApiProperty({ description: '应用ID', example: '09SYfmEt' })
-    @IsNotEmpty({ message: '应用ID必填' })
-    @Column({ name: 'app_id', comment: '应用ID', nullable: false })
-    appId: string
+    @ApiProperty({ description: '短信是否激活', example: false })
+    @IsNotEmpty({ message: '短信是否激活必填' })
+    @Type(() => Boolean)
+    @Column({ name: 'sms_active', comment: '短信是否激活', nullable: false })
+    smsActive: boolean
 
-    @ApiProperty({ description: '应用别名', example: 'LYNSK1233001OTP' })
-    @IsNotEmpty({ message: '应用别名必填' })
-    @Column({ name: 'app_alias', comment: '应用别名', nullable: false })
-    appAlias: string
+    @ApiProperty({ description: '短信应用最大数', example: 1 })
+    @IsNotEmpty({ message: '短信应用最大数必填' })
+    @Type(() => Number)
+    @Column({ name: 'sms_max', comment: '短信应用最大数', nullable: false })
+    smsMax: number
 
-    @ApiProperty({
-        description: withComment('状态', enums.CHUNK_CLIENT_SMS_STATUS),
-        example: enums.CHUNK_CLIENT_SMS_STATUS.inactive.value
-    })
-    @IsNotEmpty({ message: '状态必填' })
-    @IsEnum(withKeys(enums.CHUNK_CLIENT_SMS_STATUS), { message: '状态格式错误' })
-    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_CLIENT_SMS_STATUS) })
-    status: string
+    @ApiProperty({ description: '邮件是否激活', example: false })
+    @IsNotEmpty({ message: '邮件是否激活必填' })
+    @Type(() => Boolean)
+    @Column({ name: 'main_active', comment: '邮件是否激活', nullable: false })
+    mailActive: boolean
 
-    @ApiProperty({
-        description: withComment('类型', enums.CHUNK_CLIENT_SMS_TYPE),
-        example: enums.CHUNK_CLIENT_SMS_TYPE.otp.value
-    })
-    @IsNotEmpty({ message: '类型必填' })
-    @IsEnum(withKeys(enums.CHUNK_CLIENT_SMS_TYPE), { message: '类型格式错误' })
-    @Column({ nullable: false, comment: withComment('类型', enums.CHUNK_CLIENT_SMS_TYPE) })
-    type: string
+    @ApiProperty({ description: '邮件应用最大数', example: 1 })
+    @IsNotEmpty({ message: '邮件应用最大数必填' })
+    @Type(() => Number)
+    @Column({ name: 'main_max', comment: '邮件应用最大数', nullable: false })
+    mailMax: number
 
-    @ApiProperty({ required: false, description: '报告推送地址' })
-    @IsOptional()
-    @Length(0, 1024, { message: '报告推送地址长度不能超过1024位' })
-    @Column({ name: 'push_url', comment: '报告推送地址', length: 1024, nullable: true })
-    pushUrl: string
+    @ApiProperty({ description: '社媒是否激活', example: false })
+    @IsNotEmpty({ message: '社媒是否激活必填' })
+    @Type(() => Boolean)
+    @Column({ name: 'meta_active', comment: '社媒是否激活', nullable: false })
+    metaActive: boolean
 
-    @ApiProperty({ required: false, description: '备注' })
-    @IsOptional()
-    @Length(0, 1024, { message: '备注长度不能超过1024位' })
-    @Column({ comment: '备注', length: 1024, nullable: true })
-    remark: string
+    @ApiProperty({ description: '社媒应用最大数', example: 1 })
+    @IsNotEmpty({ message: '社媒应用最大数必填' })
+    @Type(() => Number)
+    @Column({ name: 'meta_max', comment: '社媒应用最大数', nullable: false })
+    metaMax: number
 }

@@ -11,3 +11,8 @@ export * from '@/modules/database/schema/modules/tb_windows_rank'
 export * from '@/modules/database/schema/modules/tb_windows_client'
 export * from '@/modules/database/schema/modules/tb_windows_brand'
 export * from '@/modules/database/schema/modules/tb_windows_currency'
+/**短信服务表**/
+export * from '@/modules/database/schema/sms/tb_sms_app'
+export * from '@/modules/database/schema/sms/tb_sms_app_quotation'
+export * from '@/modules/database/schema/sms/tb_sms_app_tasks'
+export * from '@/modules/database/schema/sms/tb_sms_app_record'
