@@ -122,3 +122,43 @@ export const CHUNK_CLIENT_STAGE = {
         json: { type: 'success' }
     }
 }
+
+export const CHUNK_CLIENT_SMS_STATUS = {
+    name: '短信应用状态',
+    value: 'CHUNK_CLIENT_SMS_STATUS',
+    inactive: {
+        value: 'inactive',
+        name: '未激活',
+        json: { type: 'default' }
+    },
+    active: {
+        value: 'active',
+        name: '已激活',
+        json: { type: 'success' }
+    },
+    disable: {
+        value: 'disable',
+        name: '禁用',
+        json: { type: 'error' }
+    }
+}
+
+export const CHUNK_CLIENT_SMS_TYPE = {
+    name: '短信应用类型',
+    value: 'CHUNK_CLIENT_SMS_TYPE',
+    otp: {
+        value: 'otp',
+        name: '验证码',
+        json: { type: 'info' }
+    },
+    market: {
+        value: 'market',
+        name: '营销',
+        json: { type: 'warning' }
+    },
+    notify: {
+        value: 'notify',
+        name: '通知',
+        json: { type: 'success' }
+    }
+}

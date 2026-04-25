@@ -123,3 +123,64 @@ export class WindowsClientTags extends DataBaseByAdapter {
     @Column({ name: 'tag_name', comment: '标签名称', nullable: false })
     tagName: string
 }
+
+@Entity({ name: 'tb_windows_client_share', comment: '管理端-C端客户共享表' })
+export class WindowsClientShare extends DataBaseByAdapter {
+    @ApiProperty({ description: '客户ID', example: 1000 })
+    @IsNotEmpty({ message: '客户ID必填' })
+    @Column({ name: 'client_id', comment: '客户ID', nullable: false })
+    clientId: number
+
+    @ApiProperty({ description: '共享人ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: '共享人ID必填' })
+    @Column({ comment: '共享人ID', length: 19, nullable: false })
+    userId: string
+}
+
+@Entity({ name: 'tb_windows_client_sms_app', comment: '管理端-C端客户短信应用表' })
+export class WindowsClientSmsApp extends DataBaseByAdapter {
+    @ApiProperty({ description: '客户ID', example: 1000 })
+    @IsNotEmpty({ message: '客户ID必填' })
+    @Column({ name: 'client_id', comment: '客户ID', nullable: false })
+    clientId: number
+
+    @ApiProperty({ description: '应用ID', example: '09SYfmEt' })
+    @IsNotEmpty({ message: '应用ID必填' })
+    @Column({ name: 'app_id', comment: '应用ID', nullable: false })
+    appId: string
+
+    @ApiProperty({ description: '应用别名', example: 'LYNSK1233001OTP' })
+    @IsNotEmpty({ message: '应用别名必填' })
+    @Column({ name: 'app_alias', comment: '应用别名', nullable: false })
+    appAlias: string
+
+    @ApiProperty({
+        description: withComment('状态', enums.CHUNK_CLIENT_SMS_STATUS),
+        example: enums.CHUNK_CLIENT_SMS_STATUS.inactive.value
+    })
+    @IsNotEmpty({ message: '状态必填' })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_SMS_STATUS), { message: '状态格式错误' })
+    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_CLIENT_SMS_STATUS) })
+    status: string
+
+    @ApiProperty({
+        description: withComment('类型', enums.CHUNK_CLIENT_SMS_TYPE),
+        example: enums.CHUNK_CLIENT_SMS_TYPE.otp.value
+    })
+    @IsNotEmpty({ message: '类型必填' })
+    @IsEnum(withKeys(enums.CHUNK_CLIENT_SMS_TYPE), { message: '类型格式错误' })
+    @Column({ nullable: false, comment: withComment('类型', enums.CHUNK_CLIENT_SMS_TYPE) })
+    type: string
+
+    @ApiProperty({ required: false, description: '报告推送地址' })
+    @IsOptional()
+    @Length(0, 1024, { message: '报告推送地址长度不能超过1024位' })
+    @Column({ name: 'push_url', comment: '报告推送地址', length: 1024, nullable: true })
+    pushUrl: string
+
+    @ApiProperty({ required: false, description: '备注' })
+    @IsOptional()
+    @Length(0, 1024, { message: '备注长度不能超过1024位' })
+    @Column({ comment: '备注', length: 1024, nullable: true })
+    remark: string
+}

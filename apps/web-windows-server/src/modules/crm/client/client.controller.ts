@@ -19,4 +19,13 @@ export class CrmClientController {
     ) {
         return await this.crmClientService.httpBaseCrmClientCommonConsumer(request, body)
     }
+
+    @ApiServiceDecorator(Post('/resolver'), {
+        windows: true,
+        operation: { summary: '客户详情' },
+        response: { status: 200, description: 'OK', type: windows.BaseCrmClientResolverOptionsResponse }
+    })
+    public async httpBaseCrmClientResolver(@Request() request: OmixRequest, @Body() body: windows.BaseCrmClientResolverOptions) {
+        return await this.crmClientService.httpBaseCrmClientResolver(request, body)
+    }
 }

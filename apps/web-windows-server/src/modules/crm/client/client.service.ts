@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DeployDeptUtilsService } from '@web-windows-server/modules/deploy/dept/dept.utils.service'
 import { FinanceBrandUtilsService } from '@web-windows-server/modules/finance/brand/brand.utils.service'
@@ -70,6 +70,43 @@ export class CrmClientService extends Logger {
                         item.depts = depts.filter((e: Omix) => e.uid === item.userId)
                     })
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**客户详情**/
+    @AutoDescriptor
+    public async httpBaseCrmClientResolver(request: OmixRequest, body: windows.BaseCrmClientResolverOptions) {
+        try {
+            return await this.database.builder(this.windows.clientOptions, async qb => {
+                qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
+                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
+                return await qb.getOne().then(async node => {
+                    if (!node) {
+                        throw new HttpException(`keyId:${body.keyId} 不存在`, HttpStatus.BAD_REQUEST)
+                    }
+                    const [depts, accounts, brands] = await Promise.all([
+                        this.deptUtilsService.fetchUtilsUidByColumnDepartment(request, {
+                            uids: [node.userId]
+                        }),
+                        this.accountUtilsService.fetchUtilsUidByColumnAccount(request, {
+                            uids: [node.userId],
+                            fields: ['uid', 'name', 'number', 'status', 'avatar']
+                        }),
+                        this.brandUtilsService.fetchUtilsUidByColumnBrand(request, {
+                            keyIds: [node.brandId],
+                            fields: ['name', 'document', 'status']
+                        })
+                    ])
+                    const item: Omix = node
+                    item.user = accounts.find(e => e.uid === node.userId)
+                    item.brand = brands.find(e => e.keyId === node.brandId)
+                    item.depts = depts.filter((e: Omix) => e.uid === node.userId)
+                    return await this.fetchResolver(item)
                 })
             })
         } catch (err) {

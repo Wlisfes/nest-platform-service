@@ -96,6 +96,18 @@ export const COMMON_CHUNK = {
         name: enums.CHUNK_CLIENT_STAGE.name,
         value: enums.CHUNK_CLIENT_STAGE.value,
         columns: withExtract(enums.CHUNK_CLIENT_STAGE)
+    },
+    /**短信应用状态**/
+    [enums.CHUNK_CLIENT_SMS_STATUS.value]: {
+        name: enums.CHUNK_CLIENT_SMS_STATUS.name,
+        value: enums.CHUNK_CLIENT_SMS_STATUS.value,
+        columns: withExtract(enums.CHUNK_CLIENT_SMS_STATUS)
+    },
+    /**短信应用类型**/
+    [enums.CHUNK_CLIENT_SMS_TYPE.value]: {
+        name: enums.CHUNK_CLIENT_SMS_TYPE.name,
+        value: enums.CHUNK_CLIENT_SMS_TYPE.value,
+        columns: withExtract(enums.CHUNK_CLIENT_SMS_TYPE)
     }
 }
 
