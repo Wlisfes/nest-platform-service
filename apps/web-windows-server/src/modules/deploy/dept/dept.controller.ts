@@ -71,12 +71,4 @@ export class DeployDeptController {
         return await this.deployDeptService.httpBaseSystemDeleteDepartment(request, body)
     }
 
-    @ApiServiceDecorator(Post('member/update'), {
-        windows: true,
-        operation: { summary: '设置部门成员角色' },
-        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
-    })
-    public async httpBaseSystemUpdateDeptMember(@Request() request: OmixRequest, @Body() body: windows.UpdateDeptMemberOptions) {
-        return await this.deployDeptService.httpBaseSystemUpdateDeptMember(request, body)
-    }
 }

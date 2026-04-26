@@ -69,11 +69,12 @@ export class DeployDeptService extends Logger {
                 message: 'pid:不存在',
                 dispatch: { where: { keyId: body.pid } }
             })
+            const { adminUid, subAdminUids, ...deptBody } = body
             await this.database.update(ctx.manager.getRepository(schema.WindowsDept), {
                 request,
                 stack: this.stack,
                 where: { keyId: body.keyId },
-                body: Object.assign(body, {
+                body: Object.assign(deptBody, {
                     modifyBy: request.user.uid
                 })
             })
@@ -101,6 +102,30 @@ export class DeployDeptService extends Logger {
                     }
                 })
             })
+            /**批量更新部门成员角色（管理员、子管理员）**/
+            if (adminUid !== undefined || subAdminUids !== undefined) {
+                const deptAccountRepo = ctx.manager.getRepository(schema.WindowsDeptAccount)
+                const members = await this.database.builder(this.windows.deptAccountOptions, async qb => {
+                    qb.where(`t.deptId = :deptId`, { deptId: body.keyId })
+                    return await qb.getMany()
+                })
+                for (const member of members) {
+                    let targetChunk = enums.CHUNK_DEPT_MEMBER.member.value
+                    if (adminUid && member.uid === adminUid) {
+                        targetChunk = enums.CHUNK_DEPT_MEMBER.admin.value
+                    } else if (subAdminUids?.includes(member.uid)) {
+                        targetChunk = enums.CHUNK_DEPT_MEMBER.sub_admin.value
+                    }
+                    if (member.chunk !== targetChunk) {
+                        await this.database.update(deptAccountRepo, {
+                            request,
+                            stack: this.stack,
+                            where: { keyId: member.keyId },
+                            body: { chunk: targetChunk }
+                        })
+                    }
+                }
+            }
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
             })
@@ -270,54 +295,4 @@ export class DeployDeptService extends Logger {
         }
     }
 
-    /**设置部门成员角色**/
-    @AutoDescriptor
-    public async httpBaseSystemUpdateDeptMember(request: OmixRequest, body: windows.UpdateDeptMemberOptions) {
-        const ctx = await this.database.transaction()
-        try {
-            /**验证部门存在**/
-            await this.database.empty(this.windows.deptOptions, {
-                request,
-                message: 'deptId:部门不存在',
-                dispatch: { where: { keyId: body.deptId } }
-            })
-            /**验证关联记录存在**/
-            const record = await this.database.empty(this.windows.deptAccountOptions, {
-                request,
-                message: '该账号不在此部门中',
-                dispatch: { where: { deptId: body.deptId, uid: body.uid } }
-            })
-            /**如果设置为管理员，先将该部门已有管理员降为普通成员**/
-            if (body.chunk === enums.CHUNK_DEPT_MEMBER.admin.value) {
-                const currentAdmin = await this.database.builder(this.windows.deptAccountOptions, async qb => {
-                    qb.where(`t.deptId = :deptId`, { deptId: body.deptId })
-                    qb.andWhere(`t.chunk = :chunk`, { chunk: enums.CHUNK_DEPT_MEMBER.admin.value })
-                    return await qb.getOne()
-                })
-                if (isNotEmpty(currentAdmin)) {
-                    await this.database.update(ctx.manager.getRepository(schema.WindowsDeptAccount), {
-                        request,
-                        stack: this.stack,
-                        where: { keyId: currentAdmin.keyId },
-                        body: { chunk: enums.CHUNK_DEPT_MEMBER.member.value }
-                    })
-                }
-            }
-            /**更新成员角色**/
-            await this.database.update(ctx.manager.getRepository(schema.WindowsDeptAccount), {
-                request,
-                stack: this.stack,
-                where: { keyId: record.keyId },
-                body: { chunk: body.chunk }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
-        } catch (err) {
-            this.logger.error(err)
-            throw new HttpException(err.message, err.status, err.options)
-        } finally {
-            await ctx.release()
-        }
-    }
 }

@@ -1,4 +1,5 @@
-import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
+import { IsOptional, IsString, IsArray } from 'class-validator'
 import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
@@ -23,7 +24,18 @@ export class CreateDeptOptions extends IntersectionType(
 export class UpdateDeptOptions extends IntersectionType(
     PickType(schema.WindowsDept, ['keyId', 'name']),
     PartialType(PickType(schema.WindowsDept, ['alias', 'pid']))
-) {}
+) {
+    @ApiPropertyOptional({ description: '管理员UID' })
+    @IsOptional()
+    @IsString()
+    adminUid?: string
+
+    @ApiPropertyOptional({ description: '子管理员UID列表', type: [String] })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    subAdminUids?: string[]
+}
 
 /**分页列表查询**/
 export class ColumnDeptOptions extends IntersectionType(
@@ -40,5 +52,3 @@ export class ColumnDeptOptionsResponse extends OmixColumnResponse {
 /**删除部门**/
 export class DeleteDeptOptions extends PickType(schema.WindowsDept, ['keyId']) {}
 
-/**设置部门成员角色**/
-export class UpdateDeptMemberOptions extends IntersectionType(PickType(schema.WindowsDeptAccount, ['deptId', 'uid', 'chunk'])) {}
