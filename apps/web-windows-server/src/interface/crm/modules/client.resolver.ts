@@ -2,6 +2,21 @@ import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/sw
 import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
+/**销售管理-我的客户-新增客户**/
+export class BaseCrmClientCommonCreateOptions extends PickType(schema.WindowsClient, [
+    'name',
+    'alias',
+    'brandId',
+    'currency',
+    'email',
+    'phone',
+    'status',
+    'payMode',
+    'authStatus',
+    'source',
+    'remark'
+]) {}
+
 /**销售管理-我的客户-分页列表查询**/
 export class BaseCrmClientCommonConsumerOptions extends IntersectionType(
     PickType(OmixColumnOptions, ['page', 'size']),

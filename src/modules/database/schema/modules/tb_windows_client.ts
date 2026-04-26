@@ -148,36 +148,36 @@ export class WindowsClientSettings extends DataBaseByAdapter {
     @ApiProperty({ description: '短信是否激活', example: false })
     @IsNotEmpty({ message: '短信是否激活必填' })
     @Type(() => Boolean)
-    @Column({ name: 'sms_active', comment: '短信是否激活', nullable: false })
+    @Column({ name: 'sms_active', comment: '短信是否激活', default: false, nullable: false })
     smsActive: boolean
 
     @ApiProperty({ description: '短信应用最大数', example: 1 })
     @IsNotEmpty({ message: '短信应用最大数必填' })
     @Type(() => Number)
-    @Column({ name: 'sms_max', comment: '短信应用最大数', nullable: false })
+    @Column({ name: 'sms_max', comment: '短信应用最大数', default: 1, nullable: false })
     smsMax: number
 
     @ApiProperty({ description: '邮件是否激活', example: false })
     @IsNotEmpty({ message: '邮件是否激活必填' })
     @Type(() => Boolean)
-    @Column({ name: 'main_active', comment: '邮件是否激活', nullable: false })
+    @Column({ name: 'main_active', comment: '邮件是否激活', default: false, nullable: false })
     mailActive: boolean
 
     @ApiProperty({ description: '邮件应用最大数', example: 1 })
     @IsNotEmpty({ message: '邮件应用最大数必填' })
     @Type(() => Number)
-    @Column({ name: 'main_max', comment: '邮件应用最大数', nullable: false })
+    @Column({ name: 'main_max', comment: '邮件应用最大数', default: 1, nullable: false })
     mailMax: number
 
     @ApiProperty({ description: '社媒是否激活', example: false })
     @IsNotEmpty({ message: '社媒是否激活必填' })
     @Type(() => Boolean)
-    @Column({ name: 'meta_active', comment: '社媒是否激活', nullable: false })
+    @Column({ name: 'meta_active', comment: '社媒是否激活', default: false, nullable: false })
     metaActive: boolean
 
     @ApiProperty({ description: '社媒应用最大数', example: 1 })
     @IsNotEmpty({ message: '社媒应用最大数必填' })
     @Type(() => Number)
-    @Column({ name: 'meta_max', comment: '社媒应用最大数', nullable: false })
+    @Column({ name: 'meta_max', comment: '社媒应用最大数', default: 1, nullable: false })
     metaMax: number
 }

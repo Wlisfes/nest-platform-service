@@ -20,6 +20,45 @@ export class CrmClientService extends Logger {
         super()
     }
 
+    /**新增客户**/
+    @AutoDescriptor
+    public async httpBaseCrmClientCommonCreate(request: OmixRequest, body: windows.BaseCrmClientCommonCreateOptions) {
+        const ctx = await this.database.transaction()
+        try {
+            const node = await this.database.create(ctx.manager.getRepository(schema.WindowsClient), {
+                request,
+                stack: this.stack,
+                body: {
+                    userId: request.user.uid,
+                    name: body.name,
+                    alias: body.alias,
+                    brandId: body.brandId,
+                    currency: body.currency,
+                    email: body.email,
+                    phone: body.phone,
+                    status: body.status ?? enums.CHUNK_CLIENT_STATUS.enable.value,
+                    payMode: body.payMode,
+                    authStatus: body.authStatus ?? enums.CHUNK_CLIENT_AUTH_STATUS.unverified.value,
+                    source: body.source ?? enums.CHUNK_CLIENT_SOURCE.manual.value,
+                    remark: body.remark
+                }
+            })
+            await this.database.create(ctx.manager.getRepository(schema.WindowsClientSettings), {
+                request,
+                stack: this.stack,
+                body: { clientId: node.keyId }
+            })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '操作成功' })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        } finally {
+            await ctx.release()
+        }
+    }
+
     /**分页列表查询**/
     @AutoDescriptor
     public async httpBaseCrmClientCommonConsumer(request: OmixRequest, body: windows.BaseCrmClientCommonConsumerOptions) {

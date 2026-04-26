@@ -8,6 +8,15 @@ import * as windows from '@web-windows-server/interface'
 export class CrmClientController {
     constructor(private readonly crmClientService: CrmClientService) {}
 
+    @ApiServiceDecorator(Post('/common/create'), {
+        windows: true,
+        operation: { summary: '新增客户' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseCrmClientCommonCreate(@Request() request: OmixRequest, @Body() body: windows.BaseCrmClientCommonCreateOptions) {
+        return await this.crmClientService.httpBaseCrmClientCommonCreate(request, body)
+    }
+
     @ApiServiceDecorator(Post('/common/consumer'), {
         windows: true,
         operation: { summary: '客户分页列表' },
