@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
+import { CrmClientUtilsService } from '@web-windows-server/modules/crm/client/client.utils.service'
 import { DeployDeptUtilsService } from '@web-windows-server/modules/deploy/dept/dept.utils.service'
 import { FinanceBrandUtilsService } from '@web-windows-server/modules/finance/brand/brand.utils.service'
 import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
@@ -13,6 +14,7 @@ export class CrmClientService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
+        private readonly crmClientUtilsService: CrmClientUtilsService,
         private readonly deptUtilsService: DeployDeptUtilsService,
         private readonly brandUtilsService: FinanceBrandUtilsService,
         private readonly accountUtilsService: DeployAccountUtilsService
@@ -25,28 +27,44 @@ export class CrmClientService extends Logger {
     public async httpBaseCrmClientCommonCreate(request: OmixRequest, body: windows.BaseCrmClientCommonCreateOptions) {
         const ctx = await this.database.transaction()
         try {
-            const node = await this.database.create(ctx.manager.getRepository(schema.WindowsClient), {
+            await this.database.notempty(this.windows.clientOptions, {
+                request,
+                message: '邮箱已存在',
+                dispatch: { where: { email: body.email } }
+            })
+            await this.database.notempty(this.windows.clientOptions, {
+                request,
+                message: '电话号码已存在',
+                dispatch: { where: { phone: body.phone } }
+            })
+            const alias = await this.crmClientUtilsService.fetchUtilsNewClientAlias(request, {
+                userId: request.user.uid,
+                number: request.user.number,
+                brandId: body.brandId
+            })
+            const clientOptions = await this.database.create(ctx.manager.getRepository(schema.WindowsClient), {
                 request,
                 stack: this.stack,
                 body: {
                     userId: request.user.uid,
                     name: body.name,
-                    alias: body.alias,
+                    alias: alias,
                     brandId: body.brandId,
                     currency: body.currency,
                     email: body.email,
-                    phone: body.phone,
-                    status: body.status ?? enums.CHUNK_CLIENT_STATUS.enable.value,
                     payMode: body.payMode,
-                    authStatus: body.authStatus ?? enums.CHUNK_CLIENT_AUTH_STATUS.unverified.value,
-                    source: body.source ?? enums.CHUNK_CLIENT_SOURCE.manual.value,
-                    remark: body.remark
+                    remark: body.remark,
+                    status: enums.CHUNK_CLIENT_STATUS.enable.value,
+                    source: enums.CHUNK_CLIENT_SOURCE.manual.value,
+                    classType: enums.CHUNK_CLIENT_CLASS.common.value,
+                    stage: enums.CHUNK_CLIENT_STAGE.authenticate.value,
+                    authStatus: enums.CHUNK_CLIENT_AUTH_STATUS.unverified.value
                 }
             })
             await this.database.create(ctx.manager.getRepository(schema.WindowsClientSettings), {
                 request,
                 stack: this.stack,
-                body: { clientId: node.keyId }
+                body: { clientId: clientOptions.keyId }
             })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -65,6 +83,7 @@ export class CrmClientService extends Logger {
         try {
             return await this.database.builder(this.windows.clientOptions, async qb => {
                 qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
+                qb.leftJoinAndMapOne('t.settings', schema.WindowsClientSettings, 'settings', 'settings.clientId = t.keyId')
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }

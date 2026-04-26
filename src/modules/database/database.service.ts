@@ -3,7 +3,7 @@ import { Repository, DataSource, SelectQueryBuilder } from 'typeorm'
 import { isNotEmpty, isEmpty, isArray } from 'class-validator'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { fetchSelection, fetchCatchWherer } from '@/utils'
-export { SmsWindowsService, WindowsService } from '@/modules/database/database.schema'
+export { SmsService, WindowsService } from '@/modules/database/database.schema'
 import * as env from '@/modules/database/database.interface'
 import * as schema from '@/modules/database/schema'
 import * as enums from '@/modules/database/enums'
@@ -185,12 +185,12 @@ export class DataBaseService extends Logger {
             }
             if (data.transform) {
                 const { where, form } = await data.transform(node, data)
-                return await fetchCatchWherer(where, form).then(async () => {
-                    return await this.fetchResolver(node)
+                return await fetchCatchWherer(where, form).then(() => {
+                    return node
                 })
             } else {
-                return await fetchCatchWherer(isNotEmpty(node), data).then(async () => {
-                    return await this.fetchResolver(node)
+                return await fetchCatchWherer(isNotEmpty(node), data).then(() => {
+                    return node
                 })
             }
         })
@@ -215,12 +215,12 @@ export class DataBaseService extends Logger {
             }
             if (data.transform) {
                 const { where, form } = await data.transform(node, data)
-                return await fetchCatchWherer(where, form).then(async () => {
-                    return await this.fetchResolver(node)
+                return await fetchCatchWherer(where, form).then(() => {
+                    return node
                 })
             } else {
-                return await fetchCatchWherer(isEmpty(node), data).then(async () => {
-                    return await this.fetchResolver(node)
+                return await fetchCatchWherer(isEmpty(node), data).then(() => {
+                    return node
                 })
             }
         })

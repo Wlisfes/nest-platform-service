@@ -11,6 +11,16 @@ export class FinanceBrandUtilsService extends Logger {
         super()
     }
 
+    /**根据keyId查询品牌信息**/
+    @AutoDescriptor
+    public async fetchUtilsByKeyIdBrand(request: OmixRequest, body: Omix<{ keyId: number }>) {
+        return await this.database.empty(this.windows.brandOptions, {
+            request,
+            message: 'keyId:不存在',
+            dispatch: { where: { keyId: body.keyId } }
+        })
+    }
+
     /**批量查询品牌**/
     @AutoDescriptor
     public async fetchUtilsUidByColumnBrand(request: OmixRequest, body: windows.UtilsUidByColumnBrandOptions) {

@@ -19,15 +19,15 @@ export class WindowsClient extends DataBaseAdapter {
     @Column({ comment: '客户名称', length: 64, nullable: false })
     name: string
 
-    @ApiProperty({ description: '客户别名', example: 'Test Client' })
+    @ApiProperty({ description: '账号别名', example: 'Test Client' })
     @IsOptional()
-    @Length(0, 64, { message: '客户别名长度不能超过64位' })
-    @Column({ comment: '客户别名', length: 64, nullable: true })
+    @Length(0, 64, { message: '账号别名长度不能超过64位' })
+    @Column({ comment: '账号别名', length: 64, nullable: true })
     alias: string
 
     @ApiProperty({ description: '归属品牌ID', example: 1000 })
     @IsNotEmpty({ message: '归属品牌ID必填' })
-    @Column({ name: 'dept_id', comment: '归属品牌ID', nullable: false })
+    @Column({ name: 'brand_id', comment: '归属品牌ID', nullable: false })
     brandId: number
 
     @ApiProperty({ description: '币种编码', example: 'USD' })
@@ -139,7 +139,7 @@ export class WindowsClientShare extends DataBaseByAdapter {
 }
 
 @Entity({ name: 'tb_windows_client_settings', comment: '管理端-C端客户配置表' })
-export class WindowsClientSettings extends DataBaseByAdapter {
+export class WindowsClientSettings extends DataBaseAdapter {
     @ApiProperty({ description: '客户ID', example: 1000 })
     @IsNotEmpty({ message: '客户ID必填' })
     @Column({ name: 'client_id', comment: '客户ID', nullable: false })

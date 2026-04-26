@@ -4,7 +4,7 @@ import { Repository } from 'typeorm'
 import * as schema from '@/modules/database/schema'
 
 @Injectable()
-export class SmsWindowsService {
+export class SmsService {
     constructor(
         @InjectRepository(schema.TbSmsApp) readonly tbSmsAppOptions: Repository<schema.TbSmsApp>,
         @InjectRepository(schema.TbSmsAppQuotation) readonly tbSmsQuotationOptions: Repository<schema.TbSmsAppQuotation>,

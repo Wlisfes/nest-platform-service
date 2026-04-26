@@ -1,13 +1,13 @@
 import { Module, Global } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { DataBaseService, WindowsService, SmsWindowsService } from '@/modules/database/database.service'
+import { DataBaseService, WindowsService, SmsService } from '@/modules/database/database.service'
 import * as schema from '@/modules/database/schema'
 
 @Global()
 @Module({
-    providers: [DataBaseService, WindowsService, SmsWindowsService],
-    exports: [DataBaseService, WindowsService, SmsWindowsService],
+    providers: [DataBaseService, WindowsService, SmsService],
+    exports: [DataBaseService, WindowsService, SmsService],
     imports: [
         TypeOrmModule.forRootAsync({
             inject: [ConfigService],
