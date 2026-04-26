@@ -37,18 +37,12 @@ export class CrmClientService extends Logger {
                 message: '电话号码已存在',
                 dispatch: { where: { phone: body.phone } }
             })
-            const alias = await this.crmClientUtilsService.fetchUtilsNewClientAlias(request, {
-                userId: request.user.uid,
-                number: request.user.number,
-                brandId: body.brandId
-            })
             const clientOptions = await this.database.create(ctx.manager.getRepository(schema.WindowsClient), {
                 request,
                 stack: this.stack,
                 body: {
                     userId: request.user.uid,
                     name: body.name,
-                    alias: alias,
                     brandId: body.brandId,
                     currency: body.currency,
                     email: body.email,
@@ -58,7 +52,12 @@ export class CrmClientService extends Logger {
                     source: enums.CHUNK_CLIENT_SOURCE.manual.value,
                     classType: enums.CHUNK_CLIENT_CLASS.common.value,
                     stage: enums.CHUNK_CLIENT_STAGE.authenticate.value,
-                    authStatus: enums.CHUNK_CLIENT_AUTH_STATUS.unverified.value
+                    authStatus: enums.CHUNK_CLIENT_AUTH_STATUS.unverified.value,
+                    alias: await this.crmClientUtilsService.fetchUtilsNewClientAlias(request, {
+                        userId: request.user.uid,
+                        number: request.user.number,
+                        brandId: body.brandId
+                    })
                 }
             })
             await this.database.create(ctx.manager.getRepository(schema.WindowsClientSettings), {
