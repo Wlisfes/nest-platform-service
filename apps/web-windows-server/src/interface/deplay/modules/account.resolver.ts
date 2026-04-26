@@ -95,6 +95,9 @@ export class UpdateSwitchAccountOptions extends PickType(schema.WindowsAccount, 
 /**删除账号**/
 export class DeleteAccountOptions extends PickType(schema.WindowsAccount, ['uid']) {}
 
+/**重置密码**/
+export class ResetPasswordAccountOptions extends PickType(schema.WindowsAccount, ['uid']) {}
+
 /**账号下拉列表项**/
 export class SelectAccountItem {
     @ApiProperty({ description: '账号UID', example: '2149446185344106496' })

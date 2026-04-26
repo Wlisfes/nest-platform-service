@@ -62,6 +62,15 @@ export class DeployAccountController {
         return await this.accountService.httpBaseSystemDeleteAccount(request, body)
     }
 
+    @ApiServiceDecorator(Post('/reset/password'), {
+        operation: { summary: '重置密码' },
+        response: { status: 200, description: 'OK', type: OmixPayloadResponse },
+        windows: true
+    })
+    public async httpBaseSystemResetPasswordAccount(@Request() request: OmixRequest, @Body() body: windows.ResetPasswordAccountOptions) {
+        return await this.accountService.httpBaseSystemResetPasswordAccount(request, body)
+    }
+
     @ApiServiceDecorator(Post('/select'), {
         operation: { summary: '账号下拉列表' },
         response: { status: 200, description: 'OK', type: windows.SelectAccountOptionsResponse },

@@ -107,6 +107,11 @@ export class AuthService extends Logger {
                         SELECT rs.sheet_id FROM tb_windows_role_sheet rs
                         WHERE rs.role_id IN (
                             SELECT ra.role_id FROM tb_windows_role_account ra WHERE ra.uid = :uid
+                            UNION
+                            SELECT r.key_id FROM tb_windows_role r
+                            WHERE r.dept_id IN (
+                                SELECT da.dept_id FROM tb_windows_dept_account da WHERE da.uid = :uid
+                            )
                         )
                     )`,
                     { uid: request.user.uid }
@@ -137,6 +142,11 @@ export class AuthService extends Logger {
                         SELECT rs.sheet_id FROM tb_windows_role_sheet rs
                         WHERE rs.role_id IN (
                             SELECT ra.role_id FROM tb_windows_role_account ra WHERE ra.uid = :uid
+                            UNION
+                            SELECT r.key_id FROM tb_windows_role r
+                            WHERE r.dept_id IN (
+                                SELECT da.dept_id FROM tb_windows_dept_account da WHERE da.uid = :uid
+                            )
                         )
                     )`,
                     { uid: request.user.uid }

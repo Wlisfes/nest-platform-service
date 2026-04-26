@@ -367,6 +367,30 @@ export class DeployAccountService extends Logger {
         }
     }
 
+    /**重置密码**/
+    @AutoDescriptor
+    public async httpBaseSystemResetPasswordAccount(request: OmixRequest, body: windows.ResetPasswordAccountOptions) {
+        try {
+            await this.database.empty(this.windows.accountOptions, {
+                request,
+                message: `uid:${body.uid} 不存在`,
+                stack: this.stack,
+                dispatch: { where: { uid: body.uid } }
+            })
+            await this.database.update(this.windows.accountOptions, {
+                comment: '重置密码',
+                request,
+                stack: this.stack,
+                where: { uid: body.uid },
+                body: { password: Buffer.from('123456').toString('base64') }
+            })
+            return await this.fetchResolver({ message: '操作成功' })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
     /**账号下拉列表**/
     @AutoDescriptor
     public async httpBaseSystemSelectAccount(request: OmixRequest) {
