@@ -84,7 +84,7 @@ export class CrmClientService extends Logger {
                 qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
                 qb.leftJoinAndMapOne('t.settings', schema.WindowsClientSettings, 'settings', 'settings.clientId = t.keyId')
                 if (isNotEmpty(body.name)) {
-                    qb.andWhere(`t.name LIKE :name`, { name: `%${body.name}%` })
+                    qb.andWhere(`t.name LIKE :name OR t.keyId LIKE :name`, { name: `%${body.name}%` })
                 }
                 if (isNotEmpty(body.status)) {
                     qb.andWhere(`t.status = :status`, { status: body.status })
