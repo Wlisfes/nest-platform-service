@@ -133,7 +133,7 @@ export class DeployDeptService extends Logger {
             }
             return await ctx.commitTransaction().then(async () => {
                 /**成员角色变更后清除相关用户的数据权限缓存**/
-                this.deptScopeService.clearCache()
+                await this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {

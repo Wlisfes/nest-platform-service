@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
+import { RedisService } from '@/modules/redis/redis.service'
 import { OmixRequest } from '@/interface'
 
 /**数据权限范围结果**/
@@ -11,11 +12,8 @@ export interface DataScopeResult {
     userIds: string[]
 }
 
-/**缓存条目**/
-interface DataScopeCacheEntry {
-    result: DataScopeResult
-    expireAt: number
-}
+/**Redis缓存键前缀**/
+const CACHE_KEY_PREFIX = 'windows:dept-scope'
 
 /**权限优先级：self_whole > dept_member > self_member > self**/
 const MODEL_PRIORITY: Record<string, number> = {
@@ -25,15 +23,16 @@ const MODEL_PRIORITY: Record<string, number> = {
     [enums.CHUNK_ROLE_MODEL.self_whole.value]: 4
 }
 
-/**缓存有效期（毫秒），默认30秒**/
-const CACHE_TTL_MS = 30 * 1000
+/**缓存有效期（秒），默认30秒**/
+const CACHE_TTL_SECONDS = 30
 
 @Injectable()
 export class DeployDeptScopeService extends Logger {
-    /**用户数据权限缓存 key=uid**/
-    private readonly scopeCache = new Map<string, DataScopeCacheEntry>()
-
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly redisService: RedisService
+    ) {
         super()
     }
 
@@ -42,11 +41,19 @@ export class DeployDeptScopeService extends Logger {
      * 在角色分配、部门成员变更等操作后调用
      * @param uid 用户UID，不传则清除所有缓存
      */
-    public clearCache(uid?: string) {
+    public async clearCache(uid?: string) {
         if (uid) {
-            this.scopeCache.delete(uid)
+            await this.redisService.client.del(`${CACHE_KEY_PREFIX}:${uid}`)
         } else {
-            this.scopeCache.clear()
+            /**扫描并删除所有数据权限缓存键**/
+            let cursor = '0'
+            do {
+                const [nextCursor, keys] = await this.redisService.client.scan(cursor, 'MATCH', `${CACHE_KEY_PREFIX}:*`, 'COUNT', 100)
+                cursor = nextCursor
+                if (keys.length > 0) {
+                    await this.redisService.client.del(...keys)
+                }
+            } while (cursor !== '0')
         }
     }
 
@@ -60,18 +67,19 @@ export class DeployDeptScopeService extends Logger {
     @AutoDescriptor
     public async fetchDataScopeUserIds(request: OmixRequest): Promise<DataScopeResult> {
         const uid = request.user.uid
+        const cacheKey = `${CACHE_KEY_PREFIX}:${uid}`
 
-        /**检查缓存**/
-        const cached = this.scopeCache.get(uid)
-        if (cached && cached.expireAt > Date.now()) {
-            return cached.result
+        /**检查Redis缓存**/
+        const cached = await this.redisService.getStore<DataScopeResult>(request, { key: cacheKey })
+        if (cached) {
+            return cached
         }
 
         /**缓存未命中或已过期，重新计算**/
         const result = await this.resolveDataScope(uid)
 
-        /**写入缓存**/
-        this.scopeCache.set(uid, { result, expireAt: Date.now() + CACHE_TTL_MS })
+        /**写入Redis缓存**/
+        await this.redisService.setStore(request, { key: cacheKey, data: result, seconds: CACHE_TTL_SECONDS })
 
         return result
     }
@@ -91,7 +99,7 @@ export class DeployDeptScopeService extends Logger {
             return await qb.getMany()
         })
 
-        /**2. 查询用户在各部门中的成员角色，根据chunk推导有效数据权限**/
+        /**2. 查询用户在各部门中的成员角色**/
         const deptAccounts = await this.database.builder(this.windows.deptAccountOptions, async qb => {
             qb.where(`t.uid = :uid`, { uid })
             return await qb.getMany()
@@ -101,21 +109,21 @@ export class DeployDeptScopeService extends Logger {
         const effectiveModels: string[] = directRoles.map(r => r.model)
         const roleNames: string[] = directRoles.map(r => r.name)
 
-        /**根据部门成员角色推导有效数据权限：
-         * admin → dept_member（可看本部门及下属部门所有数据）
-         * sub_admin → self_member（可看本人及下属数据）
-         * member → self（仅本人数据）
-         **/
-        for (const da of deptAccounts) {
-            if (da.chunk === enums.CHUNK_DEPT_MEMBER.admin.value) {
-                effectiveModels.push(enums.CHUNK_ROLE_MODEL.dept_member.value)
-                roleNames.push(enums.CHUNK_DEPT_MEMBER.admin.name)
-            } else if (da.chunk === enums.CHUNK_DEPT_MEMBER.sub_admin.value) {
-                effectiveModels.push(enums.CHUNK_ROLE_MODEL.self_member.value)
-                roleNames.push(enums.CHUNK_DEPT_MEMBER.sub_admin.name)
-            } else {
-                effectiveModels.push(enums.CHUNK_ROLE_MODEL.self.value)
-                roleNames.push(enums.CHUNK_DEPT_MEMBER.member.name)
+        /**查询用户所在部门关联的部门角色，使用实际角色的name和model**/
+        if (deptAccounts.length > 0) {
+            const deptIds = deptAccounts.map(da => da.deptId)
+            const deptRoles = await this.database.builder(this.windows.roleOptions, async qb => {
+                qb.where(`t.chunk = :chunk`, { chunk: enums.CHUNK_ROLE_CHUNK.department.value })
+                qb.andWhere(`t.deptId IN (:...deptIds)`, { deptIds })
+                return await qb.getMany()
+            })
+            const deptRoleMap = new Map(deptRoles.map(r => [r.deptId, r]))
+            for (const da of deptAccounts) {
+                const deptRole = deptRoleMap.get(da.deptId)
+                if (deptRole) {
+                    roleNames.push(deptRole.name)
+                    effectiveModels.push(deptRole.model)
+                }
             }
         }
 

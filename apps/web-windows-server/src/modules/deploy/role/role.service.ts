@@ -237,7 +237,7 @@ export class DeployRoleService extends Logger {
                     .insert(newUids.map(uid => ({ roleId: body.keyId, uid, createBy: request.user.uid })))
             }
             return await ctx.commitTransaction().then(async () => {
-                this.deptScopeService.clearCache()
+                await this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
@@ -264,7 +264,7 @@ export class DeployRoleService extends Logger {
                 where: { roleId: body.keyId, uid: In(body.uids) }
             })
             return await ctx.commitTransaction().then(async () => {
-                this.deptScopeService.clearCache()
+                await this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
@@ -345,7 +345,7 @@ export class DeployRoleService extends Logger {
                 body: { model: body.model, modifyBy: request.user.uid }
             })
             return await ctx.commitTransaction().then(async () => {
-                this.deptScopeService.clearCache()
+                await this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
@@ -378,7 +378,7 @@ export class DeployRoleService extends Logger {
                 where: { keyId: body.keyId }
             })
             return await ctx.commitTransaction().then(async () => {
-                this.deptScopeService.clearCache()
+                await this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
