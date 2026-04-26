@@ -1,6 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
+import { DeployDeptScopeService } from '@web-windows-server/modules/deploy/dept/dept.scope.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { fetchTreeNodeBlock, fetchTreeFromList } from '@/utils'
 import { isNotEmpty } from 'class-validator'
@@ -14,7 +15,8 @@ export class DeployRoleService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
-        private readonly accountUtilsService: DeployAccountUtilsService
+        private readonly accountUtilsService: DeployAccountUtilsService,
+        private readonly deptScopeService: DeployDeptScopeService
     ) {
         super()
     }
@@ -235,6 +237,7 @@ export class DeployRoleService extends Logger {
                     .insert(newUids.map(uid => ({ roleId: body.keyId, uid, createBy: request.user.uid })))
             }
             return await ctx.commitTransaction().then(async () => {
+                this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
@@ -261,6 +264,7 @@ export class DeployRoleService extends Logger {
                 where: { roleId: body.keyId, uid: In(body.uids) }
             })
             return await ctx.commitTransaction().then(async () => {
+                this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
@@ -341,6 +345,7 @@ export class DeployRoleService extends Logger {
                 body: { model: body.model, modifyBy: request.user.uid }
             })
             return await ctx.commitTransaction().then(async () => {
+                this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {
@@ -373,6 +378,7 @@ export class DeployRoleService extends Logger {
                 where: { keyId: body.keyId }
             })
             return await ctx.commitTransaction().then(async () => {
+                this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {

@@ -83,17 +83,13 @@ export class CrmClientService extends Logger {
     public async httpBaseCrmClientCommonConsumer(request: OmixRequest, body: windows.BaseCrmClientCommonConsumerOptions) {
         try {
             /**解析当前用户的数据权限范围**/
-            const dataScope = await this.deptScopeService.fetchDataScopeUserIds(request)
+            const { userIds } = await this.deptScopeService.fetchDataScopeUserIds(request)
             return await this.database.builder(this.windows.clientOptions, async qb => {
                 qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
                 qb.leftJoinAndMapOne('t.settings', schema.WindowsClientSettings, 'settings', 'settings.clientId = t.keyId')
-                /**根据数据权限过滤**/
-                console.log(`dataScope:`, dataScope)
-                if (dataScope.uids !== null) {
-                    if (dataScope.uids.length === 0) {
-                        dataScope.uids = [request.user.uid]
-                    }
-                    qb.where(`t.userId IN (:...scopeUids)`, { scopeUids: dataScope.uids })
+                /**根据数据权限过滤：userIds为空数组表示全部可见，非空则按列表过滤**/
+                if (userIds.length > 0) {
+                    qb.andWhere(`t.userId IN (:...userIds)`, { userIds })
                 }
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`t.name LIKE :name OR t.keyId LIKE :name`, { name: `%${body.name}%` })

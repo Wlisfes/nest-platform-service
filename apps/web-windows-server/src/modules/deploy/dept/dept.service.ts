@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
+import { DeployDeptScopeService } from '@web-windows-server/modules/deploy/dept/dept.scope.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { fetchTreeNodeBlock, fetchHandler, isEmpty, isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
@@ -9,7 +10,11 @@ import * as windows from '@web-windows-server/interface'
 
 @Injectable()
 export class DeployDeptService extends Logger {
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly deptScopeService: DeployDeptScopeService
+    ) {
         super()
     }
 
@@ -127,6 +132,8 @@ export class DeployDeptService extends Logger {
                 }
             }
             return await ctx.commitTransaction().then(async () => {
+                /**成员角色变更后清除相关用户的数据权限缓存**/
+                this.deptScopeService.clearCache()
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {

@@ -5,8 +5,16 @@ import { OmixRequest } from '@/interface'
 
 /**数据权限范围结果**/
 export interface DataScopeResult {
-    /**可见用户UID列表，null表示全部可见**/
-    uids: string[] | null
+    /**生效的角色名称列表**/
+    roleNames: string[]
+    /**可见用户ID列表，空数组表示全部可见**/
+    userIds: string[]
+}
+
+/**缓存条目**/
+interface DataScopeCacheEntry {
+    result: DataScopeResult
+    expireAt: number
 }
 
 /**权限优先级：self_whole > dept_member > self_member > self**/
@@ -17,22 +25,61 @@ const MODEL_PRIORITY: Record<string, number> = {
     [enums.CHUNK_ROLE_MODEL.self_whole.value]: 4
 }
 
+/**缓存有效期（毫秒），默认30秒**/
+const CACHE_TTL_MS = 30 * 1000
+
 @Injectable()
 export class DeployDeptScopeService extends Logger {
+    /**用户数据权限缓存 key=uid**/
+    private readonly scopeCache = new Map<string, DataScopeCacheEntry>()
+
     constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
         super()
     }
 
     /**
+     * 清除指定用户的数据权限缓存
+     * 在角色分配、部门成员变更等操作后调用
+     * @param uid 用户UID，不传则清除所有缓存
+     */
+    public clearCache(uid?: string) {
+        if (uid) {
+            this.scopeCache.delete(uid)
+        } else {
+            this.scopeCache.clear()
+        }
+    }
+
+    /**
      * 解析当前用户的数据权限范围，返回可见的userId列表
+     * 带内存缓存，同一用户在TTL内不会重复查表
      * @param request 请求上下文
-     * @returns DataScopeResult { uids: string[] | null }
-     *          uids为null表示全部可见，否则为可见userId数组
+     * @returns DataScopeResult { userIds: string[] }
+     *          空数组表示全部可见，否则为可见userId数组
      */
     @AutoDescriptor
     public async fetchDataScopeUserIds(request: OmixRequest): Promise<DataScopeResult> {
         const uid = request.user.uid
 
+        /**检查缓存**/
+        const cached = this.scopeCache.get(uid)
+        if (cached && cached.expireAt > Date.now()) {
+            return cached.result
+        }
+
+        /**缓存未命中或已过期，重新计算**/
+        const result = await this.resolveDataScope(uid)
+
+        /**写入缓存**/
+        this.scopeCache.set(uid, { result, expireAt: Date.now() + CACHE_TTL_MS })
+
+        return result
+    }
+
+    /**
+     * 实际的数据权限解析逻辑
+     */
+    private async resolveDataScope(uid: string): Promise<DataScopeResult> {
         /**1. 查询用户直接关联的角色（非部门角色），取其model**/
         const directRoles = await this.database.builder(this.windows.roleOptions, async qb => {
             qb.where(
@@ -50,8 +97,9 @@ export class DeployDeptScopeService extends Logger {
             return await qb.getMany()
         })
 
-        /**3. 收集所有有效model值**/
+        /**3. 收集所有有效model值及对应角色名称**/
         const effectiveModels: string[] = directRoles.map(r => r.model)
+        const roleNames: string[] = directRoles.map(r => r.name)
 
         /**根据部门成员角色推导有效数据权限：
          * admin → dept_member（可看本部门及下属部门所有数据）
@@ -61,10 +109,13 @@ export class DeployDeptScopeService extends Logger {
         for (const da of deptAccounts) {
             if (da.chunk === enums.CHUNK_DEPT_MEMBER.admin.value) {
                 effectiveModels.push(enums.CHUNK_ROLE_MODEL.dept_member.value)
+                roleNames.push(enums.CHUNK_DEPT_MEMBER.admin.name)
             } else if (da.chunk === enums.CHUNK_DEPT_MEMBER.sub_admin.value) {
                 effectiveModels.push(enums.CHUNK_ROLE_MODEL.self_member.value)
+                roleNames.push(enums.CHUNK_DEPT_MEMBER.sub_admin.name)
             } else {
                 effectiveModels.push(enums.CHUNK_ROLE_MODEL.self.value)
+                roleNames.push(enums.CHUNK_DEPT_MEMBER.member.name)
             }
         }
 
@@ -83,27 +134,27 @@ export class DeployDeptScopeService extends Logger {
 
         /**全部数据：不做过滤**/
         if (maxModel === enums.CHUNK_ROLE_MODEL.self_whole.value) {
-            return { uids: null }
+            return { roleNames, userIds: [] }
         }
 
         /**本部门及下属部门：查询用户所在部门 + 递归子部门的所有成员**/
         if (maxModel === enums.CHUNK_ROLE_MODEL.dept_member.value) {
-            return await this.fetchDeptMemberScope(uid)
+            return await this.fetchDeptMemberScope(uid, roleNames)
         }
 
         /**本人及下属：根据部门成员角色推导下属关系**/
         if (maxModel === enums.CHUNK_ROLE_MODEL.self_member.value) {
-            return await this.fetchSelfMemberScope(uid)
+            return await this.fetchSelfMemberScope(uid, roleNames)
         }
 
         /**本人数据**/
-        return { uids: [uid] }
+        return { roleNames, userIds: [uid] }
     }
 
     /**
      * 本部门及下属部门范围：查询用户所有部门 + 递归子部门 → 所有成员UID
      */
-    private async fetchDeptMemberScope(uid: string): Promise<DataScopeResult> {
+    private async fetchDeptMemberScope(uid: string, roleNames: string[]): Promise<DataScopeResult> {
         /**查询用户所在的所有部门ID**/
         const deptAccounts = await this.database.builder(this.windows.deptAccountOptions, async qb => {
             qb.where(`t.uid = :uid`, { uid })
@@ -111,7 +162,7 @@ export class DeployDeptScopeService extends Logger {
         })
         const userDeptIds = deptAccounts.map(da => da.deptId)
         if (userDeptIds.length === 0) {
-            return { uids: [uid] }
+            return { roleNames, userIds: [uid] }
         }
 
         /**递归获取所有子部门ID**/
@@ -124,7 +175,7 @@ export class DeployDeptScopeService extends Logger {
         })
         const uidSet = new Set(members.map(m => m.uid))
         uidSet.add(uid)
-        return { uids: [...uidSet] }
+        return { roleNames, userIds: [...uidSet] }
     }
 
     /**
@@ -134,14 +185,14 @@ export class DeployDeptScopeService extends Logger {
      * - member：仅自己
      * 多部门取并集
      */
-    private async fetchSelfMemberScope(uid: string): Promise<DataScopeResult> {
+    private async fetchSelfMemberScope(uid: string, roleNames: string[]): Promise<DataScopeResult> {
         /**查询用户在各部门的成员角色**/
         const deptAccounts = await this.database.builder(this.windows.deptAccountOptions, async qb => {
             qb.where(`t.uid = :uid`, { uid })
             return await qb.getMany()
         })
         if (deptAccounts.length === 0) {
-            return { uids: [uid] }
+            return { roleNames, userIds: [uid] }
         }
 
         const uidSet = new Set<string>([uid])
@@ -169,7 +220,7 @@ export class DeployDeptScopeService extends Logger {
             /**普通成员：不增加额外可见UID**/
         }
 
-        return { uids: [...uidSet] }
+        return { roleNames, userIds: [...uidSet] }
     }
 
     /**
