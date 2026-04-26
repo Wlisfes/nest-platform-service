@@ -38,7 +38,7 @@ export class DeployDeptService extends Logger {
                     sort: 10,
                     deptId: node.keyId,
                     chunk: enums.CHUNK_ROLE_CHUNK.department.value,
-                    model: enums.CHUNK_ROLE_MODEL.dept_member.value,
+                    model: enums.CHUNK_ROLE_MODEL.self_member.value,
                     createBy: request.user.uid
                 }
             })
@@ -294,5 +294,4 @@ export class DeployDeptService extends Logger {
             await ctx.release()
         }
     }
-
 }

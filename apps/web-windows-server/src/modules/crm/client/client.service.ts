@@ -4,6 +4,7 @@ import { CrmClientUtilsService } from '@web-windows-server/modules/crm/client/cl
 import { DeployDeptUtilsService } from '@web-windows-server/modules/deploy/dept/dept.utils.service'
 import { FinanceBrandUtilsService } from '@web-windows-server/modules/finance/brand/brand.utils.service'
 import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
+import { DeployDeptScopeService } from '@web-windows-server/modules/deploy/dept/dept.scope.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
@@ -17,7 +18,8 @@ export class CrmClientService extends Logger {
         private readonly crmClientUtilsService: CrmClientUtilsService,
         private readonly deptUtilsService: DeployDeptUtilsService,
         private readonly brandUtilsService: FinanceBrandUtilsService,
-        private readonly accountUtilsService: DeployAccountUtilsService
+        private readonly accountUtilsService: DeployAccountUtilsService,
+        private readonly deptScopeService: DeployDeptScopeService
     ) {
         super()
     }
@@ -80,9 +82,19 @@ export class CrmClientService extends Logger {
     @AutoDescriptor
     public async httpBaseCrmClientCommonConsumer(request: OmixRequest, body: windows.BaseCrmClientCommonConsumerOptions) {
         try {
+            /**解析当前用户的数据权限范围**/
+            const dataScope = await this.deptScopeService.fetchDataScopeUserIds(request)
             return await this.database.builder(this.windows.clientOptions, async qb => {
                 qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
                 qb.leftJoinAndMapOne('t.settings', schema.WindowsClientSettings, 'settings', 'settings.clientId = t.keyId')
+                /**根据数据权限过滤**/
+                console.log(`dataScope:`, dataScope)
+                if (dataScope.uids !== null) {
+                    if (dataScope.uids.length === 0) {
+                        dataScope.uids = [request.user.uid]
+                    }
+                    qb.where(`t.userId IN (:...scopeUids)`, { scopeUids: dataScope.uids })
+                }
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`t.name LIKE :name OR t.keyId LIKE :name`, { name: `%${body.name}%` })
                 }
