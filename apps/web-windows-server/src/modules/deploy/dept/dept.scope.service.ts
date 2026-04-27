@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
+import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
 import { RedisService } from '@/modules/redis/redis.service'
 import { OmixRequest } from '@/interface'
 
@@ -23,8 +23,8 @@ const MODEL_PRIORITY: Record<string, number> = {
     [enums.CHUNK_ROLE_MODEL.self_whole.value]: 4
 }
 
-/**缓存有效期（秒），默认30秒**/
-const CACHE_TTL_SECONDS = 30
+/**缓存有效期（秒），默认3分钟**/
+const CACHE_TTL_SECONDS = 180
 
 @Injectable()
 export class DeployDeptScopeService extends Logger {
