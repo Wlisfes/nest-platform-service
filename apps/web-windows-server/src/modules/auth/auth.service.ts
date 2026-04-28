@@ -5,7 +5,6 @@ import { pick } from 'lodash'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
 import { CodexService } from '@/modules/common/modules/codex.service'
-import { RedisService } from '@/modules/redis/redis.service'
 import { JwtService } from '@/modules/jwt/jwt.service'
 import { fetchTreeNodeBlock, fetchTreeFilterDisabled } from '@/utils'
 import { OmixRequest, OmixResponse, CodexCreateOptions } from '@/interface'
@@ -18,7 +17,6 @@ export class AuthService extends Logger {
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
         private readonly jwtService: JwtService,
-        private readonly redisService: RedisService,
         private readonly codexService: CodexService
     ) {
         super()
@@ -28,12 +26,7 @@ export class AuthService extends Logger {
     @AutoDescriptor
     public async httpAuthCodexWrite(request: OmixRequest, response: OmixResponse, body: CodexCreateOptions) {
         try {
-            return await this.codexService.httpBaseCommonCodexWrite(request, response, {
-                stack: this.stack,
-                body,
-                keyName: `windows:codex:common:{sid}`,
-                cookieName: `x-windows-common-write-sid`
-            })
+            return await this.codexService.httpBaseCommonCodexWrite(request, response, { stack: this.stack, body })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
@@ -44,12 +37,9 @@ export class AuthService extends Logger {
     @AutoDescriptor
     public async httpAuthAccountToken(request: OmixRequest, body: windows.AccountTokenOptions) {
         try {
-            await this.codexService.fetchBaseCommonCookiesCodex(request, `x-windows-common-write-sid`).then(async sid => {
-                return await this.codexService.fetchBaseCommonCodexCheck(request, {
-                    keyName: `windows:codex:common:${sid}`,
-                    stack: this.stack,
-                    code: body.code
-                })
+            await this.codexService.fetchBaseCommonCookiesCodex(request, {
+                stack: this.stack,
+                code: body.code
             })
             return await this.database.builder(this.windows.accountOptions, async qb => {
                 qb.addSelect('t.password')

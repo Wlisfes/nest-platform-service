@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNumber, IsBoolean } from 'class-validator'
+import { IsNumber } from 'class-validator'
 import { Type } from 'class-transformer'
 
 /**创建图形验证码**/
@@ -31,18 +31,12 @@ export class CodexWriteOptions {
     stack?: string
     /**创建图形验证码配置**/
     body: CodexCreateOptions
-    /**redis存储key**/
-    keyName: string
-    /**cookie存储字段**/
-    cookieName: string
 }
 
 /**校验redis图形验证码**/
-export class BaseCommonCodexCheck {
+export class BaseCommonCookiesCodex {
     /**输出日志方法名**/
     stack?: string
-    /**redis存储字段**/
-    keyName: string
     /**验证码**/
     code: string
 }

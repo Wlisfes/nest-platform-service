@@ -8,6 +8,11 @@ import * as env from '@/interface'
 
 @Injectable()
 export class CodexService extends Logger {
+    /**图形验证码redis缓存键**/
+    protected readonly keyName: string = `windows:common-codex:{sid}`
+    /**图形验证码cookie存储键**/
+    protected readonly cookieName: string = `x-windows-common-codex-sid`
+
     constructor(private readonly redisService: RedisService) {
         super()
     }
@@ -20,7 +25,7 @@ export class CodexService extends Logger {
     @AutoDescriptor
     public async httpBaseCommonCodexWrite(request: env.OmixRequest, response: env.OmixResponse, options: env.CodexWriteOptions) {
         return await this.fetchBaseCommonCodexCreate(request, options.body).then(async ({ sid, text, data }) => {
-            const key = await this.redisService.compose(request, options.keyName, { sid })
+            const key = await this.redisService.compose(request, this.keyName, { sid })
             const { seconds } = await this.redisService.setStore(request, {
                 stack: this.stack,
                 key,
@@ -28,7 +33,7 @@ export class CodexService extends Logger {
                 seconds: 300
             })
             this.logger.info({ message: '图形验证码发送成功', seconds, key, data: text })
-            await response.cookie(options.cookieName, sid, { httpOnly: true, maxAge: 300 * 1000 })
+            await response.cookie(this.cookieName, sid, { httpOnly: true, maxAge: 300 * 1000 })
             await response.type('svg')
             return await response.send(data)
         })
@@ -59,25 +64,18 @@ export class CodexService extends Logger {
      * @param key cookie中存储sid的字段
      */
     @AutoDescriptor
-    public async fetchBaseCommonCookiesCodex(request: env.OmixRequest, keyName: string): Promise<string> {
-        if (isEmpty(request.cookies[keyName])) {
+    public async fetchBaseCommonCookiesCodex(request: env.OmixRequest, body: env.BaseCommonCookiesCodex) {
+        if (isEmpty(request.cookies[this.cookieName])) {
             throw new HttpException(`验证码不存在`, HttpStatus.BAD_REQUEST)
         }
-        return request.cookies[keyName]
-    }
-
-    /**
-     * 校验redis图形验证码
-     * @param request Request对象
-     * @param body 验证配置参数
-     */
-    @AutoDescriptor
-    public async fetchBaseCommonCodexCheck(request: env.OmixRequest, body: env.BaseCommonCodexCheck) {
-        return await this.redisService.getStore<string>(request, { key: body.keyName }).then(async code => {
+        const key = await this.redisService.compose(request, this.keyName, { sid: request.cookies[this.cookieName] })
+        return await this.redisService.getStore<string>(request, { key }).then(async code => {
             if (isEmpty(code) || body.code.toUpperCase() !== code.toUpperCase()) {
                 throw new HttpException(`验证码错误或已过期`, HttpStatus.BAD_REQUEST)
             }
-            return await this.redisService.delStore(request, { key: body.keyName, stack: this.stack })
+            return await this.redisService.delStore(request, { key, stack: this.stack }).then(() => {
+                return true
+            })
         })
     }
 }
