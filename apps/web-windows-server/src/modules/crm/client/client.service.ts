@@ -86,7 +86,6 @@ export class CrmClientService extends Logger {
             const { userIds } = await this.deptScopeService.fetchDataScopeUserIds(request)
             return await this.database.builder(this.windows.clientOptions, async qb => {
                 qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
-                qb.leftJoinAndMapOne('t.settings', schema.WindowsClientSettings, 'settings', 'settings.clientId = t.keyId')
                 /**根据数据权限过滤：userIds为空数组表示全部可见，非空则按列表过滤**/
                 if (userIds.length > 0) {
                     qb.andWhere(`t.userId IN (:...userIds)`, { userIds })
@@ -149,6 +148,7 @@ export class CrmClientService extends Logger {
         try {
             return await this.database.builder(this.windows.clientOptions, async qb => {
                 qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
+                qb.leftJoinAndMapOne('t.settings', schema.WindowsClientSettings, 'settings', 'settings.clientId = t.keyId')
                 qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
                 return await qb.getOne().then(async node => {
                     if (!node) {

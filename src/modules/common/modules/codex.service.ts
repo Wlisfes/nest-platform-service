@@ -30,10 +30,10 @@ export class CodexService extends Logger {
                 stack: this.stack,
                 key,
                 data: text,
-                seconds: 300
+                seconds: 180
             })
             this.logger.info({ message: '图形验证码发送成功', seconds, key, data: text })
-            await response.cookie(this.cookieName, sid, { httpOnly: true, maxAge: 300 * 1000 })
+            await response.cookie(this.cookieName, sid, { httpOnly: true, maxAge: 180 * 1000 })
             await response.type('svg')
             return await response.send(data)
         })
