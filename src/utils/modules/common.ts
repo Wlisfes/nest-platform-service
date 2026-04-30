@@ -97,3 +97,13 @@ export async function fetchHandler<T>(where: boolean | Function, handler?: Funct
     }
     return value as T
 }
+
+/**对象查找**/
+export function fetchCurrent<T extends Omix>(data: Array<T>, callback: (e: Omix<T>) => boolean) {
+    return (data.find(item => callback(item)) ?? {}) as T
+}
+
+/**字段更新**/
+export function fetchObsUpdate<T extends Omix>(data: T, options: Omix) {
+    return Object.assign(data, options)
+}

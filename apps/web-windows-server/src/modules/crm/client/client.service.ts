@@ -6,7 +6,7 @@ import { FinanceBrandUtilsService } from '@web-windows-server/modules/finance/br
 import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
 import { DeployDeptScopeService } from '@web-windows-server/modules/deploy/dept/dept.scope.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
-import { isNotEmpty } from '@/utils'
+import { isNotEmpty, fetchCurrent, fetchObsUpdate } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
@@ -128,10 +128,13 @@ export class CrmClientService extends Logger {
                             fields: ['name', 'document', 'status']
                         })
                     ])
+
                     list.forEach((item: Omix) => {
-                        item.user = accounts.find(e => e.uid === item.userId)
-                        item.brand = brands.find(e => e.keyId === item.brandId)
-                        item.depts = depts.filter((e: Omix) => e.uid === item.userId)
+                        return fetchObsUpdate(item, {
+                            brandOptions: fetchCurrent(brands, e => e.keyId === item.brandId),
+                            accountOptions: fetchCurrent(accounts, e => e.uid === item.userId),
+                            deptOptions: depts.filter((e: Omix) => e.uid === item.userId)
+                        })
                     })
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
@@ -147,8 +150,13 @@ export class CrmClientService extends Logger {
     public async httpBaseCrmClientResolver(request: OmixRequest, body: windows.BaseCrmClientResolverOptions) {
         try {
             return await this.database.builder(this.windows.clientOptions, async qb => {
-                qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
-                qb.leftJoinAndMapOne('t.settings', schema.WindowsClientSettings, 'settings', 'settings.clientId = t.keyId')
+                qb.leftJoinAndMapMany('t.tagOptions', schema.WindowsClientTags, 'tagOptions', 'tagOptions.clientId = t.keyId')
+                qb.leftJoinAndMapOne(
+                    't.settingOptions',
+                    schema.WindowsClientSettings,
+                    'settingOptions',
+                    'settingOptions.clientId = t.keyId'
+                )
                 qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
                 return await qb.getOne().then(async node => {
                     if (!node) {
@@ -167,11 +175,11 @@ export class CrmClientService extends Logger {
                             fields: ['name', 'document', 'status']
                         })
                     ])
-                    const item: Omix = node
-                    item.user = accounts.find(e => e.uid === node.userId)
-                    item.brand = brands.find(e => e.keyId === node.brandId)
-                    item.depts = depts.filter((e: Omix) => e.uid === node.userId)
-                    return await this.fetchResolver(item)
+                    return await this.fetchResolver(node, {
+                        brandOptions: fetchCurrent(brands, e => e.keyId === node.brandId),
+                        accountOptions: fetchCurrent(accounts, e => e.uid === node.userId),
+                        deptOptions: fetchCurrent(depts, e => e.uid === node.userId)
+                    })
                 })
             })
         } catch (err) {

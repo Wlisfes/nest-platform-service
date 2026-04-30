@@ -66,7 +66,7 @@ export class Logger {
     }
 
     /**返回包装**/
-    public async fetchResolver<T>(data: Partial<OmixResult<T>>) {
-        return data
+    public async fetchResolver<T>(data: Partial<OmixResult<T>>, options: Omix = {}) {
+        return Object.assign(data, options)
     }
 }
