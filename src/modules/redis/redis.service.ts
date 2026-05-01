@@ -82,4 +82,16 @@ export class RedisService extends Logger {
             return value
         })
     }
+
+    /**redis执行lua脚本**/
+    @AutoDescriptor
+    public async evalStore(request: OmixRequest, body: { script: string; keys: string[]; args: string[]; logger?: boolean }) {
+        const logger = await this.fetchServiceTransaction(request, { stack: this.stack })
+        return await this.client.eval(body.script, body.keys.length, ...body.keys, ...body.args).then(async value => {
+            if (body.logger ?? false) {
+                logger.info({ message: 'Redis执行Lua', script: body.script, keys: body.keys, args: body.args, value })
+            }
+            return value
+        })
+    }
 }
