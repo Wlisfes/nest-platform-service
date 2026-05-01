@@ -34,6 +34,7 @@ export class WindowsService {
         @InjectRepository(schema.WindowsClientShare) readonly clientShareOptions: Repository<schema.WindowsClientShare>,
         @InjectRepository(schema.WindowsClientTags) readonly clientTagsOptions: Repository<schema.WindowsClientTags>,
         @InjectRepository(schema.WindowsBrand) readonly brandOptions: Repository<schema.WindowsBrand>,
-        @InjectRepository(schema.WindowsCurrency) readonly currencyOptions: Repository<schema.WindowsCurrency>
+        @InjectRepository(schema.WindowsCurrency) readonly currencyOptions: Repository<schema.WindowsCurrency>,
+        @InjectRepository(schema.WindowsCountry) readonly countryOptions: Repository<schema.WindowsCountry>
     ) {}
 }
