@@ -61,6 +61,12 @@ export const COMMON_CHUNK = {
         value: enums.CHUNK_CURRENCY_STATUS.value,
         columns: withExtract(enums.CHUNK_CURRENCY_STATUS)
     },
+    /**国家/地区状态**/
+    [enums.CHUNK_COUNTRY_STATUS.value]: {
+        name: enums.CHUNK_COUNTRY_STATUS.name,
+        value: enums.CHUNK_COUNTRY_STATUS.value,
+        columns: withExtract(enums.CHUNK_COUNTRY_STATUS)
+    },
     /**客户状态**/
     [enums.CHUNK_CLIENT_STATUS.value]: {
         name: enums.CHUNK_CLIENT_STATUS.name,
