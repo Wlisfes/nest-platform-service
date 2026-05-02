@@ -4,6 +4,7 @@ import { RedisService } from '@/modules/redis/redis.service'
 import { DataBaseService } from '@/modules/database/database.service'
 import { WindowsClient } from '@/modules/database/schema/modules/tb_windows_client'
 import { WINDOWS_WALLET_BILL_TYPE } from '@/modules/database/enums'
+import { RabbitmqService } from '@/modules/rabbitmq/rabbitmq.service'
 import { OmixRequest } from '@/interface'
 
 @Injectable()
@@ -11,7 +12,11 @@ export class WalletService extends Logger {
     /**金额缓存前缀**/
     protected readonly keyName: string = `windows:common-wallet:{clientId}`
 
-    constructor(private readonly redisService: RedisService, private readonly dbService: DataBaseService) {
+    constructor(
+        private readonly redisService: RedisService,
+        private readonly dbService: DataBaseService,
+        private readonly rabbitmqService: RabbitmqService
+    ) {
         super()
     }
 
@@ -106,7 +111,8 @@ export class WalletService extends Logger {
             remark,
             afterBalance: Number(result)
         }
-        this.logger.info({ message: '异步投递扣费流水至 MQ (待接入)', data: logData })
+        await this.rabbitmqService.fetchDespatch(request, 'wallet_exchange', 'wallet.consume', logData)
+        this.logger.info({ message: '异步投递扣费流水至 MQ', data: logData })
 
         return true
     }
@@ -156,7 +162,8 @@ export class WalletService extends Logger {
             amount,
             remark
         }
-        this.logger.info({ message: '异步投递退款流水至 MQ (待接入)', data: logData })
+        await this.rabbitmqService.fetchDespatch(request, 'wallet_exchange', 'wallet.consume', logData)
+        this.logger.info({ message: '异步投递退款流水至 MQ', data: logData })
 
         return true
     }

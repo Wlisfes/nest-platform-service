@@ -10,6 +10,7 @@ import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
 import { CommonModule } from '@/modules/common/common.module'
+import { RabbitmqModule } from '@/modules/rabbitmq/rabbitmq.module'
 import { AuthModule } from '@web-windows-server/modules/auth/auth.module'
 import { ChunkModule } from '@web-windows-server/modules/chunk/chunk.module'
 import { CrmModule } from '@web-windows-server/modules/crm/crm.module'
@@ -24,6 +25,7 @@ import { FinanceModule } from '@web-windows-server/modules/finance/finance.modul
         RedisModule,
         JwtModule,
         CommonModule,
+        RabbitmqModule,
         AuthModule,
         ChunkModule,
         CrmModule,
