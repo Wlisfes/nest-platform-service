@@ -2,7 +2,8 @@ import { Injectable, HttpException } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
 import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
-import { isNotEmpty } from '@/utils'
+import { FinanceCountryUtilsService } from '@web-windows-server/modules/finance/country/country.utils.service'
+import { isNotEmpty, fetchObsUpdate, fetchCurrent } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
@@ -11,7 +12,8 @@ export class FinanceSmsRateService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
-        private readonly accountUtilsService: DeployAccountUtilsService
+        private readonly accountUtilsService: DeployAccountUtilsService,
+        private readonly countryUtilsService: FinanceCountryUtilsService
     ) {
         super()
     }
@@ -91,12 +93,20 @@ export class FinanceSmsRateService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    return await this.fetchResolver({
-                        page: body.page,
-                        size: body.size,
-                        total,
-                        list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, { list })
+                    const [accounts, countrys] = await Promise.all([
+                        this.accountUtilsService.fetchUtilsColumnByAccount(request, { list }),
+                        this.countryUtilsService.fetchUtilsByColumnCountry(request, {
+                            codes: [...new Set(list.map(e => e.code).filter(isNotEmpty))]
+                        })
+                    ])
+                    list.forEach((item: Omix) => {
+                        return fetchObsUpdate(item, {
+                            countryOptions: fetchCurrent(countrys, e => e.code === item.code),
+                            createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                            modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                        })
                     })
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })
         } catch (err) {
