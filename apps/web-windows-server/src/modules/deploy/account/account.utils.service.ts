@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService } from '@/modules/database/database.service'
-import { fetchCloneByte, isNotEmpty } from '@/utils'
+import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
+import { fetchObsUpdate, isNotEmpty, fetchCurrent } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
@@ -18,8 +18,11 @@ export class DeployAccountUtilsService extends Logger {
             return []
         }
         return await this.database.builder(this.windows.accountOptions, async qb => {
+            const fields: Array<keyof schema.WindowsAccount> = ['keyId', 'name', 'number', 'email', 'phone', 'avatar', 'status']
             if (body.fields && body.fields.length > 0) {
                 qb.select([...new Set(['t.uid', ...body.fields.map(f => `t.${f}`)])])
+            } else {
+                qb.select(['t.uid', ...fields.map(f => `t.${f}`)])
             }
             qb.where(`t.uid IN (:...uids)`, { uids: [...new Set(body.uids.filter(isNotEmpty))] })
             return await qb.getMany()
@@ -28,15 +31,21 @@ export class DeployAccountUtilsService extends Logger {
 
     /**批量查询创建人/修改人数据**/
     @AutoDescriptor
-    public async fetchUtilsMergeColumnAccount(request: OmixRequest, body: windows.UtilsMergeColumnAccountOptions) {
-        const items = await this.fetchUtilsUidByColumnAccount(request, {
-            uids: body.list.map(item => [item.createBy, item.modifyBy].filter(Boolean)).flat(),
+    public async fetchUtilsColumnByAccount(request: OmixRequest, body: windows.UtilsMergeColumnAccountOptions) {
+        return await this.fetchUtilsUidByColumnAccount(request, {
+            uids: [...new Set(body.list.map(item => [item.createBy, item.modifyBy].filter(isNotEmpty)).flat())],
             fields: body.fields
         })
+    }
+
+    /**批量查询创建人/修改人数据组合**/
+    @AutoDescriptor
+    public async fetchUtilsMergeColumnAccount(request: OmixRequest, body: windows.UtilsMergeColumnAccountOptions) {
+        const items = await this.fetchUtilsColumnByAccount(request, body)
         return body.list.map(item => {
-            return fetchCloneByte(item, {
-                createBy: items.find(e => e.uid === item.createBy),
-                modifyBy: items.find(e => e.uid === item.modifyBy)
+            return fetchObsUpdate(item, {
+                createByOptions: fetchCurrent(items, e => e.uid === item.createBy),
+                modifyByOptions: fetchCurrent(items, e => e.uid === item.modifyBy)
             })
         })
     }

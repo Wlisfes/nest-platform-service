@@ -1,13 +1,18 @@
 import { Injectable, HttpException } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
+import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
 import { isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
 export class FinanceSmsRateService extends Logger {
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly accountUtilsService: DeployAccountUtilsService
+    ) {
         super()
     }
 
@@ -76,7 +81,6 @@ export class FinanceSmsRateService extends Logger {
     public async httpBaseFinanceColumnBasicSmsRate(request: OmixRequest, body: windows.ColumnBasicSmsRateOptions) {
         try {
             return await this.database.builder(this.windows.basicSmsRateOptions, async qb => {
-                //  qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
                 if (isNotEmpty(body.code)) {
                     qb.andWhere(`t.code LIKE :code`, { code: `%${body.code}%` })
                 }
@@ -87,7 +91,12 @@ export class FinanceSmsRateService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                    return await this.fetchResolver({
+                        page: body.page,
+                        size: body.size,
+                        total,
+                        list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, { list })
+                    })
                 })
             })
         } catch (err) {
