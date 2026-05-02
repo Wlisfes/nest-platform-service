@@ -37,6 +37,7 @@ export class WindowsService {
         @InjectRepository(schema.WindowsCurrency) readonly currencyOptions: Repository<schema.WindowsCurrency>,
         @InjectRepository(schema.WindowsCountry) readonly countryOptions: Repository<schema.WindowsCountry>,
         @InjectRepository(schema.WindowsWalletConsume) readonly walletConsumeOptions: Repository<schema.WindowsWalletConsume>,
-        @InjectRepository(schema.WindowsWalletRecharge) readonly walletRechargeOptions: Repository<schema.WindowsWalletRecharge>
+        @InjectRepository(schema.WindowsWalletRecharge) readonly walletRechargeOptions: Repository<schema.WindowsWalletRecharge>,
+        @InjectRepository(schema.WindowsBasicSmsRate) readonly basicSmsRateOptions: Repository<schema.WindowsBasicSmsRate>
     ) {}
 }

@@ -13,6 +13,7 @@ export * from '@/modules/database/schema/modules/tb_windows_brand'
 export * from '@/modules/database/schema/modules/tb_windows_currency'
 export * from '@/modules/database/schema/modules/tb_windows_country'
 export * from '@/modules/database/schema/modules/tb_windows_wallet'
+export * from '@/modules/database/schema/modules/tb_windows_basic_rate'
 /**短信服务表**/
 export * from '@/modules/database/schema/sms/tb_sms_app'
 export * from '@/modules/database/schema/sms/tb_sms_app_quotation'
