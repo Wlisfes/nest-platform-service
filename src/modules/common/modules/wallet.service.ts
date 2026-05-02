@@ -111,7 +111,7 @@ export class WalletService extends Logger {
             remark,
             afterBalance: Number(result)
         }
-        await this.rabbitmqService.fetchDespatch(request, 'windows-wallet-consume', 'windows-wallet-consume.messager', logData)
+        await this.rabbitmqService.fetchDespatch(request, 'windows-wallet-consume', `windows-wallet-consume.${changeType}`, logData)
         this.logger.info({ message: '异步投递扣费流水至 MQ', data: logData })
 
         return true
@@ -162,7 +162,7 @@ export class WalletService extends Logger {
             amount,
             remark
         }
-        await this.rabbitmqService.fetchDespatch(request, 'windows-wallet-consume', 'windows-wallet-consume.messager', logData)
+        await this.rabbitmqService.fetchDespatch(request, 'windows-wallet-consume', `windows-wallet-consume.${changeType}`, logData)
         this.logger.info({ message: '异步投递退款流水至 MQ', data: logData })
 
         return true
@@ -214,71 +214,5 @@ export class WalletService extends Logger {
         return true
     }
 
-    /**
-     * MQ 消费者：批量聚合写入消费表 DB (防止单点击穿)
-     * 供 MQ Consumer 订阅到扣费/退款数据后调用
-     */
-    @AutoDescriptor
-    public async consumeWalletLogBatch(
-        request: OmixRequest,
-        logs: Array<{
-            clientId: number
-            taskId?: number
-            changeType: string
-            billType: string
-            amount: number
-            remark?: string
-        }>
-    ): Promise<boolean> {
-        if (!logs || logs.length === 0) return true
-        const query = await this.dbService.transaction({
-            schema: ['WindowsClient', 'WindowsWalletConsume']
-        })
-        // 1. 批量插入消费流水
-        const logEntities = logs.map(log =>
-            query.WindowsWalletConsume.create({
-                clientId: log.clientId,
-                taskId: log.taskId,
-                changeType: log.changeType,
-                billType: log.billType,
-                amount: log.amount,
-                remark: log.remark
-            })
-        )
-        // 使用 typeorm 的 save 支持批量
-        await query.WindowsWalletConsume.save(logEntities)
 
-        // 2. 按 client 聚合要变动的总金额
-        // 扣费减少余额，退款增加余额
-        const clientBalanceChange = new Map<number, number>()
-        for (const log of logs) {
-            let change = 0
-            if (log.billType === WINDOWS_WALLET_BILL_TYPE.deduct.value) {
-                change = -log.amount
-            } else if (log.billType === WINDOWS_WALLET_BILL_TYPE.refund.value) {
-                change = log.amount
-            }
-
-            if (change !== 0) {
-                const current = clientBalanceChange.get(log.clientId) || 0
-                clientBalanceChange.set(log.clientId, current + change)
-            }
-        }
-
-        // 3. 循环 UPDATE 更新涉及的 client
-        // 因为批量聚合的数量远小于逐条单笔，极大地降低了行锁竞争
-        for (const [id, diff] of clientBalanceChange.entries()) {
-            if (diff !== 0) {
-                const sign = diff > 0 ? '+' : '-'
-                const absDiff = Math.abs(diff)
-                await query.WindowsClient.createQueryBuilder()
-                    .update(WindowsClient)
-                    .set({ balanceUsd: () => `balance_usd ${sign} ${absDiff}` })
-                    .where('key_id = :id', { id })
-                    .execute()
-            }
-        }
-
-        return true
-    }
 }
