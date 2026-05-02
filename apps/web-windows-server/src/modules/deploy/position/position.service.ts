@@ -1,14 +1,19 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
-import { fetchHandler, isEmpty, isNotEmpty } from '@/utils'
+import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
+import { fetchHandler, isEmpty, isNotEmpty, fetchObsUpdate, fetchCurrent } from '@/utils'
 import { OmixRequest } from '@/interface'
 import { Not, In } from 'typeorm'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
 export class DeployPositionService extends Logger {
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly accountUtilsService: DeployAccountUtilsService
+    ) {
         super()
     }
 
@@ -99,8 +104,6 @@ export class DeployPositionService extends Logger {
     public async httpBaseSystemColumnPosition(request: OmixRequest, body: windows.ColumnPositionOptions) {
         try {
             return await this.database.builder(this.windows.positionOptions, async qb => {
-                qb.leftJoinAndMapOne('t.createBy', schema.WindowsAccount, 'createBy', 'createBy.uid = t.createBy')
-                qb.leftJoinAndMapOne('t.modifyBy', schema.WindowsAccount, 'modifyBy', 'modifyBy.uid = t.modifyBy')
                 if (isNotEmpty(body.name)) {
                     qb.where(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
@@ -108,6 +111,7 @@ export class DeployPositionService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
+                    const [accounts] = await Promise.all([this.accountUtilsService.fetchUtilsColumnByAccount(request, { list })])
                     /**查询关联账号数量**/
                     const positionIds = list.map((item: any) => item.keyId)
                     if (positionIds.length > 0) {
@@ -118,8 +122,19 @@ export class DeployPositionService extends Logger {
                             cqb.groupBy('t.postId')
                             return await cqb.getRawMany()
                         })
-                        list.forEach((item: any) => {
-                            item.accountCount = Number(accountCounts.find((c: any) => c.postId === item.keyId)?.count ?? 0)
+                        list.forEach((item: Omix) => {
+                            return fetchObsUpdate(item, {
+                                accountCount: Number(accountCounts.find((c: any) => c.postId === item.keyId)?.count ?? 0),
+                                createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                                modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                            })
+                        })
+                    } else {
+                        list.forEach((item: Omix) => {
+                            return fetchObsUpdate(item, {
+                                createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                                modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                            })
                         })
                     }
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })

@@ -3,7 +3,7 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
 import { DeployDeptScopeService } from '@web-windows-server/modules/deploy/dept/dept.scope.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
-import { fetchTreeNodeBlock, fetchTreeFromList } from '@/utils'
+import { fetchTreeNodeBlock, fetchTreeFromList, fetchObsUpdate, fetchCurrent } from '@/utils'
 import { isNotEmpty } from 'class-validator'
 import { OmixRequest } from '@/interface'
 import { In } from 'typeorm'
@@ -146,12 +146,14 @@ export class DeployRoleService extends Logger {
                     qb.skip((body.page - 1) * body.size)
                     qb.take(body.size)
                     return await qb.getManyAndCount().then(async ([list, total]) => {
-                        return await this.fetchResolver({
-                            page: body.page,
-                            size: body.size,
-                            total,
-                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, { list })
+                        const accounts = await this.accountUtilsService.fetchUtilsColumnByAccount(request, { list })
+                        list.forEach((item: Omix) => {
+                            return fetchObsUpdate(item, {
+                                createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                                modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                            })
                         })
+                        return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                     })
                 })
             }
@@ -196,12 +198,14 @@ export class DeployRoleService extends Logger {
                     qb.skip((body.page - 1) * body.size)
                     qb.take(body.size)
                     return await qb.getManyAndCount().then(async ([list, total]) => {
-                        return await this.fetchResolver({
-                            page: body.page,
-                            size: body.size,
-                            total,
-                            list: await this.accountUtilsService.fetchUtilsMergeColumnAccount(request, { list })
+                        const accounts = await this.accountUtilsService.fetchUtilsColumnByAccount(request, { list })
+                        list.forEach((item: Omix) => {
+                            return fetchObsUpdate(item, {
+                                createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                                modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                            })
                         })
+                        return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                     })
                 })
             }

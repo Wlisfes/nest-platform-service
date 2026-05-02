@@ -1,13 +1,18 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
-import { isNotEmpty } from '@/utils'
+import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
+import { isNotEmpty, fetchObsUpdate, fetchCurrent } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
 export class FinanceBrandService extends Logger {
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly accountUtilsService: DeployAccountUtilsService
+    ) {
         super()
     }
 
@@ -82,8 +87,6 @@ export class FinanceBrandService extends Logger {
     public async httpBaseFinanceColumnBrand(request: OmixRequest, body: windows.ColumnBrandOptions) {
         try {
             return await this.database.builder(this.windows.brandOptions, async qb => {
-                qb.leftJoinAndMapOne('t.createBy', schema.WindowsAccount, 'createBy', 'createBy.uid = t.createBy')
-                qb.leftJoinAndMapOne('t.modifyBy', schema.WindowsAccount, 'modifyBy', 'modifyBy.uid = t.modifyBy')
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
@@ -94,6 +97,13 @@ export class FinanceBrandService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
+                    const [accounts] = await Promise.all([this.accountUtilsService.fetchUtilsColumnByAccount(request, { list })])
+                    list.forEach((item: Omix) => {
+                        return fetchObsUpdate(item, {
+                            createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                            modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                        })
+                    })
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })

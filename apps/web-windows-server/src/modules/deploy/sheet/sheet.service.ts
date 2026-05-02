@@ -2,15 +2,20 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface'
+import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
 import { isEmpty, isNotEmpty } from 'class-validator'
-import { faker, fetchHandler, fetchTreeNodeBlock } from '@/utils'
+import { faker, fetchHandler, fetchTreeNodeBlock, fetchObsUpdate, fetchCurrent } from '@/utils'
 import { In, Not } from 'typeorm'
 import * as tree from 'tree-tool'
 import * as windows from '@web-windows-server/interface'
 
 @Injectable()
 export class DeploySheetService extends Logger {
-    constructor(private readonly database: DataBaseService, private readonly windows: WindowsService) {
+    constructor(
+        private readonly database: DataBaseService,
+        private readonly windows: WindowsService,
+        private readonly accountUtilsService: DeployAccountUtilsService
+    ) {
         super()
     }
 
@@ -138,8 +143,6 @@ export class DeploySheetService extends Logger {
     public async httpBaseSystemColumnSheet(request: OmixRequest, body: windows.ColumnSheetOptions) {
         try {
             return await this.database.builder(this.windows.sheetOptions, async qb => {
-                qb.leftJoinAndMapOne('t.createBy', schema.WindowsAccount, 'createBy', 'createBy.uid = t.createBy')
-                qb.leftJoinAndMapOne('t.modifyBy', schema.WindowsAccount, 'modifyBy', 'modifyBy.uid = t.modifyBy')
                 if (isNotEmpty(body.name)) {
                     qb.where(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
@@ -163,6 +166,13 @@ export class DeploySheetService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
+                    const [accounts] = await Promise.all([this.accountUtilsService.fetchUtilsColumnByAccount(request, { list })])
+                    list.forEach((item: Omix) => {
+                        return fetchObsUpdate(item, {
+                            createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                            modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                        })
+                    })
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })

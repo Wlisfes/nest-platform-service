@@ -31,22 +31,10 @@ export class DeployAccountUtilsService extends Logger {
 
     /**批量查询创建人/修改人数据**/
     @AutoDescriptor
-    public async fetchUtilsColumnByAccount(request: OmixRequest, body: windows.UtilsMergeColumnAccountOptions) {
+    public async fetchUtilsColumnByAccount(request: OmixRequest, body: windows.UtilsColumnByAccountOptions) {
         return await this.fetchUtilsUidByColumnAccount(request, {
             uids: [...new Set(body.list.map(item => [item.createBy, item.modifyBy].filter(isNotEmpty)).flat())],
             fields: body.fields
-        })
-    }
-
-    /**批量查询创建人/修改人数据组合**/
-    @AutoDescriptor
-    public async fetchUtilsMergeColumnAccount(request: OmixRequest, body: windows.UtilsMergeColumnAccountOptions) {
-        const items = await this.fetchUtilsColumnByAccount(request, body)
-        return body.list.map(item => {
-            return fetchObsUpdate(item, {
-                createByOptions: fetchCurrent(items, e => e.uid === item.createBy),
-                modifyByOptions: fetchCurrent(items, e => e.uid === item.modifyBy)
-            })
         })
     }
 }

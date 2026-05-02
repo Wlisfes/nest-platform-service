@@ -10,7 +10,7 @@ export interface UtilsUidByColumnAccountOptions extends Omix {
 }
 
 /**批量查询创建人/修改人数据**/
-export interface UtilsMergeColumnAccountOptions extends Omix {
+export interface UtilsColumnByAccountOptions extends Omix {
     list: Array<Omix>
     fields?: Array<keyof schema.WindowsAccount>
 }

@@ -1,8 +1,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DeployDeptScopeService } from '@web-windows-server/modules/deploy/dept/dept.scope.service'
+import { DeployAccountUtilsService } from '@web-windows-server/modules/deploy/account/account.utils.service'
 import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
-import { fetchTreeNodeBlock, fetchHandler, isEmpty, isNotEmpty } from '@/utils'
+import { fetchTreeNodeBlock, fetchHandler, isEmpty, isNotEmpty, fetchObsUpdate, fetchCurrent } from '@/utils'
 import { OmixRequest } from '@/interface'
 import { Not, In } from 'typeorm'
 import * as tree from 'tree-tool'
@@ -13,7 +14,8 @@ export class DeployDeptService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
-        private readonly deptScopeService: DeployDeptScopeService
+        private readonly deptScopeService: DeployDeptScopeService,
+        private readonly accountUtilsService: DeployAccountUtilsService
     ) {
         super()
     }
@@ -204,8 +206,6 @@ export class DeployDeptService extends Logger {
     public async httpBaseSystemColumnDepartment(request: OmixRequest, body: windows.ColumnDeptOptions) {
         try {
             return await this.database.builder(this.windows.deptOptions, async qb => {
-                qb.leftJoinAndMapOne('t.createBy', schema.WindowsAccount, 'createBy', 'createBy.uid = t.createBy')
-                qb.leftJoinAndMapOne('t.modifyBy', schema.WindowsAccount, 'modifyBy', 'modifyBy.uid = t.modifyBy')
                 if (isNotEmpty(body.name)) {
                     qb.where(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
@@ -218,6 +218,7 @@ export class DeployDeptService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
+                    const [accounts] = await Promise.all([this.accountUtilsService.fetchUtilsColumnByAccount(request, { list })])
                     /**查询每个部门的管理员和子管理员**/
                     const deptIds = list.map((item: any) => item.keyId)
                     if (deptIds.length > 0) {
@@ -251,6 +252,12 @@ export class DeployDeptService extends Logger {
                             item.accountCount = Number(accountCounts.find((c: any) => c.deptId === item.keyId)?.count ?? 0)
                         })
                     }
+                    list.forEach((item: Omix) => {
+                        return fetchObsUpdate(item, {
+                            createByOptions: fetchCurrent(accounts, e => e.uid === item.createBy),
+                            modifyByOptions: fetchCurrent(accounts, e => e.uid === item.modifyBy)
+                        })
+                    })
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
             })
