@@ -28,6 +28,8 @@ declare namespace NodeJS {
     interface ProcessEnv extends Omix {
         /**环境标识**/
         NODE_ENV: 'development' | 'production'
+        /**钱包扣费服务端口号**/
+        NODE_WEB_WALLET_PORT: number
         /**网关服务端口号**/
         NODE_WEB_GATEWAY_PORT: number
         /**管理端API服务端口号**/

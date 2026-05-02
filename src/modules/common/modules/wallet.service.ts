@@ -31,8 +31,8 @@ export class WalletService extends Logger {
             if (!client) {
                 throw new HttpException('客户不存在', HttpStatus.BAD_REQUEST)
             }
-            // 计算可用余额：balance + credit
-            const availableBalance = Number(client.balance) + Number(client.credit)
+            // 计算可用余额：balanceUsd + creditUsd
+            const availableBalance = Number(client.balanceUsd) + Number(client.creditUsd)
             const redisKey = await this.redisService.compose(request, this.keyName, { clientId })
 
             // 写入 Redis，默认缓存 24 小时
@@ -111,7 +111,7 @@ export class WalletService extends Logger {
             remark,
             afterBalance: Number(result)
         }
-        await this.rabbitmqService.fetchDespatch(request, 'wallet_exchange', 'wallet.consume', logData)
+        await this.rabbitmqService.fetchDespatch(request, 'windows-wallet-consume', 'windows-wallet-consume.messager', logData)
         this.logger.info({ message: '异步投递扣费流水至 MQ', data: logData })
 
         return true
@@ -162,7 +162,7 @@ export class WalletService extends Logger {
             amount,
             remark
         }
-        await this.rabbitmqService.fetchDespatch(request, 'wallet_exchange', 'wallet.consume', logData)
+        await this.rabbitmqService.fetchDespatch(request, 'windows-wallet-consume', 'windows-wallet-consume.messager', logData)
         this.logger.info({ message: '异步投递退款流水至 MQ', data: logData })
 
         return true
@@ -185,13 +185,13 @@ export class WalletService extends Logger {
                     throw new HttpException('客户不存在', HttpStatus.BAD_REQUEST)
                 }
 
-                const beforeBalance = Number(client.balance)
+                const beforeBalance = Number(client.balanceUsd)
                 const afterBalance = beforeBalance + amount
 
                 // 原子更新 DB
                 await query.WindowsClient.createQueryBuilder()
                     .update(WindowsClient)
-                    .set({ balance: () => `balance + ${amount}` })
+                    .set({ balanceUsd: () => `balance_usd + ${amount}` })
                     .where('key_id = :id', { id: clientId })
                     .execute()
 
@@ -231,57 +231,53 @@ export class WalletService extends Logger {
         }>
     ): Promise<boolean> {
         if (!logs || logs.length === 0) return true
-
-        await this.dbService
-            .transaction<['WindowsClient', 'WindowsWalletConsume']>({
-                schema: ['WindowsClient', 'WindowsWalletConsume']
+        const query = await this.dbService.transaction({
+            schema: ['WindowsClient', 'WindowsWalletConsume']
+        })
+        // 1. 批量插入消费流水
+        const logEntities = logs.map(log =>
+            query.WindowsWalletConsume.create({
+                clientId: log.clientId,
+                taskId: log.taskId,
+                changeType: log.changeType,
+                billType: log.billType,
+                amount: log.amount,
+                remark: log.remark
             })
-            .then(async query => {
-                // 1. 批量插入消费流水
-                const logEntities = logs.map(log =>
-                    query.WindowsWalletConsume.create({
-                        clientId: log.clientId,
-                        taskId: log.taskId,
-                        changeType: log.changeType,
-                        billType: log.billType,
-                        amount: log.amount,
-                        remark: log.remark
-                    })
-                )
-                // 使用 typeorm 的 save 支持批量
-                await query.WindowsWalletConsume.save(logEntities)
+        )
+        // 使用 typeorm 的 save 支持批量
+        await query.WindowsWalletConsume.save(logEntities)
 
-                // 2. 按 client 聚合要变动的总金额
-                // 扣费减少余额，退款增加余额
-                const clientBalanceChange = new Map<number, number>()
-                for (const log of logs) {
-                    let change = 0
-                    if (log.billType === WINDOWS_WALLET_BILL_TYPE.deduct.value) {
-                        change = -log.amount
-                    } else if (log.billType === WINDOWS_WALLET_BILL_TYPE.refund.value) {
-                        change = log.amount
-                    }
+        // 2. 按 client 聚合要变动的总金额
+        // 扣费减少余额，退款增加余额
+        const clientBalanceChange = new Map<number, number>()
+        for (const log of logs) {
+            let change = 0
+            if (log.billType === WINDOWS_WALLET_BILL_TYPE.deduct.value) {
+                change = -log.amount
+            } else if (log.billType === WINDOWS_WALLET_BILL_TYPE.refund.value) {
+                change = log.amount
+            }
 
-                    if (change !== 0) {
-                        const current = clientBalanceChange.get(log.clientId) || 0
-                        clientBalanceChange.set(log.clientId, current + change)
-                    }
-                }
+            if (change !== 0) {
+                const current = clientBalanceChange.get(log.clientId) || 0
+                clientBalanceChange.set(log.clientId, current + change)
+            }
+        }
 
-                // 3. 循环 UPDATE 更新涉及的 client
-                // 因为批量聚合的数量远小于逐条单笔，极大地降低了行锁竞争
-                for (const [id, diff] of clientBalanceChange.entries()) {
-                    if (diff !== 0) {
-                        const sign = diff > 0 ? '+' : '-'
-                        const absDiff = Math.abs(diff)
-                        await query.WindowsClient.createQueryBuilder()
-                            .update(WindowsClient)
-                            .set({ balance: () => `balance ${sign} ${absDiff}` })
-                            .where('key_id = :id', { id })
-                            .execute()
-                    }
-                }
-            })
+        // 3. 循环 UPDATE 更新涉及的 client
+        // 因为批量聚合的数量远小于逐条单笔，极大地降低了行锁竞争
+        for (const [id, diff] of clientBalanceChange.entries()) {
+            if (diff !== 0) {
+                const sign = diff > 0 ? '+' : '-'
+                const absDiff = Math.abs(diff)
+                await query.WindowsClient.createQueryBuilder()
+                    .update(WindowsClient)
+                    .set({ balanceUsd: () => `balance_usd ${sign} ${absDiff}` })
+                    .where('key_id = :id', { id })
+                    .execute()
+            }
+        }
 
         return true
     }

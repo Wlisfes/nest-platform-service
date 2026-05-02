@@ -75,9 +75,17 @@ export class WindowsClient extends DataBaseAdapter {
     @Column({ type: 'bigint', comment: '余额（放大百万倍存储）', nullable: false, default: 0 })
     balance: number
 
+    @ApiProperty({ description: '余额USD（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', name: 'balance_usd', comment: '余额USD（放大百万倍存储）', nullable: false, default: 0 })
+    balanceUsd: number
+
     @ApiProperty({ description: '信用额度（放大百万倍存储）', example: 0 })
     @Column({ type: 'bigint', name: 'credit', comment: '信用额度（放大百万倍存储）', nullable: false, default: 0 })
     credit: number
+
+    @ApiProperty({ description: '信用额度USD（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', name: 'credit_usd', comment: '信用额度USD（放大百万倍存储）', nullable: false, default: 0 })
+    creditUsd: number
 
     @ApiProperty({ description: '等级', example: 1 })
     @Column({ comment: '等级', type: 'int', default: 1, nullable: false })

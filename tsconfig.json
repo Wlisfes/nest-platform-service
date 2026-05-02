@@ -28,7 +28,8 @@
         "paths": {
             "@/*": ["./src/*"],
             "@web-gateway-server/*": ["apps/web-gateway-server/src/*"],
-            "@web-windows-server/*": ["apps/web-windows-server/src/*"]
+            "@web-windows-server/*": ["apps/web-windows-server/src/*"],
+            "@web-wallet-server/*": ["apps/web-wallet-server/src/*"]
         }
     },
     "exclude": ["dist", "node_modules"]
