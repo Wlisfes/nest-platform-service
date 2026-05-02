@@ -52,14 +52,8 @@ export class WalletService extends Logger {
      * 利用 Redis Lua 脚本保证原子性，绝不透支
      */
     @AutoDescriptor
-    public async deduct(
-        request: OmixRequest,
-        clientId: number,
-        changeType: string,
-        amount: number,
-        taskId?: number,
-        remark?: string
-    ): Promise<boolean> {
+    public async deduct(request: OmixRequest, options: Omix): Promise<boolean> {
+        const { clientId, changeType, amount, businessId, remark } = options
         if (amount <= 0) throw new HttpException('扣费金额必须大于0', HttpStatus.BAD_REQUEST)
 
         const redisKey = await this.redisService.compose(request, this.keyName, { clientId })
@@ -93,7 +87,7 @@ export class WalletService extends Logger {
         if (result === -1) {
             // 缓存突然失效，重试一次
             await this.syncClientBalanceToRedis(request, clientId)
-            return this.deduct(request, clientId, changeType, amount, taskId, remark)
+            return this.deduct(request, options)
         }
 
         if (result === -2) {
@@ -104,7 +98,7 @@ export class WalletService extends Logger {
         // TODO: 接入项目实际的 RabbitMQ 生产者
         const logData = {
             clientId,
-            taskId,
+            businessId,
             changeType,
             billType: WINDOWS_WALLET_BILL_TYPE.deduct.value,
             amount,
@@ -121,14 +115,8 @@ export class WalletService extends Logger {
      * 失败退返
      */
     @AutoDescriptor
-    public async refund(
-        request: OmixRequest,
-        clientId: number,
-        changeType: string,
-        amount: number,
-        taskId?: number,
-        remark?: string
-    ): Promise<boolean> {
+    public async refund(request: OmixRequest, options: Omix): Promise<boolean> {
+        const { clientId, changeType, amount, businessId, remark } = options
         if (amount <= 0) throw new HttpException('退款金额必须大于0', HttpStatus.BAD_REQUEST)
 
         const redisKey = await this.redisService.compose(request, this.keyName, { clientId })
@@ -156,7 +144,7 @@ export class WalletService extends Logger {
         // 异步投递流水记录
         const logData = {
             clientId,
-            taskId,
+            businessId,
             changeType,
             billType: WINDOWS_WALLET_BILL_TYPE.refund.value,
             amount,
@@ -175,44 +163,40 @@ export class WalletService extends Logger {
     public async topUp(request: OmixRequest, clientId: number, rechargeType: string, amount: number, remark?: string): Promise<boolean> {
         if (amount <= 0) throw new HttpException('充值金额必须大于0', HttpStatus.BAD_REQUEST)
 
-        await this.dbService
-            .transaction<['WindowsClient', 'WindowsWalletRecharge']>({
-                schema: ['WindowsClient', 'WindowsWalletRecharge']
-            })
-            .then(async query => {
-                const client = await query.WindowsClient.findOne({ where: { keyId: clientId } })
-                if (!client) {
-                    throw new HttpException('客户不存在', HttpStatus.BAD_REQUEST)
-                }
+        const query = await this.dbService.transaction({
+            schema: ['WindowsClient', 'WindowsWalletRecharge']
+        })
 
-                const beforeBalance = Number(client.balanceUsd)
-                const afterBalance = beforeBalance + amount
+        const client = await query.WindowsClient.findOne({ where: { keyId: clientId } })
+        if (!client) {
+            throw new HttpException('客户不存在', HttpStatus.BAD_REQUEST)
+        }
 
-                // 原子更新 DB
-                await query.WindowsClient.createQueryBuilder()
-                    .update(WindowsClient)
-                    .set({ balanceUsd: () => `balance_usd + ${amount}` })
-                    .where('key_id = :id', { id: clientId })
-                    .execute()
+        const beforeBalance = Number(client.balanceUsd)
+        const afterBalance = beforeBalance + amount
 
-                // 同步写入充值流水表
-                const log = query.WindowsWalletRecharge.create({
-                    clientId,
-                    rechargeType,
-                    amount,
-                    beforeBalance,
-                    afterBalance,
-                    remark
-                })
-                await query.WindowsWalletRecharge.save(log)
+        // 原子更新 DB
+        await query.WindowsClient.createQueryBuilder()
+            .update(WindowsClient)
+            .set({ balanceUsd: () => `balance_usd + ${amount}` })
+            .where('key_id = :id', { id: clientId })
+            .execute()
 
-                // 清理缓存强制下次读DB
-                const redisKey = await this.redisService.compose(request, this.keyName, { clientId })
-                await this.redisService.delStore(request, { key: redisKey })
-            })
+        // 同步写入充值流水表
+        const log = query.WindowsWalletRecharge.create({
+            clientId,
+            rechargeType,
+            amount,
+            beforeBalance,
+            afterBalance,
+            remark
+        })
+        await query.WindowsWalletRecharge.save(log)
+
+        // 清理缓存强制下次读DB
+        const redisKey = await this.redisService.compose(request, this.keyName, { clientId })
+        await this.redisService.delStore(request, { key: redisKey })
 
         return true
     }
-
-
 }

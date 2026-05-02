@@ -30,7 +30,7 @@ export class AppWalletService extends Logger implements OnModuleDestroy {
     })
     public async fetchWalletConsumeMessager(msg: any) {
         if (!msg) return
-        
+
         this.buffer.push(msg)
 
         if (this.buffer.length >= this.MAX_BUFFER_SIZE) {
@@ -75,26 +75,17 @@ export class AppWalletService extends Logger implements OnModuleDestroy {
     /**
      * 批量聚合写入消费表 DB (防止单点击穿)
      */
-    private async consumeWalletLogBatch(
-        logs: Array<{
-            clientId: number
-            taskId?: number
-            changeType: string
-            billType: string
-            amount: number
-            remark?: string
-        }>
-    ): Promise<boolean> {
+    private async consumeWalletLogBatch(logs: Array<Omix>): Promise<boolean> {
         if (!logs || logs.length === 0) return true
         const query = await this.dbService.transaction({
             schema: ['WindowsClient', 'WindowsWalletConsume']
         })
-        
+
         // 1. 批量插入消费流水
         const logEntities = logs.map(log =>
             query.WindowsWalletConsume.create({
                 clientId: log.clientId,
-                taskId: log.taskId,
+                businessId: log.businessId,
                 changeType: log.changeType,
                 billType: log.billType,
                 amount: log.amount,

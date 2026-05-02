@@ -11,10 +11,10 @@ export class WindowsWalletConsume extends DataBaseAdapter {
     @Column({ name: 'client_id', comment: '客户ID', nullable: false })
     clientId: number
 
-    @ApiProperty({ description: '任务ID', example: 1000 })
+    @ApiProperty({ description: '业务ID', example: 1000 })
     @IsOptional()
-    @Column({ name: 'task_id', comment: '任务ID', nullable: true })
-    taskId: number
+    @Column({ name: 'business_id', comment: '业务ID', nullable: true })
+    businessId: number
 
     @ApiProperty({
         description: withComment('变动类型', enums.WINDOWS_WALLET_CHANGE_TYPE),
