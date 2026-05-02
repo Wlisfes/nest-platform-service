@@ -73,43 +73,15 @@ export class FinanceSmsRateService extends Logger {
     }
 
     @AutoDescriptor
-    public async httpBaseFinanceUpdateBasicSmsRateStatus(request: OmixRequest, body: windows.UpdateBasicSmsRateStatusOptions) {
-        const ctx = await this.database.transaction()
-        try {
-            await this.database.empty(this.windows.basicSmsRateOptions, {
-                request,
-                message: '数据不存在',
-                dispatch: { where: { keyId: body.keyId } }
-            })
-            await this.database.update(ctx.manager.getRepository(schema.WindowsBasicSmsRate), {
-                request,
-                stack: this.stack,
-                where: { keyId: body.keyId },
-                body: { status: body.status }
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '操作成功' })
-            })
-        } catch (err) {
-            this.logger.error(err)
-            throw new HttpException(err.message, err.status, err.options)
-        } finally {
-            await ctx.release()
-        }
-    }
-
-    @AutoDescriptor
     public async httpBaseFinanceColumnBasicSmsRate(request: OmixRequest, body: windows.ColumnBasicSmsRateOptions) {
         try {
             return await this.database.builder(this.windows.basicSmsRateOptions, async qb => {
+                //  qb.leftJoinAndMapMany('t.tags', schema.WindowsClientTags, 'tags', 'tags.clientId = t.keyId')
                 if (isNotEmpty(body.code)) {
                     qb.andWhere(`t.code LIKE :code`, { code: `%${body.code}%` })
                 }
                 if (isNotEmpty(body.mcc)) {
                     qb.andWhere(`t.mcc LIKE :mcc`, { mcc: `%${body.mcc}%` })
-                }
-                if (isNotEmpty(body.status)) {
-                    qb.andWhere(`t.status = :status`, { status: body.status })
                 }
                 qb.orderBy('t.createTime', 'DESC')
                 qb.skip((body.page - 1) * body.size)

@@ -9,11 +9,9 @@ export class UpdateBasicSmsRateOptions extends IntersectionType(
     PartialType(PickType(schema.WindowsBasicSmsRate, ['remark']))
 ) {}
 
-export class UpdateBasicSmsRateStatusOptions extends PickType(schema.WindowsBasicSmsRate, ['keyId', 'status']) {}
-
 export class ColumnBasicSmsRateOptions extends IntersectionType(
     PickType(OmixColumnOptions, ['page', 'size']),
-    PartialType(PickType(schema.WindowsBasicSmsRate, ['code', 'mcc', 'status']))
+    PartialType(PickType(schema.WindowsBasicSmsRate, ['code', 'mcc']))
 ) {}
 
 export class ColumnBasicSmsRateOptionsResponse extends OmixColumnResponse {

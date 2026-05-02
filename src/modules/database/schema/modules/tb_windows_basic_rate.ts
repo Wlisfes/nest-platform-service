@@ -25,11 +25,6 @@ export class WindowsBasicSmsRate extends DataBaseByAdapter {
     @Column({ name: 'down_usd', comment: '下行短信价格（放大百万倍存储）', nullable: false })
     downUsd: number
 
-    @ApiProperty({ description: '状态（enable/disable）', example: 'enable' })
-    @IsOptional()
-    @Column({ comment: '状态', length: 16, default: 'enable' })
-    status: string
-
     @ApiProperty({ description: '备注', example: '备注信息' })
     @IsOptional()
     @Column({ comment: '备注', length: 1024, nullable: true })
