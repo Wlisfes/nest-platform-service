@@ -16,6 +16,6 @@ import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.c
         })
     ],
     providers: [DatetaskManagerService, DatetaskProcessor],
-    exports: [DatetaskManagerService]
+    exports: [DatetaskManagerService, DatetaskProcessor]
 })
 export class DatetaskManagerModule {}

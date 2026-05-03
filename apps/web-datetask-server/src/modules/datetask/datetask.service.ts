@@ -5,6 +5,28 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
 
+export interface DatetaskWriteLogOptions {
+    taskId: number
+    taskName: string
+    startTime: Date
+    endTime: Date
+    duration: number
+    status: string
+    result?: string
+    error?: string
+}
+
+export interface DatetaskEnsureTaskOptions {
+    name: string
+    title: string
+    description?: string
+    type: string
+    cron: string
+    handler: string
+    status?: string
+    params?: Record<string, any>
+}
+
 @Injectable()
 export class DatetaskManagerService extends Logger implements OnModuleInit {
     constructor(
@@ -126,16 +148,7 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**写入执行日志**/
     @AutoDescriptor
-    public async writeLog(data: {
-        taskId: number
-        taskName: string
-        startTime: Date
-        endTime: Date
-        duration: number
-        status: string
-        result?: string
-        error?: string
-    }) {
+    public async writeLog(data: DatetaskWriteLogOptions) {
         const log = this.windows.datetaskLogOptions.create({
             taskId: data.taskId,
             taskName: data.taskName,
@@ -145,10 +158,33 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
             status: data.status,
             result: data.result,
             error: data.error
-        } as any)
+        })
         await this.windows.datetaskLogOptions.save(log)
 
         /**更新任务的上次执行时间**/
         await this.windows.datetaskDefineOptions.update(data.taskId, { lastTime: data.endTime } as any)
+    }
+
+    /**确保任务定义存在（不存在则自动创建）**/
+    @AutoDescriptor
+    public async ensureTask(data: DatetaskEnsureTaskOptions) {
+        const exist = await this.windows.datetaskDefineOptions.findOne({ where: { name: data.name } as any })
+        if (exist) {
+            this.logger.info(`[DatetaskManager] 任务已存在: ${data.title} (${data.name})`)
+            return exist
+        }
+        const task = this.windows.datetaskDefineOptions.create({
+            name: data.name,
+            title: data.title,
+            description: data.description ?? '',
+            type: data.type,
+            cron: data.cron,
+            handler: data.handler,
+            status: data.status ?? 'enable',
+            params: data.params ?? {}
+        })
+        await this.windows.datetaskDefineOptions.save(task)
+        this.logger.info(`[DatetaskManager] 自动创建任务: ${data.title} (${data.name})`)
+        return task
     }
 }

@@ -114,6 +114,24 @@ export const COMMON_CHUNK = {
         name: enums.CHUNK_CLIENT_SMS_TYPE.name,
         value: enums.CHUNK_CLIENT_SMS_TYPE.value,
         columns: withExtract(enums.CHUNK_CLIENT_SMS_TYPE)
+    },
+    /**定时任务类型**/
+    [enums.CHUNK_DATETASK_TYPE.value]: {
+        name: enums.CHUNK_DATETASK_TYPE.name,
+        value: enums.CHUNK_DATETASK_TYPE.value,
+        columns: withExtract(enums.CHUNK_DATETASK_TYPE)
+    },
+    /**定时任务状态**/
+    [enums.CHUNK_DATETASK_STATUS.value]: {
+        name: enums.CHUNK_DATETASK_STATUS.name,
+        value: enums.CHUNK_DATETASK_STATUS.value,
+        columns: withExtract(enums.CHUNK_DATETASK_STATUS)
+    },
+    /**定时任务日志状态**/
+    [enums.CHUNK_DATETASK_LOG_STATUS.value]: {
+        name: enums.CHUNK_DATETASK_LOG_STATUS.name,
+        value: enums.CHUNK_DATETASK_LOG_STATUS.value,
+        columns: withExtract(enums.CHUNK_DATETASK_LOG_STATUS)
     }
 }
 

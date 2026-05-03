@@ -4,8 +4,9 @@ import { DeploySheetModule } from '@web-windows-server/modules/deploy/sheet/shee
 import { DeployRoleModule } from '@web-windows-server/modules/deploy/role/role.module'
 import { DeployPositionModule } from '@web-windows-server/modules/deploy/position/position.module'
 import { DeployAccoutModule } from '@web-windows-server/modules/deploy/account/accout.module'
+import { DeployDatetaskModule } from '@web-windows-server/modules/deploy/datetask/datetask.module'
 
 @Module({
-    imports: [DeployDeptModule, DeploySheetModule, DeployRoleModule, DeployPositionModule, DeployAccoutModule]
+    imports: [DeployDeptModule, DeploySheetModule, DeployRoleModule, DeployPositionModule, DeployAccoutModule, DeployDatetaskModule]
 })
 export class DeployModule {}
