@@ -79,4 +79,29 @@ export class FinanceCurrencyService extends Logger {
             throw new HttpException(err.message, err.status, err.options)
         }
     }
+
+    /**汇率分页列表查询**/
+    @AutoDescriptor
+    public async httpBaseFinanceColumnCurrencyExchange(request: OmixRequest, body: windows.ColumnCurrencyExchangeOptions) {
+        try {
+            return await this.database.builder(this.windows.currencyExchangeOptions, async qb => {
+                if (isNotEmpty(body.currency)) {
+                    qb.andWhere(`t.currency = :currency`, { currency: body.currency })
+                }
+                if (isNotEmpty(body.date)) {
+                    qb.andWhere(`t.date = :date`, { date: body.date })
+                }
+                qb.orderBy('t.date', 'DESC')
+                qb.addOrderBy('t.currency', 'ASC')
+                qb.skip((body.page - 1) * body.size)
+                qb.take(body.size)
+                return await qb.getManyAndCount().then(async ([list, total]) => {
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 }

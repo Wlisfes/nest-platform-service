@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('国家-地区管理', 'finance/country')
+@ApifoxController('财务中心-综合设置', 'finance/country')
 export class FinanceCountryController {
     constructor(private readonly financeCountryService: FinanceCountryService) {}
 

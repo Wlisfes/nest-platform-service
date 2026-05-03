@@ -22,3 +22,15 @@ export class SelectCurrencyOptionsResponse {
     @ApiProperty({ description: '币种列表', type: [schema.WindowsCurrency] })
     list: schema.WindowsCurrency[]
 }
+
+/**汇率分页列表查询**/
+export class ColumnCurrencyExchangeOptions extends IntersectionType(
+    PickType(OmixColumnOptions, ['page', 'size']),
+    PartialType(PickType(schema.WindowsCurrencyExchange, ['currency', 'date']))
+) {}
+
+/**汇率分页列表响应**/
+export class ColumnCurrencyExchangeOptionsResponse extends OmixColumnResponse {
+    @ApiProperty({ description: '列表数据', type: [schema.WindowsCurrencyExchange] })
+    list: schema.WindowsCurrencyExchange[]
+}

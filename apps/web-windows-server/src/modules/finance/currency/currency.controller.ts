@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('币种管理', 'finance/currency')
+@ApifoxController('财务中心-综合设置', 'finance/currency')
 export class FinanceCurrencyController {
     constructor(private readonly financeCurrencyService: FinanceCurrencyService) {}
 
@@ -33,5 +33,14 @@ export class FinanceCurrencyController {
     })
     public async httpBaseFinanceSelectCurrency(@Request() request: OmixRequest) {
         return await this.financeCurrencyService.httpBaseFinanceSelectCurrency(request)
+    }
+
+    @ApiServiceDecorator(Post('exchange/column'), {
+        windows: true,
+        operation: { summary: '汇率分页列表' },
+        response: { status: 200, description: 'OK', type: windows.ColumnCurrencyExchangeOptionsResponse }
+    })
+    public async httpBaseFinanceColumnCurrencyExchange(@Request() request: OmixRequest, @Body() body: windows.ColumnCurrencyExchangeOptions) {
+        return await this.financeCurrencyService.httpBaseFinanceColumnCurrencyExchange(request, body)
     }
 }
