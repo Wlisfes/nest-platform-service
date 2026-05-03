@@ -40,6 +40,15 @@
             "compilerOptions": {
                 "tsConfigPath": "apps/web-wallet-server/tsconfig.app.json"
             }
+        },
+        "web-datetask-server": {
+            "type": "application",
+            "root": "apps/web-datetask-server",
+            "entryFile": "main",
+            "sourceRoot": "apps/web-datetask-server/src",
+            "compilerOptions": {
+                "tsConfigPath": "apps/web-datetask-server/tsconfig.app.json"
+            }
         }
     }
 }
