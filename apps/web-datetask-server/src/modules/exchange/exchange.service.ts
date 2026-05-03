@@ -33,7 +33,7 @@ export class ExchangeService extends Logger implements OnModuleInit {
 
     /**同步汇率核心逻辑**/
     @AutoDescriptor
-    public async syncExchangeRates(): Promise<{ synced: number; skipped: number; total: number }> {
+    public async syncExchangeRates() {
         /**1. 从 Frankfurter API 获取基于 USD 的最新汇率**/
         const { data } = await firstValueFrom(
             this.httpService.get<{
@@ -42,7 +42,7 @@ export class ExchangeService extends Logger implements OnModuleInit {
                 rates: Record<string, number>
             }>('https://api.frankfurter.dev/v1/latest?base=USD')
         )
-        this.logger.info(`[CurrencySchedule] 获取到 ${Object.keys(data.rates).length} 个币种汇率, 日期: ${data.date}`)
+        this.logger.info(`[ExchangeService] 获取到 ${Object.keys(data.rates).length} 个币种汇率, 日期: ${data.date}`)
 
         /**2. 查询系统中所有已配置的币种列表**/
         const allCurrencies = await this.database.builder(this.windows.currencyOptions, async qb => {

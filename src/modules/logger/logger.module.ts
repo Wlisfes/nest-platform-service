@@ -79,8 +79,6 @@ export function fetchTransports(data: Omix) {
                                 })
                             }
 
-                            // console.log(data)
-
                             /**异常错误日志**/
                             if (data.log instanceof Error) {
                                 console[data.level](`${module}  ${url}  ${duration}`, data.log)
@@ -89,7 +87,8 @@ export function fetchTransports(data: Omix) {
 
                             /**常规日志**/
                             if (typeof data.log === 'string') {
-                                console[data.level](`${module}  ${duration}  {\n    log: ${chalk.red(data.log)}\n}`)
+                                const chalkColor = ['error', 'warn'].includes(data.level) ? chalk.red : chalk.gray
+                                console[data.level](`${module}  ${duration}  {\n    log: ${chalkColor(data.log)}\n}`)
                                 return fetchWrite(data, { log: `log: ${data.log}` })
                             }
 

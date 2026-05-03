@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger as WinstonLogger } from 'winston'
-import { isNotEmpty } from 'class-validator'
+import { isNotEmpty, isEmpty, isObject } from 'class-validator'
 import { OmixRequest } from '@/interface'
 import { v4 } from 'uuid'
 
@@ -11,11 +11,16 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
     const methodName = propertyName
     const originalMethod = descriptor.value
     descriptor.value = function (...args: any[]) {
-        const request = args[0] ?? { headers: { logId: v4(), datetime: Date.now().toString() } }
+        const request: OmixRequest = args[0] ?? {}
         const { stack } = args.find(item => isNotEmpty(item.stack)) ?? {}
+        if (isNotEmpty(request) && isObject(request) && isEmpty(request.headers)) {
+            request.headers = {}
+            request.headers.logId = v4()
+            request.headers.datetime = Date.now().toString()
+        }
         this.stack = [stack, className, methodName].filter(isNotEmpty).join(':')
         this.logger = new WinstonService(this.winston, request, {
-            datetime: request.headers.datetime,
+            datetime: request.headers?.datetime,
             stack: this.stack
         })
         return originalMethod.apply(this, args)
