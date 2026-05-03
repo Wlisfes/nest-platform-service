@@ -3,6 +3,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { Logger as WinstonLogger } from 'winston'
 import { isNotEmpty } from 'class-validator'
 import { OmixRequest } from '@/interface'
+import { v4 } from 'uuid'
 
 /**注入日志配置**/
 export function AutoDescriptor(target: any, propertyName: string, descriptor: Omix<PropertyDescriptor>) {
@@ -10,11 +11,11 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
     const methodName = propertyName
     const originalMethod = descriptor.value
     descriptor.value = function (...args: any[]) {
-        const request = args[0] ?? {}
+        const request = args[0] ?? { headers: { logId: v4(), datetime: Date.now().toString() } }
         const { stack } = args.find(item => isNotEmpty(item.stack)) ?? {}
         this.stack = [stack, className, methodName].filter(isNotEmpty).join(':')
         this.logger = new WinstonService(this.winston, request, {
-            datetime: request.headers?.datetime,
+            datetime: request.headers.datetime,
             stack: this.stack
         })
         return originalMethod.apply(this, args)
@@ -37,7 +38,11 @@ export class WinstonService {
     }
     /**日志组合输出**/
     private output(log: any) {
-        return { duration: `${Date.now() - this.date.getTime()}ms`, logId: this.request.headers.logId, log: log }
+        return {
+            duration: `${Date.now() - this.date.getTime()}ms`,
+            logId: this.request.headers?.logId,
+            log: log
+        }
     }
     /**时间重置**/
     public reset() {
