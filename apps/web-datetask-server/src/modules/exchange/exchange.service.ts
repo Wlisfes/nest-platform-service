@@ -1,34 +1,17 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
-import { Cron } from '@nestjs/schedule'
+import { Injectable } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { firstValueFrom } from 'rxjs'
 
 @Injectable()
-export class ExchangeService extends Logger implements OnModuleInit {
+export class ExchangeService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
         private readonly httpService: HttpService
     ) {
         super()
-    }
-
-    /**应用启动后执行一次同步**/
-    async onModuleInit() {
-        await this.syncExchangeRates().catch(err => {
-            this.logger.error(`[ExchangeService] 启动同步汇率失败: ${err.message}`)
-        })
-    }
-
-    /**每天 08:00 自动同步汇率**/
-    @Cron('0 0 8 * * *')
-    async handleCronSyncExchangeRates() {
-        this.logger.info('[CurrencySchedule] 定时同步汇率任务开始')
-        await this.syncExchangeRates().catch(err => {
-            this.logger.error(`[CurrencySchedule] 定时同步汇率失败: ${err.message}`)
-        })
     }
 
     /**同步汇率核心逻辑**/
@@ -73,11 +56,11 @@ export class ExchangeService extends Logger implements OnModuleInit {
                 })
                 synced++
             } catch (err) {
-                this.logger.error(`[CurrencySchedule] 写入 ${currency} 汇率失败: ${err.message}`)
+                this.logger.error(`[ExchangeService] 写入 ${currency} 汇率失败: ${err.message}`)
             }
         }
 
-        this.logger.info(`[CurrencySchedule] 同步完成: 写入 ${synced} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`)
+        this.logger.info(`[ExchangeService] 同步完成: 写入 ${synced} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`)
         return { synced, skipped, total: toSync.length }
     }
 }

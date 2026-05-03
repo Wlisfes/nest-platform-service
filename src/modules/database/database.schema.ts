@@ -39,6 +39,8 @@ export class WindowsService {
         @InjectRepository(schema.WindowsWalletConsume) readonly walletConsumeOptions: Repository<schema.WindowsWalletConsume>,
         @InjectRepository(schema.WindowsWalletRecharge) readonly walletRechargeOptions: Repository<schema.WindowsWalletRecharge>,
         @InjectRepository(schema.WindowsBasicSmsRate) readonly basicSmsRateOptions: Repository<schema.WindowsBasicSmsRate>,
-        @InjectRepository(schema.WindowsCurrencyExchange) readonly currencyExchangeOptions: Repository<schema.WindowsCurrencyExchange>
+        @InjectRepository(schema.WindowsCurrencyExchange) readonly currencyExchangeOptions: Repository<schema.WindowsCurrencyExchange>,
+        @InjectRepository(schema.WindowsDatetask) readonly datetaskDefineOptions: Repository<schema.WindowsDatetask>,
+        @InjectRepository(schema.WindowsDatetaskLog) readonly datetaskLogOptions: Repository<schema.WindowsDatetaskLog>
     ) {}
 }
