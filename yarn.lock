@@ -5716,6 +5716,11 @@ run-parallel@^1.1.9:
   dependencies:
     queue-microtask "^1.2.2"
 
+run-script-webpack-plugin@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.npmmirror.com/run-script-webpack-plugin/-/run-script-webpack-plugin-0.2.3.tgz"
+  integrity sha512-GX1JqSNAmtGMAcE3iyLFlnxWpxKBWPNkpac/02w2RF3xynTjA8LWLkFzMzlvATA3c3kARWnT2OrsnvJviB79Lg==
+
 "rxjs@^6.0.0 || ^7.0.0", rxjs@^7.1.0, rxjs@^7.2.0, rxjs@^7.5.5, rxjs@^7.8.1, rxjs@^7.x, rxjs@7.8.1:
   version "7.8.1"
   resolved "https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz"
@@ -6715,7 +6720,7 @@ webidl-conversions@^3.0.0:
   resolved "https://registry.npmmirror.com/webidl-conversions/-/webidl-conversions-3.0.1.tgz"
   integrity sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==
 
-webpack-node-externals@3.0.0:
+webpack-node-externals@^3.0.0, webpack-node-externals@3.0.0:
   version "3.0.0"
   resolved "https://registry.npmmirror.com/webpack-node-externals/-/webpack-node-externals-3.0.0.tgz"
   integrity sha512-LnL6Z3GGDPht/AigwRh2dvL9PQPFQ8skEpVrWZXLWBYmqcaojHNN0onvHzie6rq7EWKrrBfPYqNEzTJgiwEQDQ==
