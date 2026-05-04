@@ -1,14 +1,22 @@
 import { Module, Global } from '@nestjs/common'
 import { BullModule } from '@nestjs/bullmq'
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
-import { DatetaskProcessor } from '@web-datetask-server/modules/datetask/datetask.processor'
-import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
+import { DatetaskSystemProcessor } from '@web-datetask-server/modules/datetask/datetask-system.processor'
+import * as constants from '@web-datetask-server/modules/datetask/datetask.constants'
 
 @Global()
 @Module({
     imports: [
         BullModule.registerQueue({
-            name: DATETASK_QUEUE,
+            name: constants.DATETASK_SYSTEM_QUEUE,
+            defaultJobOptions: {
+                removeOnComplete: 100,
+                removeOnFail: 200,
+                attempts: 1
+            }
+        }),
+        BullModule.registerQueue({
+            name: constants.DATETASK_SMS_QUEUE,
             defaultJobOptions: {
                 removeOnComplete: 100,
                 removeOnFail: 200,
@@ -16,7 +24,7 @@ import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.c
             }
         })
     ],
-    providers: [DatetaskService, DatetaskProcessor],
-    exports: [DatetaskService, DatetaskProcessor]
+    providers: [DatetaskService, DatetaskSystemProcessor],
+    exports: [DatetaskService, DatetaskSystemProcessor]
 })
 export class DatetaskModule {}

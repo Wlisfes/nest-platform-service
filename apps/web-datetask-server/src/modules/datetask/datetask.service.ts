@@ -1,65 +1,80 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
-import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
-import { InjectQueue } from '@nestjs/bullmq'
-import { Queue } from 'bullmq'
 import { isNotEmpty, pick, fetchIntNumber, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
+import { InjectQueue } from '@nestjs/bullmq'
+import { Queue } from 'bullmq'
+import * as constants from '@web-datetask-server/modules/datetask/datetask.constants'
 import * as datetask from '@web-datetask-server/interface'
 
 @Injectable()
 export class DatetaskService extends Logger {
     constructor(
-        @InjectQueue(DATETASK_QUEUE) private readonly datetaskQueue: Queue,
+        @InjectQueue(constants.DATETASK_SMS_QUEUE) private readonly datetaskSmsQueue: Queue,
+        @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly datetaskSystemQueue: Queue,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService
     ) {
         super()
     }
 
-    /**从数据库加载任务并注册到 BullMQ**/
-    @AutoDescriptor
-    public async fetchLoadAndRegisterTasks(request?: OmixRequest) {
-        /**清除所有现有的 repeatable jobs，防止重复**/
-        await this.datetaskQueue.getJobSchedulers().then(async jobs => {
+    /**清除job任务防止重复**/
+    private async fetchRemoveJobScheduler(queue: Queue) {
+        return await queue.getJobSchedulers().then(async jobs => {
             for (const job of jobs) {
-                await this.datetaskQueue.removeJobScheduler(job.key)
+                await queue.removeJobScheduler(job.key)
             }
             return jobs
         })
+    }
+
+    /**从数据库加载任务并注册到 BullMQ**/
+    @AutoDescriptor
+    public async fetchTasksRegister(request?: OmixRequest) {
+        const jobs = [this.fetchRemoveJobScheduler(this.datetaskSystemQueue)]
+        return await Promise.all(jobs).then(async () => {
+            return await this.fetchLoadAndRegisterTasks(request)
+        })
+    }
+
+    /**从数据库加载任务并注册到 BullMQ**/
+    @AutoDescriptor
+    public async fetchLoadAndRegisterTasks(request?: OmixRequest) {
         /**查询所有启用的任务**/
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
             qb.where(
-                `(t.status = :status AND t.type = :system AND t.cron IS NOT NULL) OR (t.status = :status AND t.type = :business AND t.runTime IS NOT NULL)`,
+                `(t.status = :status AND t.type = :system AND t.cron IS NOT NULL) OR (t.status = :status AND t.type = :sms AND t.runTime IS NOT NULL)`,
                 {
                     status: enums.CHUNK_DATETASK_STATUS.running.value,
                     system: enums.CHUNK_DATETASK_TYPE.system.value,
-                    business: enums.CHUNK_DATETASK_TYPE.business.value
+                    sms: enums.CHUNK_DATETASK_TYPE.sms.value
                 }
             )
             return await qb.getMany().then(async tasks => {
                 for (const task of tasks) {
-                    const taskOptions: Omix = fetchCloneByte(
+                    const taskOptions = fetchCloneByte(
+                        { request },
                         pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
                     )
-                    if (isNotEmpty(task.runTime)) {
-                        /**一次性任务：计算延迟时间**/
-                        const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
-                        await this.datetaskQueue.add(task.handler, taskOptions, { delay, jobId: task.taskId })
-                        this.logger.info(
-                            `注册业务任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
-                        )
-                    } else if (isNotEmpty(task.cron)) {
-                        /**周期任务：使用 Cron 表达式**/
-                        await this.datetaskQueue.add(task.handler, taskOptions, {
-                            repeat: { pattern: task.cron },
-                            jobId: task.taskId
+                    if (task.type === enums.CHUNK_DATETASK_TYPE.system.value) {
+                        /**系统任务：使用 Cron 表达式**/
+                        await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, {
+                            repeat: { pattern: task.cron }
                         })
                         this.logger.info(
                             `注册系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，Cron表达式-[${task.cron}]`
                         )
                     }
+
+                    // if (taskOptions.type === enums.CHUNK_DATETASK_TYPE.sms.value) {
+                    //     /**短信任务：计算延迟时间**/
+                    //     const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
+                    //     // await this.datetaskSmsQueue.add(taskOptions, { delay, jobId: task.taskId })
+                    //     this.logger.info(
+                    //         `注册短信任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
+                    //     )
+                    // }
                 }
                 const systemTasks = tasks.filter(task => task.type === enums.CHUNK_DATETASK_TYPE.system.value && task.cron && !task.runTime)
                 const businessTasks = tasks.length - systemTasks.length
@@ -73,34 +88,32 @@ export class DatetaskService extends Logger {
     /**启用任务**/
     @AutoDescriptor
     public async fetchEnableTask(taskId: number) {
-        const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
-        if (!task) throw new Error(`任务不存在: ${taskId}`)
-
-        await this.windows.datetaskOptions.update({ taskId } as any, { status: 'enable' } as any)
-        await this.datetaskQueue.add(
-            task.handler,
-            { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body },
-            { repeat: { pattern: task.cron }, jobId: `task-${task.taskName}` }
-        )
-        this.logger.info(`启用任务: ${task.taskName}`)
-        return task
+        // const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
+        // if (!task) throw new Error(`任务不存在: ${taskId}`)
+        // await this.windows.datetaskOptions.update({ taskId } as any, { status: 'enable' } as any)
+        // await this.datetaskQueue.add(
+        //     task.handler,
+        //     { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body },
+        //     { repeat: { pattern: task.cron }, jobId: `task-${task.taskName}` }
+        // )
+        // this.logger.info(`启用任务: ${task.taskName}`)
+        // return task
     }
 
     /**停用任务**/
     @AutoDescriptor
     public async fetchDisableTask(taskId: number) {
-        const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
-        if (!task) throw new Error(`任务不存在: ${taskId}`)
-
-        await this.windows.datetaskOptions.update({ taskId } as any, { status: 'disable' } as any)
-        /**移除 repeatable job**/
-        const repeatables = await this.datetaskQueue.getRepeatableJobs()
-        const target = repeatables.find(r => r.name === task.handler)
-        if (target) {
-            await this.datetaskQueue.removeRepeatableByKey(target.key)
-        }
-        this.logger.info(`停用任务: ${task.taskName}`)
-        return task
+        // const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
+        // if (!task) throw new Error(`任务不存在: ${taskId}`)
+        // await this.windows.datetaskOptions.update({ taskId } as any, { status: 'disable' } as any)
+        // /**移除 repeatable job**/
+        // const repeatables = await this.datetaskQueue.getRepeatableJobs()
+        // const target = repeatables.find(r => r.name === task.handler)
+        // if (target) {
+        //     await this.datetaskQueue.removeRepeatableByKey(target.key)
+        // }
+        // this.logger.info(`停用任务: ${task.taskName}`)
+        // return task
     }
 
     /**修改任务 Cron 表达式**/
@@ -110,23 +123,23 @@ export class DatetaskService extends Logger {
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
         /**先移除旧的 repeatable job**/
-        const repeatables = await this.datetaskQueue.getRepeatableJobs()
-        const target = repeatables.find(r => r.name === task.handler)
-        if (target) {
-            await this.datetaskQueue.removeRepeatableByKey(target.key)
-        }
+        // const repeatables = await this.datetaskQueue.getRepeatableJobs()
+        // const target = repeatables.find(r => r.name === task.handler)
+        // if (target) {
+        //     await this.datetaskQueue.removeRepeatableByKey(target.key)
+        // }
 
-        /**更新数据库**/
-        await this.windows.datetaskOptions.update({ taskId } as any, { cron } as any)
+        // /**更新数据库**/
+        // await this.windows.datetaskOptions.update({ taskId } as any, { cron } as any)
 
-        /**如果任务是启用状态，重新注册**/
-        if (task.status === 'enable') {
-            await this.datetaskQueue.add(
-                task.handler,
-                { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body },
-                { repeat: { pattern: cron }, jobId: `task-${task.taskName}` }
-            )
-        }
+        // /**如果任务是启用状态，重新注册**/
+        // if (task.status === 'enable') {
+        //     await this.datetaskQueue.add(
+        //         task.handler,
+        //         { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body },
+        //         { repeat: { pattern: cron }, jobId: `task-${task.taskName}` }
+        //     )
+        // }
         this.logger.info(`更新任务Cron: ${task.taskName} => ${cron}`)
         return { ...task, cron }
     }
@@ -137,11 +150,11 @@ export class DatetaskService extends Logger {
         const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
-        await this.datetaskQueue.add(
-            task.handler,
-            { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body, manual: true },
-            { jobId: `task-${task.taskName}-manual-${Date.now()}` }
-        )
+        // await this.datetaskQueue.add(
+        //     task.handler,
+        //     { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body, manual: true },
+        //     { jobId: `task-${task.taskName}-manual-${Date.now()}` }
+        // )
         this.logger.info(`手动触发任务: ${task.taskName}`)
         return task
     }
@@ -150,7 +163,7 @@ export class DatetaskService extends Logger {
     @AutoDescriptor
     public async fetchBaseWriteTaskLog(request: OmixRequest, body: datetask.BaseWriteTaskLogOptions) {
         await this.database.create(this.windows.datetaskLogOptions, {
-            comment: `写入任务执行日志: 任务名称-${body.taskName}，任务处理器标识-${body.taskName}`,
+            comment: `写入任务执行日志: 任务ID-[${body.taskId}]，任务名称-[${body.taskName}]，任务处理器标识-${body.taskName}`,
             stack: this.stack,
             request,
             body: body

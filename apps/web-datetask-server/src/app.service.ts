@@ -18,7 +18,7 @@ export class AppService extends Logger {
             this.exchangeService.fetchInitEventRegister(request)
         ]
         return await Promise.all(tasks).then(async () => {
-            return await this.datetaskService.fetchLoadAndRegisterTasks(request)
+            return await this.datetaskService.fetchTasksRegister(request)
         })
     }
 }

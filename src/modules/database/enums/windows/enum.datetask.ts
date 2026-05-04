@@ -6,9 +6,9 @@ export const CHUNK_DATETASK_TYPE = {
         name: '系统任务',
         json: { type: 'info' }
     },
-    business: {
-        value: 'business',
-        name: '业务任务',
+    sms: {
+        value: 'sms',
+        name: '短信任务',
         json: { type: 'warning' }
     }
 }

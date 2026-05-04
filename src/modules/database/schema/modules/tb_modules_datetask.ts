@@ -79,7 +79,7 @@ export class WindowsDatetaskLog extends DataBaseAdapter {
     @ApiProperty({ description: '任务名称', example: '汇率同步定时任务' })
     @IsNotEmpty({ message: '任务名称必填' })
     @Length(4, 128, { message: '任务名称长度4~128位' })
-    @Column({ name: 'task_name', comment: '任务名称', length: 128, nullable: false, unique: true })
+    @Column({ name: 'task_name', comment: '任务名称', length: 128, nullable: false })
     taskName: string
 
     @ApiProperty({ description: '开始时间', example: '2025-05-03 08:00:00' })
@@ -103,11 +103,13 @@ export class WindowsDatetaskLog extends DataBaseAdapter {
     @Column({ nullable: false, comment: withComment('执行状态', enums.CHUNK_DATETASK_LOG_STATUS) })
     status: string
 
-    @ApiProperty({ description: '结果摘要', example: '{"synced":10,"skipped":5}' })
-    @Column({ comment: '结果摘要', type: 'text', nullable: true })
-    result: string
+    @ApiProperty({ description: '结果摘要', required: false })
+    @IsOptional()
+    @WithJsonColumn({ comment: '结果摘要', nullable: true })
+    result: Record<string, any>
 
-    @ApiProperty({ description: '错误信息', example: '' })
-    @Column({ comment: '错误信息', type: 'text', nullable: true })
-    error: string
+    @ApiProperty({ description: '错误信息', required: false })
+    @IsOptional()
+    @WithJsonColumn({ comment: '错误信息', nullable: true })
+    error: Record<string, any>
 }

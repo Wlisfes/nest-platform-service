@@ -1,6 +1,9 @@
 import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
 import * as schema from '@/modules/database/schema'
 
+/**处理器注册表类型**/
+export type TaskHandler = (params: Omix) => Promise<Omix>
+
 /**任务执行数据结构定义**/
 export class BaseJobDatetaskOptions extends IntersectionType(
     PickType(schema.WindowsDatetask, ['taskId', 'taskName', 'handler', 'type', 'cron']),
