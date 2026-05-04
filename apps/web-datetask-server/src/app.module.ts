@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 import { BullModule } from '@nestjs/bullmq'
@@ -31,4 +31,11 @@ import { ExchangeModule } from '@web-datetask-server/modules/exchange/exchange.m
         ExchangeModule
     ]
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+    // constructor(private readonly exchangeService: ExchangeService) {}
+
+    /**定时任务初始化**/
+    async onModuleInit() {
+        // return this.exchangeService.fetchInitEventRegister()
+    }
+}

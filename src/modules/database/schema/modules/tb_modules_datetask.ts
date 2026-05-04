@@ -11,17 +11,17 @@ export class WindowsDatetask extends DataBaseAdapter {
     @Column({ name: 'task_id', comment: '任务ID', update: false, length: 19, nullable: false })
     taskId: string
 
-    @ApiProperty({ description: '任务标识', example: 'datetask-sync-exchange-rate' })
-    @IsNotEmpty({ message: '任务标识必填' })
-    @Length(1, 64, { message: '任务标识长度1~64位' })
-    @Column({ comment: '任务标识', length: 64, nullable: false, unique: true })
-    name: string
+    @ApiProperty({ description: '任务名称', example: '汇率同步定时任务' })
+    @IsNotEmpty({ message: '任务名称必填' })
+    @Length(4, 128, { message: '任务名称长度4~128位' })
+    @Column({ name: 'task_name', comment: '任务名称', length: 128, nullable: false, unique: true })
+    taskName: string
 
-    @ApiProperty({ description: '显示名称', example: '汇率同步' })
-    @IsNotEmpty({ message: '显示名称必填' })
-    @Length(1, 128, { message: '显示名称长度1~128位' })
-    @Column({ comment: '显示名称', length: 128, nullable: false })
-    title: string
+    @ApiProperty({ description: '处理器标识', example: 'datetask-sync-exchange-rate' })
+    @IsNotEmpty({ message: '处理器标识必填' })
+    @Length(1, 64, { message: '处理器标识长度1~64位' })
+    @Column({ comment: '处理器标识', length: 64, nullable: false })
+    handler: string
 
     @ApiProperty({ description: '任务描述', example: '每天从Frankfurter API同步汇率' })
     @IsOptional()
@@ -46,19 +46,10 @@ export class WindowsDatetask extends DataBaseAdapter {
 
     @ApiProperty({ description: '一次性执行时间（一次性任务）', example: '2025-06-01 08:00:00', required: false })
     @IsOptional()
-    @Column({ name: 'run_time', comment: '一次性执行时间', nullable: true, type: 'datetime' })
+    @Column({ name: 'run_time', type: 'datetime', comment: '一次性执行时间', nullable: true })
     runTime: Date
 
-    @ApiProperty({ description: '处理器标识', example: 'exchange-sync' })
-    @IsNotEmpty({ message: '处理器标识必填' })
-    @Length(1, 64, { message: '处理器标识长度1~64位' })
-    @Column({ comment: '处理器标识', length: 64, nullable: false })
-    handler: string
-
-    @ApiProperty({
-        description: withComment('任务状态', enums.CHUNK_DATETASK_STATUS),
-        example: enums.CHUNK_DATETASK_STATUS.enable.value
-    })
+    @ApiProperty({ description: withComment('任务状态', enums.CHUNK_DATETASK_STATUS), example: enums.CHUNK_DATETASK_STATUS.enable.value })
     @IsNotEmpty({ message: '任务状态必填' })
     @IsEnum(withKeys(enums.CHUNK_DATETASK_STATUS), { message: '任务状态格式错误' })
     @Column({ nullable: false, comment: withComment('任务状态', enums.CHUNK_DATETASK_STATUS) })
@@ -67,7 +58,7 @@ export class WindowsDatetask extends DataBaseAdapter {
     @ApiProperty({ description: '任务参数', required: false })
     @IsOptional()
     @WithJsonColumn({ comment: '任务参数', nullable: true })
-    params: Record<string, any>
+    body: Record<string, any>
 
     @ApiProperty({ description: '上次执行时间', example: '2025-05-03 08:00:00' })
     @DateWithColumn(Column, { name: 'last_time', comment: '上次执行时间', nullable: true })
@@ -85,10 +76,10 @@ export class WindowsDatetaskLog extends DataBaseAdapter {
     @Column({ name: 'task_id', comment: '任务ID', update: false, length: 19, nullable: false })
     taskId: string
 
-    @ApiProperty({ description: '任务标识', example: 'exchange-sync' })
-    @IsNotEmpty({ message: '任务标识必填' })
-    @Length(1, 64, { message: '任务标识长度1~64位' })
-    @Column({ name: 'task_name', comment: '任务标识', length: 64, nullable: false })
+    @ApiProperty({ description: '任务名称', example: '汇率同步定时任务' })
+    @IsNotEmpty({ message: '任务名称必填' })
+    @Length(4, 128, { message: '任务名称长度4~128位' })
+    @Column({ name: 'task_name', comment: '任务名称', length: 128, nullable: false, unique: true })
     taskName: string
 
     @ApiProperty({ description: '开始时间', example: '2025-05-03 08:00:00' })

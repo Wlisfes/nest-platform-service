@@ -8,28 +8,6 @@ import { isNotEmpty, fetchIntNumber, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as datetask from '@web-datetask-server/interface'
 
-export interface DatetaskWriteLogOptions {
-    taskId: number
-    taskName: string
-    startTime: Date
-    endTime: Date
-    duration: number
-    status: string
-    result?: string
-    error?: string
-}
-
-export interface DatetaskEnsureTaskOptions {
-    name: string
-    title: string
-    description?: string
-    type: string
-    cron: string
-    handler: string
-    status?: string
-    params?: Record<string, any>
-}
-
 @Injectable()
 export class DatetaskService extends Logger implements OnModuleInit {
     constructor(
@@ -60,26 +38,26 @@ export class DatetaskService extends Logger implements OnModuleInit {
             qb.where(`t.status = :status`, { status: 'enable' })
             return await qb.getMany().then(async tasks => {
                 for (const task of tasks) {
-                    const jobData = { taskId: task.taskId, taskName: task.name, handler: task.handler, params: task.params }
+                    const jobData = { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body }
                     if (task.runTime) {
                         /**一次性任务：计算延迟时间**/
                         // const delay = new Date(task.runTime).getTime() - Date.now()
                         // if (delay > 0) {
                         //     await this.datetaskQueue.add(task.handler, jobData, {
                         //         delay,
-                        //         jobId: `task-${task.name}-once`
+                        //         jobId: `task-${task.taskName}-once`
                         //     })
-                        //     this.logger.info(`注册一次性任务: 任务名称-[${task.title}]，执行时间-[${task.runTime}]`)
+                        //     this.logger.info(`注册一次性任务: 任务名称-[${task.taskName}]，执行时间-[${task.runTime}]`)
                         // } else {
-                        //     this.logger.info(`跳过已过期的一次性任务: 任务名称-[${task.title}]，执行时间-[${task.runTime}]`)
+                        //     this.logger.info(`跳过已过期的一次性任务: 任务名称-[${task.taskName}]，执行时间-[${task.runTime}]`)
                         // }
                     } else if (task.cron) {
                         /**周期任务：使用 Cron 表达式**/
                         // await this.datetaskQueue.add(task.handler, jobData, {
                         //     repeat: { pattern: task.cron },
-                        //     jobId: `task-${task.name}`
+                        //     jobId: `task-${task.taskName}`
                         // })
-                        // this.logger.info(`注册周期任务: 任务名称-[${task.title}]，Cron表达式-[${task.cron}]`)
+                        // this.logger.info(`注册周期任务: 任务名称-[${task.taskName}]，Cron表达式-[${task.cron}]`)
                     }
                 }
                 this.logger.info(`共加载 ${tasks.length} 个定时任务`)
@@ -91,40 +69,40 @@ export class DatetaskService extends Logger implements OnModuleInit {
     /**启用任务**/
     @AutoDescriptor
     public async fetchEnableTask(taskId: number) {
-        const task = await this.windows.datetaskOptions.findOne({ where: { keyId: taskId } as any })
+        const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
-        await this.windows.datetaskOptions.update(taskId, { status: 'enable' } as any)
+        await this.windows.datetaskOptions.update({ taskId } as any, { status: 'enable' } as any)
         await this.datetaskQueue.add(
             task.handler,
-            { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params },
-            { repeat: { pattern: task.cron }, jobId: `task-${task.name}` }
+            { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body },
+            { repeat: { pattern: task.cron }, jobId: `task-${task.taskName}` }
         )
-        this.logger.info(`[DatetaskManager] 启用任务: ${task.title}`)
+        this.logger.info(`启用任务: ${task.taskName}`)
         return task
     }
 
     /**停用任务**/
     @AutoDescriptor
     public async fetchDisableTask(taskId: number) {
-        const task = await this.windows.datetaskOptions.findOne({ where: { keyId: taskId } as any })
+        const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
-        await this.windows.datetaskOptions.update(taskId, { status: 'disable' } as any)
+        await this.windows.datetaskOptions.update({ taskId } as any, { status: 'disable' } as any)
         /**移除 repeatable job**/
         const repeatables = await this.datetaskQueue.getRepeatableJobs()
         const target = repeatables.find(r => r.name === task.handler)
         if (target) {
             await this.datetaskQueue.removeRepeatableByKey(target.key)
         }
-        this.logger.info(`[DatetaskManager] 停用任务: ${task.title}`)
+        this.logger.info(`停用任务: ${task.taskName}`)
         return task
     }
 
     /**修改任务 Cron 表达式**/
     @AutoDescriptor
     public async fetchUpdateTaskCron(taskId: number, cron: string) {
-        const task = await this.windows.datetaskOptions.findOne({ where: { keyId: taskId } as any })
+        const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
         /**先移除旧的 repeatable job**/
@@ -135,32 +113,32 @@ export class DatetaskService extends Logger implements OnModuleInit {
         }
 
         /**更新数据库**/
-        await this.windows.datetaskOptions.update(taskId, { cron } as any)
+        await this.windows.datetaskOptions.update({ taskId } as any, { cron } as any)
 
         /**如果任务是启用状态，重新注册**/
         if (task.status === 'enable') {
             await this.datetaskQueue.add(
                 task.handler,
-                { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params },
-                { repeat: { pattern: cron }, jobId: `task-${task.name}` }
+                { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body },
+                { repeat: { pattern: cron }, jobId: `task-${task.taskName}` }
             )
         }
-        this.logger.info(`[DatetaskManager] 更新任务Cron: ${task.title} => ${cron}`)
+        this.logger.info(`更新任务Cron: ${task.taskName} => ${cron}`)
         return { ...task, cron }
     }
 
     /**手动触发一次任务**/
     @AutoDescriptor
     public async fetchTriggerTask(taskId: number) {
-        const task = await this.windows.datetaskOptions.findOne({ where: { keyId: taskId } as any })
+        const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
         await this.datetaskQueue.add(
             task.handler,
-            { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params, manual: true },
-            { jobId: `task-${task.name}-manual-${Date.now()}` }
+            { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body, manual: true },
+            { jobId: `task-${task.taskName}-manual-${Date.now()}` }
         )
-        this.logger.info(`[DatetaskManager] 手动触发任务: ${task.title}`)
+        this.logger.info(`手动触发任务: ${task.taskName}`)
         return task
     }
 
@@ -184,20 +162,21 @@ export class DatetaskService extends Logger implements OnModuleInit {
     /**注册系统任务定义（不存在则自动创建）**/
     @AutoDescriptor
     public async fetchBaseEnsureSystemTask(request: OmixRequest, body: datetask.BaseEnsureSystemTaskOptions) {
-        return await this.windows.datetaskOptions.findOne({ where: { name: body.name } }).then(async node => {
+        return await this.windows.datetaskOptions.findOne({ where: { taskName: body.taskName } }).then(async node => {
             if (isNotEmpty(node)) {
-                this.logger.info(`任务已存在: 任务ID-[${node.taskId}]，任务名称-[${node.title}]，任务处理器标识-[${node.name}]`)
+                this.logger.info(`任务已存在: 任务ID-[${node.taskId}]，任务名称-[${node.taskName}]，任务处理器标识-[${node.handler}]`)
                 return node
             }
-            const taskId = fetchIntNumber({ sync: true })
-            return await this.database.create(this.windows.datetaskOptions, {
-                comment: `自动创建任务: 任务ID-[${taskId}]，任务名称-[${body.title}]，任务处理器标识-[${body.name}]`,
-                stack: this.stack,
-                request,
-                body: fetchCloneByte(body, {
-                    taskId,
-                    status: body.status ?? enums.CHUNK_DATETASK_STATUS.enable.value,
-                    params: body.params ?? {}
+            return await fetchIntNumber().then(async taskId => {
+                return await this.database.create(this.windows.datetaskOptions, {
+                    comment: `自动创建任务: 任务ID-[${taskId}]，任务名称-[${body.taskName}]，任务处理器标识-[${body.handler}]`,
+                    stack: this.stack,
+                    request,
+                    body: fetchCloneByte(body, {
+                        taskId,
+                        body: body.body ?? {},
+                        status: body.status ?? enums.CHUNK_DATETASK_STATUS.enable.value
+                    })
                 })
             })
         })

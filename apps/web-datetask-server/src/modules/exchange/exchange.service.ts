@@ -26,18 +26,18 @@ export class ExchangeService extends Logger {
     @AutoDescriptor
     public async fetchInitEventRegister(request?: OmixRequest) {
         /**注册系统任务定义**/
-        await this.datetaskService.fetchBaseEnsureSystemTask(request, {
-            name: this.taskName,
-            handler: this.taskName,
-            title: '定时更新汇率',
-            comment: '定时从Frankfurter获取汇率数据并更新数据库',
-            cron: '0 0 0 * * *',
-            type: enums.CHUNK_DATETASK_TYPE.system.value
-        })
+        // await this.datetaskService.fetchBaseEnsureSystemTask(request, {
+        //     handler: this.taskName,
+        //     taskName: `汇率同步定时任务`,
+        //     comment: '定时从Frankfurter获取汇率数据并更新数据库',
+        //     cron: '0 0 0 * * *',
+        //     type: enums.CHUNK_DATETASK_TYPE.system.value
+        // })
         /**注册处理器**/
-        return this.datetaskProcessor.fetchRegisterHandler(this.taskName, () => {
-            return this.httpBaseRatesByFrankfurter(undefined)
-        })
+        // return this.datetaskProcessor.fetchRegisterHandler(this.taskName, () => {
+        //     return this.httpBaseRatesByFrankfurter(undefined)
+        // })
+        return this.httpBaseRatesByFrankfurter(undefined)
     }
 
     /**获取国际费率**/
@@ -64,20 +64,20 @@ export class ExchangeService extends Logger {
                 qb.andWhere(`t.currency IN (:...currencies)`, { currencies: toSync.map((item: Omix) => item.quote) })
                 return await qb.getMany()
             })
-            const existingSet = new Set(existingRecords.map((r: Omix) => `${r.currency}_${r.date}`))
-            const filters = toSync.filter((item: Omix) => !existingSet.has(`${item.quote}_${item.date}`))
-            const items = filters.map((item: Omix) => ({ currency: item.quote, rate: Number(item.rate), date: item.date }))
-            const skipped = toSync.length - items.length
-            if (items.length > 0) {
-                await this.windows.currencyExchangeOptions.save(items)
-            }
-            this.logger.info(`同步完成: 写入 ${items.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`)
-            return {
-                synced: items.length,
-                skipped,
-                total: toSync.length,
-                message: `同步完成: 写入 ${items.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`
-            }
+            // const existingSet = new Set(existingRecords.map((r: Omix) => `${r.currency}_${r.date}`))
+            // const filters = toSync.filter((item: Omix) => !existingSet.has(`${item.quote}_${item.date}`))
+            // const items = filters.map((item: Omix) => ({ currency: item.quote, rate: Number(item.rate), date: item.date }))
+            // const skipped = toSync.length - items.length
+            // if (items.length > 0) {
+            //     await this.windows.currencyExchangeOptions.save(items)
+            // }
+            // this.logger.info(`同步完成: 写入 ${items.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`)
+            // return {
+            //     synced: items.length,
+            //     skipped,
+            //     total: toSync.length,
+            //     message: `同步完成: 写入 ${items.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`
+            // }
         } catch (err) {
             this.logger.error(`获取国际费率失败：${err.message}`)
             return {
