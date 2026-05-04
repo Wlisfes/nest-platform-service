@@ -49,7 +49,7 @@ export class WindowsDatetask extends DataBaseAdapter {
     @Column({ name: 'run_time', type: 'datetime', comment: '一次性执行时间', nullable: true })
     runTime: Date
 
-    @ApiProperty({ description: withComment('任务状态', enums.CHUNK_DATETASK_STATUS), example: enums.CHUNK_DATETASK_STATUS.enable.value })
+    @ApiProperty({ description: withComment('任务状态', enums.CHUNK_DATETASK_STATUS), example: enums.CHUNK_DATETASK_STATUS.running.value })
     @IsNotEmpty({ message: '任务状态必填' })
     @IsEnum(withKeys(enums.CHUNK_DATETASK_STATUS), { message: '任务状态格式错误' })
     @Column({ nullable: false, comment: withComment('任务状态', enums.CHUNK_DATETASK_STATUS) })

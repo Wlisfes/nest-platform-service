@@ -26,23 +26,27 @@ export class ExchangeService extends Logger {
     @AutoDescriptor
     public async fetchInitEventRegister(request?: OmixRequest) {
         /**注册系统任务定义**/
-        // await this.datetaskService.fetchBaseEnsureSystemTask(request, {
-        //     handler: this.taskName,
-        //     taskName: `汇率同步定时任务`,
-        //     comment: '定时从Frankfurter获取汇率数据并更新数据库',
-        //     cron: '0 0 0 * * *',
-        //     type: enums.CHUNK_DATETASK_TYPE.system.value
-        // })
+        await this.datetaskService.fetchBaseEnsureSystemTask(request, {
+            handler: this.taskName,
+            taskName: `汇率同步定时任务`,
+            comment: '定时从Frankfurter获取汇率数据并更新数据库',
+            // cron: '0 0 0 * * *',
+            cron: '*/10 * * * * *',
+            type: enums.CHUNK_DATETASK_TYPE.system.value
+        })
         /**注册处理器**/
-        // return this.datetaskProcessor.fetchRegisterHandler(this.taskName, () => {
-        //     return this.httpBaseRatesByFrankfurter(undefined)
-        // })
-        return this.httpBaseRatesByFrankfurter(request)
+        return this.datetaskProcessor.fetchRegisterHandler(this.taskName, async data => {
+            // return this.httpBaseRatesByFrankfurter()
+
+            console.log(data)
+
+            return {}
+        })
     }
 
     /**获取国际费率**/
     @AutoDescriptor
-    public async httpBaseRatesByFrankfurter(request: OmixRequest) {
+    public async httpBaseRatesByFrankfurter(request?: OmixRequest) {
         try {
             /**1.从 Frankfurter API 获取基于 USD 的最新汇率**/
             const date = moment().format('YYYY-MM-DD')

@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { ExchangeService } from '@web-datetask-server/modules/exchange/exchange.service'
+import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 import { OmixRequest } from '@/interface'
 
 @Injectable()
 export class AppService extends Logger {
-    constructor(
-        private readonly database: DataBaseService,
-        private readonly windows: WindowsService,
-        private readonly exchangeService: ExchangeService
-    ) {
+    constructor(private readonly exchangeService: ExchangeService, private readonly datetaskService: DatetaskService) {
         super()
     }
 
@@ -22,7 +18,7 @@ export class AppService extends Logger {
             this.exchangeService.fetchInitEventRegister(request)
         ]
         return await Promise.all(tasks).then(async () => {
-            console.log('任务初始化成功')
+            return await this.datetaskService.fetchLoadAndRegisterTasks(request)
         })
     }
 }

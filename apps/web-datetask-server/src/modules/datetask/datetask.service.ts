@@ -4,7 +4,7 @@ import { DataBaseService, WindowsService, enums } from '@/modules/database/datab
 import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Queue } from 'bullmq'
-import { isNotEmpty, fetchIntNumber, fetchCloneByte } from '@/utils'
+import { isNotEmpty, omit, fetchIntNumber, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as datetask from '@web-datetask-server/interface'
 
@@ -20,7 +20,7 @@ export class DatetaskService extends Logger {
 
     /**从数据库加载任务并注册到 BullMQ**/
     @AutoDescriptor
-    public async fetchLoadAndRegisterTasks() {
+    public async fetchLoadAndRegisterTasks(request?: OmixRequest) {
         /**清除所有现有的 repeatable jobs，防止重复**/
         await this.datetaskQueue.getJobSchedulers().then(async jobs => {
             for (const job of jobs) {
@@ -30,33 +30,42 @@ export class DatetaskService extends Logger {
         })
         /**查询所有启用的任务**/
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
-            qb.where(`t.status = :status`, { status: 'enable' })
+            qb.where(
+                `(t.status = :status AND t.type = :system AND t.cron IS NOT NULL) OR (t.status = :status AND t.type = :business AND t.runTime IS NOT NULL)`,
+                {
+                    status: enums.CHUNK_DATETASK_STATUS.running.value,
+                    system: enums.CHUNK_DATETASK_TYPE.system.value,
+                    business: enums.CHUNK_DATETASK_TYPE.business.value
+                }
+            )
             return await qb.getMany().then(async tasks => {
                 for (const task of tasks) {
-                    const jobData = { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body }
-                    if (task.runTime) {
+                    const taskOptions: Omix = fetchCloneByte(
+                        omit(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
+                    )
+                    if (isNotEmpty(task.runTime)) {
                         /**一次性任务：计算延迟时间**/
-                        // const delay = new Date(task.runTime).getTime() - Date.now()
-                        // if (delay > 0) {
-                        //     await this.datetaskQueue.add(task.handler, jobData, {
-                        //         delay,
-                        //         jobId: `task-${task.taskName}-once`
-                        //     })
-                        //     this.logger.info(`注册一次性任务: 任务名称-[${task.taskName}]，执行时间-[${task.runTime}]`)
-                        // } else {
-                        //     this.logger.info(`跳过已过期的一次性任务: 任务名称-[${task.taskName}]，执行时间-[${task.runTime}]`)
-                        // }
-                    } else if (task.cron) {
+                        const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
+                        await this.datetaskQueue.add(task.handler, taskOptions, { delay, jobId: task.taskId })
+                        this.logger.info(
+                            `注册业务任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
+                        )
+                    } else if (isNotEmpty(task.cron)) {
                         /**周期任务：使用 Cron 表达式**/
-                        // await this.datetaskQueue.add(task.handler, jobData, {
-                        //     repeat: { pattern: task.cron },
-                        //     jobId: `task-${task.taskName}`
-                        // })
-                        // this.logger.info(`注册周期任务: 任务名称-[${task.taskName}]，Cron表达式-[${task.cron}]`)
+                        await this.datetaskQueue.add(task.handler, taskOptions, {
+                            repeat: { pattern: task.cron },
+                            jobId: task.taskId
+                        })
+                        this.logger.info(
+                            `注册系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，Cron表达式-[${task.cron}]`
+                        )
                     }
                 }
-                this.logger.info(`共加载 ${tasks.length} 个定时任务`)
-                return tasks
+                const systemTasks = tasks.filter(task => task.type === enums.CHUNK_DATETASK_TYPE.system.value && task.cron && !task.runTime)
+                const businessTasks = tasks.length - systemTasks.length
+                return this.logger.info(
+                    `共加载 ${tasks.length} 个定时任务，系统任务: ${systemTasks.length} 个，业务任务: ${businessTasks} 个`
+                )
             })
         })
     }
@@ -157,10 +166,13 @@ export class DatetaskService extends Logger {
     /**注册系统任务定义（不存在则自动创建）**/
     @AutoDescriptor
     public async fetchBaseEnsureSystemTask(request: OmixRequest, body: datetask.BaseEnsureSystemTaskOptions) {
-        return await this.windows.datetaskOptions.findOne({ where: { taskName: body.taskName } }).then(async node => {
-            if (isNotEmpty(node)) {
-                this.logger.info(`任务已存在: 任务ID-[${node.taskId}]，任务名称-[${node.taskName}]，任务处理器标识-[${node.handler}]`)
-                return node
+        const whereOptions: Omix = { taskName: body.taskName, type: enums.CHUNK_DATETASK_TYPE.system.value }
+        return await this.windows.datetaskOptions.findOne({ where: whereOptions }).then(async task => {
+            if (isNotEmpty(task)) {
+                this.logger.info(
+                    `系统任务已存在: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，Cron表达式-[${task.cron}]`
+                )
+                return task
             }
             return await fetchIntNumber().then(async taskId => {
                 return await this.database.create(this.windows.datetaskOptions, {
@@ -170,7 +182,7 @@ export class DatetaskService extends Logger {
                     body: fetchCloneByte(body, {
                         taskId,
                         body: body.body ?? {},
-                        status: body.status ?? enums.CHUNK_DATETASK_STATUS.enable.value
+                        status: enums.CHUNK_DATETASK_STATUS.running.value
                     })
                 })
             })

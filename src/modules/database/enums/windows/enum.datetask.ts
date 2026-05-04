@@ -16,15 +16,20 @@ export const CHUNK_DATETASK_TYPE = {
 export const CHUNK_DATETASK_STATUS = {
     name: '任务状态',
     value: 'CHUNK_DATETASK_STATUS',
-    enable: {
-        value: 'enable',
-        name: '启用',
+    stop: {
+        value: 'stop',
+        name: '停止',
+        json: { type: 'error' }
+    },
+    running: {
+        value: 'running',
+        name: '运行中',
         json: { type: 'success' }
     },
-    disable: {
-        value: 'disable',
-        name: '停用',
-        json: { type: 'error' }
+    finish: {
+        value: 'finish',
+        name: '已完成',
+        json: { type: 'success' }
     }
 }
 
