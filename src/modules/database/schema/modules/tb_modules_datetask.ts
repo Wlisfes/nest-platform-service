@@ -6,7 +6,12 @@ import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_windows_datetask', comment: '定时任务定义表' })
 export class WindowsDatetask extends DataBaseAdapter {
-    @ApiProperty({ description: '任务标识', example: 'exchange-sync' })
+    @ApiProperty({ description: '任务ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: '任务ID必填' })
+    @Column({ name: 'task_id', comment: '任务ID', update: false, length: 19, nullable: false })
+    taskId: string
+
+    @ApiProperty({ description: '任务标识', example: 'datetask-sync-exchange-rate' })
     @IsNotEmpty({ message: '任务标识必填' })
     @Length(1, 64, { message: '任务标识长度1~64位' })
     @Column({ comment: '任务标识', length: 64, nullable: false, unique: true })
@@ -22,7 +27,7 @@ export class WindowsDatetask extends DataBaseAdapter {
     @IsOptional()
     @Length(0, 256, { message: '任务描述长度不能超过256' })
     @Column({ comment: '任务描述', length: 256, nullable: true })
-    description: string
+    comment: string
 
     @ApiProperty({
         description: withComment('任务类型', enums.CHUNK_DATETASK_TYPE),
@@ -54,7 +59,7 @@ export class WindowsDatetask extends DataBaseAdapter {
     @Column({ nullable: false, comment: withComment('任务状态', enums.CHUNK_DATETASK_STATUS) })
     status: string
 
-    @ApiProperty({ description: '任务参数', example: {} })
+    @ApiProperty({ description: '任务参数', required: false })
     @IsOptional()
     @WithJsonColumn({ comment: '任务参数', nullable: true })
     params: Record<string, any>
@@ -70,10 +75,10 @@ export class WindowsDatetask extends DataBaseAdapter {
 
 @Entity({ name: 'tb_windows_datetask_log', comment: '定时任务执行日志表' })
 export class WindowsDatetaskLog extends DataBaseAdapter {
-    @ApiProperty({ description: '任务ID', example: 1 })
+    @ApiProperty({ description: '任务ID', example: '2149446185344106496' })
     @IsNotEmpty({ message: '任务ID必填' })
-    @Column({ name: 'task_id', comment: '任务ID', nullable: false })
-    taskId: number
+    @Column({ name: 'task_id', comment: '任务ID', update: false, length: 19, nullable: false })
+    taskId: string
 
     @ApiProperty({ description: '任务标识', example: 'exchange-sync' })
     @IsNotEmpty({ message: '任务标识必填' })

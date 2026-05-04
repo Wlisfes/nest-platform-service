@@ -24,7 +24,7 @@ export class DeployDatetaskService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemColumnDatetask(request: OmixRequest, body: windows.ColumnDatetaskOptions) {
         try {
-            return await this.database.builder(this.windows.datetaskDefineOptions, async qb => {
+            return await this.database.builder(this.windows.datetaskOptions, async qb => {
                 if (isNotEmpty(body.name)) {
                     qb.andWhere(`t.name LIKE :name`, { name: `%${body.name}%` })
                 }
@@ -53,7 +53,7 @@ export class DeployDatetaskService extends Logger {
         const ctx = await this.database.transaction()
         try {
             /**验证任务存在**/
-            const task = await this.database.builder(this.windows.datetaskDefineOptions, async qb => {
+            const task = await this.database.builder(this.windows.datetaskOptions, async qb => {
                 qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
                 return await qb.getOne()
             })
@@ -102,7 +102,7 @@ export class DeployDatetaskService extends Logger {
         const ctx = await this.database.transaction()
         try {
             /**验证任务存在**/
-            const task = await this.database.builder(this.windows.datetaskDefineOptions, async qb => {
+            const task = await this.database.builder(this.windows.datetaskOptions, async qb => {
                 qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
                 return await qb.getOne()
             })
@@ -150,7 +150,7 @@ export class DeployDatetaskService extends Logger {
     public async httpBaseSystemTriggerDatetask(request: OmixRequest, body: windows.TriggerDatetaskOptions) {
         try {
             /**验证任务存在**/
-            const task = await this.database.builder(this.windows.datetaskDefineOptions, async qb => {
+            const task = await this.database.builder(this.windows.datetaskOptions, async qb => {
                 qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
                 return await qb.getOne()
             })

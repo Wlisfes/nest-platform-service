@@ -6,8 +6,8 @@ import { ConfigModule } from '@/modules/config/config.module'
 import { LoggerModule } from '@/modules/logger/logger.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
+import { DatetaskModule } from '@web-datetask-server/modules/datetask/datetask.module'
 import { ExchangeModule } from '@web-datetask-server/modules/exchange/exchange.module'
-import { DatetaskManagerModule } from '@web-datetask-server/modules/datetask/datetask.module'
 
 @Module({
     imports: [
@@ -27,7 +27,7 @@ import { DatetaskManagerModule } from '@web-datetask-server/modules/datetask/dat
         ConfigModule,
         DatabaseModule,
         RedisModule,
-        DatetaskManagerModule,
+        DatetaskModule,
         ExchangeModule
     ]
 })

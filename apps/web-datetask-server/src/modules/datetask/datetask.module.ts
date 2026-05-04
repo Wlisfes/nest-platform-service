@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common'
+import { Module, Global } from '@nestjs/common'
 import { BullModule } from '@nestjs/bullmq'
-import { DatetaskManagerService } from '@web-datetask-server/modules/datetask/datetask.service'
+import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 import { DatetaskProcessor } from '@web-datetask-server/modules/datetask/datetask.processor'
 import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
 
+@Global()
 @Module({
     imports: [
         BullModule.registerQueue({
@@ -15,7 +16,7 @@ import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.c
             }
         })
     ],
-    providers: [DatetaskManagerService, DatetaskProcessor],
-    exports: [DatetaskManagerService, DatetaskProcessor]
+    providers: [DatetaskService, DatetaskProcessor],
+    exports: [DatetaskService, DatetaskProcessor]
 })
-export class DatetaskManagerModule {}
+export class DatetaskModule {}

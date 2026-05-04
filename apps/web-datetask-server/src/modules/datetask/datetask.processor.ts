@@ -2,10 +2,10 @@ import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import { Job } from 'bullmq'
 import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
-import { DatetaskManagerService } from '@web-datetask-server/modules/datetask/datetask.service'
+import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 
 /**处理器注册表类型**/
-export type TaskHandler = (params: Record<string, any>) => Promise<any>
+export type TaskHandler = (params: Record<string, Omix>) => Promise<Omix>
 
 /**任务处理器分发中心**/
 @Processor(DATETASK_QUEUE)
@@ -14,7 +14,7 @@ export class DatetaskProcessor extends WorkerHost {
     /**处理器注册表**/
     private handlers = new Map<string, TaskHandler>()
 
-    constructor(private readonly datetaskManager: DatetaskManagerService) {
+    constructor(private readonly datetaskService: DatetaskService) {
         super()
     }
 
@@ -32,38 +32,37 @@ export class DatetaskProcessor extends WorkerHost {
             if (!handlerFn) {
                 throw new Error(`未注册的处理器: ${handler}`)
             }
-
             const result = await handlerFn(params ?? {})
             const endTime = new Date()
             const duration = endTime.getTime() - startTime.getTime()
 
-            /**写入成功日志**/
-            await this.datetaskManager.fetchWriteLog({
-                taskId,
-                taskName,
-                startTime,
-                endTime,
-                duration,
-                status: 'success',
-                result: JSON.stringify(result)
-            })
+            console.log('result', result, 'duration', duration)
 
+            /**写入成功日志**/
+            // await this.datetaskService.fetchWriteLog(undefined, {
+            //     taskId,
+            //     taskName,
+            //     startTime,
+            //     endTime,
+            //     duration,
+            //     status: 'success',
+            //     result: JSON.stringify(result)
+            // })
             return result
         } catch (err) {
             const endTime = new Date()
             const duration = endTime.getTime() - startTime.getTime()
 
             /**写入失败日志**/
-            await this.datetaskManager.fetchWriteLog({
-                taskId,
-                taskName,
-                startTime,
-                endTime,
-                duration,
-                status: 'failed',
-                error: err.message
-            })
-
+            // await this.datetaskService.fetchWriteLog(undefined, {
+            //     taskId,
+            //     taskName,
+            //     startTime,
+            //     endTime,
+            //     duration,
+            //     status: 'failed',
+            //     error: err.message
+            // })
             throw err
         }
     }

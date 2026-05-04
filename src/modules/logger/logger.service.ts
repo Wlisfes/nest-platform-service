@@ -56,7 +56,7 @@ export class WinstonService {
         this.date = new Date()
         return this
     }
-    public info(log: any) {
+    public info(log: any, ...args: Array<any>) {
         this.logger.info(this.options.stack, this.output(log))
         return this
     }
