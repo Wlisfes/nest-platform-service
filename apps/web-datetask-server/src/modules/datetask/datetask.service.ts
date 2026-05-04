@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
 import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
@@ -9,18 +9,13 @@ import { OmixRequest } from '@/interface'
 import * as datetask from '@web-datetask-server/interface'
 
 @Injectable()
-export class DatetaskService extends Logger implements OnModuleInit {
+export class DatetaskService extends Logger {
     constructor(
         @InjectQueue(DATETASK_QUEUE) private readonly datetaskQueue: Queue,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService
     ) {
         super()
-    }
-
-    /**应用启动时从数据库加载所有启用的任务，注册为 BullMQ repeatable jobs**/
-    async onModuleInit() {
-        await this.fetchLoadAndRegisterTasks()
     }
 
     /**从数据库加载任务并注册到 BullMQ**/

@@ -8,6 +8,7 @@ import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
 import { DatetaskModule } from '@web-datetask-server/modules/datetask/datetask.module'
 import { ExchangeModule } from '@web-datetask-server/modules/exchange/exchange.module'
+import { AppService } from '@web-datetask-server/app.service'
 
 @Module({
     imports: [
@@ -29,13 +30,14 @@ import { ExchangeModule } from '@web-datetask-server/modules/exchange/exchange.m
         RedisModule,
         DatetaskModule,
         ExchangeModule
-    ]
+    ],
+    providers: [AppService]
 })
 export class AppModule implements OnModuleInit {
-    // constructor(private readonly exchangeService: ExchangeService) {}
+    constructor(private readonly appService: AppService) {}
 
     /**定时任务初始化**/
     async onModuleInit() {
-        // return this.exchangeService.fetchInitEventRegister()
+        return this.appService.fetchDatetaskInitialization()
     }
 }

@@ -1,4 +1,5 @@
 import { NestExpressApplication } from '@nestjs/platform-express'
+import winston from 'winston'
 
 /**HMR: 关闭上一次热更新遗留的应用实例，确保端口释放**/
 export async function closeHotModule(mod: any) {
@@ -14,6 +15,10 @@ export function setupHotModule(mod: any, app: NestExpressApplication) {
         mod.hot.accept()
         mod.hot.dispose((data: any) => {
             data.app = app
+            /**清理 winston transports，防止 DailyRotateFile 事件监听器累积**/
+            winston.loggers.loggers.forEach(logger => {
+                logger.close()
+            })
         })
     }
 }
