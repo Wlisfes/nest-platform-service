@@ -59,14 +59,28 @@ export class DatetaskService extends Logger implements OnModuleInit {
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
             qb.where(`t.status = :status`, { status: 'enable' })
             return await qb.getMany().then(async tasks => {
-                /**逐个注册为 repeatable job**/
                 for (const task of tasks) {
-                    await this.datetaskQueue.add(
-                        task.handler,
-                        { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params },
-                        { repeat: { pattern: task.cron }, jobId: `task-${task.name}` }
-                    )
-                    this.logger.info(`注册任务: 任务名称-[${task.title}]，任务处理器标识-[${task.name}]，Cron表达式-[${task.cron}]`)
+                    const jobData = { taskId: task.taskId, taskName: task.name, handler: task.handler, params: task.params }
+                    if (task.runTime) {
+                        /**一次性任务：计算延迟时间**/
+                        // const delay = new Date(task.runTime).getTime() - Date.now()
+                        // if (delay > 0) {
+                        //     await this.datetaskQueue.add(task.handler, jobData, {
+                        //         delay,
+                        //         jobId: `task-${task.name}-once`
+                        //     })
+                        //     this.logger.info(`注册一次性任务: 任务名称-[${task.title}]，执行时间-[${task.runTime}]`)
+                        // } else {
+                        //     this.logger.info(`跳过已过期的一次性任务: 任务名称-[${task.title}]，执行时间-[${task.runTime}]`)
+                        // }
+                    } else if (task.cron) {
+                        /**周期任务：使用 Cron 表达式**/
+                        // await this.datetaskQueue.add(task.handler, jobData, {
+                        //     repeat: { pattern: task.cron },
+                        //     jobId: `task-${task.name}`
+                        // })
+                        // this.logger.info(`注册周期任务: 任务名称-[${task.title}]，Cron表达式-[${task.cron}]`)
+                    }
                 }
                 this.logger.info(`共加载 ${tasks.length} 个定时任务`)
                 return tasks

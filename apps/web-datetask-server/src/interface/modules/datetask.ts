@@ -4,8 +4,8 @@ import * as schema from '@/modules/database/schema'
 
 /**注册系统任务定义（不存在则自动创建）**/
 export class BaseEnsureSystemTaskOptions extends IntersectionType(
-    PickType(schema.WindowsDatetask, ['name', 'title', 'cron', 'handler']),
-    PartialType(PickType(schema.WindowsDatetask, ['comment', 'params', 'status']))
+    PickType(schema.WindowsDatetask, ['name', 'title', 'handler', 'cron']),
+    PartialType(PickType(schema.WindowsDatetask, ['comment', 'params']))
 ) {}
 
 /**写入任务执行日志**/

@@ -38,11 +38,16 @@ export class WindowsDatetask extends DataBaseAdapter {
     @Column({ nullable: false, comment: withComment('任务类型', enums.CHUNK_DATETASK_TYPE) })
     type: string
 
-    @ApiProperty({ description: 'Cron表达式', example: '0 0 8 * * *' })
-    @IsNotEmpty({ message: 'Cron表达式必填' })
+    @ApiProperty({ description: 'Cron表达式（周期任务）', example: '0 0 8 * * *', required: false })
+    @IsOptional()
     @Length(1, 32, { message: 'Cron表达式长度1~32位' })
-    @Column({ comment: 'Cron表达式', length: 32, nullable: false })
+    @Column({ comment: 'Cron表达式', length: 32, nullable: true })
     cron: string
+
+    @ApiProperty({ description: '一次性执行时间（一次性任务）', example: '2025-06-01 08:00:00', required: false })
+    @IsOptional()
+    @Column({ name: 'run_time', comment: '一次性执行时间', nullable: true, type: 'datetime' })
+    runTime: Date
 
     @ApiProperty({ description: '处理器标识', example: 'exchange-sync' })
     @IsNotEmpty({ message: '处理器标识必填' })

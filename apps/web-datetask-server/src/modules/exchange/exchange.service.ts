@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService } from '@/modules/database/database.service'
+import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
 import { DatetaskProcessor } from '@web-datetask-server/modules/datetask/datetask.processor'
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 import { firstValueFrom } from 'rxjs'
@@ -10,6 +10,8 @@ import { OmixRequest } from '@/interface'
 
 @Injectable()
 export class ExchangeService extends Logger {
+    private readonly taskName: string = 'datetask-sync-exchange-rate'
+
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
@@ -23,18 +25,18 @@ export class ExchangeService extends Logger {
     /**初始化费率事件**/
     @AutoDescriptor
     public async fetchInitEventRegister(request?: OmixRequest) {
-        /**确保数据库中存在该任务定义**/
-        await this.datetaskService.fetchEnsureTask(request, {
-            name: 'datetask-sync-exchange-rate',
-            title: '同步汇率',
-            description: '从外部接口获取最新汇率并同步到数据库',
-            type: 'system',
+        /**注册系统任务定义**/
+        await this.datetaskService.fetchBaseEnsureSystemTask(request, {
+            name: this.taskName,
+            handler: this.taskName,
+            title: '定时更新汇率',
+            comment: '定时从Frankfurter获取汇率数据并更新数据库',
             cron: '0 0 0 * * *',
-            handler: 'datetask-sync-exchange-rate'
+            type: enums.CHUNK_DATETASK_TYPE.system.value
         })
         /**注册处理器**/
-        return this.datetaskProcessor.fetchRegisterHandler('datetask-sync-exchange-rate', () => {
-            return this.httpBaseRatesByFrankfurter(request)
+        return this.datetaskProcessor.fetchRegisterHandler(this.taskName, () => {
+            return this.httpBaseRatesByFrankfurter(undefined)
         })
     }
 
@@ -63,19 +65,18 @@ export class ExchangeService extends Logger {
                 return await qb.getMany()
             })
             const existingSet = new Set(existingRecords.map((r: Omix) => `${r.currency}_${r.date}`))
-            const toInsert = toSync
-                .filter((item: Omix) => !existingSet.has(`${item.quote}_${item.date}`))
-                .map((item: Omix) => ({ currency: item.quote, rate: Number(item.rate), date: item.date }))
-            const skipped = toSync.length - toInsert.length
-            if (toInsert.length > 0) {
-                await this.windows.currencyExchangeOptions.save(toInsert)
+            const filters = toSync.filter((item: Omix) => !existingSet.has(`${item.quote}_${item.date}`))
+            const items = filters.map((item: Omix) => ({ currency: item.quote, rate: Number(item.rate), date: item.date }))
+            const skipped = toSync.length - items.length
+            if (items.length > 0) {
+                await this.windows.currencyExchangeOptions.save(items)
             }
-            this.logger.info(`同步完成: 写入 ${toInsert.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`)
+            this.logger.info(`同步完成: 写入 ${items.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`)
             return {
-                synced: toInsert.length,
+                synced: items.length,
                 skipped,
                 total: toSync.length,
-                message: `同步完成: 写入 ${toInsert.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`
+                message: `同步完成: 写入 ${items.length} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`
             }
         } catch (err) {
             this.logger.error(`获取国际费率失败：${err.message}`)
