@@ -25,8 +25,8 @@ export class DeployDatetaskService extends Logger {
     public async httpBaseSystemColumnDatetask(request: OmixRequest, body: windows.ColumnDatetaskOptions) {
         try {
             return await this.database.builder(this.windows.datetaskOptions, async qb => {
-                if (isNotEmpty(body.name)) {
-                    qb.andWhere(`t.name LIKE :name`, { name: `%${body.name}%` })
+                if (isNotEmpty(body.taskName)) {
+                    qb.andWhere(`t.name LIKE :name`, { name: `%${body.taskName}%` })
                 }
                 if (isNotEmpty(body.status)) {
                     qb.andWhere(`t.status = :status`, { status: body.status })
@@ -69,21 +69,21 @@ export class DeployDatetaskService extends Logger {
                 body: { status: body.status }
             })
 
-            if (body.status === 'enable') {
-                /**启用：注册 repeatable job**/
-                await this.datetaskQueue.add(
-                    task.handler,
-                    { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params },
-                    { repeat: { pattern: task.cron }, jobId: `task-${task.name}` }
-                )
-            } else {
-                /**停用：移除 repeatable job**/
-                const repeatables = await this.datetaskQueue.getRepeatableJobs()
-                const target = repeatables.find(r => r.name === task.handler)
-                if (target) {
-                    await this.datetaskQueue.removeRepeatableByKey(target.key)
-                }
-            }
+            // if (body.status === 'enable') {
+            //     /**启用：注册 repeatable job**/
+            //     await this.datetaskQueue.add(
+            //         task.handler,
+            //         { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params },
+            //         { repeat: { pattern: task.cron }, jobId: `task-${task.name}` }
+            //     )
+            // } else {
+            //     /**停用：移除 repeatable job**/
+            //     const repeatables = await this.datetaskQueue.getRepeatableJobs()
+            //     const target = repeatables.find(r => r.name === task.handler)
+            //     if (target) {
+            //         await this.datetaskQueue.removeRepeatableByKey(target.key)
+            //     }
+            // }
 
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -126,13 +126,13 @@ export class DeployDatetaskService extends Logger {
             })
 
             /**如果任务是启用状态，重新注册**/
-            if (task.status === 'enable') {
-                await this.datetaskQueue.add(
-                    task.handler,
-                    { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params },
-                    { repeat: { pattern: body.cron }, jobId: `task-${task.name}` }
-                )
-            }
+            // if (task.status === 'enable') {
+            //     await this.datetaskQueue.add(
+            //         task.handler,
+            //         { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params },
+            //         { repeat: { pattern: body.cron }, jobId: `task-${task.name}` }
+            //     )
+            // }
 
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '操作成功' })
@@ -159,11 +159,11 @@ export class DeployDatetaskService extends Logger {
             }
 
             /**向 BullMQ 队列添加一次性 job**/
-            await this.datetaskQueue.add(
-                task.handler,
-                { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params, manual: true },
-                { jobId: `task-${task.name}-manual-${Date.now()}` }
-            )
+            // await this.datetaskQueue.add(
+            //     task.handler,
+            //     { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params, manual: true },
+            //     { jobId: `task-${task.name}-manual-${Date.now()}` }
+            // )
 
             return await this.fetchResolver({ message: '任务已触发' })
         } catch (err) {

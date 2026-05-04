@@ -4,7 +4,7 @@ import { DataBaseService, WindowsService, enums } from '@/modules/database/datab
 import { DATETASK_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Queue } from 'bullmq'
-import { isNotEmpty, omit, fetchIntNumber, fetchCloneByte } from '@/utils'
+import { isNotEmpty, pick, fetchIntNumber, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as datetask from '@web-datetask-server/interface'
 
@@ -41,7 +41,7 @@ export class DatetaskService extends Logger {
             return await qb.getMany().then(async tasks => {
                 for (const task of tasks) {
                     const taskOptions: Omix = fetchCloneByte(
-                        omit(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
+                        pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
                     )
                     if (isNotEmpty(task.runTime)) {
                         /**一次性任务：计算延迟时间**/
