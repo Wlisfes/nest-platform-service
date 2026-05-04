@@ -9,11 +9,11 @@ export class HttpExceptionFilter extends Logger implements ExceptionFilter {
         const response = ctx.getResponse()
         const request = ctx.getRequest()
         const logger = await this.fetchServiceTransaction(request, {
-            datetime: request.headers.datetime,
+            datetime: request.datetime,
             deplayName: HttpExceptionFilter.name
         })
         const Result: Omix = {
-            logId: request.headers.logId,
+            logId: request.logId,
             timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             url: request.url,
             method: request.method,

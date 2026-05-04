@@ -23,6 +23,9 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
             datetime: request.headers?.datetime,
             stack: this.stack
         })
+        if ((args ?? []).length === 0) {
+            return originalMethod.apply(this, [request])
+        }
         return originalMethod.apply(this, args)
     }
 }
