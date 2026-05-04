@@ -8,7 +8,7 @@ async function bootstrap() {
         cors: true
     })
     app.setGlobalPrefix('/api/windows')
-    return await setupSwagger(app, {
+    await setupSwagger(app, {
         title: `ChatBook管理平台API服务`,
         description: `ChatBook Management Platform API Service`,
         port: process.env.NODE_WEB_WINDOWS_PORT
@@ -19,5 +19,6 @@ async function bootstrap() {
             `http://localhost:${process.env.NODE_WEB_WINDOWS_PORT}/api/swagger`
         )
     })
+    app.enableShutdownHooks()
 }
 bootstrap()

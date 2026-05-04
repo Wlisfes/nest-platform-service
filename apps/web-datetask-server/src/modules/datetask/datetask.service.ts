@@ -39,12 +39,12 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**应用启动时从数据库加载所有启用的任务，注册为 BullMQ repeatable jobs**/
     async onModuleInit() {
-        await this.loadAndRegisterTasks()
+        await this.fetchLoadAndRegisterTasks()
     }
 
     /**从数据库加载任务并注册到 BullMQ**/
     @AutoDescriptor
-    public async loadAndRegisterTasks() {
+    public async fetchLoadAndRegisterTasks() {
         /**清除所有现有的 repeatable jobs，防止重复**/
         const existingRepeatables = await this.datetaskQueue.getRepeatableJobs()
         for (const job of existingRepeatables) {
@@ -72,7 +72,7 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**启用任务**/
     @AutoDescriptor
-    public async enableTask(taskId: number) {
+    public async fetchEnableTask(taskId: number) {
         const task = await this.windows.datetaskDefineOptions.findOne({ where: { keyId: taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
@@ -88,7 +88,7 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**停用任务**/
     @AutoDescriptor
-    public async disableTask(taskId: number) {
+    public async fetchDisableTask(taskId: number) {
         const task = await this.windows.datetaskDefineOptions.findOne({ where: { keyId: taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
@@ -105,7 +105,7 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**修改任务 Cron 表达式**/
     @AutoDescriptor
-    public async updateTaskCron(taskId: number, cron: string) {
+    public async fetchUpdateTaskCron(taskId: number, cron: string) {
         const task = await this.windows.datetaskDefineOptions.findOne({ where: { keyId: taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
@@ -133,7 +133,7 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**手动触发一次任务**/
     @AutoDescriptor
-    public async triggerTask(taskId: number) {
+    public async fetchTriggerTask(taskId: number) {
         const task = await this.windows.datetaskDefineOptions.findOne({ where: { keyId: taskId } as any })
         if (!task) throw new Error(`任务不存在: ${taskId}`)
 
@@ -148,7 +148,7 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**写入执行日志**/
     @AutoDescriptor
-    public async writeLog(data: DatetaskWriteLogOptions) {
+    public async fetchWriteLog(data: DatetaskWriteLogOptions) {
         const log = this.windows.datetaskLogOptions.create({
             taskId: data.taskId,
             taskName: data.taskName,
@@ -167,7 +167,7 @@ export class DatetaskManagerService extends Logger implements OnModuleInit {
 
     /**确保任务定义存在（不存在则自动创建）**/
     @AutoDescriptor
-    public async ensureTask(data: DatetaskEnsureTaskOptions) {
+    public async fetchEnsureTask(data: DatetaskEnsureTaskOptions) {
         const exist = await this.windows.datetaskDefineOptions.findOne({ where: { name: data.name } as any })
         if (exist) {
             this.logger.info(`[DatetaskManager] 任务已存在: ${data.title} (${data.name})`)

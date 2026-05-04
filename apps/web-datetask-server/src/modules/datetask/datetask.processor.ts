@@ -19,8 +19,8 @@ export class DatetaskProcessor extends WorkerHost {
     }
 
     /**注册处理器**/
-    public registerHandler(name: string, handler: TaskHandler) {
-        this.handlers.set(name, handler)
+    public async fetchRegisterHandler(name: string, handler: TaskHandler) {
+        return this.handlers.set(name, handler)
     }
 
     /**BullMQ Worker 入口**/
@@ -38,7 +38,7 @@ export class DatetaskProcessor extends WorkerHost {
             const duration = endTime.getTime() - startTime.getTime()
 
             /**写入成功日志**/
-            await this.datetaskManager.writeLog({
+            await this.datetaskManager.fetchWriteLog({
                 taskId,
                 taskName,
                 startTime,
@@ -54,7 +54,7 @@ export class DatetaskProcessor extends WorkerHost {
             const duration = endTime.getTime() - startTime.getTime()
 
             /**写入失败日志**/
-            await this.datetaskManager.writeLog({
+            await this.datetaskManager.fetchWriteLog({
                 taskId,
                 taskName,
                 startTime,

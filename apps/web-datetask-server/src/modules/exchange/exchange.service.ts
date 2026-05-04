@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { firstValueFrom } from 'rxjs'
+import { OmixRequest } from '@/interface'
 
 @Injectable()
 export class ExchangeService extends Logger {
@@ -16,15 +17,26 @@ export class ExchangeService extends Logger {
 
     /**同步汇率核心逻辑**/
     @AutoDescriptor
-    public async syncExchangeRates() {
+    public async processSyncExchangeRates(request: Request) {}
+
+    /**同步汇率核心逻辑**/
+    @AutoDescriptor
+    public async fetchSyncExchangeRates(request: Request) {
         /**1. 从 Frankfurter API 获取基于 USD 的最新汇率**/
-        const { data } = await firstValueFrom(
-            this.httpService.get<{
-                base: string
-                date: string
-                rates: Record<string, number>
-            }>('https://api.frankfurter.dev/v1/latest?base=USD')
-        )
+        let data: any
+        try {
+            const response = await firstValueFrom(this.httpService.get('https://api.frankfurter.dev/v2/rates?base=USD'))
+            data = response.data
+            console.log(data)
+        } catch (error) {
+            this.logger.error(`[ExchangeService] 汇率数据拉取失败: ${error.message}`)
+            return {
+                synced: 0,
+                skipped: 0,
+                total: 0,
+                message: `汇率数据拉取失败: ${error.message}`
+            }
+        }
         this.logger.info(`[ExchangeService] 获取到 ${Object.keys(data.rates).length} 个币种汇率, 日期: ${data.date}`)
 
         /**2. 查询系统中所有已配置的币种列表**/
@@ -51,7 +63,7 @@ export class ExchangeService extends Logger {
                 }
                 await this.windows.currencyExchangeOptions.save({
                     currency,
-                    rate,
+                    rate: Number(rate),
                     date: data.date
                 })
                 synced++
@@ -61,6 +73,11 @@ export class ExchangeService extends Logger {
         }
 
         this.logger.info(`[ExchangeService] 同步完成: 写入 ${synced} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`)
-        return { synced, skipped, total: toSync.length }
+        return {
+            synced,
+            skipped,
+            total: toSync.length,
+            message: `同步完成: 写入 ${synced} 条, 跳过 ${skipped} 条, 总计 ${toSync.length} 条`
+        }
     }
 }
