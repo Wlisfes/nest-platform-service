@@ -35,3 +35,22 @@ export class BaseCrmClientResolverOptions extends PickType(schema.WindowsClient,
 
 /**客户详情响应**/
 export class BaseCrmClientResolverOptionsResponse extends schema.WindowsClient {}
+
+/**客户短信应用-分页列表查询**/
+export class BaseCrmClientSmsColumnOptions extends IntersectionType(
+    PickType(OmixColumnOptions, ['page', 'size']),
+    PickType(schema.TbSmsApp, ['clientId']),
+    PartialType(PickType(schema.TbSmsApp, ['status', 'type', 'appAlias']))
+) {}
+
+/**客户短信应用-分页列表响应**/
+export class BaseCrmClientSmsColumnOptionsResponse extends OmixColumnResponse {
+    @ApiProperty({ description: '列表数据', type: [schema.TbSmsApp] })
+    list: schema.TbSmsApp[]
+}
+
+/**客户短信应用-新增**/
+export class BaseCrmClientSmsCreateOptions extends IntersectionType(
+    PickType(schema.TbSmsApp, ['clientId', 'appAlias', 'type']),
+    PartialType(PickType(schema.TbSmsApp, ['pushUrl', 'remark']))
+) {}

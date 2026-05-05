@@ -1,12 +1,16 @@
 import { Post, Body, Request } from '@nestjs/common'
 import { CrmClientService } from '@web-windows-server/modules/crm/client/client.service'
+import { CrmClientSmsService } from '@web-windows-server/modules/crm/client/client.sms.service'
 import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
 @ApifoxController('销售管理-我的客户', 'crm/client')
 export class CrmClientController {
-    constructor(private readonly crmClientService: CrmClientService) {}
+    constructor(
+        private readonly crmClientService: CrmClientService,
+        private readonly crmClientSmsService: CrmClientSmsService
+    ) {}
 
     @ApiServiceDecorator(Post('/common/create'), {
         windows: true,
@@ -36,5 +40,23 @@ export class CrmClientController {
     })
     public async httpBaseCrmClientResolver(@Request() request: OmixRequest, @Body() body: windows.BaseCrmClientResolverOptions) {
         return await this.crmClientService.httpBaseCrmClientResolver(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/sms/column'), {
+        windows: true,
+        operation: { summary: '客户短信应用列表' },
+        response: { status: 200, description: 'OK', type: windows.BaseCrmClientSmsColumnOptionsResponse }
+    })
+    public async httpBaseCrmClientSmsColumn(@Request() request: OmixRequest, @Body() body: windows.BaseCrmClientSmsColumnOptions) {
+        return await this.crmClientSmsService.httpBaseCrmClientSmsColumn(request, body)
+    }
+
+    @ApiServiceDecorator(Post('/sms/create'), {
+        windows: true,
+        operation: { summary: '新增客户短信应用' },
+        response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
+    })
+    public async httpBaseCrmClientSmsCreate(@Request() request: OmixRequest, @Body() body: windows.BaseCrmClientSmsCreateOptions) {
+        return await this.crmClientSmsService.httpBaseCrmClientSmsCreate(request, body)
     }
 }
