@@ -31,7 +31,7 @@ export class DatetaskService extends Logger {
     }
 
     /**复制任务数据，避免污染原对象**/
-    private fetchCloneByteTaskOptions(task: Partial<schema.WindowsDatetask>, request?: OmixRequest) {
+    private fetchCloneByteTaskOptions(task: Partial<schema.WindowsDatetask>, request?: Omix) {
         return fetchCloneByte(
             { request },
             pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
@@ -151,7 +151,7 @@ export class DatetaskService extends Logger {
 
     /**手动触发一次系统任务**/
     @AutoDescriptor
-    public async fetchBaseTriggerSystemTask(request: OmixRequest, payload: datetask.BaseTriggerTaskOptions) {
+    public async fetchBaseTriggerSystemTask(request: Omix, payload: datetask.BaseTriggerTaskOptions) {
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
             qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
             return await qb.getOne().then(async task => {

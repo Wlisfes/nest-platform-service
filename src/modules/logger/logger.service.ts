@@ -14,7 +14,7 @@ export function AutoDescriptor(target: any, propertyName: string, descriptor: Om
         const request: OmixRequest = args[0] ?? {}
         const { stack } = args.find(item => isNotEmpty(item.stack)) ?? {}
         if (isNotEmpty(request) && isObject(request)) {
-            request.logId = v4()
+            request.logId = request.logId ?? v4()
             request.datetime = Date.now().toString()
         }
         this.stack = [stack, className, methodName].filter(isNotEmpty).join(':')

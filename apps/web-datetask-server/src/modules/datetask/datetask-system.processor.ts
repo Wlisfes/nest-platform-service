@@ -15,17 +15,16 @@ import * as enums from '@/modules/database/enums'
 @Processor(DATETASK_SYSTEM_QUEUE)
 @Injectable()
 export class DatetaskSystemProcessor extends WorkerHost {
+    private static handlers = new Map<string, datetask.TaskHandler>()
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly winston: Logger
-    /**处理器注册表**/
-    private handlers = new Map<string, datetask.TaskHandler>()
+
     constructor(private readonly datetaskService: DatetaskService) {
         super()
     }
 
     /**注册处理器**/
     public async fetchRegisterHandler(name: string, handler: datetask.TaskHandler) {
-        console.log(name, handler)
-        return this.handlers.set(name, handler)
+        return DatetaskSystemProcessor.handlers.set(name, handler)
     }
 
     /**BullMQ Worker 入口**/
@@ -36,8 +35,7 @@ export class DatetaskSystemProcessor extends WorkerHost {
             datetime: date.getTime()
         })
         try {
-            const handler = this.handlers.get(job.data.handler)
-            console.log(handler, job.data)
+            const handler = DatetaskSystemProcessor.handlers.get(job.data.handler)
             if (isEmpty(handler)) {
                 throw new Error(`未注册的处理器: ${job.data.handler}`)
             }

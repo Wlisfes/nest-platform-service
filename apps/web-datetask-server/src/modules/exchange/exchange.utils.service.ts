@@ -27,7 +27,6 @@ export class ExchangeUtilsService extends Logger {
                     params: { from: date, to: date, base: 'USD' }
                 })
             )
-            console.log(data)
             this.logger.info(`汇率数据拉取成功，日期: ${date}，总计 ${(data ?? []).length} 条`)
             /**2.查询系统中所有已配置的币种列表**/
             return await this.database.builder(this.windows.currencyOptions, async qb => {
@@ -56,10 +55,9 @@ export class ExchangeUtilsService extends Logger {
                     if (list.length > 0) {
                         await this.windows.currencyExchangeOptions.save(list)
                     }
-                    this.logger.info({
-                        message: `同步完成: 写入 ${list.length} 条，跳过 ${skipped} 条，总计 ${toSync.length} 条`,
-                        data: list
-                    })
+                    this.logger.info(
+                        `同步完成: 写入 ${list.length} 条，跳过 ${skipped} 条，总计 ${toSync.length} 条，数据列表: ${JSON.stringify(list)}`
+                    )
                     return {
                         skipped,
                         synced: list.length,
