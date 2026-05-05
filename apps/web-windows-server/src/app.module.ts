@@ -1,7 +1,5 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common'
 import { APP_INTERCEPTOR, APP_FILTER, APP_GUARD } from '@nestjs/core'
-import { ConfigService } from '@nestjs/config'
-import { BullModule } from '@nestjs/bullmq'
 import { UserAgentMiddleware, LoggerMiddleware } from '@/middleware'
 import { TransformInterceptor } from '@/interceptor'
 import { HttpExceptionFilter } from '@/filters'
@@ -21,17 +19,6 @@ import { FinanceModule } from '@web-windows-server/modules/finance/finance.modul
 
 @Module({
     imports: [
-        BullModule.forRootAsync({
-            inject: [ConfigService],
-            useFactory: (config: ConfigService) => ({
-                connection: {
-                    host: config.get('NODE_REDIS_HOST'),
-                    port: Number(config.get('NODE_REDIS_PORT')),
-                    password: config.get('NODE_REDIS_PASSWORD'),
-                    db: Number(config.get('NODE_REDIS_DB'))
-                }
-            })
-        }),
         LoggerModule,
         ConfigModule,
         DatabaseModule,
