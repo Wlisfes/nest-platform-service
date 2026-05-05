@@ -18,6 +18,11 @@ export class TbSmsApp extends DataBaseAdapter {
     @Column({ name: 'app_id', comment: '应用ID', nullable: false })
     appId: string
 
+    @ApiProperty({ description: '应用名称', example: '测试应用' })
+    @IsNotEmpty({ message: '应用名称必填' })
+    @Column({ name: 'app_name', comment: '应用名称', nullable: false })
+    appName: string
+
     @ApiProperty({ description: '应用别名', example: 'LYNSK1233001OTP' })
     @IsNotEmpty({ message: '应用别名必填' })
     @Column({ name: 'app_alias', comment: '应用别名', nullable: false })
