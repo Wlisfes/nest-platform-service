@@ -40,7 +40,7 @@ export class DeployDatetaskController {
         operation: { summary: '手动触发任务' },
         response: { status: 200, description: 'OK', type: windows.OmixPayloadResponse }
     })
-    public async httpBaseSystemTriggerDatetask(@Request() request: OmixRequest, @Body() body: windows.TriggerDatetaskOptions) {
+    public async httpBaseSystemTriggerDatetask(@Request() request: OmixRequest, @Body() body: windows.BaseSystemTriggerDatetaskOptions) {
         return await this.deployDatetaskService.httpBaseSystemTriggerDatetask(request, body)
     }
 

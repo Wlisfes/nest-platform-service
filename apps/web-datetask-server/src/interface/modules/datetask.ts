@@ -24,3 +24,12 @@ export class BaseWriteTaskLogOptions extends IntersectionType(
 
 /**手动触发任务定义**/
 export class BaseTriggerTaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
+
+/**启用系统任务定义**/
+export class BaseEnableSystemTaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
+
+/**停用系统任务定义**/
+export class BaseDisableSystemTaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
+
+/**修改系统任务Cron表达式定义**/
+export class BaseUpdateSystemTaskCronOptions extends PickType(schema.WindowsDatetask, ['taskId', 'cron']) {}

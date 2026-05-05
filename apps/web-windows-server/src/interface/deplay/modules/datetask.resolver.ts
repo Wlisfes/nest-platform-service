@@ -21,10 +21,10 @@ export class DatetaskPayloadOptions extends PickType(schema.WindowsDatetask, ['k
 export class DatetaskPayloadOptionsResponse extends schema.WindowsDatetask {}
 
 /**切换任务状态**/
-export class UpdateDatetaskStatusOptions extends PickType(schema.WindowsDatetask, ['keyId', 'status']) {}
+export class UpdateDatetaskStatusOptions extends PickType(schema.WindowsDatetask, ['taskId', 'status']) {}
 
 /**修改Cron表达式**/
-export class UpdateDatetaskCronOptions extends PickType(schema.WindowsDatetask, ['keyId', 'cron']) {}
+export class UpdateDatetaskCronOptions extends PickType(schema.WindowsDatetask, ['taskId', 'cron']) {}
 
 /**手动触发系统任务**/
 export class BaseSystemTriggerDatetaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
