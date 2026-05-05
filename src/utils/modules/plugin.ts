@@ -1,4 +1,6 @@
 import { HttpException, HttpStatus, HttpExceptionOptions } from '@nestjs/common'
+import { ClientProxy } from '@nestjs/microservices'
+import { firstValueFrom } from 'rxjs'
 import { fetchHandler } from '@/utils/modules/common'
 import { isNotEmpty } from 'class-validator'
 
@@ -26,4 +28,9 @@ export async function fetchCatchWherer(
  */
 export function fetchSelection(alias: string, fields: string[]) {
     return (fields ?? []).map(field => (isNotEmpty(alias) ? `${alias}.${field}` : field))
+}
+
+/**微服务send事件推送**/
+export async function fetchClientSender<R>(client: ClientProxy, options: { pattern: any; data: Omix }): Promise<R> {
+    return await firstValueFrom(client.send(options.pattern, options.data))
 }

@@ -5,7 +5,7 @@ import { Queue } from 'bullmq'
 import { firstValueFrom } from 'rxjs'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
-import { isNotEmpty } from '@/utils'
+import { isNotEmpty, fetchClientSender } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
@@ -152,7 +152,13 @@ export class DeployDatetaskService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemTriggerDatetask(request: OmixRequest, body: windows.TriggerDatetaskOptions) {
         try {
-            this.datetaskServer.send({ cmd: 'fetchBaseTriggerSystemTask' }, { request, taskId: '2427470792158691328' })
+            return await fetchClientSender(this.datetaskServer, {
+                pattern: { cmd: 'fetchBaseTriggerSystemTask' },
+                data: {
+                    taskId: body.keyId,
+                    request: { logId: request.logId, datetime: request.datetime }
+                }
+            })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)

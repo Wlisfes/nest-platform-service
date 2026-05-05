@@ -40,7 +40,6 @@ export function fetchCloneByte<T extends Omix, M extends Omix = {}>(data: T, mer
  * @param options.sync 是否同步返回，默认异步
  * @returns 根据sync参数返回同步值或Promise
  */
-
 export function fetchIntNumber<T extends { bit?: number; sync?: boolean } = {}>(
     options?: T
 ): T extends { sync: true } ? string : Promise<string> {
