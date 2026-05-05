@@ -30,6 +30,9 @@ declare namespace NodeJS {
         NODE_ENV: 'development' | 'production'
         /**钱包扣费服务端口号**/
         NODE_WEB_WALLET_PORT: number
+        /**定时任务服务端口号**/
+        NODE_WEB_DATETASK_PORT: number
+        NODE_WEB_DATETASK_TCP_PORT: number
         /**网关服务端口号**/
         NODE_WEB_GATEWAY_PORT: number
         /**管理端API服务端口号**/

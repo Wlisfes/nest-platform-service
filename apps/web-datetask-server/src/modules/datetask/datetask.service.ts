@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Scope, Inject } from '@nestjs/common'
+import { CONTEXT, RequestContext } from '@nestjs/microservices'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums, schema } from '@/modules/database/database.service'
 import { isNotEmpty, pick, fetchIntNumber, fetchCloneByte } from '@/utils'
@@ -8,7 +9,7 @@ import { Queue } from 'bullmq'
 import * as constants from '@web-datetask-server/modules/datetask/datetask.constants'
 import * as datetask from '@web-datetask-server/interface'
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class DatetaskService extends Logger {
     constructor(
         @InjectQueue(constants.DATETASK_SMS_QUEUE) private readonly datetaskSmsQueue: Queue,
@@ -150,20 +151,7 @@ export class DatetaskService extends Logger {
 
     /**手动触发一次系统任务**/
     @AutoDescriptor
-    public async fetchBaseTriggerSystemTask(payload: { request: OmixRequest } & datetask.BaseTriggerTaskOptions) {
-        // const { request, ...body } = payload
-        // const task = await this.database.empty(this.windows.datetaskOptions, {
-        //     request,
-        //     message: `任务不存在: ${body.taskId}`,
-        //     stack: this.stack,
-        //     dispatch: { where: { taskId: body.taskId, type: enums.CHUNK_DATETASK_TYPE.system.value } }
-        // })
-        // await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
-        //     jobId: `${task.taskId}-manual-${Date.now()}`
-        // })
-        // this.logger.info(`手动触发任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
-        // return task
-
+    public async fetchBaseTriggerSystemTask(request: OmixRequest, payload: datetask.BaseTriggerTaskOptions) {
         this.logger.info(`手动触发任务:`, payload)
 
         return {}

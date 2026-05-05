@@ -11,6 +11,6 @@ export class DatetaskController {
     /**手动触发一次系统任务**/
     @MessagePattern({ cmd: 'fetchBaseTriggerSystemTask' })
     public async fetchBaseTriggerSystemTask(payload: { request: OmixRequest } & datetask.BaseTriggerTaskOptions) {
-        return await this.datetaskService.fetchBaseTriggerSystemTask(payload)
+        return await this.datetaskService.fetchBaseTriggerSystemTask(payload.request, payload)
     }
 }

@@ -12,7 +12,7 @@ import { DeployDatetaskController } from '@web-windows-server/modules/deploy/dat
             {
                 name: 'web-datetask-server',
                 transport: Transport.TCP,
-                options: { host: 'localhost', port: process.env.NODE_WEB_DATETASK_PORT }
+                options: { host: 'localhost', port: process.env.NODE_WEB_DATETASK_TCP_PORT }
             }
         ])
     ],
