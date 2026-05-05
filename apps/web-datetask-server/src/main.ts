@@ -17,11 +17,10 @@ async function bootstrap() {
         await app.listen(process.env.NODE_WEB_DATETASK_PORT).then(() => {
             console.log(
                 `ChatBook定时任务服务启动[${process.env.NODE_ENV}]:`,
-                `TCP端口:${process.env.NODE_WEB_DATETASK_TCP_PORT}`,
-                `HTTP端口:${process.env.NODE_WEB_DATETASK_PORT}`
+                `TCP端口: ${process.env.NODE_WEB_DATETASK_TCP_PORT}`,
+                `HTTP端口: http://localhost:${process.env.NODE_WEB_DATETASK_PORT}`
             )
         })
-        return setupHotModule(module, app)
     })
 }
 bootstrap()

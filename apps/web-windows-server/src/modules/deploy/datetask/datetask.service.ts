@@ -4,7 +4,7 @@ import { ClientProxy } from '@nestjs/microservices'
 import { Queue } from 'bullmq'
 import { firstValueFrom } from 'rxjs'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
+import { DataBaseService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { isNotEmpty, fetchClientSender } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
@@ -148,14 +148,21 @@ export class DeployDatetaskService extends Logger {
         }
     }
 
-    /**手动触发任务**/
+    /**手动触发系统任务**/
     @AutoDescriptor
-    public async httpBaseSystemTriggerDatetask(request: OmixRequest, body: windows.TriggerDatetaskOptions) {
+    public async httpBaseSystemTriggerDatetask(request: OmixRequest, body: windows.BaseSystemTriggerDatetaskOptions) {
         try {
+            await this.database.empty(this.windows.datetaskOptions, {
+                request,
+                message: '系统任务ID:不存在',
+                dispatch: {
+                    where: { type: enums.CHUNK_DATETASK_TYPE.system.value, taskId: body.taskId }
+                }
+            })
             return await fetchClientSender(this.datetaskServer, {
                 pattern: { cmd: 'fetchBaseTriggerSystemTask' },
                 data: {
-                    taskId: body.keyId,
+                    taskId: body.taskId,
                     request: { logId: request.logId, datetime: request.datetime }
                 }
             })

@@ -24,6 +24,7 @@ export class DatetaskSystemProcessor extends WorkerHost {
 
     /**注册处理器**/
     public async fetchRegisterHandler(name: string, handler: datetask.TaskHandler) {
+        console.log(name, handler)
         return this.handlers.set(name, handler)
     }
 
@@ -36,6 +37,7 @@ export class DatetaskSystemProcessor extends WorkerHost {
         })
         try {
             const handler = this.handlers.get(job.data.handler)
+            console.log(handler, job.data)
             if (isEmpty(handler)) {
                 throw new Error(`未注册的处理器: ${job.data.handler}`)
             }

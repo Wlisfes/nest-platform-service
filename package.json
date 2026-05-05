@@ -20,7 +20,7 @@
         "start:web-wallet-server": "cross-env NODE_ENV=production node dist/apps/web-wallet-server/main.js",
         "build:web-wallet-server": "cross-env NODE_ENV=production nest build web-wallet-server",
         "------定时任务服务执行------": "定时任务服务运行、打包执行指令---------------------------------",
-        "dev:web-datetask-server": "cross-env NODE_ENV=development nest build --webpack --webpackPath webpack-hmr.config.js --watch web-datetask-server",
+        "dev:web-datetask-server": "cross-env NODE_ENV=development nest start --watch web-datetask-server",
         "start:web-datetask-server": "cross-env NODE_ENV=production node dist/apps/web-datetask-server/main.js",
         "build:web-datetask-server": "cross-env NODE_ENV=production nest build web-datetask-server"
     },

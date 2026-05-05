@@ -26,8 +26,8 @@ export class UpdateDatetaskStatusOptions extends PickType(schema.WindowsDatetask
 /**修改Cron表达式**/
 export class UpdateDatetaskCronOptions extends PickType(schema.WindowsDatetask, ['keyId', 'cron']) {}
 
-/**手动触发任务**/
-export class TriggerDatetaskOptions extends PickType(schema.WindowsDatetask, ['keyId']) {}
+/**手动触发系统任务**/
+export class BaseSystemTriggerDatetaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
 
 /**任务日志分页查询**/
 export class ColumnDatetaskLogOptions extends IntersectionType(

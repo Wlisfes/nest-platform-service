@@ -152,9 +152,15 @@ export class DatetaskService extends Logger {
     /**手动触发一次系统任务**/
     @AutoDescriptor
     public async fetchBaseTriggerSystemTask(request: OmixRequest, payload: datetask.BaseTriggerTaskOptions) {
-        this.logger.info(`手动触发任务:`, payload)
-
-        return {}
+        return await this.database.builder(this.windows.datetaskOptions, async qb => {
+            qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
+            return await qb.getOne().then(async task => {
+                const taskOptions = this.fetchCloneByteTaskOptions(task, request)
+                await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, { lifo: true })
+                this.logger.info(`手动触发系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
+                return await this.fetchResolver({ message: '手动触发系统任务成功' })
+            })
+        })
     }
 
     /**写入任务执行日志**/
@@ -168,6 +174,7 @@ export class DatetaskService extends Logger {
         })
         /**更新任务的上次执行时间**/
         await this.database.update(this.windows.datetaskOptions, {
+            logger: false,
             request,
             where: { taskId: body.taskId },
             body: { lastTime: body.endTime }
