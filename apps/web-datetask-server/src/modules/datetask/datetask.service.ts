@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
-import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
+import { DataBaseService, WindowsService, enums, schema } from '@/modules/database/database.service'
 import { isNotEmpty, pick, fetchIntNumber, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
 import { InjectQueue } from '@nestjs/bullmq'
@@ -29,6 +29,14 @@ export class DatetaskService extends Logger {
         })
     }
 
+    /**复制任务数据，避免污染原对象**/
+    private fetchCloneByteTaskOptions(task: Partial<schema.WindowsDatetask>, request?: OmixRequest) {
+        return fetchCloneByte(
+            { request },
+            pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
+        )
+    }
+
     /**从数据库加载任务并注册到 BullMQ**/
     @AutoDescriptor
     public async fetchTasksRegister(request?: OmixRequest) {
@@ -53,13 +61,9 @@ export class DatetaskService extends Logger {
             )
             return await qb.getMany().then(async tasks => {
                 for (const task of tasks) {
-                    const taskOptions = fetchCloneByte(
-                        { request },
-                        pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
-                    )
                     if (task.type === enums.CHUNK_DATETASK_TYPE.system.value) {
                         /**系统任务：使用 Cron 表达式**/
-                        await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, {
+                        await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
                             repeat: { pattern: task.cron }
                         })
                         this.logger.info(
@@ -144,36 +148,43 @@ export class DatetaskService extends Logger {
         return { ...task, cron }
     }
 
-    /**手动触发一次任务**/
+    /**手动触发一次系统任务**/
     @AutoDescriptor
-    public async fetchTriggerTask(taskId: number) {
-        const task = await this.windows.datetaskOptions.findOne({ where: { taskId } as any })
-        if (!task) throw new Error(`任务不存在: ${taskId}`)
+    public async fetchBaseTriggerSystemTask(payload: { request: OmixRequest } & datetask.BaseTriggerTaskOptions) {
+        // const { request, ...body } = payload
+        // const task = await this.database.empty(this.windows.datetaskOptions, {
+        //     request,
+        //     message: `任务不存在: ${body.taskId}`,
+        //     stack: this.stack,
+        //     dispatch: { where: { taskId: body.taskId, type: enums.CHUNK_DATETASK_TYPE.system.value } }
+        // })
+        // await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
+        //     jobId: `${task.taskId}-manual-${Date.now()}`
+        // })
+        // this.logger.info(`手动触发任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
+        // return task
 
-        // await this.datetaskQueue.add(
-        //     task.handler,
-        //     { taskId: task.taskId, taskName: task.taskName, handler: task.handler, body: task.body, manual: true },
-        //     { jobId: `task-${task.taskName}-manual-${Date.now()}` }
-        // )
-        this.logger.info(`手动触发任务: ${task.taskName}`)
-        return task
+        this.logger.info(`手动触发任务:`, payload)
+
+        return {}
     }
 
     /**写入任务执行日志**/
     @AutoDescriptor
     public async fetchBaseWriteTaskLog(request: OmixRequest, body: datetask.BaseWriteTaskLogOptions) {
         await this.database.create(this.windows.datetaskLogOptions, {
-            comment: `写入任务执行日志: 任务ID-[${body.taskId}]，任务名称-[${body.taskName}]，任务处理器标识-${body.taskName}`,
+            logger: false,
             stack: this.stack,
             request,
             body: body
         })
         /**更新任务的上次执行时间**/
-        return await this.database.update(this.windows.datetaskOptions, {
+        await this.database.update(this.windows.datetaskOptions, {
             request,
             where: { taskId: body.taskId },
             body: { lastTime: body.endTime }
         })
+        return this.logger.info(`写入任务执行日志: 任务ID-[${body.taskId}]，任务名称-[${body.taskName}]`)
     }
 
     /**注册系统任务定义（不存在则自动创建）**/

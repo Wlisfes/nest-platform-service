@@ -9,6 +9,7 @@ import { RedisModule } from '@/modules/redis/redis.module'
 import { DatetaskModule } from '@web-datetask-server/modules/datetask/datetask.module'
 import { ExchangeModule } from '@web-datetask-server/modules/exchange/exchange.module'
 import { AppService } from '@web-datetask-server/app.service'
+import { AppController } from '@web-datetask-server/app.controller'
 
 @Module({
     imports: [
@@ -31,7 +32,8 @@ import { AppService } from '@web-datetask-server/app.service'
         DatetaskModule,
         ExchangeModule
     ],
-    providers: [AppService]
+    providers: [AppService],
+    controllers: [AppController]
 })
 export class AppModule implements OnModuleInit {
     constructor(private readonly appService: AppService) {}

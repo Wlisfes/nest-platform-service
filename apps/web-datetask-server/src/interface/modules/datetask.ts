@@ -21,3 +21,6 @@ export class BaseWriteTaskLogOptions extends IntersectionType(
     PickType(schema.WindowsDatetaskLog, ['taskId', 'taskName', 'startTime', 'endTime', 'duration', 'status', 'result']),
     PartialType(PickType(schema.WindowsDatetaskLog, ['error']))
 ) {}
+
+/**手动触发任务定义**/
+export class BaseTriggerTaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}

@@ -1,6 +1,8 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bullmq'
+import { ClientProxy } from '@nestjs/microservices'
 import { Queue } from 'bullmq'
+import { firstValueFrom } from 'rxjs'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, schema } from '@/modules/database/database.service'
 import { isNotEmpty } from '@/utils'
@@ -14,6 +16,7 @@ const DATETASK_QUEUE = 'datetask-queue'
 export class DeployDatetaskService extends Logger {
     constructor(
         @InjectQueue(DATETASK_QUEUE) private readonly datetaskQueue: Queue,
+        @Inject('web-datetask-server') private readonly datetaskServer: ClientProxy,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService
     ) {
@@ -149,23 +152,7 @@ export class DeployDatetaskService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemTriggerDatetask(request: OmixRequest, body: windows.TriggerDatetaskOptions) {
         try {
-            /**验证任务存在**/
-            const task = await this.database.builder(this.windows.datetaskOptions, async qb => {
-                qb.where(`t.keyId = :keyId`, { keyId: body.keyId })
-                return await qb.getOne()
-            })
-            if (!task) {
-                throw new HttpException('任务不存在', HttpStatus.BAD_REQUEST)
-            }
-
-            /**向 BullMQ 队列添加一次性 job**/
-            // await this.datetaskQueue.add(
-            //     task.handler,
-            //     { taskId: task.keyId, taskName: task.name, handler: task.handler, params: task.params, manual: true },
-            //     { jobId: `task-${task.name}-manual-${Date.now()}` }
-            // )
-
-            return await this.fetchResolver({ message: '任务已触发' })
+            this.datetaskServer.send({ cmd: 'fetchBaseTriggerSystemTask' }, { request, taskId: '2427470792158691328' })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
