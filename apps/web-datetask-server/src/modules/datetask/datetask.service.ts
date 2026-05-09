@@ -10,6 +10,8 @@ import * as datetask from '@web-datetask-server/interface'
 
 @Injectable()
 export class DatetaskService extends Logger {
+    /**系统任务队列标识符**/
+    private readonly systemTasks: Array<string> = [constants.DATETASK_SYSTEM_QUEUE]
     constructor(
         @InjectQueue(constants.DATETASK_SMS_QUEUE) private readonly datetaskSmsQueue: Queue,
         @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly datetaskSystemQueue: Queue,
@@ -21,22 +23,37 @@ export class DatetaskService extends Logger {
 
     /**清除所有job任务防止重复**/
     private async fetchRemoveJobScheduler(queue: Queue) {
-        return await queue.getJobSchedulers().then(async jobs => {
-            for (const job of jobs) {
-                await queue.removeJobScheduler(job.key)
-            }
-            return jobs
+        if (this.systemTasks.includes(queue.name)) {
+            /**系统任务：清除所有 cron job scheduler**/
+            return await queue.getJobSchedulers().then(async jobs => {
+                return await Promise.all(jobs.map(job => queue.removeJobScheduler(job.key)))
+            })
+        }
+        /**一次性任务：清除所有 delayed job**/
+        return await queue.getDelayed().then(async jobs => {
+            return await Promise.all(jobs.map(job => job.remove()))
         })
     }
 
-    /**根据 taskId 精确移除单个 job scheduler**/
+    /**根据 taskId 精确移除单个job任务**/
     private async fetchRemoveJobSchedulerByTaskId(queue: Queue, taskId: string) {
-        const schedulers = await queue.getJobSchedulers()
-        const target = schedulers.find(s => s.key.includes(taskId))
-        if (target) {
-            await queue.removeJobScheduler(target.key)
+        if (this.systemTasks.includes(queue.name)) {
+            /**系统任务：精确移除 cron job scheduler**/
+            return await queue.getJobSchedulers().then(async jobs => {
+                const job = jobs.find(s => s.key === taskId)
+                if (isNotEmpty(job)) {
+                    await queue.removeJobScheduler(job.key)
+                }
+                return job
+            })
         }
-        return target
+        /**一次性任务：通过 jobId 精确移除 delayed job**/
+        return await queue.getJob(taskId).then(async job => {
+            if (isNotEmpty(job)) {
+                await job.remove()
+            }
+            return job
+        })
     }
 
     /**复制任务数据，避免污染原对象**/
@@ -62,17 +79,17 @@ export class DatetaskService extends Logger {
         /**查询所有启用的任务**/
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
             qb.where(
-                `(t.status = :status AND t.type = :system AND t.cron IS NOT NULL) OR (t.status = :status AND t.type = :sms AND t.runTime IS NOT NULL)`,
+                `(t.status IN (:...status) AND t.type = :system AND t.cron IS NOT NULL) OR (t.status IN (:...status) AND t.type = :sms AND t.runTime IS NOT NULL)`,
                 {
-                    status: enums.CHUNK_DATETASK_STATUS.running.value,
+                    status: [enums.CHUNK_DATETASK_STATUS.running.value, enums.CHUNK_DATETASK_STATUS.wait.value],
                     system: enums.CHUNK_DATETASK_TYPE.system.value,
                     sms: enums.CHUNK_DATETASK_TYPE.sms.value
                 }
             )
             return await qb.getMany().then(async tasks => {
                 for (const task of tasks) {
+                    /**系统任务：使用 Cron 表达式**/
                     if (task.type === enums.CHUNK_DATETASK_TYPE.system.value) {
-                        /**系统任务：使用 Cron 表达式**/
                         await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
                             repeat: { pattern: task.cron, key: task.taskId }
                         })
@@ -80,15 +97,17 @@ export class DatetaskService extends Logger {
                             `注册系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，Cron表达式-[${task.cron}]`
                         )
                     }
-
-                    // if (taskOptions.type === enums.CHUNK_DATETASK_TYPE.sms.value) {
-                    //     /**短信任务：计算延迟时间**/
-                    //     const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
-                    //     // await this.datetaskSmsQueue.add(taskOptions, { delay, jobId: task.taskId })
-                    //     this.logger.info(
-                    //         `注册短信任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
-                    //     )
-                    // }
+                    /**短信任务：计算延迟时间**/
+                    if (task.type === enums.CHUNK_DATETASK_TYPE.sms.value) {
+                        const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
+                        await this.datetaskSmsQueue.add(constants.DATETASK_SMS_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
+                            delay,
+                            jobId: task.taskId
+                        })
+                        this.logger.info(
+                            `注册短信任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
+                        )
+                    }
                 }
                 const systemTasks = tasks.filter(task => task.type === enums.CHUNK_DATETASK_TYPE.system.value && task.cron && !task.runTime)
                 const businessTasks = tasks.length - systemTasks.length

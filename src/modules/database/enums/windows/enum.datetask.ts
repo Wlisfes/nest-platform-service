@@ -21,6 +21,11 @@ export const CHUNK_DATETASK_STATUS = {
         name: '停止',
         json: { type: 'error' }
     },
+    wait: {
+        value: 'wait',
+        name: '等待运行',
+        json: { type: 'info' }
+    },
     running: {
         value: 'running',
         name: '运行中',
