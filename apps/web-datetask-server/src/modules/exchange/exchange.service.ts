@@ -5,6 +5,7 @@ import { DatetaskSystemProcessor } from '@web-datetask-server/modules/datetask/d
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 import { ExchangeUtilsService } from '@web-datetask-server/modules/exchange/exchange.utils.service'
 import { OmixRequest } from '@/interface'
+import { moment } from '@/utils'
 
 @Injectable()
 export class ExchangeService extends Logger {
@@ -32,7 +33,9 @@ export class ExchangeService extends Logger {
         })
         /**注册处理器**/
         return this.datetaskSystemProcessor.fetchRegisterHandler(this.taskName, data => {
-            return this.exchangeUtilsService.fetchBaseRatesByFrankfurter(request, data)
+            return this.exchangeUtilsService.fetchBaseRatesByFrankfurter(request, {
+                date: moment().format('YYYY-MM-DD')
+            })
         })
     }
 }

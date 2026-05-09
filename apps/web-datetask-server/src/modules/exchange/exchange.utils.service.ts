@@ -21,7 +21,7 @@ export class ExchangeUtilsService extends Logger {
     public async fetchBaseRatesByFrankfurter(request: OmixRequest, state: Omix) {
         try {
             /**1.从 Frankfurter API 获取基于 USD 的最新汇率**/
-            const date = moment().format('YYYY-MM-DD')
+            const date = state.date ?? moment().format('YYYY-MM-DD')
             const { data } = await firstValueFrom(
                 this.httpService.get<Array<Omix>>(`https://api.frankfurter.dev/v2/rates`, {
                     params: { from: date, to: date, base: 'USD' }
@@ -35,12 +35,7 @@ export class ExchangeUtilsService extends Logger {
                     /**3.过滤出需要同步的币种**/
                     const toSync = (data ?? []).filter((item: Omix) => alls.has(item.quote))
                     if (toSync.length === 0) {
-                        return {
-                            skipped: 0,
-                            synced: 0,
-                            total: 0,
-                            message: `同步完成: 写入 0 条，跳过 0 条，总计 0 条`
-                        }
+                        return { skipped: 0, synced: 0, total: 0, message: `同步完成: 写入 0 条，跳过 0 条，总计 0 条` }
                     }
                     /**4.一次性查询已存在的记录，批量插入新记录**/
                     const existingRecords = await this.database.builder(this.windows.currencyExchangeOptions, async qb => {
