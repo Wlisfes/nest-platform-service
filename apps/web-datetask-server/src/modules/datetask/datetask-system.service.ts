@@ -11,7 +11,7 @@ import * as datetask from '@web-datetask-server/interface'
 @Injectable()
 export class DatetaskSystemService extends Logger {
     constructor(
-        @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly datetaskSystemQueue: Queue,
+        @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly systemQueue: Queue,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService
     ) {
@@ -25,7 +25,7 @@ export class DatetaskSystemService extends Logger {
             { request },
             pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
         )
-        await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, {
+        await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, {
             repeat: { pattern: task.cron, key: task.taskId }
         })
         return this.logger.info(
@@ -33,7 +33,7 @@ export class DatetaskSystemService extends Logger {
         )
     }
 
-    /**注册系统任务定义（不存在则自动创建）**/
+    /**注册系统任务定义**/
     @AutoDescriptor
     public async fetchBaseEnsureSystemTask(request: OmixRequest, body: datetask.BaseEnsureSystemTaskOptions) {
         const whereOptions: Omix = { handler: body.handler, type: enums.CHUNK_DATETASK_TYPE.system.value }
@@ -55,6 +55,23 @@ export class DatetaskSystemService extends Logger {
                         status: enums.CHUNK_DATETASK_STATUS.running.value
                     })
                 })
+            })
+        })
+    }
+
+    /**手动触发一次系统任务**/
+    @AutoDescriptor
+    public async fetchBaseTriggerSystemTask(request: Omix, payload: datetask.BaseTriggerTaskOptions) {
+        return await this.database.builder(this.windows.datetaskOptions, async qb => {
+            qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
+
+            // selection
+
+            return await qb.getOne().then(async task => {
+                // const taskOptions = this.fetchCloneByteTaskOptions(task, request)
+                // await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, { lifo: true })
+                this.logger.info(`手动触发系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
+                return await this.fetchResolver({ message: '手动触发系统任务成功' })
             })
         })
     }
