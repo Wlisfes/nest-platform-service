@@ -3,7 +3,7 @@ import { Injectable, Inject } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { WinstonService, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DATETASK_SYSTEM_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
-import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
+import { DatetaskUtilsService } from '@web-datetask-server/modules/datetask/datetask.utils.service'
 import { ExchangeService } from '@web-datetask-server/modules/exchange/exchange.service'
 import { Logger } from 'winston'
 import { Job } from 'bullmq'
@@ -17,7 +17,7 @@ import * as enums from '@/modules/database/enums'
 export class DatetaskSystemProcessor extends WorkerHost {
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly winston: Logger
 
-    constructor(private readonly datetaskService: DatetaskService, private readonly exchangeService: ExchangeService) {
+    constructor(private readonly datetaskUtilsService: DatetaskUtilsService, private readonly exchangeService: ExchangeService) {
         super()
     }
 
@@ -35,7 +35,7 @@ export class DatetaskSystemProcessor extends WorkerHost {
     @AutoDescriptor
     private async fetchBaseWriteTaskExecution(request: OmixRequest, jobData: datetask.BaseJobDatetaskOptions, body: Omix) {
         const endTime = new Date()
-        return await this.datetaskService.fetchBaseWriteTaskLog(request, {
+        return await this.datetaskUtilsService.fetchBaseWriteTaskLog(request, {
             taskId: jobData.taskId,
             taskName: jobData.taskName,
             startTime: body.startTime,
