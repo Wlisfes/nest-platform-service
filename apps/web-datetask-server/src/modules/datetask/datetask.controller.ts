@@ -1,4 +1,4 @@
-import { Controller, ValidationPipe, UsePipes } from '@nestjs/common'
+import { Controller, ValidationPipe, UsePipes, HttpException } from '@nestjs/common'
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices'
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 import { DatetaskSystemService } from '@web-datetask-server/modules/datetask/datetask-system.service'
@@ -31,7 +31,7 @@ export class DatetaskController {
     @MessagePattern({ cmd: 'fetchBaseTriggerSystemTask' })
     public async fetchBaseTriggerSystemTask(@Payload() payload: datetask.BaseTriggerTaskOptions) {
         console.log(payload)
-        return payload
+        throw new HttpException('默认情况下不会启用全局微服务异常过滤器', 400)
         // return await this.datetaskSystemService.fetchBaseTriggerSystemTask(payload.request, payload)
     }
 }

@@ -1,17 +1,18 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common'
-import { Logger } from '@/modules/logger/logger.service'
+import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { moment } from '@/utils'
 
 @Catch()
 export class HttpExceptionFilter extends Logger implements ExceptionFilter {
-    async catch(exception: any, host: ArgumentsHost) {
+    @AutoDescriptor
+    private output(request: Omix, body: Omix) {
+        this.logger.error(body)
+    }
+
+    catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToHttp()
         const response = ctx.getResponse()
         const request = ctx.getRequest()
-        const logger = await this.fetchServiceTransaction(request, {
-            datetime: request.datetime,
-            deplayName: HttpExceptionFilter.name
-        })
         const Result: Omix = {
             logId: request.logId,
             timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
@@ -24,7 +25,7 @@ export class HttpExceptionFilter extends Logger implements ExceptionFilter {
         } else {
             Result.message = exception.message
         }
-        logger.error(Result)
+        this.output(request, Result)
         Result.data = exception.options ?? null
         response.status(HttpStatus.OK)
         response.header('Content-Type', 'application/json; charset=utf-8')

@@ -11,9 +11,11 @@ export class LoggerMiddleware implements NestMiddleware {
 
     async use(request: Omix<Request>, response: Response, next: NextFunction) {
         const date = Date.now()
-        request.ipv4 = fetchIPClient(request)
-        request.logId = v4()
-        request.datetime = date.toString()
+        const logs = { logId: v4(), datetime: date.toString(), ipv4: fetchIPClient(request) }
+        request.logs = logs
+        request.ipv4 = logs.ipv4
+        request.logId = logs.logId
+        request.datetime = logs.datetime
         response.on('finish', () => {
             this.logger.info(LoggerMiddleware.name, {
                 logId: request.logId,

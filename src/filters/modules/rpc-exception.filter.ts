@@ -1,37 +1,29 @@
-import { Catch, ExceptionFilter, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common'
-import { RpcException } from '@nestjs/microservices'
+import { Catch, ExceptionFilter, ArgumentsHost, HttpStatus } from '@nestjs/common'
+import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { throwError } from 'rxjs'
+import { moment } from '@/utils'
 
 /**微服务异常过滤器：将所有异常统一转换为 RpcException 格式传回调用方**/
 @Catch()
-export class RpcExceptionFilter implements ExceptionFilter {
+export class RpcExceptionFilter extends Logger implements ExceptionFilter {
+    @AutoDescriptor
+    private output(request: Omix, body: Omix) {
+        this.logger.error(body)
+        return throwError(() => body)
+    }
+
     catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToRpc()
-        /**提取异常信息**/
-        let message: string = exception?.message ?? 'Internal server error'
-        let status: number = HttpStatus.INTERNAL_SERVER_ERROR
-        let options: any = null
-
-        if (exception instanceof HttpException) {
-            status = exception.getStatus()
-            const response = exception.getResponse()
-            if (typeof response === 'object' && response !== null) {
-                /**ValidationPipe 的校验错误：response.message 是数组**/
-                message = Array.isArray((response as any).message) ? (response as any).message[0] : (response as any).message ?? message
-            } else {
-                message = response as string
-            }
-            options = (exception as any).options ?? null
-        } else if (exception instanceof RpcException) {
-            const error = exception.getError()
-            if (typeof error === 'object' && error !== null) {
-                message = (error as any).message ?? message
-                status = (error as any).status ?? status
-            } else {
-                message = error as string
-            }
+        const Result: Omix = {
+            logId: ctx.getData().request?.logId,
+            timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
+            code: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR
         }
-
-        return throwError(() => ({ status, message, options }))
+        if (exception.response && Array.isArray(exception.response.message)) {
+            Result.message = exception.response.message[0]
+        } else {
+            Result.message = exception.message
+        }
+        return this.output(ctx.getData().request, Result)
     }
 }

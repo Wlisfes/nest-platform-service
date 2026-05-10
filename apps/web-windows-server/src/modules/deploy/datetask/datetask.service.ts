@@ -120,11 +120,11 @@ export class DeployDatetaskService extends Logger {
                 pattern: { cmd: 'fetchBaseTriggerSystemTask' },
                 data: {
                     taskId: body.taskId,
-                    request: { logId: request.logId, datetime: request.datetime }
+                    request: request.logs
                 }
             })
         } catch (err) {
-            this.logger.error(err)
+            // this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
         }
     }
