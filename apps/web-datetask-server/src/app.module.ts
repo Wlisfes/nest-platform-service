@@ -1,5 +1,4 @@
 import { Module, OnModuleInit } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 import { BullModule } from '@nestjs/bullmq'
@@ -37,11 +36,10 @@ import { AppController } from '@web-datetask-server/app.controller'
     controllers: [AppController]
 })
 export class AppModule implements OnModuleInit {
-    constructor(private readonly moduleRef: ModuleRef) {}
+    constructor(private readonly appService: AppService) {}
 
-    /**定时任务初始化（使用 moduleRef.resolve 解决 REQUEST 作用域冒泡问题）**/
+    /**定时任务初始化**/
     async onModuleInit() {
-        const appService = await this.moduleRef.resolve(AppService)
-        return appService.fetchDatetaskInitialization()
+        return this.appService.fetchDatetaskInitialization()
     }
 }

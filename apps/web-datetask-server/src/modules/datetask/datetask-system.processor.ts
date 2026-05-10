@@ -4,7 +4,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
 import { WinstonService, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DATETASK_SYSTEM_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
-import { ExchangeUtilsService } from '@web-datetask-server/modules/exchange/exchange.utils.service'
+import { ExchangeService } from '@web-datetask-server/modules/exchange/exchange.service'
 import { Logger } from 'winston'
 import { Job } from 'bullmq'
 import { OmixRequest } from '@/interface'
@@ -17,16 +17,16 @@ import * as enums from '@/modules/database/enums'
 export class DatetaskSystemProcessor extends WorkerHost {
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly winston: Logger
 
-    constructor(private readonly datetaskService: DatetaskService, private readonly exchangeUtilsService: ExchangeUtilsService) {
+    constructor(private readonly datetaskService: DatetaskService, private readonly exchangeService: ExchangeService) {
         super()
     }
 
     /**系统任务执行器**/
     @AutoDescriptor
     private async fetchBaseSystemTaskActuator(request: OmixRequest, jobData: datetask.BaseJobDatetaskOptions) {
-        if (jobData.handler === this.exchangeUtilsService.taskName) {
+        if (jobData.handler === this.exchangeService.taskName) {
             /**获取国际费率定时任务执行器**/
-            return await this.exchangeUtilsService.fetchBaseRatesByFrankfurter(request, jobData)
+            return await this.exchangeService.fetchBaseTaskActuator(request, jobData)
         }
         throw new Error(`未注册的处理器: ${jobData.handler}`)
     }
