@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common'
+import { Injectable, Inject, HttpException } from '@nestjs/common'
 import { ClientProxy } from '@nestjs/microservices'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
@@ -14,6 +14,18 @@ export class DeployDatetaskService extends Logger {
         private readonly windows: WindowsService
     ) {
         super()
+    }
+
+    /**验证系统任务ID是否错误**/
+    @AutoDescriptor
+    public async httpBaseCheckSystemByTaskId(request: OmixRequest, taskId: string) {
+        return await this.database.empty(this.windows.datetaskOptions, {
+            request,
+            message: 'taskId:不存在',
+            dispatch: {
+                where: { taskId, type: enums.CHUNK_DATETASK_TYPE.system.value }
+            }
+        })
     }
 
     /**系统任务分页列表**/
@@ -47,32 +59,20 @@ export class DeployDatetaskService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemUpdateDatetaskStatus(request: OmixRequest, body: windows.UpdateDatetaskStatusOptions) {
         try {
-            /**验证任务存在**/
-            const task = await this.database.empty(this.windows.datetaskOptions, {
-                request,
-                message: '系统任务:不存在',
-                dispatch: {
-                    where: { type: enums.CHUNK_DATETASK_TYPE.system.value, taskId: body.taskId }
+            return await this.httpBaseCheckSystemByTaskId(request, body.taskId).then(async task => {
+                /**根据目标状态调用不同的微服务方法**/
+                if (body.status === enums.CHUNK_DATETASK_STATUS.running.value) {
+                    return await fetchClientSender(this.datetaskServer, {
+                        pattern: { cmd: 'fetchBaseEnableSystemTask' },
+                        data: { taskId: body.taskId, request: request.logs }
+                    })
+                } else {
+                    return await fetchClientSender(this.datetaskServer, {
+                        pattern: { cmd: 'fetchBaseDisableSystemTask' },
+                        data: { taskId: body.taskId, request: request.logs }
+                    })
                 }
             })
-            /**根据目标状态调用不同的微服务方法**/
-            if (body.status === enums.CHUNK_DATETASK_STATUS.running.value) {
-                return await fetchClientSender(this.datetaskServer, {
-                    pattern: { cmd: 'fetchBaseEnableSystemTask' },
-                    data: {
-                        taskId: body.taskId,
-                        request: { logId: request.logId, datetime: request.datetime }
-                    }
-                })
-            } else {
-                return await fetchClientSender(this.datetaskServer, {
-                    pattern: { cmd: 'fetchBaseDisableSystemTask' },
-                    data: {
-                        taskId: body.taskId,
-                        request: { logId: request.logId, datetime: request.datetime }
-                    }
-                })
-            }
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
@@ -83,21 +83,11 @@ export class DeployDatetaskService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemUpdateDatetaskCron(request: OmixRequest, body: windows.UpdateDatetaskCronOptions) {
         try {
-            /**验证任务存在**/
-            await this.database.empty(this.windows.datetaskOptions, {
-                request,
-                message: '系统任务:不存在',
-                dispatch: {
-                    where: { type: enums.CHUNK_DATETASK_TYPE.system.value, taskId: body.taskId }
-                }
-            })
-            return await fetchClientSender(this.datetaskServer, {
-                pattern: { cmd: 'fetchBaseUpdateSystemTaskCron' },
-                data: {
-                    taskId: body.taskId,
-                    cron: body.cron,
-                    request: { logId: request.logId, datetime: request.datetime }
-                }
+            return await this.httpBaseCheckSystemByTaskId(request, body.taskId).then(async task => {
+                return await fetchClientSender(this.datetaskServer, {
+                    pattern: { cmd: 'fetchBaseUpdateSystemTaskCron' },
+                    data: { taskId: body.taskId, cron: body.cron, request: request.logs }
+                })
             })
         } catch (err) {
             this.logger.error(err)
@@ -109,19 +99,11 @@ export class DeployDatetaskService extends Logger {
     @AutoDescriptor
     public async httpBaseSystemTriggerDatetask(request: OmixRequest, body: windows.BaseSystemTriggerDatetaskOptions) {
         try {
-            await this.database.empty(this.windows.datetaskOptions, {
-                request,
-                message: '系统任务ID:不存在',
-                dispatch: {
-                    where: { type: enums.CHUNK_DATETASK_TYPE.system.value, taskId: body.taskId }
-                }
-            })
-            return await fetchClientSender(this.datetaskServer, {
-                pattern: { cmd: 'fetchBaseTriggerSystemTask' },
-                data: {
-                    taskId: body.taskId,
-                    request: request.logs
-                }
+            return await this.httpBaseCheckSystemByTaskId(request, body.taskId).then(async task => {
+                return await fetchClientSender(this.datetaskServer, {
+                    pattern: { cmd: 'fetchBaseTriggerSystemTask' },
+                    data: { taskId: body.taskId, request: request.logs }
+                })
             })
         } catch (err) {
             this.logger.error(err)

@@ -125,6 +125,9 @@ export class DatetaskService extends Logger {
                     sms: enums.CHUNK_DATETASK_TYPE.sms.value
                 }
             )
+            await this.database.selection(qb, [
+                ['t', ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment']]
+            ])
             return await qb.getMany().then(async tasks => {
                 for (const task of tasks) {
                     /**系统任务：使用 Cron 表达式**/

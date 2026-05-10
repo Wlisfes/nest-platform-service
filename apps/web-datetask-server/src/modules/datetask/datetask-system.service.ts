@@ -21,11 +21,7 @@ export class DatetaskSystemService extends Logger {
     /**注册系统任务**/
     @AutoDescriptor
     public async fetchTaskSystemRegister(request: OmixRequest, task: Partial<schema.WindowsDatetask>) {
-        const taskOptions = fetchCloneByte(
-            { request },
-            pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
-        )
-        await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, {
+        await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), {
             repeat: { pattern: task.cron, key: task.taskId }
         })
         return this.logger.info(
@@ -64,12 +60,11 @@ export class DatetaskSystemService extends Logger {
     public async fetchBaseTriggerSystemTask(request: Omix, payload: datetask.BaseTriggerTaskOptions) {
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
             qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
-
-            // selection
-
+            await this.database.selection(qb, [
+                ['t', ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment']]
+            ])
             return await qb.getOne().then(async task => {
-                // const taskOptions = this.fetchCloneByteTaskOptions(task, request)
-                // await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, { lifo: true })
+                await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), { lifo: true })
                 this.logger.info(`手动触发系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
                 return await this.fetchResolver({ message: '手动触发系统任务成功' })
             })
