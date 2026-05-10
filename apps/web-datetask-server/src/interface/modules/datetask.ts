@@ -1,4 +1,6 @@
-import { PickType, IntersectionType, PartialType } from '@nestjs/swagger'
+import { PickType, IntersectionType, PartialType, ApiProperty } from '@nestjs/swagger'
+import { IsNotEmpty } from 'class-validator'
+import { BaseRpcPayload } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
 /**任务执行数据结构定义**/
@@ -20,13 +22,16 @@ export class BaseWriteTaskLogOptions extends IntersectionType(
 ) {}
 
 /**手动触发任务定义**/
-export class BaseTriggerTaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
+export class BaseTriggerTaskOptions extends IntersectionType(BaseRpcPayload, PickType(schema.WindowsDatetask, ['taskId'])) {}
 
 /**启用系统任务定义**/
-export class BaseEnableSystemTaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
+export class BaseEnableSystemTaskOptions extends IntersectionType(BaseRpcPayload, PickType(schema.WindowsDatetask, ['taskId'])) {}
 
 /**停用系统任务定义**/
-export class BaseDisableSystemTaskOptions extends PickType(schema.WindowsDatetask, ['taskId']) {}
+export class BaseDisableSystemTaskOptions extends IntersectionType(BaseRpcPayload, PickType(schema.WindowsDatetask, ['taskId'])) {}
 
 /**修改系统任务Cron表达式定义**/
-export class BaseUpdateSystemTaskCronOptions extends PickType(schema.WindowsDatetask, ['taskId', 'cron']) {}
+export class BaseUpdateSystemTaskCronOptions extends IntersectionType(
+    BaseRpcPayload,
+    PickType(schema.WindowsDatetask, ['taskId', 'cron'])
+) {}

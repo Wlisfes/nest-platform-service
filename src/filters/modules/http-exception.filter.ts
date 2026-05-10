@@ -17,6 +17,7 @@ export class HttpExceptionFilter extends Logger implements ExceptionFilter {
             logId: request.logId,
             timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             url: request.url,
+            data: exception.options ?? null,
             method: request.method,
             code: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR
         }
@@ -26,7 +27,6 @@ export class HttpExceptionFilter extends Logger implements ExceptionFilter {
             Result.message = exception.message
         }
         this.output(request, Result)
-        Result.data = exception.options ?? null
         response.status(HttpStatus.OK)
         response.header('Content-Type', 'application/json; charset=utf-8')
         response.send(Result)

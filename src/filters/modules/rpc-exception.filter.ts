@@ -9,12 +9,13 @@ export class RpcExceptionFilter extends Logger implements ExceptionFilter {
     @AutoDescriptor
     private output(request: Omix, body: Omix) {
         this.logger.error(body)
-        return throwError(() => body)
+        return throwError(() => ({ ...body, status: body.code }))
     }
 
     catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToRpc()
         const Result: Omix = {
+            options: exception.options,
             logId: ctx.getData().request?.logId,
             timestamp: moment().format('YYYY-MM-DD HH:mm:ss.SSS'),
             code: exception.status ?? HttpStatus.INTERNAL_SERVER_ERROR

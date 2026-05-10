@@ -124,7 +124,7 @@ export class DeployDatetaskService extends Logger {
                 }
             })
         } catch (err) {
-            // this.logger.error(err)
+            this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
         }
     }

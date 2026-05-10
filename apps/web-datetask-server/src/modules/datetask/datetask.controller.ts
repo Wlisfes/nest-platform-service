@@ -1,8 +1,7 @@
-import { Controller, ValidationPipe, UsePipes, HttpException } from '@nestjs/common'
-import { MessagePattern, Payload, RpcException } from '@nestjs/microservices'
+import { Controller } from '@nestjs/common'
+import { MessagePattern, Payload } from '@nestjs/microservices'
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 import { DatetaskSystemService } from '@web-datetask-server/modules/datetask/datetask-system.service'
-import { OmixRequest } from '@/interface'
 import * as datetask from '@web-datetask-server/interface'
 
 @Controller()
@@ -11,27 +10,25 @@ export class DatetaskController {
 
     /**启用系统任务**/
     @MessagePattern({ cmd: 'fetchBaseEnableSystemTask' })
-    public async fetchBaseEnableSystemTask(@Payload() payload: { request: OmixRequest } & datetask.BaseEnableSystemTaskOptions) {
+    public async fetchBaseEnableSystemTask(@Payload() payload: datetask.BaseEnableSystemTaskOptions) {
         return await this.datetaskService.fetchBaseEnableSystemTask(payload.request, payload)
     }
 
     /**停用系统任务**/
     @MessagePattern({ cmd: 'fetchBaseDisableSystemTask' })
-    public async fetchBaseDisableSystemTask(@Payload() payload: { request: OmixRequest } & datetask.BaseDisableSystemTaskOptions) {
+    public async fetchBaseDisableSystemTask(@Payload() payload: datetask.BaseDisableSystemTaskOptions) {
         return await this.datetaskService.fetchBaseDisableSystemTask(payload.request, payload)
     }
 
     /**修改系统任务Cron表达式**/
     @MessagePattern({ cmd: 'fetchBaseUpdateSystemTaskCron' })
-    public async fetchBaseUpdateSystemTaskCron(@Payload() payload: { request: OmixRequest } & datetask.BaseUpdateSystemTaskCronOptions) {
+    public async fetchBaseUpdateSystemTaskCron(@Payload() payload: datetask.BaseUpdateSystemTaskCronOptions) {
         return await this.datetaskService.fetchBaseUpdateSystemTaskCron(payload.request, payload)
     }
 
     /**手动触发一次系统任务**/
     @MessagePattern({ cmd: 'fetchBaseTriggerSystemTask' })
     public async fetchBaseTriggerSystemTask(@Payload() payload: datetask.BaseTriggerTaskOptions) {
-        console.log(payload)
-        throw new HttpException('默认情况下不会启用全局微服务异常过滤器', 400)
-        // return await this.datetaskSystemService.fetchBaseTriggerSystemTask(payload.request, payload)
+        return await this.datetaskSystemService.fetchBaseTriggerSystemTask(payload.request, payload)
     }
 }

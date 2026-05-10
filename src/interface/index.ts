@@ -1,4 +1,5 @@
 export * from '@/interface/modules/global.resolver'
+export * from '@/interface/modules/rpc.resolver'
 export * from '@/interface/modules/request.resolver'
 export * from '@/interface/modules/redis.resolver'
 export * from '@/interface/modules/codex.resolver'
