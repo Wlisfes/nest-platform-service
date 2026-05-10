@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums, schema } from '@/modules/database/database.service'
+import { DatetaskSystemService } from '@web-datetask-server/modules/datetask/datetask-system.service'
 import { isNotEmpty, pick, fetchIntNumber, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
 import { InjectQueue } from '@nestjs/bullmq'
@@ -16,9 +17,18 @@ export class DatetaskService extends Logger {
         @InjectQueue(constants.DATETASK_SMS_QUEUE) private readonly datetaskSmsQueue: Queue,
         @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly datetaskSystemQueue: Queue,
         private readonly database: DataBaseService,
-        private readonly windows: WindowsService
+        private readonly windows: WindowsService,
+        private readonly datetaskSystemService: DatetaskSystemService
     ) {
         super()
+    }
+
+    /**复制任务数据，避免污染原对象**/
+    private fetchCloneByteTaskOptions(task: Partial<schema.WindowsDatetask>, request?: Omix) {
+        return fetchCloneByte(
+            { request },
+            pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
+        )
     }
 
     /**清除所有job任务防止重复**/
@@ -56,13 +66,18 @@ export class DatetaskService extends Logger {
         })
     }
 
-    /**复制任务数据，避免污染原对象**/
-    private fetchCloneByteTaskOptions(task: Partial<schema.WindowsDatetask>, request?: Omix) {
-        return fetchCloneByte(
-            { request },
-            pick(task, ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment'])
-        )
-    }
+    /**注册短信任务**/
+    // @AutoDescriptor
+    // public async fetchTaskSmsRegister(request: OmixRequest, task: Partial<schema.WindowsDatetask>) {
+    //     const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
+    //     await this.datetaskSmsQueue.add(constants.DATETASK_SMS_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
+    //         delay,
+    //         jobId: task.taskId
+    //     })
+    //     return this.logger.info(
+    //         `注册短信任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
+    //     )
+    // }
 
     /**从数据库加载任务并注册到 BullMQ**/
     @AutoDescriptor
@@ -90,24 +105,12 @@ export class DatetaskService extends Logger {
                 for (const task of tasks) {
                     /**系统任务：使用 Cron 表达式**/
                     if (task.type === enums.CHUNK_DATETASK_TYPE.system.value) {
-                        await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
-                            repeat: { pattern: task.cron, key: task.taskId }
-                        })
-                        this.logger.info(
-                            `注册系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，Cron表达式-[${task.cron}]`
-                        )
+                        await this.datetaskSystemService.fetchTaskSystemRegister(request, task)
                     }
                     /**短信任务：计算延迟时间**/
-                    if (task.type === enums.CHUNK_DATETASK_TYPE.sms.value) {
-                        const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
-                        await this.datetaskSmsQueue.add(constants.DATETASK_SMS_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
-                            delay,
-                            jobId: task.taskId
-                        })
-                        this.logger.info(
-                            `注册短信任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
-                        )
-                    }
+                    // if (task.type === enums.CHUNK_DATETASK_TYPE.sms.value) {
+                    //     await this.fetchTaskSmsRegister(request, task)
+                    // }
                 }
                 const systemTasks = tasks.filter(task => task.type === enums.CHUNK_DATETASK_TYPE.system.value && task.cron && !task.runTime)
                 const businessTasks = tasks.length - systemTasks.length
@@ -223,31 +226,5 @@ export class DatetaskService extends Logger {
             body: { lastTime: body.endTime }
         })
         return this.logger.info(`写入任务执行日志: 任务ID-[${body.taskId}]，任务名称-[${body.taskName}]`)
-    }
-
-    /**注册系统任务定义（不存在则自动创建）**/
-    @AutoDescriptor
-    public async fetchBaseEnsureSystemTask(request: OmixRequest, body: datetask.BaseEnsureSystemTaskOptions) {
-        const whereOptions: Omix = { handler: body.handler, type: enums.CHUNK_DATETASK_TYPE.system.value }
-        return await this.windows.datetaskOptions.findOne({ where: whereOptions }).then(async task => {
-            if (isNotEmpty(task)) {
-                this.logger.info(
-                    `系统任务已存在: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，Cron表达式-[${task.cron}]`
-                )
-                return task
-            }
-            return await fetchIntNumber().then(async taskId => {
-                return await this.database.create(this.windows.datetaskOptions, {
-                    comment: `自动创建任务: 任务ID-[${taskId}]，任务名称-[${body.taskName}]，任务处理器标识-[${body.handler}]`,
-                    stack: this.stack,
-                    request,
-                    body: fetchCloneByte(body, {
-                        taskId,
-                        body: body.body ?? {},
-                        status: enums.CHUNK_DATETASK_STATUS.running.value
-                    })
-                })
-            })
-        })
     }
 }

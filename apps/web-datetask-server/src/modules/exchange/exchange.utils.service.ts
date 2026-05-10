@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Injectable, HttpException } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
@@ -8,6 +8,9 @@ import { OmixRequest } from '@/interface'
 
 @Injectable()
 export class ExchangeUtilsService extends Logger {
+    /**任务处理器标识**/
+    public readonly taskName: string = 'datetask-sync-exchange-rate'
+
     constructor(
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,

@@ -1,13 +1,13 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq'
 import { Injectable, Inject } from '@nestjs/common'
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
-import { WinstonService } from '@/modules/logger/logger.service'
-import { Logger } from 'winston'
-import { Job } from 'bullmq'
-import { isEmpty } from '@/utils'
-import { OmixRequest } from '@/interface'
+import { WinstonService, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DATETASK_SYSTEM_QUEUE } from '@web-datetask-server/modules/datetask/datetask.constants'
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
+import { ExchangeUtilsService } from '@web-datetask-server/modules/exchange/exchange.utils.service'
+import { Logger } from 'winston'
+import { Job } from 'bullmq'
+import { OmixRequest } from '@/interface'
 import * as datetask from '@web-datetask-server/interface'
 import * as enums from '@/modules/database/enums'
 
@@ -15,40 +15,51 @@ import * as enums from '@/modules/database/enums'
 @Processor(DATETASK_SYSTEM_QUEUE)
 @Injectable()
 export class DatetaskSystemProcessor extends WorkerHost {
-    private static handlers = new Map<string, datetask.TaskHandler>()
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly winston: Logger
 
-    constructor(private readonly datetaskService: DatetaskService) {
+    constructor(private readonly datetaskService: DatetaskService, private readonly exchangeUtilsService: ExchangeUtilsService) {
         super()
     }
 
-    /**注册处理器**/
-    public async fetchRegisterHandler(name: string, handler: datetask.TaskHandler) {
-        return DatetaskSystemProcessor.handlers.set(name, handler)
+    /**系统任务执行器**/
+    @AutoDescriptor
+    private async fetchBaseSystemTaskActuator(request: OmixRequest, jobData: datetask.BaseJobDatetaskOptions) {
+        if (jobData.handler === this.exchangeUtilsService.taskName) {
+            /**获取国际费率定时任务执行器**/
+            return await this.exchangeUtilsService.fetchBaseRatesByFrankfurter(request, jobData)
+        }
+        throw new Error(`未注册的处理器: ${jobData.handler}`)
     }
 
-    /**BullMQ Worker 入口**/
+    /**记录任务执行日志**/
+    @AutoDescriptor
+    private async fetchBaseWriteTaskExecution(request: OmixRequest, jobData: datetask.BaseJobDatetaskOptions, body: Omix) {
+        const endTime = new Date()
+        return await this.datetaskService.fetchBaseWriteTaskLog(request, {
+            taskId: jobData.taskId,
+            taskName: jobData.taskName,
+            startTime: body.startTime,
+            status: body.status,
+            result: body.result,
+            error: body.message,
+            endTime: endTime,
+            duration: endTime.getTime() - body.startTime.getTime()
+        })
+    }
+
+    /**系统任务消费者**/
     async process(job: Job<datetask.BaseJobDatetaskOptions & { request: OmixRequest }>) {
-        const date = new Date()
+        const startTime = new Date()
         const logger = new WinstonService(this.winston, job.data.request, {
             stack: `${DatetaskSystemProcessor.name}:process`,
-            datetime: date.getTime()
+            datetime: startTime.getTime()
         })
         try {
-            const handler = DatetaskSystemProcessor.handlers.get(job.data.handler)
-            if (isEmpty(handler)) {
-                throw new Error(`未注册的处理器: ${job.data.handler}`)
-            }
-            return await handler(job.data).then(async data => {
-                const endTime = new Date()
-                await this.datetaskService.fetchBaseWriteTaskLog(job.data.request, {
-                    taskId: job.data.taskId,
-                    taskName: job.data.taskName,
-                    startTime: date,
-                    endTime: endTime,
-                    duration: endTime.getTime() - date.getTime(),
-                    status: enums.CHUNK_DATETASK_LOG_STATUS.success.value,
-                    result: data ?? {}
+            return await this.fetchBaseSystemTaskActuator(job.data.request, job.data).then(async result => {
+                await this.fetchBaseWriteTaskExecution(job.data.request, job.data, {
+                    result,
+                    startTime,
+                    status: enums.CHUNK_DATETASK_LOG_STATUS.success.value
                 })
                 logger.info(
                     `系统任务处理成功：任务ID-[${job.data.taskId}]，任务名称-[${job.data.taskName}]，任务处理器标识-[${job.data.handler}]，Cron表达式-[${job.data.cron}]`
@@ -56,19 +67,14 @@ export class DatetaskSystemProcessor extends WorkerHost {
                 return true
             })
         } catch (err) {
-            const endTime = new Date()
-            await this.datetaskService.fetchBaseWriteTaskLog(job.data.request, {
-                taskId: job.data.taskId,
-                taskName: job.data.taskName,
-                startTime: date,
-                endTime: endTime,
-                duration: endTime.getTime() - date.getTime(),
-                status: enums.CHUNK_DATETASK_LOG_STATUS.failed.value,
+            await this.fetchBaseWriteTaskExecution(job.data.request, job.data, {
+                startTime,
+                error: err.message,
                 result: err.options ?? err.cause ?? {},
-                error: err.message
+                status: enums.CHUNK_DATETASK_LOG_STATUS.failed.value
             })
-            logger.error(
-                `系统任务处理失败：任务ID-[${job.data.taskId}]，任务名称-[${job.data.taskName}]，任务处理器标识-[${job.data.handler}]，Cron表达式-[${job.data.cron}]，错误信息-[${err.message}]`
+            logger.info(
+                `系统任务处理成功：任务ID-[${job.data.taskId}]，任务名称-[${job.data.taskName}]，任务处理器标识-[${job.data.handler}]，Cron表达式-[${job.data.cron}]`
             )
             throw err
         }
