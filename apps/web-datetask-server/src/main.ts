@@ -11,10 +11,13 @@ async function bootstrap() {
     await closeHotModule(module).then(async () => {
         const app = await NestFactory.create<NestExpressApplication>(AppModule)
         app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
-        app.connectMicroservice<MicroserviceOptions>({
-            transport: Transport.TCP,
-            options: { host: '0.0.0.0', port: process.env.NODE_WEB_DATETASK_TCP_PORT }
-        })
+        app.connectMicroservice<MicroserviceOptions>(
+            {
+                transport: Transport.TCP,
+                options: { host: '0.0.0.0', port: process.env.NODE_WEB_DATETASK_TCP_PORT }
+            },
+            { inheritAppConfig: true }
+        )
         await app.startAllMicroservices()
         await app.listen(process.env.NODE_WEB_DATETASK_PORT).then(() => {
             console.log(
