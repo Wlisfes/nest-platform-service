@@ -14,8 +14,9 @@ export class DatetaskService extends Logger {
     /**系统任务队列标识符**/
     private readonly systemTasks: Array<string> = [constants.DATETASK_SYSTEM_QUEUE]
     constructor(
-        @InjectQueue(constants.DATETASK_SMS_QUEUE) private readonly datetaskSmsQueue: Queue,
-        @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly datetaskSystemQueue: Queue,
+        @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly systemQueue: Queue,
+        @InjectQueue(constants.DATETASK_SMS_OTP_QUEUE) private readonly smsOtpQueue: Queue,
+        @InjectQueue(constants.DATETASK_SMS_COMMON_QUEUE) private readonly smsCommonQueue: Queue,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
         private readonly datetaskSystemService: DatetaskSystemService
@@ -46,7 +47,7 @@ export class DatetaskService extends Logger {
     }
 
     /**根据 taskId 精确移除单个job任务**/
-    private async fetchRemoveJobSchedulerByTaskId(queue: Queue, taskId: string) {
+    private async fetchRemoveByTaskIdJobScheduler(queue: Queue, taskId: string) {
         if (this.systemTasks.includes(queue.name)) {
             /**系统任务：精确移除 cron job scheduler**/
             return await queue.getJobSchedulers().then(async jobs => {
@@ -70,7 +71,7 @@ export class DatetaskService extends Logger {
     // @AutoDescriptor
     // public async fetchTaskSmsRegister(request: OmixRequest, task: Partial<schema.WindowsDatetask>) {
     //     const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
-    //     await this.datetaskSmsQueue.add(constants.DATETASK_SMS_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
+    //     await this.datetaskSmsQueue.add(constants.DATETASK_SMS_COMMON_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
     //         delay,
     //         jobId: task.taskId
     //     })
@@ -82,10 +83,33 @@ export class DatetaskService extends Logger {
     /**从数据库加载任务并注册到 BullMQ**/
     @AutoDescriptor
     public async fetchTasksRegister(request?: OmixRequest) {
-        const jobs = [this.fetchRemoveJobScheduler(this.datetaskSystemQueue)]
+        const jobs = [
+            this.fetchRemoveJobScheduler(this.systemQueue),
+            this.fetchRemoveJobScheduler(this.smsOtpQueue),
+            this.fetchRemoveJobScheduler(this.smsCommonQueue)
+        ]
         return await Promise.all(jobs).then(async () => {
             return await this.fetchLoadAndRegisterTasks(request)
         })
+    }
+
+    /**写入任务执行日志**/
+    @AutoDescriptor
+    public async fetchBaseWriteTaskLog(request: OmixRequest, body: datetask.BaseWriteTaskLogOptions) {
+        await this.database.create(this.windows.datetaskLogOptions, {
+            logger: false,
+            stack: this.stack,
+            request,
+            body: body
+        })
+        /**更新任务的上次执行时间**/
+        await this.database.update(this.windows.datetaskOptions, {
+            logger: false,
+            request,
+            where: { taskId: body.taskId },
+            body: { lastTime: body.endTime }
+        })
+        return this.logger.info(`写入任务执行日志: 任务ID-[${body.taskId}]，任务名称-[${body.taskName}]`)
     }
 
     /**从数据库加载任务并注册到 BullMQ**/
@@ -135,7 +159,7 @@ export class DatetaskService extends Logger {
                     body: { status: enums.CHUNK_DATETASK_STATUS.running.value }
                 })
                 /**注册 Cron 定时任务到队列**/
-                await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
+                await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
                     repeat: { pattern: task.cron, key: task.taskId }
                 })
                 this.logger.info(
@@ -160,7 +184,7 @@ export class DatetaskService extends Logger {
                     body: { status: enums.CHUNK_DATETASK_STATUS.stop.value }
                 })
                 /**精确移除该任务的 job scheduler**/
-                await this.fetchRemoveJobSchedulerByTaskId(this.datetaskSystemQueue, task.taskId)
+                await this.fetchRemoveByTaskIdJobScheduler(this.systemQueue, task.taskId)
                 this.logger.info(`停用系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
                 return await this.fetchResolver({ message: '停用系统任务成功' })
             })
@@ -182,8 +206,8 @@ export class DatetaskService extends Logger {
                 })
                 /**如果任务是运行中状态，移除旧的并重新注册该任务**/
                 if (task.status === enums.CHUNK_DATETASK_STATUS.running.value) {
-                    await this.fetchRemoveJobSchedulerByTaskId(this.datetaskSystemQueue, payload.taskId)
-                    await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
+                    await this.fetchRemoveByTaskIdJobScheduler(this.systemQueue, payload.taskId)
+                    await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
                         repeat: { pattern: payload.cron, key: payload.taskId }
                     })
                 }
@@ -202,29 +226,10 @@ export class DatetaskService extends Logger {
             qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
             return await qb.getOne().then(async task => {
                 const taskOptions = this.fetchCloneByteTaskOptions(task, request)
-                await this.datetaskSystemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, { lifo: true })
+                await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, taskOptions, { lifo: true })
                 this.logger.info(`手动触发系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
                 return await this.fetchResolver({ message: '手动触发系统任务成功' })
             })
         })
-    }
-
-    /**写入任务执行日志**/
-    @AutoDescriptor
-    public async fetchBaseWriteTaskLog(request: OmixRequest, body: datetask.BaseWriteTaskLogOptions) {
-        await this.database.create(this.windows.datetaskLogOptions, {
-            logger: false,
-            stack: this.stack,
-            request,
-            body: body
-        })
-        /**更新任务的上次执行时间**/
-        await this.database.update(this.windows.datetaskOptions, {
-            logger: false,
-            request,
-            where: { taskId: body.taskId },
-            body: { lastTime: body.endTime }
-        })
-        return this.logger.info(`写入任务执行日志: 任务ID-[${body.taskId}]，任务名称-[${body.taskName}]`)
     }
 }

@@ -11,19 +11,15 @@ import * as constants from '@web-datetask-server/modules/datetask/datetask.const
     imports: [
         BullModule.registerQueue({
             name: constants.DATETASK_SYSTEM_QUEUE,
-            defaultJobOptions: {
-                removeOnComplete: 100,
-                removeOnFail: 200,
-                attempts: 1
-            }
+            defaultJobOptions: { removeOnComplete: 100, removeOnFail: 200, attempts: 1 }
         }),
         BullModule.registerQueue({
-            name: constants.DATETASK_SMS_QUEUE,
-            defaultJobOptions: {
-                removeOnComplete: 100,
-                removeOnFail: 200,
-                attempts: 1
-            }
+            name: constants.DATETASK_SMS_OTP_QUEUE,
+            defaultJobOptions: { removeOnComplete: 100, removeOnFail: 200, attempts: 1 }
+        }),
+        BullModule.registerQueue({
+            name: constants.DATETASK_SMS_COMMON_QUEUE,
+            defaultJobOptions: { removeOnComplete: 100, removeOnFail: 200, attempts: 1 }
         })
     ],
     controllers: [DatetaskController],
