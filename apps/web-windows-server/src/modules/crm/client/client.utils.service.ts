@@ -17,6 +17,16 @@ export class CrmClientUtilsService extends Logger {
         super()
     }
 
+    /**根据keyId查询C端客户信息**/
+    @AutoDescriptor
+    public async fetchUtilsByKeyIdClient(request: OmixRequest, body: Omix<{ keyId: number }>) {
+        return await this.database.empty(this.windows.clientOptions, {
+            request,
+            message: '客户不存在',
+            dispatch: { where: { keyId: body.keyId } }
+        })
+    }
+
     /**生成C端客户账号别名**/
     @AutoDescriptor
     public async fetchUtilsNewClientAlias(request: OmixRequest, body: windows.UtilsNewClientAliasOptions) {
@@ -33,4 +43,8 @@ export class CrmClientUtilsService extends Logger {
             })
         })
     }
+
+    /**生成C端客户短信应用别名**/
+    @AutoDescriptor
+    public async fetchUtilsNewClientSmsAlias(request: OmixRequest, body: windows.UtilsNewClientSmsAliasOptions) {}
 }

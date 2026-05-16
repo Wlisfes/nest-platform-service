@@ -59,21 +59,19 @@ export class CrmClientSmsService extends Logger {
                 message: '客户不存在',
                 dispatch: { where: { keyId: body.clientId } }
             })
-            /**生成应用ID**/
-            const appId = await fetchIntNumber({ bit: 8 })
-            return await this.database.create(this.smsService.tbSmsAppOptions, {
-                request,
-                stack: this.stack,
-                body: {
-                    clientId: body.clientId,
-                    appId,
-                    appAlias: body.appAlias,
-                    type: body.type,
-                    status: enums.CHUNK_CLIENT_SMS_STATUS.inactive.value,
-                    pushUrl: body.pushUrl ?? null,
-                    remark: body.remark ?? null
-                }
-            }).then(async () => {
+            return await fetchIntNumber({ bit: 8 }).then(async appId => {
+                await this.database.create(this.smsService.tbSmsAppOptions, {
+                    request,
+                    stack: this.stack,
+                    body: {
+                        appId,
+                        clientId: body.clientId,
+                        type: body.type,
+                        status: enums.CHUNK_CLIENT_SMS_STATUS.inactive.value,
+                        pushUrl: body.pushUrl,
+                        remark: body.remark
+                    }
+                })
                 return await this.fetchResolver({ message: '操作成功' })
             })
         } catch (err) {

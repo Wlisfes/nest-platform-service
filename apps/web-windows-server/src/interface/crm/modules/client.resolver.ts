@@ -12,6 +12,9 @@ export interface UtilsNewClientAliasOptions extends Omix {
     brandId: number
 }
 
+/**生成C端客户短信应用别名**/
+export interface UtilsNewClientSmsAliasOptions extends Omix {}
+
 /**销售管理-我的客户-新增客户**/
 export class BaseCrmClientCommonCreateOptions extends IntersectionType(
     PickType(schema.WindowsClient, ['name', 'brandId', 'currency', 'email', 'payMode', 'remark']),
@@ -51,6 +54,6 @@ export class BaseCrmClientSmsColumnOptionsResponse extends OmixColumnResponse {
 
 /**客户短信应用-新增**/
 export class BaseCrmClientSmsCreateOptions extends IntersectionType(
-    PickType(schema.TbSmsApp, ['clientId', 'appAlias', 'type']),
+    PickType(schema.TbSmsApp, ['clientId', 'type']),
     PartialType(PickType(schema.TbSmsApp, ['pushUrl', 'remark']))
 ) {}
