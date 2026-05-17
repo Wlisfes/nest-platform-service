@@ -1,13 +1,16 @@
 import { Entity, Column } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsMobile } from '@/decorator'
-import { Type } from 'class-transformer'
-import { IsNotEmpty, Length, IsEmail, IsEnum, IsOptional } from 'class-validator'
-import { DataBaseAdapter, DataBaseByAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
+import { IsNotEmpty, Length, IsEnum, IsOptional } from 'class-validator'
+import { DataBaseAdapter, withKeys, withComment } from '@/modules/database/database.adapter'
 import * as enums from '@/modules/database/enums'
 
 @Entity({ name: 'tb_sms_app', comment: '客户短信应用表' })
 export class TbSmsApp extends DataBaseAdapter {
+    @ApiProperty({ description: '归属人ID', example: '2149446185344106496' })
+    @IsNotEmpty({ message: '归属人ID必填' })
+    @Column({ comment: '归属人ID', length: 19, nullable: false })
+    userId: string
+
     @ApiProperty({ description: '客户ID', example: 1008600 })
     @IsNotEmpty({ message: '客户ID必填' })
     @Column({ name: 'client_id', comment: '客户ID', nullable: false })
@@ -17,6 +20,11 @@ export class TbSmsApp extends DataBaseAdapter {
     @IsNotEmpty({ message: '应用ID必填' })
     @Column({ name: 'app_id', comment: '应用ID', nullable: false })
     appId: string
+
+    @ApiProperty({ description: '应用密钥', example: '09SYfmEt' })
+    @IsNotEmpty({ message: '应用密钥必填' })
+    @Column({ name: 'secret', comment: '应用密钥', nullable: true })
+    secret: string
 
     @ApiProperty({ description: '应用名称', example: '测试应用' })
     @IsNotEmpty({ message: '应用名称必填' })

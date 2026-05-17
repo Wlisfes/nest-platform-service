@@ -11,6 +11,16 @@ export class DeployAccountUtilsService extends Logger {
         super()
     }
 
+    /**根据UID查询账号信息**/
+    @AutoDescriptor
+    public async fetchUtilsUidByAccount(request: OmixRequest, body: windows.UtilsUidByAccountOptions) {
+        return await this.database.empty(this.windows.accountOptions, {
+            request,
+            message: '账号不存在',
+            dispatch: { where: { uid: body.uid } }
+        })
+    }
+
     /**批量查询账号**/
     @AutoDescriptor
     public async fetchUtilsUidByColumnAccount(request: OmixRequest, body: windows.UtilsUidByColumnAccountOptions) {

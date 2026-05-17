@@ -3,6 +3,12 @@ import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import { IsOptional, IsArray } from 'class-validator'
 import * as schema from '@/modules/database/schema'
 
+/**根据UID查询账号信息**/
+export interface UtilsUidByAccountOptions extends Omix {
+    uid: string
+    fields?: Array<keyof schema.WindowsAccount>
+}
+
 /**批量查询账号**/
 export interface UtilsUidByColumnAccountOptions extends Omix {
     uids: Array<string>

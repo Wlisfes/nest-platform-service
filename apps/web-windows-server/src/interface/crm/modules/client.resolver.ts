@@ -1,6 +1,6 @@
 import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
 import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
-import * as schema from '@/modules/database/schema'
+import { enums, schema } from '@/modules/database/database.service'
 
 /**生成C端客户账号别名**/
 export interface UtilsNewClientAliasOptions extends Omix {
@@ -13,7 +13,12 @@ export interface UtilsNewClientAliasOptions extends Omix {
 }
 
 /**生成C端客户短信应用别名**/
-export interface UtilsNewClientSmsAliasOptions extends Omix {}
+export interface UtilsNewClientSmsAliasOptions extends Omix {
+    /**客户ID**/
+    clientId: number
+    /**应用类型**/
+    type: OmixEnumValues<typeof enums.CHUNK_CLIENT_SMS_TYPE>
+}
 
 /**销售管理-我的客户-新增客户**/
 export class BaseCrmClientCommonCreateOptions extends IntersectionType(

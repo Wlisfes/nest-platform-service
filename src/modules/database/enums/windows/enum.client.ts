@@ -148,16 +148,19 @@ export const CHUNK_CLIENT_SMS_TYPE = {
     value: 'CHUNK_CLIENT_SMS_TYPE',
     otp: {
         value: 'otp',
+        suffix: 'OTP',
         name: '验证码',
         json: { type: 'success' }
     },
     market: {
         value: 'market',
+        suffix: 'MRKT',
         name: '营销短信',
         json: { type: 'warning' }
     },
     notify: {
         value: 'notify',
+        suffix: 'NTFY',
         name: '通知短信',
         json: { type: 'info' }
     }
