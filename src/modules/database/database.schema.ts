@@ -7,7 +7,7 @@ import * as schema from '@/modules/database/schema'
 export class SmsService {
     constructor(
         @InjectRepository(schema.TbSmsApp) readonly tbSmsAppOptions: Repository<schema.TbSmsApp>,
-        @InjectRepository(schema.TbSmsAppQuotation) readonly tbSmsQuotationOptions: Repository<schema.TbSmsAppQuotation>,
+        @InjectRepository(schema.TbSmsAppFormosan) readonly tbSmsAppFormosanOptions: Repository<schema.TbSmsAppFormosan>,
         @InjectRepository(schema.TbSmsAppTasks) readonly tbSmsTasksOptions: Repository<schema.TbSmsAppTasks>,
         @InjectRepository(schema.TbSmsAppRecord) readonly tbSmsRecordOptions: Repository<schema.TbSmsAppRecord>
     ) {}
