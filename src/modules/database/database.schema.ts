@@ -8,6 +8,7 @@ export class SmsService {
     constructor(
         @InjectRepository(schema.TbSmsApp) readonly tbSmsAppOptions: Repository<schema.TbSmsApp>,
         @InjectRepository(schema.TbSmsAppFormosan) readonly tbSmsAppFormosanOptions: Repository<schema.TbSmsAppFormosan>,
+        @InjectRepository(schema.TbSmsAppFormosanDraft) readonly tbSmsAppFormosanDraftOptions: Repository<schema.TbSmsAppFormosanDraft>,
         @InjectRepository(schema.TbSmsAppTasks) readonly tbSmsTasksOptions: Repository<schema.TbSmsAppTasks>,
         @InjectRepository(schema.TbSmsAppRecord) readonly tbSmsRecordOptions: Repository<schema.TbSmsAppRecord>
     ) {}

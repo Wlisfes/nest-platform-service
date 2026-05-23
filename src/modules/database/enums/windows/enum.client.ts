@@ -165,3 +165,18 @@ export const CHUNK_CLIENT_SMS_TYPE = {
         json: { type: 'info' }
     }
 }
+
+export const CHUNK_SMS_FORMOSAN_SOURCE = {
+    name: '报价来源',
+    value: 'CHUNK_SMS_FORMOSAN_SOURCE',
+    addition: {
+        value: 'addition',
+        name: '新增',
+        json: { type: 'success' }
+    },
+    existing: {
+        value: 'existing',
+        name: '已有',
+        json: { type: 'info' }
+    }
+}
