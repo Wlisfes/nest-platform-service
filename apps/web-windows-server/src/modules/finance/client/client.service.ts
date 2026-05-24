@@ -130,7 +130,7 @@ export class FinanceClientService extends Logger {
                             uids: list.map(item => item.userId),
                             fields: ['uid', 'name', 'number', 'status', 'avatar']
                         }),
-                        this.brandUtilsService.fetchUtilsUidByColumnBrand(request, {
+                        this.brandUtilsService.fetchUtilsByColumnBrand(request, {
                             keyIds: list.map(item => item.brandId),
                             fields: ['name', 'document', 'status']
                         })

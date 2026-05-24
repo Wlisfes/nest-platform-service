@@ -1,6 +1,8 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, SmsService, WindowsService, schema, enums } from '@/modules/database/database.service'
+import { SmsFormosanUtilsService } from '@web-windows-server/modules/crm/formosan/sms/sms-formosan.utils.service'
+import { FinanceCountryUtilsService } from '@web-windows-server/modules/finance/country/country.utils.service'
 import { isNotEmpty } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
@@ -11,7 +13,9 @@ export class SmsFormosanService extends Logger {
     constructor(
         private readonly database: DataBaseService,
         private readonly smsService: SmsService,
-        private readonly windows: WindowsService
+        private readonly windows: WindowsService,
+        private readonly smsFormosanUtilsService: SmsFormosanUtilsService,
+        private readonly financeCountryUtilsService: FinanceCountryUtilsService
     ) {
         super()
     }
@@ -37,12 +41,24 @@ export class SmsFormosanService extends Logger {
             await this.database.delete(this.smsService.tbSmsAppFormosanDraftOptions, {
                 request,
                 stack: this.stack,
-                where: { clientId: body.clientId, appId: body.appId } as Omix
+                where: { clientId: body.clientId, appId: body.appId }
             })
+            return await this.financeCountryUtilsService.fetchUtilsByColumnCountry(request, { keyIds: body.items }).then(async items => {
+                if (items.length === 0 || items.length < body.items.length) {
+                    throw new HttpException('未找到对应的国家/地区信息', HttpStatus.BAD_REQUEST, {
+                        cause: body.items.filter(id => !items.some(item => item.keyId === id)),
+                        description: '部分国家/地区信息未找到'
+                    })
+                }
+                /**批量查询该客户+应用下所有已有报价**/
+                const formosans = await this.smsService.tbSmsAppFormosanOptions.find({
+                    where: { clientId: body.clientId, appId: body.appId }
+                })
+                return { items }
+            })
+
             /**根据keyId批量查询国家/地区信息**/
-            const countrys = await this.windows.countryOptions.find({
-                where: body.items.map(keyId => ({ keyId }))
-            })
+            const countrys = await this.financeCountryUtilsService.fetchUtilsByColumnCountry(request, { keyIds: body.items })
             if (countrys.length === 0) {
                 throw new HttpException('未找到对应的国家/地区信息', HttpStatus.BAD_REQUEST)
             }
@@ -128,11 +144,7 @@ export class SmsFormosanService extends Logger {
     @AutoDescriptor
     public async httpSmsFormosanDraftUpdate(request: OmixRequest, body: windows.SmsFormosanDraftUpdateOptions) {
         try {
-            await this.database.empty(this.smsService.tbSmsAppFormosanDraftOptions, {
-                request,
-                message: '草稿记录不存在',
-                dispatch: { where: { keyId: body.keyId } }
-            })
+            await this.smsFormosanUtilsService.fetchUtilsByKeyIdFormosanDraft(request, { keyId: body.keyId })
             const updateBody: Omix = {}
             if (isNotEmpty(body.upUsd)) updateBody.upUsd = body.upUsd
             if (isNotEmpty(body.downUsd)) updateBody.downUsd = body.downUsd
@@ -156,11 +168,7 @@ export class SmsFormosanService extends Logger {
     @AutoDescriptor
     public async httpSmsFormosanDraftDelete(request: OmixRequest, body: windows.SmsFormosanDraftDeleteOptions) {
         try {
-            await this.database.empty(this.smsService.tbSmsAppFormosanDraftOptions, {
-                request,
-                message: '草稿记录不存在',
-                dispatch: { where: { keyId: body.keyId } }
-            })
+            await this.smsFormosanUtilsService.fetchUtilsByKeyIdFormosanDraft(request, { keyId: body.keyId })
             await this.database.delete(this.smsService.tbSmsAppFormosanDraftOptions, {
                 request,
                 stack: this.stack,

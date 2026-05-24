@@ -2,6 +2,13 @@ import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/sw
 import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
+/**批量查询币种**/
+export interface UtilsByColumnCurrencyOptions extends Omix {
+    keyIds: Array<number>
+    fields?: Array<keyof schema.WindowsCurrency>
+}
+
+
 /**分页列表查询**/
 export class ColumnCurrencyOptions extends IntersectionType(
     PickType(OmixColumnOptions, ['page', 'size']),

@@ -95,7 +95,7 @@ export class FinanceSmsRateService extends Logger {
                 return await qb.getManyAndCount().then(async ([list, total]) => {
                     const [accounts, countrys] = await Promise.all([
                         this.accountUtilsService.fetchUtilsColumnByAccount(request, { list }),
-                        this.countryUtilsService.fetchUtilsByColumnCountry(request, {
+                        this.countryUtilsService.fetchUtilsByCodesCountry(request, {
                             codes: [...new Set(list.map(e => e.code).filter(isNotEmpty))]
                         })
                     ])

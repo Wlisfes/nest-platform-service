@@ -1,18 +1,22 @@
 import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { IsNotEmpty, IsArray, IsOptional, IsNumber } from 'class-validator'
+import { IsArray, IsOptional, IsNumber } from 'class-validator'
 import { OmixColumnOptions, OmixColumnResponse, OmixPayloadResponse } from '@/interface'
 import { schema } from '@/modules/database/database.service'
 
+/**批量查询报价**/
+export interface UtilsByColumnFormosanOptions extends Omix {
+    keyIds: Array<number>
+    fields?: Array<keyof schema.TbSmsAppFormosan>
+}
+
+/**批量查询报价草稿**/
+export interface UtilsByColumnFormosanDraftOptions extends Omix {
+    keyIds: Array<number>
+    fields?: Array<keyof schema.TbSmsAppFormosanDraft>
+}
+
 /**报价草稿-初始化**/
-export class SmsFormosanDraftInitOptions {
-    @ApiProperty({ description: '客户ID', example: 1008600 })
-    @IsNotEmpty({ message: '客户ID必填' })
-    clientId: number
-
-    @ApiProperty({ description: '应用ID', example: '09SYfmEt' })
-    @IsNotEmpty({ message: '应用ID必填' })
-    appId: string
-
+export class SmsFormosanDraftInitOptions extends PickType(schema.TbSmsAppFormosanDraft, ['clientId', 'appId']) {
     @ApiProperty({ description: '选中的国家/地区keyId列表', type: [Number], example: [1, 2, 3] })
     @IsArray({ message: 'items必须为数组' })
     @IsNumber({}, { each: true, message: 'items每项必须为数字' })
@@ -82,3 +86,4 @@ export class SmsFormosanPublishOptions extends PickType(schema.TbSmsAppFormosanD
     @IsOptional()
     mailContent: string
 }
+

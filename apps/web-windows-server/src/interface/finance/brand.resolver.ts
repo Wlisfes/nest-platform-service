@@ -3,7 +3,7 @@ import { OmixColumnOptions, OmixColumnResponse } from '@/interface'
 import * as schema from '@/modules/database/schema'
 
 /**批量查询品牌**/
-export interface UtilsUidByColumnBrandOptions extends Omix {
+export interface UtilsByColumnBrandOptions extends Omix {
     keyIds: Array<number>
     fields?: Array<keyof schema.WindowsBrand>
 }

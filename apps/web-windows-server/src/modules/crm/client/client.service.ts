@@ -123,7 +123,7 @@ export class CrmClientService extends Logger {
                             uids: list.map(item => item.userId),
                             fields: ['uid', 'name', 'number', 'status', 'avatar']
                         }),
-                        this.brandUtilsService.fetchUtilsUidByColumnBrand(request, {
+                        this.brandUtilsService.fetchUtilsByColumnBrand(request, {
                             keyIds: list.map(item => item.brandId),
                             fields: ['name', 'document', 'status']
                         })
@@ -170,7 +170,7 @@ export class CrmClientService extends Logger {
                             uids: [node.userId],
                             fields: ['uid', 'name', 'number', 'status', 'avatar']
                         }),
-                        this.brandUtilsService.fetchUtilsUidByColumnBrand(request, {
+                        this.brandUtilsService.fetchUtilsByColumnBrand(request, {
                             keyIds: [node.brandId],
                             fields: ['name', 'document', 'status']
                         })
