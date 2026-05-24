@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('C端客户管理', 'finance/client')
+@ApifoxController('财务中心-账户管理', 'finance/client')
 export class FinanceClientController {
     constructor(private readonly financeClientService: FinanceClientService) {}
 

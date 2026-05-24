@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('费率管理', 'finance/rates/sms')
+@ApifoxController('财务中心-综合设置', 'finance/rates/sms')
 export class FinanceSmsRateController {
     constructor(private readonly financeSmsRateService: FinanceSmsRateService) {}
 
@@ -34,6 +34,4 @@ export class FinanceSmsRateController {
     public async httpBaseFinanceColumnBasicSmsRate(@Request() request: OmixRequest, @Body() body: windows.ColumnBasicSmsRateOptions) {
         return await this.financeSmsRateService.httpBaseFinanceColumnBasicSmsRate(request, body)
     }
-
-
 }

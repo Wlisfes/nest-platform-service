@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest, OmixPayloadResponse } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('账号模块', 'deploy/account')
+@ApifoxController('综合设置-账号管理', 'deploy/account')
 export class DeployAccountController {
     constructor(private readonly accountService: DeployAccountService) {}
 

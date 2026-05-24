@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('定时任务管理', 'deploy/datetask')
+@ApifoxController('综合设置-定时任务管理', 'deploy/datetask')
 export class DeployDatetaskController {
     constructor(private readonly deployDatetaskService: DeployDatetaskService) {}
 

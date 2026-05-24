@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('菜单管理', 'deploy/sheet')
+@ApifoxController('综合设置-菜单管理', 'deploy/sheet')
 export class DeploySheetController {
     constructor(private readonly deploySheetService: DeploySheetService) {}
 

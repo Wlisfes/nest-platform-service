@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('职位管理', 'deploy/position')
+@ApifoxController('综合设置-职位管理', 'deploy/position')
 export class DeployPositionController {
     constructor(private readonly deployPositionService: DeployPositionService) {}
 

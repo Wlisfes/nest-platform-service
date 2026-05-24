@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('部门组织', 'deploy/dept')
+@ApifoxController('综合设置-部门组织', 'deploy/dept')
 export class DeployDeptController {
     constructor(private readonly deployDeptService: DeployDeptService) {}
 
@@ -70,5 +70,4 @@ export class DeployDeptController {
     public async httpBaseSystemDeleteDepartment(@Request() request: OmixRequest, @Body() body: windows.DeleteDeptOptions) {
         return await this.deployDeptService.httpBaseSystemDeleteDepartment(request, body)
     }
-
 }

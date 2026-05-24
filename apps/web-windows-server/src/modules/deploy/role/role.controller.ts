@@ -4,7 +4,7 @@ import { ApifoxController, ApiServiceDecorator } from '@/decorator'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
-@ApifoxController('角色管理', 'deploy/role')
+@ApifoxController('综合设置-角色管理', 'deploy/role')
 export class DeployRoleController {
     constructor(private readonly deployRoleService: DeployRoleService) {}
 
