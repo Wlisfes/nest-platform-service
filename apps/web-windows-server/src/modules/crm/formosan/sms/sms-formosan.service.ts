@@ -3,7 +3,8 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, SmsService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { SmsFormosanUtilsService } from '@web-windows-server/modules/crm/formosan/sms/sms-formosan.utils.service'
 import { FinanceCountryUtilsService } from '@web-windows-server/modules/finance/country/country.utils.service'
-import { isNotEmpty } from '@/utils'
+import { FinanceSmsRateUtilsService } from '@web-windows-server/modules/finance/rates/sms/sms-rate.utils.service'
+import { isNotEmpty, fetchCurrent, fetchWherer } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 import dayjs from 'dayjs'
@@ -15,7 +16,8 @@ export class SmsFormosanService extends Logger {
         private readonly smsService: SmsService,
         private readonly windows: WindowsService,
         private readonly smsFormosanUtilsService: SmsFormosanUtilsService,
-        private readonly financeCountryUtilsService: FinanceCountryUtilsService
+        private readonly financeCountryUtilsService: FinanceCountryUtilsService,
+        private readonly financeSmsRateUtilsService: FinanceSmsRateUtilsService
     ) {
         super()
     }
@@ -44,7 +46,8 @@ export class SmsFormosanService extends Logger {
                 where: { clientId: body.clientId, appId: body.appId }
             })
             return await this.financeCountryUtilsService.fetchUtilsByColumnCountry(request, { keyIds: body.items }).then(async items => {
-                if (items.length === 0 || items.length < body.items.length) {
+                const keyIds = [...new Set(body.items.filter(isNotEmpty))]
+                if (items.length === 0 || items.length < keyIds.length) {
                     throw new HttpException('未找到对应的国家/地区信息', HttpStatus.BAD_REQUEST, {
                         cause: body.items.filter(id => !items.some(item => item.keyId === id)),
                         description: '部分国家/地区信息未找到'
@@ -54,62 +57,47 @@ export class SmsFormosanService extends Logger {
                 const formosans = await this.smsService.tbSmsAppFormosanOptions.find({
                     where: { clientId: body.clientId, appId: body.appId }
                 })
-                return { items }
-            })
-
-            /**根据keyId批量查询国家/地区信息**/
-            const countrys = await this.financeCountryUtilsService.fetchUtilsByColumnCountry(request, { keyIds: body.items })
-            if (countrys.length === 0) {
-                throw new HttpException('未找到对应的国家/地区信息', HttpStatus.BAD_REQUEST)
-            }
-            /**批量查询该客户+应用下所有已有报价**/
-            const formosans = await this.smsService.tbSmsAppFormosanOptions.find({
-                where: { clientId: body.clientId, appId: body.appId }
-            })
-            /**批量查询所有相关基础价格**/
-            const codes = countrys.map(c => c.code)
-            const basicRates = codes.length > 0 ? await this.windows.basicSmsRateOptions.find({ where: codes.map(code => ({ code })) }) : []
-            /**构建所有草稿数据**/
-            const drafts = countrys.map(country => {
-                const formosan = formosans.find(f => f.code === country.code && f.mcc === country.mcc)
-                if (formosan) {
+                /**批量查询所有相关基础价格**/
+                const smsRates = await this.financeSmsRateUtilsService.fetchUtilsByCodesSmsRate(request, {
+                    codes: items.map(item => item.code)
+                })
+                /**计算生效时间：取当前时间距离最近的整点/30分钟后再推30分钟**/
+                const now = dayjs()
+                const minute = now.minute()
+                const base = now.second(0).millisecond(0)
+                const nextBoundary = minute === 0 || minute === 30 ? base : minute < 30 ? base.minute(30) : base.add(1, 'hour').minute(0)
+                const effectiveTime = nextBoundary.add(30, 'minute').format('YYYY-MM-DD HH:mm:ss')
+                /**构建所有草稿数据**/
+                const drafts = items.map(item => {
+                    const from = fetchCurrent(formosans, e => e.code === item.code && e.mcc === item.mcc)
+                    const rate = fetchCurrent(smsRates, e => e.code === item.code && e.mcc === item.mcc)
+                    const source = fetchWherer(isNotEmpty(from.code), {
+                        value: enums.CHUNK_SMS_FORMOSAN_SOURCE.existing.value,
+                        fallback: enums.CHUNK_SMS_FORMOSAN_SOURCE.addition.value
+                    })
                     return {
                         clientId: body.clientId,
                         appId: body.appId,
-                        code: country.code,
-                        mcc: country.mcc,
-                        upUsd: formosan.upUsd,
-                        downUsd: formosan.downUsd,
-                        effectiveTime: formosan.effectiveTime,
-                        expiryTime: formosan.expiryTime,
-                        source: enums.CHUNK_SMS_FORMOSAN_SOURCE.existing.value,
-                        formosanId: formosan.keyId,
+                        code: item.code,
+                        mcc: item.mcc,
+                        upUsd: from.upUsd ?? rate.upUsd,
+                        downUsd: from.downUsd ?? rate.downUsd,
+                        effectiveTime: effectiveTime,
+                        formosanId: from.keyId,
+                        source: source,
                         status: enums.CHUNK_CLIENT_STATUS.enable.value,
                         createBy: request.user.uid
                     }
-                } else {
-                    const basicRate = basicRates.find(r => r.code === country.code && r.mcc === country.mcc)
-                    return {
-                        clientId: body.clientId,
-                        appId: body.appId,
-                        code: country.code,
-                        mcc: country.mcc,
-                        upUsd: basicRate?.upUsd ?? 0,
-                        downUsd: basicRate?.downUsd ?? 0,
-                        source: enums.CHUNK_SMS_FORMOSAN_SOURCE.addition.value,
-                        status: enums.CHUNK_CLIENT_STATUS.enable.value,
-                        createBy: request.user.uid
-                    }
-                }
-            })
-            /**批量插入草稿**/
-            await this.database.insert(ctx.manager.getRepository(schema.TbSmsAppFormosanDraft), {
-                request,
-                stack: this.stack,
-                body: drafts as any
-            })
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: '草稿初始化成功' })
+                })
+                /**批量插入草稿**/
+                await this.database.insert(ctx.manager.getRepository(schema.TbSmsAppFormosanDraft), {
+                    request,
+                    stack: this.stack,
+                    body: drafts
+                })
+                return await ctx.commitTransaction().then(async () => {
+                    return await this.fetchResolver({ message: '草稿初始化成功' })
+                })
             })
         } catch (err) {
             await ctx.rollbackTransaction()
