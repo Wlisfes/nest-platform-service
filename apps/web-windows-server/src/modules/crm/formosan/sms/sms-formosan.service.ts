@@ -39,54 +39,59 @@ export class SmsFormosanService extends Logger {
                 stack: this.stack,
                 where: { clientId: body.clientId, appId: body.appId } as Omix
             })
-            /**遍历items创建草稿**/
-            for (const item of body.items) {
-                if (isNotEmpty(item.formosanId)) {
-                    /**已有报价：从formosan表取价**/
-                    const formosan = await this.smsService.tbSmsAppFormosanOptions.findOne({
-                        where: { keyId: item.formosanId }
-                    })
-                    if (!formosan) {
-                        throw new HttpException(`报价记录 keyId:${item.formosanId} 不存在`, HttpStatus.BAD_REQUEST)
-                    }
-                    await this.database.create(ctx.manager.getRepository(schema.TbSmsAppFormosanDraft), {
-                        request,
-                        stack: this.stack,
-                        body: {
-                            clientId: body.clientId,
-                            appId: body.appId,
-                            code: item.code,
-                            mcc: item.mcc,
-                            upUsd: formosan.upUsd,
-                            downUsd: formosan.downUsd,
-                            effectiveTime: formosan.effectiveTime,
-                            expiryTime: formosan.expiryTime,
-                            source: enums.CHUNK_SMS_FORMOSAN_SOURCE.existing.value,
-                            formosanId: item.formosanId,
-                            status: enums.CHUNK_CLIENT_STATUS.enable.value
-                        }
-                    })
-                } else {
-                    /**新增方向：从基础价格表取价**/
-                    const basicRate = await this.windows.basicSmsRateOptions.findOne({
-                        where: { code: item.code, mcc: item.mcc }
-                    })
-                    await this.database.create(ctx.manager.getRepository(schema.TbSmsAppFormosanDraft), {
-                        request,
-                        stack: this.stack,
-                        body: {
-                            clientId: body.clientId,
-                            appId: body.appId,
-                            code: item.code,
-                            mcc: item.mcc,
-                            upUsd: basicRate?.upUsd ?? 0,
-                            downUsd: basicRate?.downUsd ?? 0,
-                            source: enums.CHUNK_SMS_FORMOSAN_SOURCE.addition.value,
-                            status: enums.CHUNK_CLIENT_STATUS.enable.value
-                        }
-                    })
-                }
+            /**根据keyId批量查询国家/地区信息**/
+            const countrys = await this.windows.countryOptions.find({
+                where: body.items.map(keyId => ({ keyId }))
+            })
+            if (countrys.length === 0) {
+                throw new HttpException('未找到对应的国家/地区信息', HttpStatus.BAD_REQUEST)
             }
+            /**批量查询该客户+应用下所有已有报价**/
+            const formosans = await this.smsService.tbSmsAppFormosanOptions.find({
+                where: { clientId: body.clientId, appId: body.appId }
+            })
+            /**批量查询所有相关基础价格**/
+            const codes = countrys.map(c => c.code)
+            const basicRates = codes.length > 0 ? await this.windows.basicSmsRateOptions.find({ where: codes.map(code => ({ code })) }) : []
+            /**构建所有草稿数据**/
+            const drafts = countrys.map(country => {
+                const formosan = formosans.find(f => f.code === country.code && f.mcc === country.mcc)
+                if (formosan) {
+                    return {
+                        clientId: body.clientId,
+                        appId: body.appId,
+                        code: country.code,
+                        mcc: country.mcc,
+                        upUsd: formosan.upUsd,
+                        downUsd: formosan.downUsd,
+                        effectiveTime: formosan.effectiveTime,
+                        expiryTime: formosan.expiryTime,
+                        source: enums.CHUNK_SMS_FORMOSAN_SOURCE.existing.value,
+                        formosanId: formosan.keyId,
+                        status: enums.CHUNK_CLIENT_STATUS.enable.value,
+                        createBy: request.user.uid
+                    }
+                } else {
+                    const basicRate = basicRates.find(r => r.code === country.code && r.mcc === country.mcc)
+                    return {
+                        clientId: body.clientId,
+                        appId: body.appId,
+                        code: country.code,
+                        mcc: country.mcc,
+                        upUsd: basicRate?.upUsd ?? 0,
+                        downUsd: basicRate?.downUsd ?? 0,
+                        source: enums.CHUNK_SMS_FORMOSAN_SOURCE.addition.value,
+                        status: enums.CHUNK_CLIENT_STATUS.enable.value,
+                        createBy: request.user.uid
+                    }
+                }
+            })
+            /**批量插入草稿**/
+            await this.database.insert(ctx.manager.getRepository(schema.TbSmsAppFormosanDraft), {
+                request,
+                stack: this.stack,
+                body: drafts as any
+            })
             return await ctx.commitTransaction().then(async () => {
                 return await this.fetchResolver({ message: '草稿初始化成功' })
             })
@@ -359,7 +364,8 @@ export class SmsFormosanService extends Logger {
                 from: process.env.NODE_MAIL_USER,
                 to: client.email,
                 subject: `SMS Pricing - ${client.name}`,
-                html: body.mailContent || `<p>Dear ${client.name},</p><p>Please find the attached SMS pricing sheet.</p><p>Best regards</p>`,
+                html:
+                    body.mailContent || `<p>Dear ${client.name},</p><p>Please find the attached SMS pricing sheet.</p><p>Best regards</p>`,
                 attachments: [
                     {
                         filename: `SMS_Pricing_${body.appId}_${dayjs().format('YYYYMMDD')}.xlsx`,

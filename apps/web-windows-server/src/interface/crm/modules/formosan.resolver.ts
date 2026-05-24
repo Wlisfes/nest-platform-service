@@ -1,23 +1,7 @@
 import { ApiProperty, PickType, IntersectionType, PartialType } from '@nestjs/swagger'
-import { IsNotEmpty, IsArray, IsOptional, IsNumber, ValidateNested } from 'class-validator'
-import { Type } from 'class-transformer'
+import { IsNotEmpty, IsArray, IsOptional, IsNumber } from 'class-validator'
 import { OmixColumnOptions, OmixColumnResponse, OmixPayloadResponse } from '@/interface'
 import { schema } from '@/modules/database/database.service'
-
-/**报价草稿-初始化选中项**/
-export class SmsFormosanDraftInitItem {
-    @ApiProperty({ description: '国家/地区编码', example: '86' })
-    @IsNotEmpty({ message: '国家/地区编码必填' })
-    code: string
-
-    @ApiProperty({ description: '移动国家代码', example: '460' })
-    @IsNotEmpty({ message: '移动国家代码必填' })
-    mcc: string
-
-    @ApiProperty({ required: false, description: '已有报价主键ID', example: 1000 })
-    @IsOptional()
-    formosanId: number
-}
 
 /**报价草稿-初始化**/
 export class SmsFormosanDraftInitOptions {
@@ -29,11 +13,10 @@ export class SmsFormosanDraftInitOptions {
     @IsNotEmpty({ message: '应用ID必填' })
     appId: string
 
-    @ApiProperty({ description: '选中的国家/地区列表', type: [SmsFormosanDraftInitItem] })
+    @ApiProperty({ description: '选中的国家/地区keyId列表', type: [Number], example: [1, 2, 3] })
     @IsArray({ message: 'items必须为数组' })
-    @ValidateNested({ each: true })
-    @Type(() => SmsFormosanDraftInitItem)
-    items: SmsFormosanDraftInitItem[]
+    @IsNumber({}, { each: true, message: 'items每项必须为数字' })
+    items: number[]
 }
 
 /**报价草稿-分页列表查询**/
