@@ -70,6 +70,7 @@ export class FinanceCountryService extends Logger {
     public async httpBaseFinanceSelectCountry(request: OmixRequest) {
         try {
             return await this.database.builder(this.windows.countryOptions, async qb => {
+                qb.select(['t.keyId', 't.code', 't.cnName', 't.mcc', 't.enName'])
                 qb.andWhere(`t.status = :status`, { status: enums.CHUNK_COUNTRY_STATUS.enable.value })
                 qb.orderBy('t.createTime', 'DESC')
                 return await qb.getMany().then(async list => {
@@ -79,37 +80,6 @@ export class FinanceCountryService extends Logger {
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status, err.options)
-        }
-    }
-
-    /**【临时接口】批量导入国家/地区数据**/
-    @AutoDescriptor
-    public async httpBaseFinanceSeedCountry(request: OmixRequest) {
-        const ctx = await this.database.transaction()
-        try {
-            const path = require('path')
-            const fs = require('fs')
-            const filePath = path.resolve(process.cwd(), 'countries_seed.json')
-            const seedData: Array<{ code: string; mcc: string; cnName: string; enName: string; status: string }> = JSON.parse(
-                fs.readFileSync(filePath, 'utf-8')
-            )
-            await ctx.manager.getRepository(schema.WindowsCountry).insert(
-                seedData.map(item => ({
-                    code: item.code,
-                    mcc: item.mcc,
-                    cnName: item.cnName,
-                    enName: item.enName,
-                    status: item.status
-                }))
-            )
-            return await ctx.commitTransaction().then(async () => {
-                return await this.fetchResolver({ message: `成功导入${seedData.length}条国家/地区数据` })
-            })
-        } catch (err) {
-            this.logger.error(err)
-            throw new HttpException(err.message, err.status, err.options)
-        } finally {
-            await ctx.release()
         }
     }
 }
