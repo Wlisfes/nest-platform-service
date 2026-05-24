@@ -2,6 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, SmsService, WindowsService, enums } from '@/modules/database/database.service'
 import { CrmClientUtilsService } from '@web-windows-server/modules/crm/client/client.utils.service'
+import { DeployDeptScopeService } from '@web-windows-server/modules/deploy/dept/dept.scope.service'
 import { isNotEmpty, fetchIntNumber } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
@@ -12,7 +13,8 @@ export class CrmClientSmsService extends Logger {
         private readonly database: DataBaseService,
         private readonly smsService: SmsService,
         private readonly windows: WindowsService,
-        private readonly crmClientUtilsService: CrmClientUtilsService
+        private readonly crmClientUtilsService: CrmClientUtilsService,
+        private readonly deptScopeService: DeployDeptScopeService
     ) {
         super()
     }
@@ -76,6 +78,30 @@ export class CrmClientSmsService extends Logger {
                     }
                 })
                 return await this.fetchResolver({ message: '操作成功', alias })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
+
+    /**客户短信应用下拉列表**/
+    @AutoDescriptor
+    public async httpBaseCrmClientSmsSelect(request: OmixRequest, body: windows.BaseCrmClientSmsSelectOptions) {
+        try {
+            /**解析当前用户的数据权限范围**/
+            const { userIds } = await this.deptScopeService.fetchDataScopeUserIds(request)
+            return await this.database.builder(this.smsService.tbSmsAppOptions, async qb => {
+                qb.select(['t.type', 't.appAlias', 't.appId', 't.appName', 't.clientId'])
+                qb.where(`t.clientId = :clientId`, { clientId: body.clientId })
+                /**根据数据权限过滤：userIds为空数组表示全部可见，非空则按列表过滤**/
+                if (userIds.length > 0) {
+                    qb.andWhere(`t.userId IN (:...userIds)`, { userIds })
+                }
+                qb.orderBy('t.createTime', 'DESC')
+                return await qb.getMany().then(async list => {
+                    return await this.fetchResolver({ list })
+                })
             })
         } catch (err) {
             this.logger.error(err)

@@ -133,6 +133,7 @@ export class SmsFormosanService extends Logger {
             if (isNotEmpty(body.downUsd)) updateBody.downUsd = body.downUsd
             if (isNotEmpty(body.effectiveTime)) updateBody.effectiveTime = body.effectiveTime
             if (body.expiryTime !== undefined) updateBody.expiryTime = body.expiryTime
+            if (isNotEmpty(body.status)) updateBody.status = body.status
             await this.database.update(this.smsService.tbSmsAppFormosanDraftOptions, {
                 request,
                 stack: this.stack,
@@ -237,38 +238,42 @@ export class SmsFormosanService extends Logger {
                 if (draft.source === enums.CHUNK_SMS_FORMOSAN_SOURCE.existing.value && isNotEmpty(draft.formosanId)) {
                     /**已有报价：将原记录设为失效，创建新记录保留历史**/
                     await formosanRepo.update({ keyId: draft.formosanId }, { expiryTime: now as any })
-                    await this.database.create(formosanRepo, {
-                        request,
-                        stack: this.stack,
-                        body: {
-                            clientId: draft.clientId,
-                            appId: draft.appId,
-                            code: draft.code,
-                            mcc: draft.mcc,
-                            upUsd: draft.upUsd,
-                            downUsd: draft.downUsd,
-                            effectiveTime: draft.effectiveTime ?? now,
-                            expiryTime: draft.expiryTime,
-                            status: enums.CHUNK_CLIENT_STATUS.enable.value
-                        }
-                    })
+                    if (draft.status !== enums.CHUNK_CLIENT_STATUS.disable.value) {
+                        await this.database.create(formosanRepo, {
+                            request,
+                            stack: this.stack,
+                            body: {
+                                clientId: draft.clientId,
+                                appId: draft.appId,
+                                code: draft.code,
+                                mcc: draft.mcc,
+                                upUsd: draft.upUsd,
+                                downUsd: draft.downUsd,
+                                effectiveTime: draft.effectiveTime ?? now,
+                                expiryTime: draft.expiryTime,
+                                status: enums.CHUNK_CLIENT_STATUS.enable.value
+                            }
+                        })
+                    }
                 } else {
                     /**新增报价：直接创建formosan记录**/
-                    await this.database.create(formosanRepo, {
-                        request,
-                        stack: this.stack,
-                        body: {
-                            clientId: draft.clientId,
-                            appId: draft.appId,
-                            code: draft.code,
-                            mcc: draft.mcc,
-                            upUsd: draft.upUsd,
-                            downUsd: draft.downUsd,
-                            effectiveTime: draft.effectiveTime ?? now,
-                            expiryTime: draft.expiryTime,
-                            status: enums.CHUNK_CLIENT_STATUS.enable.value
-                        }
-                    })
+                    if (draft.status !== enums.CHUNK_CLIENT_STATUS.disable.value) {
+                        await this.database.create(formosanRepo, {
+                            request,
+                            stack: this.stack,
+                            body: {
+                                clientId: draft.clientId,
+                                appId: draft.appId,
+                                code: draft.code,
+                                mcc: draft.mcc,
+                                upUsd: draft.upUsd,
+                                downUsd: draft.downUsd,
+                                effectiveTime: draft.effectiveTime ?? now,
+                                expiryTime: draft.expiryTime,
+                                status: enums.CHUNK_CLIENT_STATUS.enable.value
+                            }
+                        })
+                    }
                 }
             }
             /**清除草稿**/
@@ -354,7 +359,7 @@ export class SmsFormosanService extends Logger {
                 from: process.env.NODE_MAIL_USER,
                 to: client.email,
                 subject: `SMS Pricing - ${client.name}`,
-                html: `<p>Dear ${client.name},</p><p>Please find the attached SMS pricing sheet.</p><p>Best regards</p>`,
+                html: body.mailContent || `<p>Dear ${client.name},</p><p>Please find the attached SMS pricing sheet.</p><p>Best regards</p>`,
                 attachments: [
                     {
                         filename: `SMS_Pricing_${body.appId}_${dayjs().format('YYYYMMDD')}.xlsx`,

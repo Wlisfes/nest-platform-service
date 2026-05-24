@@ -62,3 +62,7 @@ export class BaseCrmClientSmsCreateOptions extends IntersectionType(
     PickType(schema.TbSmsApp, ['clientId', 'type']),
     PartialType(PickType(schema.TbSmsApp, ['pushUrl', 'remark']))
 ) {}
+
+/**客户短信应用-下拉列表**/
+export class BaseCrmClientSmsSelectOptions extends PickType(schema.TbSmsApp, ['clientId']) {}
+

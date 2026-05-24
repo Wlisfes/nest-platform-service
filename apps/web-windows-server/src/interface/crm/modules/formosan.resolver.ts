@@ -51,7 +51,7 @@ export class SmsFormosanDraftColumnOptionsResponse extends OmixColumnResponse {
 /**报价草稿-修改单条**/
 export class SmsFormosanDraftUpdateOptions extends IntersectionType(
     PickType(schema.TbSmsAppFormosanDraft, ['keyId']),
-    PartialType(PickType(schema.TbSmsAppFormosanDraft, ['upUsd', 'downUsd', 'effectiveTime', 'expiryTime']))
+    PartialType(PickType(schema.TbSmsAppFormosanDraft, ['upUsd', 'downUsd', 'effectiveTime', 'expiryTime', 'status']))
 ) {}
 
 /**报价草稿-删除单条**/
@@ -94,4 +94,8 @@ export class SmsFormosanPreviewOptionsResponse {
 }
 
 /**报价发布**/
-export class SmsFormosanPublishOptions extends PickType(schema.TbSmsAppFormosanDraft, ['clientId', 'appId']) {}
+export class SmsFormosanPublishOptions extends PickType(schema.TbSmsAppFormosanDraft, ['clientId', 'appId']) {
+    @ApiProperty({ required: false, description: '自定义邮件内容', example: '<p>Dear Customer, ...</p>' })
+    @IsOptional()
+    mailContent: string
+}

@@ -187,4 +187,26 @@ export class CrmClientService extends Logger {
             throw new HttpException(err.message, err.status, err.options)
         }
     }
+
+    /**客户下拉列表（启用状态）**/
+    @AutoDescriptor
+    public async httpBaseCrmClientSelect(request: OmixRequest) {
+        try {
+            /**解析当前用户的数据权限范围**/
+            const { userIds } = await this.deptScopeService.fetchDataScopeUserIds(request)
+            return await this.database.builder(this.windows.clientOptions, async qb => {
+                qb.select(['t.keyId', 't.name', 't.alias'])
+                if (userIds.length > 0) {
+                    qb.andWhere(`t.userId IN (:...userIds)`, { userIds })
+                }
+                qb.orderBy('t.createTime', 'DESC')
+                return await qb.getMany().then(async list => {
+                    return await this.fetchResolver({ list })
+                })
+            })
+        } catch (err) {
+            this.logger.error(err)
+            throw new HttpException(err.message, err.status, err.options)
+        }
+    }
 }
