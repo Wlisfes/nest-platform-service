@@ -113,11 +113,14 @@ export class SmsFormosanService extends Logger {
     public async httpSmsFormosanDraftColumn(request: OmixRequest, body: windows.SmsFormosanDraftColumnOptions) {
         try {
             return await this.database.builder(this.smsService.tbSmsAppFormosanDraftOptions, async qb => {
-                qb.where(`t.clientId = :clientId`, { clientId: body.clientId })
-                qb.andWhere(`t.appId = :appId`, { appId: body.appId })
+                qb.where(`t.clientId = :clientId AND t.appId = :appId`, { appId: body.appId, clientId: body.clientId })
+                qb.leftJoinAndMapOne(
+                    't.faseNode',
+                    schema.TbSmsAppFormosan,
+                    'faseNode',
+                    'faseNode.clientId = t.clientId AND faseNode.appId = t.appId AND faseNode.code = t.code'
+                )
                 qb.orderBy('t.createTime', 'DESC')
-                qb.skip((body.page - 1) * body.size)
-                qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
                     return await this.fetchResolver({ page: body.page, size: body.size, total, list })
                 })
