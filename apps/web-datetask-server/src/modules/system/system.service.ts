@@ -1,21 +1,20 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums, schema } from '@/modules/database/database.service'
+import { DatetaskQueueService } from '@web-datetask-server/modules/datetask/datetask.queue.service'
 import { DatetaskUtilsService } from '@web-datetask-server/modules/datetask/datetask.utils.service'
 import { isNotEmpty, fetchIntNumber, fetchCloneByte } from '@/utils'
 import { OmixRequest } from '@/interface'
-import { InjectQueue } from '@nestjs/bullmq'
-import { Queue } from 'bullmq'
 import * as constants from '@web-datetask-server/modules/datetask/datetask.constants'
 import * as datetask from '@web-datetask-server/interface'
 
 @Injectable()
 export class SystemService extends Logger {
     constructor(
-        @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly systemQueue: Queue,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
-        private readonly datetaskUtilsService: DatetaskUtilsService
+        private readonly queueService: DatetaskQueueService,
+        private readonly utilsService: DatetaskUtilsService
     ) {
         super()
     }
@@ -23,7 +22,7 @@ export class SystemService extends Logger {
     /**注册系统任务**/
     @AutoDescriptor
     public async fetchTaskSystemRegister(request: OmixRequest, task: Partial<schema.WindowsDatetask>) {
-        await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), {
+        await this.queueService.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), {
             repeat: { pattern: task.cron, key: task.taskId }
         })
         return this.logger.info(
@@ -66,7 +65,7 @@ export class SystemService extends Logger {
                 ['t', ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment']]
             ])
             return await qb.getOne().then(async task => {
-                await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), { lifo: true })
+                await this.queueService.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), { lifo: true })
                 this.logger.info(`手动触发系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
                 return await this.fetchResolver({ message: '手动触发系统任务成功' })
             })
@@ -90,7 +89,7 @@ export class SystemService extends Logger {
                     body: { status: enums.CHUNK_DATETASK_STATUS.running.value }
                 })
                 /**注册 Cron 定时任务到队列**/
-                await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), {
+                await this.queueService.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), {
                     repeat: { pattern: task.cron, key: task.taskId }
                 })
                 this.logger.info(
@@ -115,7 +114,7 @@ export class SystemService extends Logger {
                     body: { status: enums.CHUNK_DATETASK_STATUS.stop.value }
                 })
                 /**精确移除该任务的 job scheduler**/
-                await this.datetaskUtilsService.fetchRemoveByTaskIdJobScheduler(this.systemQueue, task.taskId)
+                await this.utilsService.fetchRemoveByTaskIdJobScheduler(this.queueService.systemQueue, task.taskId)
                 this.logger.info(`停用系统任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]`)
                 return await this.fetchResolver({ message: '停用系统任务成功' })
             })
@@ -140,8 +139,8 @@ export class SystemService extends Logger {
                 })
                 /**如果任务是运行中状态，移除旧的并重新注册该任务**/
                 if (task.status === enums.CHUNK_DATETASK_STATUS.running.value) {
-                    await this.datetaskUtilsService.fetchRemoveByTaskIdJobScheduler(this.systemQueue, payload.taskId)
-                    await this.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), {
+                    await this.utilsService.fetchRemoveByTaskIdJobScheduler(this.queueService.systemQueue, payload.taskId)
+                    await this.queueService.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), {
                         repeat: { pattern: payload.cron, key: payload.taskId }
                     })
                 }
