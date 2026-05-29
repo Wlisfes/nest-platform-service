@@ -2,7 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
-import { DatetaskSystemService } from '@web-datetask-server/modules/datetask/datetask-system.service'
+import { SystemService } from '@web-datetask-server/modules/system/system.service'
 import { enums } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface'
 import { firstValueFrom } from 'rxjs'
@@ -17,7 +17,7 @@ export class ExchangeService extends Logger {
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
         private readonly httpService: HttpService,
-        private readonly datetaskSystemService: DatetaskSystemService
+        private readonly systemService: SystemService
     ) {
         super()
     }
@@ -26,7 +26,7 @@ export class ExchangeService extends Logger {
     @AutoDescriptor
     public async fetchInitEventRegister(request?: OmixRequest) {
         /**注册系统任务定义**/
-        return await this.datetaskSystemService.fetchBaseEnsureSystemTask(request, {
+        return await this.systemService.fetchBaseEnsureSystemTask(request, {
             handler: this.taskName,
             taskName: `汇率同步定时任务`,
             comment: '定时从Frankfurter获取汇率数据并更新数据库',

@@ -10,7 +10,7 @@ import * as constants from '@web-datetask-server/modules/datetask/datetask.const
 import * as datetask from '@web-datetask-server/interface'
 
 @Injectable()
-export class DatetaskSystemService extends Logger {
+export class SystemService extends Logger {
     constructor(
         @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly systemQueue: Queue,
         private readonly database: DataBaseService,

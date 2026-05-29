@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
 import { DatetaskUtilsService } from '@web-datetask-server/modules/datetask/datetask.utils.service'
-import { DatetaskSystemService } from '@web-datetask-server/modules/datetask/datetask-system.service'
+import { SystemService } from '@web-datetask-server/modules/system/system.service'
 import { OmixRequest } from '@/interface'
 import { InjectQueue } from '@nestjs/bullmq'
 import { Queue } from 'bullmq'
@@ -16,7 +16,7 @@ export class DatetaskService extends Logger {
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
         private readonly datetaskUtilsService: DatetaskUtilsService,
-        private readonly datetaskSystemService: DatetaskSystemService
+        private readonly systemService: SystemService
     ) {
         super()
     }
@@ -66,7 +66,7 @@ export class DatetaskService extends Logger {
                 for (const task of tasks) {
                     /**系统任务：使用 Cron 表达式**/
                     if (task.type === enums.CHUNK_DATETASK_TYPE.system.value) {
-                        await this.datetaskSystemService.fetchTaskSystemRegister(request, task)
+                        await this.systemService.fetchTaskSystemRegister(request, task)
                     }
                     /**短信任务：计算延迟时间**/
                     // if (task.type === enums.CHUNK_DATETASK_TYPE.sms.value) {

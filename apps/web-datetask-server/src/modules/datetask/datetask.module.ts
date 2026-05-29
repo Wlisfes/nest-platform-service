@@ -3,8 +3,6 @@ import { BullModule } from '@nestjs/bullmq'
 import { DatetaskService } from '@web-datetask-server/modules/datetask/datetask.service'
 import { DatetaskUtilsService } from '@web-datetask-server/modules/datetask/datetask.utils.service'
 import { DatetaskController } from '@web-datetask-server/modules/datetask/datetask.controller'
-import { DatetaskSystemProcessor } from '@web-datetask-server/modules/datetask/datetask-system.processor'
-import { DatetaskSystemService } from '@web-datetask-server/modules/datetask/datetask-system.service'
 import * as constants from '@web-datetask-server/modules/datetask/datetask.constants'
 
 @Global()
@@ -20,7 +18,7 @@ import * as constants from '@web-datetask-server/modules/datetask/datetask.const
         })
     ],
     controllers: [DatetaskController],
-    providers: [DatetaskUtilsService, DatetaskService, DatetaskSystemService, DatetaskSystemProcessor],
-    exports: [DatetaskUtilsService, DatetaskService, DatetaskSystemService, DatetaskSystemProcessor]
+    providers: [DatetaskUtilsService, DatetaskService],
+    exports: [DatetaskUtilsService, DatetaskService]
 })
 export class DatetaskModule {}

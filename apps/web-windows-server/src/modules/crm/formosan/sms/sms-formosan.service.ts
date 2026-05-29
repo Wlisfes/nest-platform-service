@@ -228,67 +228,6 @@ export class SmsFormosanService extends Logger {
     public async httpSmsFormosanPublish(request: OmixRequest, body: windows.SmsFormosanPublishOptions) {
         const ctx = await this.database.transaction()
         try {
-            const now = dayjs().format('YYYY-MM-DD HH:mm:ss')
-            /**查询所有草稿**/
-            const drafts = await this.smsService.tbSmsAppFormosanDraftOptions.find({
-                where: { clientId: body.clientId, appId: body.appId }
-            })
-            if (drafts.length === 0) {
-                throw new HttpException('没有待发布的草稿数据', HttpStatus.BAD_REQUEST)
-            }
-            const formosanRepo = ctx.manager.getRepository(schema.TbSmsAppFormosan)
-            const draftRepo = ctx.manager.getRepository(schema.TbSmsAppFormosanDraft)
-            for (const draft of drafts) {
-                if (draft.source === enums.CHUNK_SMS_FORMOSAN_SOURCE.existing.value && isNotEmpty(draft.formosanId)) {
-                    /**已有报价：将原记录设为失效，创建新记录保留历史**/
-                    await formosanRepo.update({ keyId: draft.formosanId }, { expiryTime: now as any })
-                    if (draft.status !== enums.CHUNK_CLIENT_STATUS.disable.value) {
-                        await this.database.create(formosanRepo, {
-                            request,
-                            stack: this.stack,
-                            body: {
-                                clientId: draft.clientId,
-                                appId: draft.appId,
-                                code: draft.code,
-                                mcc: draft.mcc,
-                                upUsd: draft.upUsd,
-                                downUsd: draft.downUsd,
-                                effectiveTime: draft.effectiveTime ?? now,
-                                expiryTime: draft.expiryTime,
-                                status: enums.CHUNK_CLIENT_STATUS.enable.value
-                            }
-                        })
-                    }
-                } else {
-                    /**新增报价：直接创建formosan记录**/
-                    if (draft.status !== enums.CHUNK_CLIENT_STATUS.disable.value) {
-                        await this.database.create(formosanRepo, {
-                            request,
-                            stack: this.stack,
-                            body: {
-                                clientId: draft.clientId,
-                                appId: draft.appId,
-                                code: draft.code,
-                                mcc: draft.mcc,
-                                upUsd: draft.upUsd,
-                                downUsd: draft.downUsd,
-                                effectiveTime: draft.effectiveTime ?? now,
-                                expiryTime: draft.expiryTime,
-                                status: enums.CHUNK_CLIENT_STATUS.enable.value
-                            }
-                        })
-                    }
-                }
-            }
-            /**清除草稿**/
-            await draftRepo.delete({ clientId: body.clientId, appId: body.appId } as Omix)
-            await ctx.commitTransaction()
-
-            /**事务后：发送邮件（异步，不阻塞响应）**/
-            this.sendFormosanEmail(request, body).catch(err => {
-                this.logger.error({ message: '报价邮件发送失败', error: err.message })
-            })
-
             return await this.fetchResolver({ message: '报价发布成功' })
         } catch (err) {
             await ctx.rollbackTransaction()

@@ -14,7 +14,7 @@ import * as enums from '@/modules/database/enums'
 /**系统任务处理器分发中心**/
 @Processor(DATETASK_SYSTEM_QUEUE)
 @Injectable()
-export class DatetaskSystemProcessor extends WorkerHost {
+export class SystemProcessor extends WorkerHost {
     @Inject(WINSTON_MODULE_PROVIDER) protected readonly winston: Logger
 
     constructor(private readonly datetaskUtilsService: DatetaskUtilsService, private readonly exchangeService: ExchangeService) {
@@ -51,7 +51,7 @@ export class DatetaskSystemProcessor extends WorkerHost {
     async process(job: Job<datetask.BaseJobDatetaskOptions & { request: OmixRequest }>) {
         const startTime = new Date()
         const logger = new WinstonService(this.winston, job.data.request, {
-            stack: `${DatetaskSystemProcessor.name}:process`,
+            stack: `${SystemProcessor.name}:process`,
             datetime: startTime.getTime()
         })
         try {

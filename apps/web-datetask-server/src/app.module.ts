@@ -10,7 +10,9 @@ import { RedisModule } from '@/modules/redis/redis.module'
 import { RpcExceptionFilter } from '@/filters'
 import { TransformInterceptor } from '@/interceptor'
 import { DatetaskModule } from '@web-datetask-server/modules/datetask/datetask.module'
+import { SystemModule } from '@web-datetask-server/modules/system/system.module'
 import { ExchangeModule } from '@web-datetask-server/modules/exchange/exchange.module'
+import { FormosanModule } from '@web-datetask-server/modules/formosan/formosan.module'
 import { AppService } from '@web-datetask-server/app.service'
 import { AppController } from '@web-datetask-server/app.controller'
 
@@ -33,7 +35,9 @@ import { AppController } from '@web-datetask-server/app.controller'
         DatabaseModule,
         RedisModule,
         DatetaskModule,
-        ExchangeModule
+        SystemModule,
+        ExchangeModule,
+        FormosanModule
     ],
     providers: [
         { provide: APP_FILTER, useClass: RpcExceptionFilter },
