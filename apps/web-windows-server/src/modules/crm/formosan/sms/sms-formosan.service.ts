@@ -4,6 +4,7 @@ import { DataBaseService, SmsService, WindowsService, schema, enums } from '@/mo
 import { SmsFormosanUtilsService } from '@web-windows-server/modules/crm/formosan/sms/sms-formosan.utils.service'
 import { FinanceCountryUtilsService } from '@web-windows-server/modules/finance/country/country.utils.service'
 import { FinanceSmsRateUtilsService } from '@web-windows-server/modules/finance/rates/sms/sms-rate.utils.service'
+import { LocalhostService } from '@/modules/localhost/localhost.service'
 import { isNotEmpty, fetchCurrent, fetchWherer } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
@@ -15,6 +16,7 @@ export class SmsFormosanService extends Logger {
         private readonly database: DataBaseService,
         private readonly smsService: SmsService,
         private readonly windows: WindowsService,
+        private readonly localhostService: LocalhostService,
         private readonly smsFormosanUtilsService: SmsFormosanUtilsService,
         private readonly financeCountryUtilsService: FinanceCountryUtilsService,
         private readonly financeSmsRateUtilsService: FinanceSmsRateUtilsService

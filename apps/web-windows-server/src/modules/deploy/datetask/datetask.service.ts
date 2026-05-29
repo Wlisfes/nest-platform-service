@@ -1,7 +1,7 @@
-import { Injectable, Inject, HttpException } from '@nestjs/common'
-import { ClientProxy } from '@nestjs/microservices'
+import { Injectable, HttpException } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
+import { LocalhostService } from '@/modules/localhost/localhost.service'
 import { isNotEmpty, fetchClientSender } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
@@ -9,7 +9,7 @@ import * as windows from '@web-windows-server/interface'
 @Injectable()
 export class DeployDatetaskService extends Logger {
     constructor(
-        @Inject('web-datetask-server') private readonly datetaskServer: ClientProxy,
+        private readonly localhostService: LocalhostService,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService
     ) {
@@ -60,12 +60,12 @@ export class DeployDatetaskService extends Logger {
             return await this.httpBaseCheckSystemByTaskId(request, body.taskId).then(async task => {
                 /**根据目标状态调用不同的微服务方法**/
                 if (body.status === enums.CHUNK_DATETASK_STATUS.running.value) {
-                    return await fetchClientSender(this.datetaskServer, {
+                    return await fetchClientSender(this.localhostService.datetaskServer, {
                         pattern: { cmd: 'fetchBaseEnableSystemTask' },
                         data: { taskId: body.taskId, request: request.logs }
                     })
                 } else {
-                    return await fetchClientSender(this.datetaskServer, {
+                    return await fetchClientSender(this.localhostService.datetaskServer, {
                         pattern: { cmd: 'fetchBaseDisableSystemTask' },
                         data: { taskId: body.taskId, request: request.logs }
                     })
@@ -82,7 +82,7 @@ export class DeployDatetaskService extends Logger {
     public async httpBaseSystemUpdateDatetaskCron(request: OmixRequest, body: windows.UpdateDatetaskCronOptions) {
         try {
             return await this.httpBaseCheckSystemByTaskId(request, body.taskId).then(async task => {
-                return await fetchClientSender(this.datetaskServer, {
+                return await fetchClientSender(this.localhostService.datetaskServer, {
                     pattern: { cmd: 'fetchBaseUpdateSystemTaskCron' },
                     data: { taskId: body.taskId, cron: body.cron, request: request.logs }
                 })
@@ -98,7 +98,7 @@ export class DeployDatetaskService extends Logger {
     public async httpBaseSystemTriggerDatetask(request: OmixRequest, body: windows.BaseSystemTriggerDatetaskOptions) {
         try {
             return await this.httpBaseCheckSystemByTaskId(request, body.taskId).then(async task => {
-                return await fetchClientSender(this.datetaskServer, {
+                return await fetchClientSender(this.localhostService.datetaskServer, {
                     pattern: { cmd: 'fetchBaseTriggerSystemTask' },
                     data: { taskId: body.taskId, request: request.logs }
                 })

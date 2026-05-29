@@ -9,6 +9,7 @@ import { LoggerModule } from '@/modules/logger/logger.module'
 import { DatabaseModule } from '@/modules/database/database.module'
 import { RedisModule } from '@/modules/redis/redis.module'
 import { JwtModule } from '@/modules/jwt/jwt.module'
+import { LocalhostModule } from '@/modules/localhost/localhost.module'
 import { CommonModule } from '@/modules/common/common.module'
 import { RabbitmqModule } from '@/modules/rabbitmq/rabbitmq.module'
 import { AuthModule } from '@web-windows-server/modules/auth/auth.module'
@@ -24,6 +25,7 @@ import { FinanceModule } from '@web-windows-server/modules/finance/finance.modul
         DatabaseModule,
         RedisModule,
         JwtModule,
+        LocalhostModule,
         CommonModule,
         RabbitmqModule,
         AuthModule,

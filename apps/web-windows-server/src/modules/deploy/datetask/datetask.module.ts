@@ -1,21 +1,10 @@
 import { Module, Global } from '@nestjs/common'
-import { ClientsModule, Transport } from '@nestjs/microservices'
 import { DeployDatetaskService } from '@web-windows-server/modules/deploy/datetask/datetask.service'
 import { DeployDatetaskController } from '@web-windows-server/modules/deploy/datetask/datetask.controller'
 
 @Global()
 @Module({
-    imports: [
-        ClientsModule.register([
-            {
-                name: 'web-datetask-server',
-                transport: Transport.TCP,
-                options: { host: 'localhost', port: process.env.NODE_WEB_DATETASK_TCP_PORT }
-            }
-        ])
-    ],
     providers: [DeployDatetaskService],
-    controllers: [DeployDatetaskController],
-    exports: []
+    controllers: [DeployDatetaskController]
 })
 export class DeployDatetaskModule {}
