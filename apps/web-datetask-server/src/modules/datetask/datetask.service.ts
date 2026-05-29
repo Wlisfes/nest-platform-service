@@ -1,46 +1,27 @@
 import { Injectable } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService, enums } from '@/modules/database/database.service'
+import { DatetaskQueueService } from '@web-datetask-server/modules/datetask/datetask.queue.service'
 import { DatetaskUtilsService } from '@web-datetask-server/modules/datetask/datetask.utils.service'
 import { SystemService } from '@web-datetask-server/modules/system/system.service'
 import { OmixRequest } from '@/interface'
-import { InjectQueue } from '@nestjs/bullmq'
-import { Queue } from 'bullmq'
-import * as constants from '@web-datetask-server/modules/datetask/datetask.constants'
 
 @Injectable()
 export class DatetaskService extends Logger {
     constructor(
-        @InjectQueue(constants.DATETASK_SYSTEM_QUEUE) private readonly systemQueue: Queue,
-        @InjectQueue(constants.DATETASK_SMS_QUEUE) private readonly smsQueue: Queue,
         private readonly database: DataBaseService,
         private readonly windows: WindowsService,
-        private readonly datetaskUtilsService: DatetaskUtilsService,
+        private readonly queueService: DatetaskQueueService,
+        private readonly utilsService: DatetaskUtilsService,
         private readonly systemService: SystemService
     ) {
         super()
     }
 
-    /**注册短信任务**/
-    // @AutoDescriptor
-    // public async fetchTaskSmsRegister(request: OmixRequest, task: Partial<schema.WindowsDatetask>) {
-    //     const delay = Math.max(new Date(task.runTime).getTime() - Date.now(), 0)
-    //     await this.datetaskSmsQueue.add(constants.DATETASK_SMS_COMMON_QUEUE, this.fetchCloneByteTaskOptions(task, request), {
-    //         delay,
-    //         jobId: task.taskId
-    //     })
-    //     return this.logger.info(
-    //         `注册短信任务: 任务ID-[${task.taskId}]，任务名称-[${task.taskName}]，任务处理器标识-[${task.handler}]，执行时间-[${task.runTime}]`
-    //     )
-    // }
-
     /**从数据库加载任务并注册到 BullMQ**/
     @AutoDescriptor
     public async fetchTasksRegister(request?: OmixRequest) {
-        const jobs = [
-            this.datetaskUtilsService.fetchRemoveJobScheduler(this.systemQueue),
-            this.datetaskUtilsService.fetchRemoveJobScheduler(this.smsQueue)
-        ]
+        const jobs = [this.utilsService.fetchRemoveJobScheduler(this.queueService.systemQueue)]
         return await Promise.all(jobs).then(async () => {
             return await this.fetchLoadAndRegisterTasks(request)
         })

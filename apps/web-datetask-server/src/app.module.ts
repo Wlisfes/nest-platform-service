@@ -34,8 +34,8 @@ import { AppController } from '@web-datetask-server/app.controller'
         ConfigModule,
         DatabaseModule,
         RedisModule,
-        DatetaskModule,
         SystemModule,
+        DatetaskModule,
         ExchangeModule,
         FormosanModule
     ],
