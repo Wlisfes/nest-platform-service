@@ -5,8 +5,8 @@ import * as schema from '@/modules/database/schema'
 
 /**任务执行数据结构定义**/
 export class BaseJobDatetaskOptions extends IntersectionType(
-    PickType(schema.WindowsDatetask, ['taskId', 'taskName', 'handler', 'type', 'cron']),
-    PickType(schema.WindowsDatetask, ['runTime', 'status', 'body', 'comment'])
+    PickType(schema.WindowsDatetask, ['taskId', 'taskName', 'handler', 'cron']),
+    PickType(schema.WindowsDatetask, ['status', 'body', 'comment'])
 ) {}
 
 /**注册系统任务定义（不存在则自动创建）**/

@@ -33,7 +33,7 @@ export class SystemService extends Logger {
     /**注册系统任务定义**/
     @AutoDescriptor
     public async fetchBaseEnsureSystemTask(request: OmixRequest, body: datetask.BaseEnsureSystemTaskOptions) {
-        const whereOptions: Omix = { handler: body.handler, type: enums.CHUNK_DATETASK_TYPE.system.value }
+        const whereOptions: Omix = { handler: body.handler }
         return await this.windows.datetaskOptions.findOne({ where: whereOptions }).then(async task => {
             if (isNotEmpty(task)) {
                 this.logger.info(
@@ -60,9 +60,9 @@ export class SystemService extends Logger {
     @AutoDescriptor
     public async fetchBaseTriggerSystemTask(request: Omix, payload: datetask.BaseTriggerTaskOptions) {
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
-            qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
+            qb.where('t.taskId = :taskId', { taskId: payload.taskId })
             await this.database.selection(qb, [
-                ['t', ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment']]
+                ['t', ['taskId', 'taskName', 'handler', 'cron', 'status', 'body', 'comment']]
             ])
             return await qb.getOne().then(async task => {
                 await this.queueService.systemQueue.add(constants.DATETASK_SYSTEM_QUEUE, fetchCloneByte({ request }, task), { lifo: true })
@@ -76,9 +76,9 @@ export class SystemService extends Logger {
     @AutoDescriptor
     public async fetchBaseEnableSystemTask(request: Omix, payload: datetask.BaseEnableSystemTaskOptions) {
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
-            qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
+            qb.where('t.taskId = :taskId', { taskId: payload.taskId })
             await this.database.selection(qb, [
-                ['t', ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment']]
+                ['t', ['taskId', 'taskName', 'handler', 'cron', 'status', 'body', 'comment']]
             ])
             return await qb.getOne().then(async task => {
                 /**更新数据库状态为运行中**/
@@ -104,7 +104,7 @@ export class SystemService extends Logger {
     @AutoDescriptor
     public async fetchBaseDisableSystemTask(request: Omix, payload: datetask.BaseDisableSystemTaskOptions) {
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
-            qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
+            qb.where('t.taskId = :taskId', { taskId: payload.taskId })
             return await qb.getOne().then(async task => {
                 /**更新数据库状态为停止**/
                 await this.database.update(this.windows.datetaskOptions, {
@@ -125,9 +125,9 @@ export class SystemService extends Logger {
     @AutoDescriptor
     public async fetchBaseUpdateSystemTaskCron(request: Omix, payload: datetask.BaseUpdateSystemTaskCronOptions) {
         return await this.database.builder(this.windows.datetaskOptions, async qb => {
-            qb.where('t.taskId = :taskId AND t.type = :system', { taskId: payload.taskId, system: enums.CHUNK_DATETASK_TYPE.system.value })
+            qb.where('t.taskId = :taskId', { taskId: payload.taskId })
             await this.database.selection(qb, [
-                ['t', ['taskId', 'taskName', 'handler', 'type', 'cron', 'runTime', 'status', 'body', 'comment']]
+                ['t', ['taskId', 'taskName', 'handler', 'cron', 'status', 'body', 'comment']]
             ])
             return await qb.getOne().then(async task => {
                 /**更新数据库 Cron 表达式**/

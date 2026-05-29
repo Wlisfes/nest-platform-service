@@ -1,17 +1,3 @@
-export const CHUNK_DATETASK_TYPE = {
-    name: '任务类型',
-    value: 'CHUNK_DATETASK_TYPE',
-    system: {
-        value: 'system',
-        name: '系统任务',
-        json: { type: 'info' }
-    },
-    sms: {
-        value: 'sms',
-        name: '短信任务',
-        json: { type: 'warning' }
-    }
-}
 
 export const CHUNK_DATETASK_STATUS = {
     name: '任务状态',

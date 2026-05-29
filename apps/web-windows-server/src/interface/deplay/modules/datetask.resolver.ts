@@ -5,7 +5,7 @@ import * as schema from '@/modules/database/schema'
 /**系统任务分页列表查询**/
 export class ColumnDatetaskOptions extends IntersectionType(
     PickType(OmixColumnOptions, ['page', 'size']),
-    PartialType(PickType(schema.WindowsDatetask, ['taskName', 'status', 'type']))
+    PartialType(PickType(schema.WindowsDatetask, ['taskName', 'status']))
 ) {}
 
 /**系统任务分页列表响应**/

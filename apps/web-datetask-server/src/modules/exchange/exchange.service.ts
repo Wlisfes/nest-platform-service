@@ -3,7 +3,6 @@ import { HttpService } from '@nestjs/axios'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, WindowsService } from '@/modules/database/database.service'
 import { SystemService } from '@web-datetask-server/modules/system/system.service'
-import { enums } from '@/modules/database/database.service'
 import { OmixRequest } from '@/interface'
 import { firstValueFrom } from 'rxjs'
 import { moment } from '@/utils'
@@ -30,9 +29,8 @@ export class ExchangeService extends Logger {
             handler: this.taskName,
             taskName: `汇率同步定时任务`,
             comment: '定时从Frankfurter获取汇率数据并更新数据库',
-            cron: '30 8 * * *',
-            // cron: '*/30 * * * * *',
-            type: enums.CHUNK_DATETASK_TYPE.system.value
+            cron: '30 8 * * *'
+            // cron: '*/30 * * * * *'
         })
     }
 

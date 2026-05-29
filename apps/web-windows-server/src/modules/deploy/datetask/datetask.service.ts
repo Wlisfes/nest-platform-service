@@ -23,7 +23,7 @@ export class DeployDatetaskService extends Logger {
             request,
             message: 'taskId:不存在',
             dispatch: {
-                where: { taskId, type: enums.CHUNK_DATETASK_TYPE.system.value }
+                where: { taskId }
             }
         })
     }
@@ -39,9 +39,7 @@ export class DeployDatetaskService extends Logger {
                 if (isNotEmpty(body.status)) {
                     qb.andWhere(`t.status = :status`, { status: body.status })
                 }
-                if (isNotEmpty(body.type)) {
-                    qb.andWhere(`t.type = :type`, { type: body.type })
-                }
+
                 qb.orderBy('t.createTime', 'DESC')
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
