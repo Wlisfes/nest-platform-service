@@ -4,7 +4,7 @@ import { SystemService } from '@web-datetask-server/modules/system/system.servic
 import * as datetask from '@web-datetask-server/interface'
 
 @Controller()
-export class DatetaskController {
+export class SystemController {
     constructor(private readonly systemService: SystemService) {}
 
     /**启用系统任务**/
