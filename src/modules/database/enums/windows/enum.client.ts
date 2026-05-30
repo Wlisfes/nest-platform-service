@@ -180,3 +180,23 @@ export const CHUNK_SMS_FORMOSAN_SOURCE = {
         json: { type: 'info' }
     }
 }
+
+export const CHUNK_SMS_FORMOSAN_STATUS = {
+    name: '报价状态',
+    value: 'CHUNK_SMS_FORMOSAN_STATUS',
+    pending: {
+        value: 'pending',
+        name: '待生效',
+        json: { type: 'warning' }
+    },
+    effective: {
+        value: 'effective',
+        name: '已生效',
+        json: { type: 'success' }
+    },
+    deleted: {
+        value: 'deleted',
+        name: '已删除',
+        json: { type: 'error' }
+    }
+}

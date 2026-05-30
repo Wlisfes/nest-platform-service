@@ -45,12 +45,12 @@ export class TbSmsAppFormosan extends DataBaseByAdapter {
     expiryTime: Date
 
     @ApiProperty({
-        description: withComment('状态', enums.CHUNK_CLIENT_STATUS),
-        example: enums.CHUNK_CLIENT_STATUS.enable.value
+        description: withComment('状态', enums.CHUNK_SMS_FORMOSAN_STATUS),
+        example: enums.CHUNK_SMS_FORMOSAN_STATUS.pending.value
     })
     @IsNotEmpty({ message: '状态必填' })
-    @IsEnum(withKeys(enums.CHUNK_CLIENT_STATUS), { message: '状态格式错误' })
-    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_CLIENT_STATUS) })
+    @IsEnum(withKeys(enums.CHUNK_SMS_FORMOSAN_STATUS), { message: '状态格式错误' })
+    @Column({ nullable: false, comment: withComment('状态', enums.CHUNK_SMS_FORMOSAN_STATUS) })
     status: string
 
     @ApiProperty({ required: false, description: '备注' })

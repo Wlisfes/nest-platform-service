@@ -5,7 +5,7 @@ import { SmsFormosanUtilsService } from '@web-windows-server/modules/crm/formosa
 import { FinanceCountryUtilsService } from '@web-windows-server/modules/finance/country/country.utils.service'
 import { FinanceSmsRateUtilsService } from '@web-windows-server/modules/finance/rates/sms/sms-rate.utils.service'
 import { LocalhostService } from '@/modules/localhost/localhost.service'
-import { isNotEmpty, fetchCurrent, fetchWherer } from '@/utils'
+import { isNotEmpty, fetchCurrent, fetchWherer, fetchClientSender } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 import dayjs from 'dayjs'
@@ -187,7 +187,7 @@ export class SmsFormosanService extends Logger {
             const actives = await this.database.builder(this.smsService.tbSmsAppFormosanOptions, async qb => {
                 qb.where(`t.clientId = :clientId`, { clientId: body.clientId })
                 qb.andWhere(`t.appId = :appId`, { appId: body.appId })
-                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_CLIENT_STATUS.enable.value })
+                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_SMS_FORMOSAN_STATUS.effective.value })
                 qb.andWhere(`t.effectiveTime <= :now`, { now })
                 qb.andWhere(`(t.expiryTime IS NULL OR t.expiryTime > :now)`, { now })
                 return await qb.getMany()
@@ -230,6 +230,37 @@ export class SmsFormosanService extends Logger {
     public async httpSmsFormosanPublish(request: OmixRequest, body: windows.SmsFormosanPublishOptions) {
         const ctx = await this.database.transaction()
         try {
+            /**查询该客户+应用的所有草稿**/
+            const drafts = await this.smsService.tbSmsAppFormosanDraftOptions.find({
+                where: { clientId: body.clientId, appId: body.appId }
+            })
+            if (drafts.length === 0) {
+                throw new HttpException('没有可发布的草稿数据', HttpStatus.BAD_REQUEST)
+            }
+            /**构建报价数据推送到任务服务**/
+            const items = drafts.map(draft => ({
+                clientId: draft.clientId,
+                appId: draft.appId,
+                code: draft.code,
+                mcc: draft.mcc,
+                upUsd: draft.upUsd,
+                downUsd: draft.downUsd,
+                effectiveTime: draft.effectiveTime,
+                expiryTime: draft.expiryTime,
+                remark: draft.remark
+            }))
+            /**推送到任务服务注册延迟任务**/
+            const result = await fetchClientSender(this.localhostService.datetaskServer, {
+                pattern: { cmd: 'fetchBaseFormosanTaskRegister' },
+                data: { clientId: body.clientId, appId: body.appId, items, request: request.logs }
+            })
+            /**清除草稿数据**/
+            await this.database.delete(this.smsService.tbSmsAppFormosanDraftOptions, {
+                request,
+                stack: this.stack,
+                where: { clientId: body.clientId, appId: body.appId }
+            })
+            await ctx.commitTransaction()
             return await this.fetchResolver({ message: '报价发布成功' })
         } catch (err) {
             await ctx.rollbackTransaction()
@@ -260,7 +291,7 @@ export class SmsFormosanService extends Logger {
             const formosans = await this.database.builder(this.smsService.tbSmsAppFormosanOptions, async qb => {
                 qb.where(`t.clientId = :clientId`, { clientId: body.clientId })
                 qb.andWhere(`t.appId = :appId`, { appId: body.appId })
-                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_CLIENT_STATUS.enable.value })
+                qb.andWhere(`t.status = :status`, { status: enums.CHUNK_SMS_FORMOSAN_STATUS.effective.value })
                 qb.andWhere(`(t.expiryTime IS NULL OR t.expiryTime > :now)`, { now })
                 qb.orderBy('t.code', 'ASC')
                 return await qb.getMany()
