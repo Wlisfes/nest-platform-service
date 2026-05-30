@@ -36,7 +36,8 @@ export class FormosanService extends Logger {
                 effectiveTime: item.effectiveTime,
                 expiryTime: item.expiryTime,
                 status: enums.CHUNK_SMS_FORMOSAN_STATUS.pending.value,
-                remark: item.remark
+                remark: item.remark,
+                createBy: item.createBy
             })
             /**计算延迟时间（毫秒）**/
             const effectiveDate = new Date(item.effectiveTime)

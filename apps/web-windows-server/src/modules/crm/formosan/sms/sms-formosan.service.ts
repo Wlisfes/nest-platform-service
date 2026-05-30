@@ -247,10 +247,11 @@ export class SmsFormosanService extends Logger {
                 downUsd: draft.downUsd,
                 effectiveTime: draft.effectiveTime,
                 expiryTime: draft.expiryTime,
-                remark: draft.remark
+                remark: draft.remark,
+                createBy: draft.createBy
             }))
             /**推送到任务服务注册延迟任务**/
-            const result = await fetchClientSender(this.localhostService.datetaskServer, {
+            await fetchClientSender(this.localhostService.datetaskServer, {
                 pattern: { cmd: 'fetchBaseFormosanTaskRegister' },
                 data: { clientId: body.clientId, appId: body.appId, items, request: request.logs }
             })
@@ -260,8 +261,9 @@ export class SmsFormosanService extends Logger {
                 stack: this.stack,
                 where: { clientId: body.clientId, appId: body.appId }
             })
-            await ctx.commitTransaction()
-            return await this.fetchResolver({ message: '报价发布成功' })
+            return await ctx.commitTransaction().then(async () => {
+                return await this.fetchResolver({ message: '报价发布成功' })
+            })
         } catch (err) {
             await ctx.rollbackTransaction()
             this.logger.error(err)
