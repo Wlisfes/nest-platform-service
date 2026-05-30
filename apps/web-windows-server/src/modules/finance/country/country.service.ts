@@ -74,7 +74,9 @@ export class FinanceCountryService extends Logger {
                 qb.andWhere(`t.status = :status`, { status: enums.CHUNK_COUNTRY_STATUS.enable.value })
                 qb.orderBy('t.createTime', 'DESC')
                 return await qb.getMany().then(async list => {
-                    return await this.fetchResolver({ list })
+                    return await this.fetchResolver({
+                        list: list.map(item => ({ ...item, showName: `${item.cnName} -${item.enName}` }))
+                    })
                 })
             })
         } catch (err) {
