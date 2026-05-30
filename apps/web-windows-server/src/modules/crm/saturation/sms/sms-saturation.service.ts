@@ -21,48 +21,35 @@ export class SmsSaturationService extends Logger {
     public async httpSmsSaturationColumn(request: OmixRequest, body: windows.SmsSaturationColumnOptions) {
         try {
             return await this.database.builder(this.smsService.tbSmsAppFormosanOptions, async qb => {
-                qb.leftJoinAndMapOne(
-                    't.countryNode',
-                    schema.WindowsCountry,
-                    'country',
-                    'country.code = t.code AND country.mcc = t.mcc'
-                )
-                qb.leftJoinAndMapOne(
-                    't.appNode',
-                    schema.TbSmsApp,
-                    'app',
-                    'app.appId = t.appId AND app.clientId = t.clientId'
-                )
-                qb.leftJoinAndMapOne(
-                    't.clientNode',
-                    schema.WindowsClient,
-                    'client',
-                    'client.keyId = t.clientId'
-                )
-                /**可选筛选条件**/
+                qb.leftJoinAndMapOne('t.mccOptions', schema.WindowsCountry, 'mccOptions', 'mccOptions.code = t.code')
+                qb.leftJoinAndMapOne('t.appOptions', schema.TbSmsApp, 'appOptions', 'appOptions.appId = t.appId')
+                qb.leftJoinAndMapOne('t.clientOptions', schema.WindowsClient, 'clientOptions', 'clientOptions.keyId = t.clientId')
                 if (isNotEmpty(body.clientId)) {
-                    qb.andWhere('t.clientId = :clientId', { clientId: body.clientId })
+                    qb.andWhere('t.clientId = :clientId OR clientOptions.name LIKE :clientId', { clientId: body.clientId })
+                }
+                if (isNotEmpty(body.alias)) {
+                    qb.andWhere('clientOptions.alias LIKE :alias', { alias: `%${body.alias}%` })
                 }
                 if (isNotEmpty(body.appId)) {
                     qb.andWhere('t.appId = :appId', { appId: body.appId })
                 }
+                if (isNotEmpty(body.appAlias)) {
+                    qb.andWhere('appOptions.appAlias LIKE :appAlias', { appAlias: `%${body.appAlias}%` })
+                }
                 if (isNotEmpty(body.code)) {
                     qb.andWhere('t.code = :code', { code: body.code })
+                }
+                if (isNotEmpty(body.mcc)) {
+                    qb.andWhere('t.mcc = :mcc', { mcc: body.mcc })
                 }
                 if (isNotEmpty(body.status)) {
                     qb.andWhere('t.status = :status', { status: body.status })
                 }
-                if (isNotEmpty(body.vague)) {
-                    qb.andWhere(
-                        '(country.cnName LIKE :vague OR country.enName LIKE :vague OR t.code LIKE :vague)',
-                        { vague: `%${body.vague}%` }
-                    )
-                }
                 if (isNotEmpty(body.startTime)) {
-                    qb.andWhere('t.createTime >= :startTime', { startTime: body.startTime })
+                    qb.andWhere('t.effectiveTime >= :startTime', { startTime: body.startTime })
                 }
                 if (isNotEmpty(body.endTime)) {
-                    qb.andWhere('t.createTime <= :endTime', { endTime: body.endTime })
+                    qb.andWhere('t.effectiveTime <= :endTime', { endTime: body.endTime })
                 }
                 qb.orderBy('t.createTime', 'DESC')
                 qb.skip((body.page - 1) * body.size)

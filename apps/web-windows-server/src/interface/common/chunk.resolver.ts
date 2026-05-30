@@ -126,6 +126,12 @@ export const COMMON_CHUNK = {
         name: enums.CHUNK_DATETASK_LOG_STATUS.name,
         value: enums.CHUNK_DATETASK_LOG_STATUS.value,
         columns: withExtract(enums.CHUNK_DATETASK_LOG_STATUS)
+    },
+    /**报价状态**/
+    [enums.CHUNK_SMS_FORMOSAN_STATUS.value]: {
+        name: enums.CHUNK_SMS_FORMOSAN_STATUS.name,
+        value: enums.CHUNK_SMS_FORMOSAN_STATUS.value,
+        columns: withExtract(enums.CHUNK_SMS_FORMOSAN_STATUS)
     }
 }
 

@@ -42,6 +42,15 @@ export class OmixColumnResponse {
     total: number = 0
 }
 
+/**通用分页列表响应工厂**/
+export function OmixColumnMergeOptions<T>(entity: new (...args: any[]) => T) {
+    class ColumnMergeOptions extends OmixColumnResponse {
+        @ApiProperty({ description: '列表数据', type: [entity] })
+        list: T[]
+    }
+    return ColumnMergeOptions
+}
+
 export class OmixPayloadOptions extends OmixColumnOptions {
     @ApiProperty({ description: 'keyId', example: '2279965746312249344' })
     @IsNotEmpty({ message: 'keyId 必填' })
