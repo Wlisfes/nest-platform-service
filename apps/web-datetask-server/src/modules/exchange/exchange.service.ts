@@ -21,6 +21,24 @@ export class ExchangeService extends Logger {
         super()
     }
 
+    /**获取金额费率**/
+    @AutoDescriptor
+    private async fetchBaseFrankfurter(request: OmixRequest, body: Omix) {
+        return await firstValueFrom(
+            this.httpService.get<Array<Omix>>(`https://api.frankfurter.dev/v2/rates`, {
+                params: { from: body.date, to: body.date, base: 'USD' }
+            })
+        ).then(({ data }) => {
+            if ((data ?? []).length === 0) {
+                return []
+            } else if (!(data ?? []).some(e => e.quote === 'USD' && e.base === 'USD')) {
+                data.push({ date: body.date, base: 'USD', quote: 'USD', rate: 1 })
+            }
+            this.logger.info(`汇率数据拉取成功，日期: ${body.date}，总计 ${(data ?? []).length} 条`)
+            return data
+        })
+    }
+
     /**初始化费率定时任务**/
     @AutoDescriptor
     public async fetchInitEventRegister(request?: OmixRequest) {
@@ -29,8 +47,7 @@ export class ExchangeService extends Logger {
             handler: this.taskName,
             taskName: `汇率同步定时任务`,
             comment: '定时从Frankfurter获取汇率数据并更新数据库',
-            cron: '30 8 * * *'
-            // cron: '*/30 * * * * *'
+            cron: '0 0 * * *'
         })
     }
 
@@ -38,20 +55,13 @@ export class ExchangeService extends Logger {
     @AutoDescriptor
     public async fetchBaseTaskActuator(request: OmixRequest, state: Omix) {
         try {
-            /**1.从 Frankfurter API 获取基于 USD 的最新汇率**/
             const date = state.date ?? moment().format('YYYY-MM-DD')
-            const { data } = await firstValueFrom(
-                this.httpService.get<Array<Omix>>(`https://api.frankfurter.dev/v2/rates`, {
-                    params: { from: date, to: date, base: 'USD' }
-                })
-            )
-            this.logger.info(`汇率数据拉取成功，日期: ${date}，总计 ${(data ?? []).length} 条`)
-            /**2.查询系统中所有已配置的币种列表**/
+            const bank = await this.fetchBaseFrankfurter(request, { date })
             return await this.database.builder(this.windows.currencyOptions, async qb => {
                 return await qb.getMany().then(async items => {
                     const alls = new Set(items.map(c => c.currency))
                     /**3.过滤出需要同步的币种**/
-                    const toSync = (data ?? []).filter((item: Omix) => alls.has(item.quote))
+                    const toSync = bank.filter((item: Omix) => alls.has(item.quote))
                     if (toSync.length === 0) {
                         return { skipped: 0, synced: 0, total: 0, message: `同步完成: 写入 0 条，跳过 0 条，总计 0 条` }
                     }
