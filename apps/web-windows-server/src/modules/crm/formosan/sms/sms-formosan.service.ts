@@ -30,7 +30,7 @@ export class SmsFormosanService extends Logger {
         const ctx = await this.database.transaction()
         try {
             /**验证客户存在**/
-            await this.database.empty(this.windows.clientOptions, {
+            const client = await this.database.empty(this.windows.clientOptions, {
                 request,
                 message: '客户不存在',
                 dispatch: { where: { keyId: body.clientId } }
@@ -41,6 +41,18 @@ export class SmsFormosanService extends Logger {
                 message: '应用不存在或不属于该客户',
                 dispatch: { where: { appId: body.appId, clientId: body.clientId } }
             })
+            /**查询客户币种的最新汇率**/
+            const exchangeDate = dayjs().format('YYYY-MM-DD')
+            let exchangeRate = 1
+            if (client.currency !== 'USD') {
+                const exchange = await this.windows.currencyExchangeOptions.findOne({
+                    where: { currency: client.currency },
+                    order: { date: 'DESC' }
+                })
+                if (exchange) {
+                    exchangeRate = Number(exchange.rate)
+                }
+            }
             /**清除该客户+应用的所有旧草稿**/
             await this.database.delete(this.smsService.tbSmsAppFormosanDraftOptions, {
                 request,
@@ -77,13 +89,20 @@ export class SmsFormosanService extends Logger {
                         value: enums.CHUNK_SMS_FORMOSAN_SOURCE.existing.value,
                         fallback: enums.CHUNK_SMS_FORMOSAN_SOURCE.addition.value
                     })
+                    const upUsd = from.upUsd ?? rate.upUsd
+                    const downUsd = from.downUsd ?? rate.downUsd
                     return {
                         clientId: body.clientId,
                         appId: body.appId,
                         code: item.code,
                         mcc: item.mcc,
-                        upUsd: from.upUsd ?? rate.upUsd,
-                        downUsd: from.downUsd ?? rate.downUsd,
+                        upUsd,
+                        downUsd,
+                        currency: client.currency,
+                        upLocal: Math.round(upUsd * exchangeRate),
+                        downLocal: Math.round(downUsd * exchangeRate),
+                        exchangeRate,
+                        exchangeDate,
                         effectiveTime: effectiveTime,
                         formosanId: from.keyId,
                         source: source,
@@ -245,6 +264,11 @@ export class SmsFormosanService extends Logger {
                 mcc: draft.mcc,
                 upUsd: draft.upUsd,
                 downUsd: draft.downUsd,
+                currency: draft.currency,
+                upLocal: draft.upLocal,
+                downLocal: draft.downLocal,
+                exchangeRate: draft.exchangeRate,
+                exchangeDate: draft.exchangeDate,
                 effectiveTime: draft.effectiveTime,
                 expiryTime: draft.expiryTime,
                 remark: draft.remark,

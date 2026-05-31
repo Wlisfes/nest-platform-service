@@ -34,6 +34,28 @@ export class TbSmsAppFormosan extends DataBaseByAdapter {
     @Column({ type: 'bigint', name: 'down_usd', comment: '下行短信售价USD（放大百万倍存储）', nullable: false, default: 0 })
     downUsd: number
 
+    @ApiProperty({ description: '报价币种', example: 'USD' })
+    @IsNotEmpty({ message: '报价币种必填' })
+    @Column({ comment: '报价币种', length: 16, nullable: false })
+    currency: string
+
+    @ApiProperty({ description: '上行短信本币售价（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', name: 'up_local', comment: '上行短信本币售价（放大百万倍存储）', nullable: false, default: 0 })
+    upLocal: number
+
+    @ApiProperty({ description: '下行短信本币售价（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', name: 'down_local', comment: '下行短信本币售价（放大百万倍存储）', nullable: false, default: 0 })
+    downLocal: number
+
+    @ApiProperty({ description: '汇率（USD → 本币）', example: 7.2534 })
+    @Column({ type: 'decimal', name: 'exchange_rate', comment: '汇率（USD → 本币）', precision: 16, scale: 6, nullable: false, default: 1 })
+    exchangeRate: number
+
+    @ApiProperty({ description: '汇率日期', example: '2025-05-03' })
+    @IsNotEmpty({ message: '汇率日期必填' })
+    @Column({ name: 'exchange_date', comment: '汇率日期', type: 'date', nullable: false })
+    exchangeDate: string
+
     @ApiProperty({ description: '生效时间', example: '2025-01-01 00:00:00' })
     @IsNotEmpty({ message: '生效时间必填' })
     @DateWithColumn(Column, { name: 'effective_time', comment: '生效时间', type: 'datetime', nullable: false })
@@ -89,6 +111,28 @@ export class TbSmsAppFormosanDraft extends DataBaseByAdapter {
     @ApiProperty({ description: '下行短信售价USD（放大百万倍存储）', example: 0 })
     @Column({ type: 'bigint', name: 'down_usd', comment: '下行短信售价USD（放大百万倍存储）', nullable: false, default: 0 })
     downUsd: number
+
+    @ApiProperty({ description: '报价币种', example: 'USD' })
+    @IsNotEmpty({ message: '报价币种必填' })
+    @Column({ comment: '报价币种', length: 16, nullable: false })
+    currency: string
+
+    @ApiProperty({ description: '上行短信本币售价（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', name: 'up_local', comment: '上行短信本币售价（放大百万倍存储）', nullable: false, default: 0 })
+    upLocal: number
+
+    @ApiProperty({ description: '下行短信本币售价（放大百万倍存储）', example: 0 })
+    @Column({ type: 'bigint', name: 'down_local', comment: '下行短信本币售价（放大百万倍存储）', nullable: false, default: 0 })
+    downLocal: number
+
+    @ApiProperty({ description: '汇率（USD → 本币）', example: 7.2534 })
+    @Column({ type: 'decimal', name: 'exchange_rate', comment: '汇率（USD → 本币）', precision: 16, scale: 6, nullable: false, default: 1 })
+    exchangeRate: number
+
+    @ApiProperty({ description: '汇率日期', example: '2025-05-03' })
+    @IsNotEmpty({ message: '汇率日期必填' })
+    @Column({ name: 'exchange_date', comment: '汇率日期', type: 'date', nullable: false })
+    exchangeDate: string
 
     @ApiProperty({ required: false, description: '生效时间', example: '2025-01-01 00:00:00' })
     @IsOptional()
