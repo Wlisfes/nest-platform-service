@@ -5,7 +5,7 @@ import { SmsFormosanUtilsService } from '@web-windows-server/modules/crm/formosa
 import { FinanceCountryUtilsService } from '@web-windows-server/modules/finance/country/country.utils.service'
 import { FinanceSmsRateUtilsService } from '@web-windows-server/modules/finance/rates/sms/sms-rate.utils.service'
 import { LocalhostService } from '@/modules/localhost/localhost.service'
-import { isNotEmpty, fetchCurrent, fetchWherer, fetchClientSender } from '@/utils'
+import { isNotEmpty, fetchCurrent, fetchWherer, fetchClientSender, fetchTimesNumber } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 import dayjs from 'dayjs'
@@ -99,8 +99,8 @@ export class SmsFormosanService extends Logger {
                         upUsd,
                         downUsd,
                         currency: client.currency,
-                        upLocal: Math.round(upUsd * exchangeRate),
-                        downLocal: Math.round(downUsd * exchangeRate),
+                        upLocal: Math.round(fetchTimesNumber(upUsd, exchangeRate)),
+                        downLocal: Math.round(fetchTimesNumber(downUsd, exchangeRate)),
                         exchangeRate,
                         exchangeDate,
                         effectiveTime: effectiveTime,

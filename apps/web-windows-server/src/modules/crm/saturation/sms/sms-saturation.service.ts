@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { HttpException, HttpStatus } from '@nestjs/common'
 import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, SmsService, WindowsService, schema, enums } from '@/modules/database/database.service'
-import { isNotEmpty } from '@/utils'
+import { isNotEmpty, fetchAmountRestore } from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 
@@ -55,7 +55,14 @@ export class SmsSaturationService extends Logger {
                 qb.skip((body.page - 1) * body.size)
                 qb.take(body.size)
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                    const data = list.map((item: Omix) => ({
+                        ...item,
+                        upUsd: fetchAmountRestore(item.upUsd),
+                        downUsd: fetchAmountRestore(item.downUsd),
+                        upLocal: fetchAmountRestore(item.upLocal),
+                        downLocal: fetchAmountRestore(item.downLocal)
+                    }))
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list: data })
                 })
             })
         } catch (err) {
