@@ -16,6 +16,16 @@ export class TbSmsAppFormosan extends DataBaseByAdapter {
     @Column({ name: 'app_id', comment: '应用ID', nullable: false })
     appId: string
 
+    @ApiProperty({ required: false, description: '客户别名快照' })
+    @IsOptional()
+    @Column({ name: 'client_alias', comment: '客户别名快照', length: 64, nullable: true })
+    clientAlias: string
+
+    @ApiProperty({ required: false, description: '应用别名快照' })
+    @IsOptional()
+    @Column({ name: 'app_alias', comment: '应用别名快照', length: 64, nullable: true })
+    appAlias: string
+
     @ApiProperty({ description: '国家/地区编码', example: '86' })
     @IsNotEmpty({ message: '国家/地区编码必填' })
     @Column({ comment: '国家/地区编码', length: 10, nullable: false })
@@ -93,6 +103,16 @@ export class TbSmsAppFormosanDraft extends DataBaseByAdapter {
     @IsNotEmpty({ message: '应用ID必填' })
     @Column({ name: 'app_id', comment: '应用ID', nullable: false })
     appId: string
+
+    @ApiProperty({ required: false, description: '客户别名快照' })
+    @IsOptional()
+    @Column({ name: 'client_alias', comment: '客户别名快照', length: 64, nullable: true })
+    clientAlias: string
+
+    @ApiProperty({ required: false, description: '应用别名快照' })
+    @IsOptional()
+    @Column({ name: 'app_alias', comment: '应用别名快照', length: 64, nullable: true })
+    appAlias: string
 
     @ApiProperty({ description: '国家/地区编码', example: '86' })
     @IsNotEmpty({ message: '国家/地区编码必填' })

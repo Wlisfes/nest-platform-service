@@ -3,9 +3,19 @@ import { Logger, AutoDescriptor } from '@/modules/logger/logger.service'
 import { DataBaseService, SmsService, WindowsService, schema, enums } from '@/modules/database/database.service'
 import { SmsFormosanUtilsService } from '@web-windows-server/modules/crm/formosan/sms/sms-formosan.utils.service'
 import { FinanceCountryUtilsService } from '@web-windows-server/modules/finance/country/country.utils.service'
+import { FinanceCurrencyUtilsService } from '@web-windows-server/modules/finance/currency/currency.utils.service'
 import { FinanceSmsRateUtilsService } from '@web-windows-server/modules/finance/rates/sms/sms-rate.utils.service'
 import { LocalhostService } from '@/modules/localhost/localhost.service'
-import { isNotEmpty, fetchCurrent, fetchWherer, fetchClientSender, fetchTimesNumber } from '@/utils'
+import {
+    isNotEmpty,
+    fetchCurrent,
+    fetchWherer,
+    fetchClientSender,
+    fetchTimesNumber,
+    fetchAmountRestore,
+    fetchAmountEnlarge,
+    fetchDivNumber
+} from '@/utils'
 import { OmixRequest } from '@/interface'
 import * as windows from '@web-windows-server/interface'
 import dayjs from 'dayjs'
@@ -19,6 +29,7 @@ export class SmsFormosanService extends Logger {
         private readonly localhostService: LocalhostService,
         private readonly smsFormosanUtilsService: SmsFormosanUtilsService,
         private readonly financeCountryUtilsService: FinanceCountryUtilsService,
+        private readonly financeCurrencyUtilsService: FinanceCurrencyUtilsService,
         private readonly financeSmsRateUtilsService: FinanceSmsRateUtilsService
     ) {
         super()
@@ -36,23 +47,17 @@ export class SmsFormosanService extends Logger {
                 dispatch: { where: { keyId: body.clientId } }
             })
             /**验证应用存在且属于该客户**/
-            await this.database.empty(this.smsService.tbSmsAppOptions, {
+            const app = await this.database.empty(this.smsService.tbSmsAppOptions, {
                 request,
                 message: '应用不存在或不属于该客户',
                 dispatch: { where: { appId: body.appId, clientId: body.clientId } }
             })
             /**查询客户币种的最新汇率**/
             const exchangeDate = dayjs().format('YYYY-MM-DD')
-            let exchangeRate = 1
-            if (client.currency !== 'USD') {
-                const exchange = await this.windows.currencyExchangeOptions.findOne({
-                    where: { currency: client.currency },
-                    order: { date: 'DESC' }
-                })
-                if (exchange) {
-                    exchangeRate = Number(exchange.rate)
-                }
-            }
+            const exchange = await this.financeCurrencyUtilsService.fetchUtilsLatestExchangeRate(request, {
+                currency: client.currency
+            })
+            const exchangeRate = exchange ? Number(exchange.rate) : 1
             /**清除该客户+应用的所有旧草稿**/
             await this.database.delete(this.smsService.tbSmsAppFormosanDraftOptions, {
                 request,
@@ -94,6 +99,8 @@ export class SmsFormosanService extends Logger {
                     return {
                         clientId: body.clientId,
                         appId: body.appId,
+                        clientAlias: client.alias,
+                        appAlias: app.appAlias,
                         code: item.code,
                         mcc: item.mcc,
                         upUsd,
@@ -143,7 +150,23 @@ export class SmsFormosanService extends Logger {
                 )
                 qb.orderBy('t.createTime', 'DESC')
                 return await qb.getManyAndCount().then(async ([list, total]) => {
-                    return await this.fetchResolver({ page: body.page, size: body.size, total, list })
+                    const data = list.map((item: Omix) => ({
+                        ...item,
+                        upUsd: fetchAmountRestore(item.upUsd),
+                        downUsd: fetchAmountRestore(item.downUsd),
+                        upLocal: fetchAmountRestore(item.upLocal),
+                        downLocal: fetchAmountRestore(item.downLocal),
+                        faseNode: item.faseNode
+                            ? {
+                                  ...item.faseNode,
+                                  upUsd: fetchAmountRestore(item.faseNode.upUsd),
+                                  downUsd: fetchAmountRestore(item.faseNode.downUsd),
+                                  upLocal: fetchAmountRestore(item.faseNode.upLocal),
+                                  downLocal: fetchAmountRestore(item.faseNode.downLocal)
+                              }
+                            : null
+                    }))
+                    return await this.fetchResolver({ page: body.page, size: body.size, total, list: data })
                 })
             })
         } catch (err) {
@@ -156,10 +179,16 @@ export class SmsFormosanService extends Logger {
     @AutoDescriptor
     public async httpSmsFormosanDraftUpdate(request: OmixRequest, body: windows.SmsFormosanDraftUpdateOptions) {
         try {
-            await this.smsFormosanUtilsService.fetchUtilsByKeyIdFormosanDraft(request, { keyId: body.keyId })
+            const draft = await this.smsFormosanUtilsService.fetchUtilsByKeyIdFormosanDraft(request, { keyId: body.keyId })
             const updateBody: Omix = {}
-            if (isNotEmpty(body.upUsd)) updateBody.upUsd = body.upUsd
-            if (isNotEmpty(body.downUsd)) updateBody.downUsd = body.downUsd
+            if (isNotEmpty(body.upLocal)) {
+                updateBody.upLocal = fetchAmountEnlarge(body.upLocal)
+                updateBody.upUsd = Math.round(fetchDivNumber(updateBody.upLocal, Number(draft.exchangeRate || 1)))
+            }
+            if (isNotEmpty(body.downLocal)) {
+                updateBody.downLocal = fetchAmountEnlarge(body.downLocal)
+                updateBody.downUsd = Math.round(fetchDivNumber(updateBody.downLocal, Number(draft.exchangeRate || 1)))
+            }
             if (isNotEmpty(body.effectiveTime)) updateBody.effectiveTime = body.effectiveTime
             if (body.expiryTime !== undefined) updateBody.expiryTime = body.expiryTime
             if (isNotEmpty(body.status)) updateBody.status = body.status
@@ -237,7 +266,23 @@ export class SmsFormosanService extends Logger {
                 priceUpCount,
                 priceDownCount
             }
-            return await this.fetchResolver({ drafts, actives, summary })
+            return await this.fetchResolver({
+                drafts: drafts.map((d: Omix) => ({
+                    ...d,
+                    upUsd: fetchAmountRestore(d.upUsd),
+                    downUsd: fetchAmountRestore(d.downUsd),
+                    upLocal: fetchAmountRestore(d.upLocal),
+                    downLocal: fetchAmountRestore(d.downLocal)
+                })),
+                actives: actives.map((a: Omix) => ({
+                    ...a,
+                    upUsd: fetchAmountRestore(a.upUsd),
+                    downUsd: fetchAmountRestore(a.downUsd),
+                    upLocal: fetchAmountRestore(a.upLocal),
+                    downLocal: fetchAmountRestore(a.downLocal)
+                })),
+                summary
+            })
         } catch (err) {
             this.logger.error(err)
             throw new HttpException(err.message, err.status ?? HttpStatus.INTERNAL_SERVER_ERROR, err.options)
@@ -260,6 +305,8 @@ export class SmsFormosanService extends Logger {
             const items = drafts.map(draft => ({
                 clientId: draft.clientId,
                 appId: draft.appId,
+                clientAlias: draft.clientAlias,
+                appAlias: draft.appAlias,
                 code: draft.code,
                 mcc: draft.mcc,
                 upUsd: draft.upUsd,
